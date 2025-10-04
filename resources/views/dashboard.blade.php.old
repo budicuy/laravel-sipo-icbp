@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+        <title>Dashboard - SIPO ICBP</title>
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+
+        <!-- Styles / Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+    <body class="bg-gray-100">
+        <div class="flex h-screen overflow-hidden">
+            <!-- Sidebar -->
+            <aside class="w-64 bg-white shadow-lg flex-shrink-0">
+                <div class="h-full flex flex-col">
+                    <!-- Logo -->
+                    <div class="flex items-center justify-center h-20 border-b border-gray-200 px-4">
+                        <img src="{{ asset('logo.png') }}" alt="ICBP Logo" class="h-12 w-auto">
+                    </div>
+
+                    <!-- Navigation Menu -->
+                    <nav class="flex-1 overflow-y-auto py-4">
+                        <ul class="space-y-1 px-3">
+                            <!-- Dashboard -->
+                            <li>
+                                <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-3 text-gray-700 bg-blue-50 border-l-4 border-blue-600 rounded-r-md font-medium">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
+                                    Dashboard
+                                </a>
+                            </li>
+
+                            @if($user->isSuperAdmin() || $user->isAdmin())
+                            <!-- Pasien -->
+                            <li>
+                                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    Data Pasien
+                                </a>
+                            </li>
+
+                            <!-- Kunjungan -->
+                            <li>
+                                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    Data Kunjungan
+                                </a>
+                            </li>
+
+                            <!-- Rekam Medis -->
+                            <li>
+                                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Rekam Medis
+                                </a>
+                            </li>
+
+                            <!-- Obat -->
+                            <li>
+                                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                    Data Obat
+                                </a>
+                            </li>
+                            @endif
+
+                            @if($user->isSuperAdmin())
+                            <!-- Divider -->
+                            <li class="pt-4 pb-2">
+                                <div class="border-t border-gray-200"></div>
+                            </li>
+
+                            <!-- User Management -->
+                            <li>
+                                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    Manajemen User
+                                </a>
+                            </li>
+
+                            <!-- Karyawan -->
+                            <li>
+                                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    Data Karyawan
+                                </a>
+                            </li>
+
+                            <!-- Master Data -->
+                            <li>
+                                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                                    </svg>
+                                    Master Data
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Top Header -->
+                <header class="bg-white shadow-sm h-16 flex items-center justify-between px-6">
+                    <h1 class="text-xl font-semibold text-gray-800">Dashboard</h1>
+
+                    <!-- User Info & Logout -->
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ $user->nama_lengkap }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {{ $user->role }}
+                            </div>
+                        </div>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </header>
+
+                <!-- Page Content -->
+                <main class="flex-1 overflow-y-auto bg-gray-100 p-6">
+                    <div class="max-w-7xl mx-auto">
+                        <!-- Header Title -->
+                        <div class="mb-6">
+                            <h1 class="text-2xl font-bold text-gray-900">Selamat Datang di Sistem Informasi Klinik Indofood</h1>
+                        </div>
+
+                        <!-- Alert Messages -->
+                        @if (session('success'))
+                            <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                                <p class="text-sm text-green-600">{{ session('success') }}</p>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                                <p class="text-sm text-red-600">{{ session('error') }}</p>
+                            </div>
+                        @endif
+
+                        <!-- Dashboard Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+                            <!-- Card 1 - Total Pasien -->
+                            <div class="bg-blue-500 text-white rounded-lg shadow-md p-6">
+                                <h3 class="text-sm font-medium opacity-90 mb-2">Total Pasien</h3>
+                                <p class="text-4xl font-bold">2</p>
+                            </div>
+
+                            <!-- Card 2 - Total Rekam Medis -->
+                            <div class="bg-green-600 text-white rounded-lg shadow-md p-6">
+                                <h3 class="text-sm font-medium opacity-90 mb-2">Total Rekam Medis</h3>
+                                <p class="text-4xl font-bold">1</p>
+                            </div>
+
+                            <!-- Card 3 - Kunjungan Hari Ini -->
+                            <div class="bg-yellow-500 text-white rounded-lg shadow-md p-6">
+                                <h3 class="text-sm font-medium opacity-90 mb-2">Kunjungan Hari Ini</h3>
+                                <p class="text-4xl font-bold">0</p>
+                            </div>
+
+                            <!-- Card 4 - On Progress -->
+                            <div class="bg-red-500 text-white rounded-lg shadow-md p-6">
+                                <h3 class="text-sm font-medium opacity-90 mb-2">On Progress</h3>
+                                <p class="text-4xl font-bold">1</p>
+                            </div>
+
+                            <!-- Card 5 - Close -->
+                            <div class="bg-gray-500 text-white rounded-lg shadow-md p-6">
+                                <h3 class="text-sm font-medium opacity-90 mb-2">Close</h3>
+                                <p class="text-4xl font-bold">1</p>
+                            </div>
+                        </div>
+
+                        <!-- Filter Section -->
+                        <div class="bg-white rounded-lg shadow-sm p-4 mb-8">
+                            <div class="flex gap-4 items-end">
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
+                                    <select id="monthFilter" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="10">Oktober</option>
+                                        <option value="9">September</option>
+                                        <option value="11">November</option>
+                                        <option value="12">Desember</option>
+                                    </select>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
+                                    <input type="number" id="yearFilter" value="2025" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <button onclick="filterCharts()" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                                        Filter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Section -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            <!-- Chart 1 - Kunjungan Harian -->
+                            <div class="bg-white rounded-lg shadow-sm p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Kunjungan Harian (Oktober 2025)</h3>
+                                <div class="relative h-64">
+                                    <canvas id="dailyVisitChart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Chart 2 - Kunjungan Mingguan -->
+                            <div class="bg-white rounded-lg shadow-sm p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Kunjungan Mingguan (per minggu bulan Oktober)</h3>
+                                <div class="relative h-64">
+                                    <canvas id="weeklyVisitChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart 3 - Kunjungan Bulanan -->
+                        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Kunjungan Bulanan (2025)</h3>
+                            <div class="relative h-72">
+                                <canvas id="monthlyVisitChart"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Chart.js Scripts -->
+        <script>
+            // Data untuk charts
+            const dailyData = [0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            const weeklyData = [8, 0, 0, 0];
+            const monthlyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0];
+
+            // Chart 1 - Kunjungan Harian (Line Chart)
+            const dailyCtx = document.getElementById('dailyVisitChart').getContext('2d');
+            const dailyChart = new Chart(dailyCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 31}, (_, i) => i + 1),
+                    datasets: [{
+                        label: 'Harian',
+                        data: dailyData,
+                        borderColor: 'rgb(20, 184, 166)',
+                        backgroundColor: 'rgba(20, 184, 166, 0.3)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 2
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2 - Kunjungan Mingguan (Area Chart)
+            const weeklyCtx = document.getElementById('weeklyVisitChart').getContext('2d');
+            const weeklyChart = new Chart(weeklyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['01 - 07 Oktober', '08 - 14 Oktober', '15 - 21 Oktober', '22 - 28 Oktober', '29 - 31 Oktober'],
+                    datasets: [{
+                        label: 'Mingguan',
+                        data: [8, 0, 0, 0, 0],
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.3)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 2
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 3 - Kunjungan Bulanan (Area Chart)
+            const monthlyCtx = document.getElementById('monthlyVisitChart').getContext('2d');
+            const monthlyChart = new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                    datasets: [{
+                        label: 'Bulanan',
+                        data: monthlyData,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.3)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 2
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Filter function
+            function filterCharts() {
+                const month = document.getElementById('monthFilter').value;
+                const year = document.getElementById('yearFilter').value;
+
+                // Update chart titles
+                document.querySelector('#dailyVisitChart').parentElement.querySelector('h3').textContent =
+                    `Kunjungan Harian (${getMonthName(month)} ${year})`;
+                document.querySelector('#weeklyVisitChart').parentElement.querySelector('h3').textContent =
+                    `Kunjungan Mingguan (per minggu bulan ${getMonthName(month)})`;
+                document.querySelector('#monthlyVisitChart').parentElement.querySelector('h3').textContent =
+                    `Kunjungan Bulanan (${year})`;
+
+                // Here you would typically fetch new data from the server
+                // For now, we'll just refresh the charts with existing data
+                dailyChart.update();
+                weeklyChart.update();
+                monthlyChart.update();
+            }
+
+            function getMonthName(month) {
+                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                               'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                return months[parseInt(month) - 1];
+            }
+        </script>
+    </body>
+</html>
