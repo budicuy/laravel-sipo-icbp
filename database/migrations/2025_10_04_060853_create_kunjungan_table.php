@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('kode_transaksi', 50);
             $table->date('tanggal_kunjungan')->default(DB::raw('CURRENT_DATE'));
             $table->timestamp('created_at')->nullable()->useCurrent();
+
+            // Foreign keys
+            $table->foreign(['id_pasien'], 'fk_kunjungan_pasien')->references(['id_pasien'])->on('pasien')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

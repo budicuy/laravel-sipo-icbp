@@ -11,7 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('resep_obat', function (Blueprint $table) {
+        Schema::create('resep_obat', function (Blueprint $table) {
+            $table->integer('id_resep_obat', true);
+            $table->integer('id_rekam')->index('id_rekam');
+            $table->integer('id_obat')->index('id_obat');
+            $table->integer('jumlah')->nullable()->default(1);
+            $table->decimal('harga_satuan', 10)->nullable()->default(0);
+            $table->decimal('subtotal', 10)->nullable()->storedAs('`jumlah` * `harga_satuan`');
+            $table->text('keterangan')->nullable();
+            
+            // Foreign keys
             $table->foreign(['id_rekam'], 'resep_obat_ibfk_1')->references(['id_rekam'])->on('rekam_medis')->onUpdate('restrict')->onDelete('cascade');
             $table->foreign(['id_obat'], 'resep_obat_ibfk_2')->references(['id_obat'])->on('obat')->onUpdate('restrict')->onDelete('restrict');
         });
@@ -22,9 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('resep_obat', function (Blueprint $table) {
-            $table->dropForeign('resep_obat_ibfk_1');
-            $table->dropForeign('resep_obat_ibfk_2');
-        });
+        Schema::dropIfExists('resep_obat');
     }
 };

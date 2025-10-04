@@ -16,6 +16,10 @@ return new class extends Migration
             $table->integer('id_obat')->index('fk_obat');
 
             $table->primary(['id_penyakit', 'id_obat']);
+
+            // Foreign keys
+            $table->foreign(['id_obat'], 'fk_obat')->references(['id_obat'])->on('obat')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign(['id_penyakit'], 'fk_penyakit')->references(['id_penyakit'])->on('penyakit')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

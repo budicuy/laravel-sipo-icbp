@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
 
             $table->unique(['nik_karyawan'], 'uq_nik_karyawan');
-
+            
             // Foreign keys
             $table->foreign(['id_departemen'], 'fk_departemen')->references(['id_departemen'])->on('departemen')->onUpdate('cascade')->onDelete('restrict');
         });
