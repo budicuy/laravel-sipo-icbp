@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('pasien', function (Blueprint $table) {
+            $table->integer('id_pasien', true);
+            $table->integer('id_karyawan')->index('fk_pasien_karyawan');
+            $table->string('nama_pasien', 100);
+            $table->date('tanggal_lahir')->nullable();
+            $table->enum('jenis_kelamin', ['Laki - Laki', 'Perempuan']);
+            $table->text('alamat')->nullable();
+            $table->enum('hubungan', ['Karyawan', 'Istri', 'Suami', 'Anak'])->nullable()->default('Karyawan');
+            $table->date('tanggal_daftar')->nullable();
+            $table->timestamp('created_at')->nullable()->useCurrent();
+            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+            $table->string('no_rm', 30)->nullable()->unique('no_rm');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('pasien');
+    }
+};
