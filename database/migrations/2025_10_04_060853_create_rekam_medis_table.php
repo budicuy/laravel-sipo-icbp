@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -16,7 +17,7 @@ return new class extends Migration
             $table->integer('id_pasien')->index('fk_pasien');
             $table->integer('id_kunjungan')->nullable()->index('fk_rekam_kunjungan');
             $table->integer('id_user')->index('fk_user');
-            $table->date('tanggal')->default('CURRENT_DATE');
+            $table->date('tanggal')->default(DB::raw('CURRENT_DATE'));
             $table->enum('terapi', ['Obat', 'Lab', '-'])->nullable()->default('-');
             $table->integer('id_penyakit')->nullable()->index('fk_penyakit_rekam');
             $table->text('keterangan')->nullable();

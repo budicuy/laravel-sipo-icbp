@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -15,7 +16,7 @@ return new class extends Migration
             $table->integer('id_kunjungan', true);
             $table->integer('id_pasien')->index('fk_kunjungan_pasien');
             $table->string('kode_transaksi', 50);
-            $table->date('tanggal_kunjungan')->default('CURRENT_DATE');
+            $table->date('tanggal_kunjungan')->default(DB::raw('CURRENT_DATE'));
             $table->timestamp('created_at')->nullable()->useCurrent();
         });
     }

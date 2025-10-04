@@ -18,11 +18,11 @@ return new class extends Migration
             $table->date('tanggal_lahir')->nullable();
             $table->enum('jenis_kelamin', ['Laki - Laki', 'Perempuan']);
             $table->text('alamat')->nullable();
-            $table->enum('hubungan', ['Karyawan', 'Istri', 'Suami', 'Anak'])->nullable()->default('Karyawan');
             $table->date('tanggal_daftar')->nullable();
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
             $table->string('no_rm', 30)->nullable()->unique('no_rm');
+            $table->char('kode_hubungan', 1)->index('kode_hubungan');
         });
     }
 
