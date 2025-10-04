@@ -21,9 +21,8 @@ class DatabaseSeeder extends Seeder
             PenyakitSeeder::class,
             ObatSeeder::class,
             HubunganSeeder::class,
+            UserSeeder::class,
         ]);
-
-        // User::factory(10)->create();
 
         // Tabel users belum ada, komentari dulu
         // User::factory()->create([

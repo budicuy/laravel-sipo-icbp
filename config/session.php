@@ -7,7 +7,7 @@ return [
     /*
     |--------------------------------------------------------------------------
     | Default Session Driver
-    |--------------------------------------------------------------------------
+    |-----------------------------------------------------------    ---------------
     |
     | This option determines the default session driver that is utilized for
     | incoming requests. Laravel supports a variety of storage options to
