@@ -22,6 +22,10 @@ Route::middleware('auth')->group(function () {
         return view('karyawan.index');
     })->name('karyawan.index');
 
+    Route::get('/pasien', function () {
+        return view('pasien.index');
+    })->name('pasien.index');
+
     // Routes untuk Super Admin
     Route::middleware('role:Super Admin')->group(function () {
         // Tambahkan routes khusus Super Admin di sini

@@ -43,6 +43,11 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('pasien.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                                Data Pasien
+                            </a>
+                        </li>
+                        <li>
                             <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
                                 Data Keluarga
                             </a>
