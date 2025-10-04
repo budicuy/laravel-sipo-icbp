@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
             $table->string('no_rm', 30)->nullable()->unique('no_rm');
-            $table->char('kode_hubungan', 1)->index('kode_hubungan');
+            $table->char('kode_hubungan', 1);
             
             // Foreign keys
             $table->foreign(['id_karyawan'], 'fk_pasien_karyawan')->references(['id_karyawan'])->on('karyawan')->onUpdate('cascade')->onDelete('cascade');
