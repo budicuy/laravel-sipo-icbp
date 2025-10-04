@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('page-title', 'Data Pasien')
+@section('page-title', 'Data Keluarga')
 
 @section('content')
 <div class="p-6">
     <!-- Header Section -->
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">DATA PASIEN</h2>
+        <h2 class="text-2xl font-bold text-gray-800">DATA KELUARGA</h2>
     </div>
 
     <!-- Action Buttons -->

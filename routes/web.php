@@ -22,9 +22,21 @@ Route::middleware('auth')->group(function () {
         return view('karyawan.index');
     })->name('karyawan.index');
 
-    Route::get('/pasien', function () {
-        return view('pasien.index');
-    })->name('pasien.index');
+    Route::get('/keluarga', function () {
+        return view('keluarga.index');
+    })->name('keluarga.index');
+
+    Route::get('/obat', function () {
+        return view('obat.index');
+    })->name('obat.index');
+
+    Route::get('/diagnosa', function () {
+        return view('diagnosa.index');
+    })->name('diagnosa.index');
+
+    Route::get('/user', function () {
+        return view('user.index');
+    })->name('user.index');
 
     // Routes untuk Super Admin
     Route::middleware('role:Super Admin')->group(function () {
@@ -35,7 +47,4 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:Admin,Super Admin')->group(function () {
         // Tambahkan routes khusus Admin di sini
     });
-
-    // Routes untuk semua user yang authenticated
-    // Tambahkan routes umum di sini
 });
