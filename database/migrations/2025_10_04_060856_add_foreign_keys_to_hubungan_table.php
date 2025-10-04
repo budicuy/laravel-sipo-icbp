@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('hubungan', function (Blueprint $table) {
-            $table->foreign(['kode_hubungan'], 'hubungan_ibfk_1')->references(['kode_hubungan'])->on('pasien')->onUpdate('restrict')->onDelete('restrict');
+            // Foreign key yang salah - seharusnya pasien yang reference ke hubungan
+            // $table->foreign(['kode_hubungan'], 'hubungan_ibfk_1')->references(['kode_hubungan'])->on('pasien')->onUpdate('restrict')->onDelete('restrict');
         });
     }
 
@@ -22,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('hubungan', function (Blueprint $table) {
-            $table->dropForeign('hubungan_ibfk_1');
+            // $table->dropForeign('hubungan_ibfk_1');
         });
     }
 };
