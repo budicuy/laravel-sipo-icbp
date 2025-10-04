@@ -8,7 +8,7 @@
         </button>
         <h1 class="text-xl font-semibold text-gray-800">@yield('page-title', 'Dashboard')</h1>
     </div>
-    
+
     <!-- User Info & Logout -->
     <div class="flex items-center space-x-4">
         <div class="text-right">

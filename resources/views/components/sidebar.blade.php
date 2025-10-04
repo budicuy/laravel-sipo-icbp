@@ -11,7 +11,7 @@
             <ul class="space-y-1 px-3">
                 <!-- Dashboard -->
                 <li>
-                    <a href="{{ route('dashboard') }}" 
+                    <a href="{{ route('dashboard') }}"
                        class="flex items-center px-4 py-3 {{ request()->routeIs('dashboard') ? 'text-gray-700 bg-blue-50 border-l-4 border-blue-600 rounded-r-md font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md' }} transition-colors"
                        :title="!sidebarOpen ? 'Dashboard' : ''">
                         <svg class="w-5 h-5 flex-shrink-0" :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,7 +23,7 @@
 
                 <!-- Master Data (Dropdown) -->
                 <li x-data="{ open: false }">
-                    <button @click="sidebarOpen && (open = !open)" 
+                    <button @click="sidebarOpen && (open = !open)"
                             class="flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
                             :title="!sidebarOpen ? 'Master Data' : ''">
                         <div class="flex items-center">
@@ -67,7 +67,7 @@
 
                 <!-- Rekam Medis (Dropdown) -->
                 <li x-data="{ open: false }">
-                    <button @click="sidebarOpen && (open = !open)" 
+                    <button @click="sidebarOpen && (open = !open)"
                             class="flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
                             :title="!sidebarOpen ? 'Rekam Medis' : ''">
                         <div class="flex items-center">
@@ -101,7 +101,7 @@
 
                 <!-- Report (Dropdown) -->
                 <li x-data="{ open: false }">
-                    <button @click="sidebarOpen && (open = !open)" 
+                    <button @click="sidebarOpen && (open = !open)"
                             class="flex items-center justify-between w-full px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
                             :title="!sidebarOpen ? 'Report' : ''">
                         <div class="flex items-center">

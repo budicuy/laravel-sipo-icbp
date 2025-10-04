@@ -255,15 +255,15 @@
     function filterCharts() {
         const month = document.getElementById('monthFilter').value;
         const year = document.getElementById('yearFilter').value;
-        
+
         // Update chart titles
-        document.querySelector('#dailyVisitChart').parentElement.parentElement.querySelector('h3').textContent = 
+        document.querySelector('#dailyVisitChart').parentElement.parentElement.querySelector('h3').textContent =
             `Kunjungan Harian (${getMonthName(month)} ${year})`;
-        document.querySelector('#weeklyVisitChart').parentElement.parentElement.querySelector('h3').textContent = 
+        document.querySelector('#weeklyVisitChart').parentElement.parentElement.querySelector('h3').textContent =
             `Kunjungan Mingguan (per minggu bulan ${getMonthName(month)})`;
-        document.querySelector('#monthlyVisitChart').parentElement.parentElement.querySelector('h3').textContent = 
+        document.querySelector('#monthlyVisitChart').parentElement.parentElement.querySelector('h3').textContent =
             `Kunjungan Bulanan (${year})`;
-        
+
         // Here you would typically fetch new data from the server
         // For now, we'll just refresh the charts with existing data
         dailyChart.update();
@@ -272,7 +272,7 @@
     }
 
     function getMonthName(month) {
-        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         return months[parseInt(month) - 1];
     }
