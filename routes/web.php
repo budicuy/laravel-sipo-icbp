@@ -17,6 +17,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 
+    // Master Data Routes
+    Route::get('/karyawan', function () {
+        return view('karyawan.index');
+    })->name('karyawan.index');
+
     // Routes untuk Super Admin
     Route::middleware('role:Super Admin')->group(function () {
         // Tambahkan routes khusus Super Admin di sini
