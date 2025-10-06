@@ -82,6 +82,11 @@
                     </button>
                     <ul x-show="open && sidebarOpen" x-transition class="mt-1 ml-8 space-y-1">
                         <li>
+                            <a href="{{ route('kunjungan.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                                Daftar Kunjungan
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('rekam-medis.create') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
                                 Tambah Rekam Medis
                             </a>
@@ -118,11 +123,6 @@
                         <li>
                             <a href="{{ route('laporan.transaksi') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
                                 Laporan Transaksi
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
-                                Daftar Kunjungan
                             </a>
                         </li>
                     </ul>

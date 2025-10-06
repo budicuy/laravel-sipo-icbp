@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pasien', function (Blueprint $table) {
-            $table->integer('id_pasien', true);
-            $table->integer('id_karyawan')->index('fk_pasien_karyawan');
-            $table->string('nama_pasien', 100);
+        Schema::create('keluarga', function (Blueprint $table) {
+            $table->integer('id_keluarga', true);
+            $table->integer('id_karyawan')->index('fk_keluarga_karyawan');
+            $table->string('nama_keluarga', 100);
             $table->date('tanggal_lahir')->nullable();
             $table->enum('jenis_kelamin', ['Laki - Laki', 'Perempuan']);
             $table->text('alamat')->nullable();
@@ -25,8 +25,8 @@ return new class extends Migration
             $table->char('kode_hubungan', 1);
 
             // Foreign keys
-            $table->foreign(['id_karyawan'], 'fk_pasien_karyawan')->references(['id_karyawan'])->on('karyawan')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign(['kode_hubungan'], 'fk_pasien_hubungan')->references(['kode_hubungan'])->on('hubungan')->onUpdate('cascade')->onDelete('restrict');
+            $table->foreign(['id_karyawan'], 'fk_keluarga_karyawan')->references(['id_karyawan'])->on('karyawan')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign(['kode_hubungan'], 'fk_keluarga_hubungan')->references(['kode_hubungan'])->on('hubungan')->onUpdate('cascade')->onDelete('restrict');
         });
     }
 
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pasien');
+        Schema::dropIfExists('keluarga');
     }
 };

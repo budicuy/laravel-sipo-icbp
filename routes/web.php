@@ -110,6 +110,11 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('user.index');
     })->name('user.update');
 
+    // Kunjungan Routes
+    Route::get('/kunjungan', function () {
+        return view('kunjungan.index');
+    })->name('kunjungan.index');
+
     // Rekam Medis Routes
     Route::get('/rekam-medis', function () {
         return view('rekam-medis.index');

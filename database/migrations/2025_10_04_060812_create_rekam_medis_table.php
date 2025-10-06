@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('rekam_medis', function (Blueprint $table) {
             $table->integer('id_rekam', true);
-            $table->integer('id_pasien')->index('fk_pasien');
+            $table->integer('id_keluarga')->index('fk_keluarga');
             $table->integer('id_kunjungan')->nullable()->index('fk_rekam_kunjungan');
             $table->integer('id_user')->index('fk_user');
             $table->date('tanggal')->default(DB::raw('CURRENT_DATE'));
@@ -23,9 +23,9 @@ return new class extends Migration
             $table->text('keterangan')->nullable();
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->decimal('total_biaya', 10)->nullable()->default(0);
-            
+
             // Foreign keys
-            $table->foreign(['id_pasien'], 'fk_pasien')->references(['id_pasien'])->on('pasien')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign(['id_keluarga'], 'fk_keluarga')->references(['id_keluarga'])->on('keluarga')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign(['id_penyakit'], 'fk_penyakit_rekam')->references(['id_penyakit'])->on('penyakit')->onUpdate('cascade')->onDelete('set null');
             $table->foreign(['id_kunjungan'], 'fk_rekam_kunjungan')->references(['id_kunjungan'])->on('kunjungan')->onUpdate('restrict')->onDelete('cascade');
             $table->foreign(['id_user'], 'fk_user')->references(['id_user'])->on('user')->onUpdate('cascade')->onDelete('cascade');
