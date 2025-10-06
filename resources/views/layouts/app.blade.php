@@ -30,7 +30,7 @@
                 @include('components.navbar')
 
                 <!-- Page Content -->
-                <main class="flex-1 overflow-y-auto bg-gray-100 p-6">
+                <main class="flex-1 overflow-y-auto bg-gray-100 p-5">
                     @yield('content')
                 </main>
             </div>

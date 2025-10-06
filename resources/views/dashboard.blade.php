@@ -10,7 +10,7 @@
 @endpush
 
 @section('content')
-<div class="max-w-7xl mx-auto">
+<div class="mx-auto">
     <!-- Header Title -->
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Selamat Datang di Sistem Informasi Klinik Indofood</h1>

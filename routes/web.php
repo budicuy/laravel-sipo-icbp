@@ -42,6 +42,14 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('keluarga.index');
     })->name('keluarga.store');
 
+    Route::get('/keluarga/{id}/edit', function ($id) {
+        return view('keluarga.edit');
+    })->name('keluarga.edit');
+
+    Route::put('/keluarga/{id}', function ($id) {
+        return redirect()->route('keluarga.index');
+    })->name('keluarga.update');
+
     Route::get('/obat', function () {
         return view('obat.index');
     })->name('obat.index');
@@ -93,6 +101,40 @@ Route::middleware('auth')->group(function () {
     Route::post('/user', function () {
         return redirect()->route('user.index');
     })->name('user.store');
+
+    Route::get('/user/{id}/edit', function ($id) {
+        return view('user.edit');
+    })->name('user.edit');
+
+    Route::put('/user/{id}', function ($id) {
+        return redirect()->route('user.index');
+    })->name('user.update');
+
+    // Rekam Medis Routes
+    Route::get('/rekam-medis', function () {
+        return view('rekam-medis.index');
+    })->name('rekam-medis.index');
+
+    Route::get('/rekam-medis/create', function () {
+        return view('rekam-medis.create');
+    })->name('rekam-medis.create');
+
+    Route::post('/rekam-medis', function () {
+        return redirect()->route('rekam-medis.index');
+    })->name('rekam-medis.store');
+
+    Route::get('/rekam-medis/{id}', function ($id) {
+        return view('rekam-medis.detail');
+    })->name('rekam-medis.detail');
+
+    // Surat Sakit Routes
+    Route::get('/surat-sakit', function () {
+        return view('surat-sakit.create');
+    })->name('surat-sakit.create');
+
+    Route::post('/surat-sakit', function () {
+        return redirect()->route('surat-sakit.create');
+    })->name('surat-sakit.store');
 
     // Routes untuk Super Admin
     Route::middleware('role:Super Admin')->group(function () {

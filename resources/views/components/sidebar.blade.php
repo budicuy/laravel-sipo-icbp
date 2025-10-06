@@ -82,17 +82,17 @@
                     </button>
                     <ul x-show="open && sidebarOpen" x-transition class="mt-1 ml-8 space-y-1">
                         <li>
-                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                            <a href="{{ route('rekam-medis.create') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
                                 Tambah Rekam Medis
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                            <a href="{{ route('rekam-medis.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
                                 Daftar Rekam Medis
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
+                            <a href="{{ route('surat-sakit.create') }}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors">
                                 Surat Sakit
                             </a>
                         </li>
