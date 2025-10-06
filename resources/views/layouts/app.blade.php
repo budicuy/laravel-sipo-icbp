@@ -29,6 +29,27 @@
                 <!-- Top Header/Navbar -->
                 @include('components.navbar')
 
+                <!-- Flash Messages -->
+                @if(session('success'))
+                <div class="m-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                    {{ session('success') }}
+                </div>
+                @endif
+                @if(session('error'))
+                <div class="m-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                    {{ session('error') }}
+                </div>
+                @endif
+                @if($errors->any())
+                <div class="m-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                    <ul class="list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+
                 <!-- Page Content -->
                 <main class="flex-1 overflow-y-auto bg-gray-100 p-5">
                     @yield('content')
