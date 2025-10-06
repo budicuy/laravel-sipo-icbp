@@ -22,21 +22,77 @@ Route::middleware('auth')->group(function () {
         return view('karyawan.index');
     })->name('karyawan.index');
 
+    Route::get('/karyawan/create', function () {
+        return view('karyawan.create');
+    })->name('karyawan.create');
+
+    Route::get('/karyawan/{id}/edit', function ($id) {
+        return view('karyawan.edit');
+    })->name('karyawan.edit');
+
     Route::get('/keluarga', function () {
         return view('keluarga.index');
     })->name('keluarga.index');
+
+    Route::get('/keluarga/create', function () {
+        return view('keluarga.create');
+    })->name('keluarga.create');
+
+    Route::post('/keluarga', function () {
+        return redirect()->route('keluarga.index');
+    })->name('keluarga.store');
 
     Route::get('/obat', function () {
         return view('obat.index');
     })->name('obat.index');
 
+    Route::get('/obat/create', function () {
+        return view('obat.create');
+    })->name('obat.create');
+
+    Route::post('/obat', function () {
+        return redirect()->route('obat.index');
+    })->name('obat.store');
+
+    Route::get('/obat/{id}/edit', function ($id) {
+        return view('obat.edit');
+    })->name('obat.edit');
+
+    Route::put('/obat/{id}', function ($id) {
+        return redirect()->route('obat.index');
+    })->name('obat.update');
+
     Route::get('/diagnosa', function () {
         return view('diagnosa.index');
     })->name('diagnosa.index');
 
+    Route::get('/diagnosa/create', function () {
+        return view('diagnosa.create');
+    })->name('diagnosa.create');
+
+    Route::post('/diagnosa', function () {
+        return redirect()->route('diagnosa.index');
+    })->name('diagnosa.store');
+
+    Route::get('/diagnosa/{id}/edit', function ($id) {
+        return view('diagnosa.edit');
+    })->name('diagnosa.edit');
+
+    Route::put('/diagnosa/{id}', function ($id) {
+        return redirect()->route('diagnosa.index');
+    })->name('diagnosa.update');
+
     Route::get('/user', function () {
         return view('user.index');
     })->name('user.index');
+
+    Route::get('/user/create', function () {
+        return view('user.create');
+    })->name('user.create');
+
+    Route::post('/user', function () {
+        return redirect()->route('user.index');
+    })->name('user.store');
 
     // Routes untuk Super Admin
     Route::middleware('role:Super Admin')->group(function () {
