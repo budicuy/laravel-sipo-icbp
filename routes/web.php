@@ -136,6 +136,11 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('surat-sakit.create');
     })->name('surat-sakit.store');
 
+    // Laporan Routes
+    Route::get('/laporan/transaksi', function () {
+        return view('laporan.transaksi');
+    })->name('laporan.transaksi');
+
     // Routes untuk Super Admin
     Route::middleware('role:Super Admin')->group(function () {
         // Tambahkan routes khusus Super Admin di sini
