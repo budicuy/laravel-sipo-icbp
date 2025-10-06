@@ -39,7 +39,7 @@
                     Import Data (Opsional)
                 </h2>
             </div>
-            
+
             <div class="p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Import Data Karyawan -->
@@ -121,7 +121,7 @@
                     Input Manual Data Karyawan
                 </h2>
             </div>
-            
+
             <div class="p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Left Column - Form Fields -->
@@ -258,7 +258,7 @@
                                         </div>
                                     </label>
                                 </div>
-                                
+
                                 <!-- Info -->
                                 <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
                                     <p class="text-xs text-blue-800">
@@ -295,7 +295,7 @@
 function previewImage(event) {
     const file = event.target.files[0];
     const container = document.getElementById('preview-container');
-    
+
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
