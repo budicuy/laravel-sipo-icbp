@@ -115,6 +115,10 @@ Route::middleware('auth')->group(function () {
         return view('kunjungan.index');
     })->name('kunjungan.index');
 
+    Route::get('/kunjungan/{id}/detail', function ($id) {
+        return view('kunjungan.detail');
+    })->name('kunjungan.detail');
+
     // Rekam Medis Routes
     Route::get('/rekam-medis', function () {
         return view('rekam-medis.index');
