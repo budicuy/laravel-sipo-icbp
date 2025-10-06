@@ -1,280 +1,173 @@
 @extends('layouts.app')
 
+@section('page-title', 'Tambah Data Obat')
+
 @section('content')
-<div class="p-6">
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">Tambah Obat</h2>
-
-        <!-- Import Section -->
-        <div class="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h3 class="text-lg font-semibold mb-4 text-gray-700">Import Data Obat</h3>
-            <div class="flex items-center gap-4">
-                <input
-                    type="file"
-                    id="file-import"
-                    accept=".xlsx,.xls,.csv"
-                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-100 hover:file:bg-gray-200"
-                />
-                <button
-                    type="button"
-                    class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors whitespace-nowrap"
-                >
-                    Import
-                </button>
-                <button
-                    type="button"
-                    class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors whitespace-nowrap"
-                >
-                    Download Template
-                </button>
+<div class="p-6 bg-gray-50 min-h-screen">
+    <div class="mb-6">
+        <div class="flex items-center gap-3 mb-3">
+            <a href="{{ route('obat.index') }}" class="p-2 hover:bg-white rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                    Tambah Data Obat Baru
+                </h1>
+                <p class="text-gray-600 mt-1 ml-1">Tambahkan obat baru ke persediaan farmasi</p>
             </div>
         </div>
-
-        <!-- Manual Form Section -->
-        <div class="mb-6">
-            <h3 class="text-lg font-semibold mb-4 text-gray-700">Tambah Manual</h3>
-        </div>
-
-        <form action="{{ route('obat.store') }}" method="POST" class="space-y-6">
-            @csrf
-
-            <!-- Nama Obat -->
-            <div>
-                <label for="nama_obat" class="block text-sm font-medium text-gray-700 mb-2">
-                    Nama Obat
-                </label>
-                <input
-                    type="text"
-                    id="nama_obat"
-                    name="nama_obat"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Masukkan nama obat"
-                    required
-                />
-            </div>
-
-            <!-- Keterangan -->
-            <div>
-                <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-2">
-                    Keterangan
-                </label>
-                <textarea
-                    id="keterangan"
-                    name="keterangan"
-                    rows="4"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Masukkan keterangan obat"
-                ></textarea>
-            </div>
-
-            <!-- Jenis Obat -->
-            <div>
-                <label for="jenis_obat" class="block text-sm font-medium text-gray-700 mb-2">
-                    Jenis Obat
-                </label>
-                <select
-                    id="jenis_obat"
-                    name="jenis_obat"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required
-                >
-                    <option value="">-- Pilih Jenis Obat --</option>
-                    <option value="Tablet">Tablet</option>
-                    <option value="Kapsul">Kapsul</option>
-                    <option value="Sirup">Sirup</option>
-                    <option value="Salep">Salep</option>
-                    <option value="Injeksi">Injeksi</option>
-                </select>
-            </div>
-
-            <!-- Satuan -->
-            <div>
-                <label for="satuan" class="block text-sm font-medium text-gray-700 mb-2">
-                    Satuan
-                </label>
-                <select
-                    id="satuan"
-                    name="satuan"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required
-                >
-                    <option value="">-- Pilih Satuan --</option>
-                    <option value="Strip">Strip</option>
-                    <option value="Box">Box</option>
-                    <option value="Botol">Botol</option>
-                    <option value="Tube">Tube</option>
-                    <option value="Ampul">Ampul</option>
-                </select>
-            </div>
-
-            <!-- Stok Awal -->
-            <div>
-                <label for="stok_awal" class="block text-sm font-medium text-gray-700 mb-2">
-                    Stok Awal
-                </label>
-                <input
-                    type="number"
-                    id="stok_awal"
-                    name="stok_awal"
-                    value="0"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
-                    readonly
-                />
-                <p class="mt-1 text-sm text-gray-500">Otomatis dihitung</p>
-            </div>
-
-            <!-- Stok Masuk & Stok Keluar in Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Stok Masuk -->
-                <div>
-                    <label for="stok_masuk" class="block text-sm font-medium text-gray-700 mb-2">
-                        Stok Masuk
-                    </label>
-                    <input
-                        type="number"
-                        id="stok_masuk"
-                        name="stok_masuk"
-                        value="0"
-                        min="0"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        oninput="hitungStok()"
-                    />
-                </div>
-
-                <!-- Stok Keluar -->
-                <div>
-                    <label for="stok_keluar" class="block text-sm font-medium text-gray-700 mb-2">
-                        Stok Keluar
-                    </label>
-                    <input
-                        type="number"
-                        id="stok_keluar"
-                        name="stok_keluar"
-                        value="0"
-                        min="0"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        oninput="hitungStok()"
-                    />
-                </div>
-            </div>
-
-            <!-- Stok Akhir -->
-            <div>
-                <label for="stok_akhir" class="block text-sm font-medium text-gray-700 mb-2">
-                    Stok Akhir
-                </label>
-                <input
-                    type="number"
-                    id="stok_akhir"
-                    name="stok_akhir"
-                    value="0"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
-                    readonly
-                />
-                <p class="mt-1 text-sm text-gray-500">Otomatis dihitung</p>
-            </div>
-
-            <!-- Jumlah per Kemasan -->
-            <div>
-                <label for="jumlah_per_kemasan" class="block text-sm font-medium text-gray-700 mb-2">
-                    Jumlah per Kemasan
-                </label>
-                <input
-                    type="number"
-                    id="jumlah_per_kemasan"
-                    name="jumlah_per_kemasan"
-                    value="1"
-                    min="1"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    oninput="hitungHargaSatuan()"
-                    required
-                />
-            </div>
-
-            <!-- Harga per Kemasan -->
-            <div>
-                <label for="harga_per_kemasan" class="block text-sm font-medium text-gray-700 mb-2">
-                    Harga per Kemasan
-                </label>
-                <div class="relative">
-                    <span class="absolute left-3 top-2 text-gray-500">Rp.</span>
-                    <input
-                        type="number"
-                        id="harga_per_kemasan"
-                        name="harga_per_kemasan"
-                        value="0"
-                        min="0"
-                        class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        oninput="hitungHargaSatuan()"
-                        required
-                    />
-                </div>
-            </div>
-
-            <!-- Harga per Satuan -->
-            <div>
-                <label for="harga_per_satuan" class="block text-sm font-medium text-gray-700 mb-2">
-                    Harga per Satuan
-                </label>
-                <div class="relative">
-                    <span class="absolute left-3 top-2 text-gray-500">Rp.</span>
-                    <input
-                        type="number"
-                        id="harga_per_satuan"
-                        name="harga_per_satuan"
-                        value="0"
-                        class="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
-                        readonly
-                    />
-                </div>
-                <p class="mt-1 text-sm text-gray-500">Dihitung otomatis</p>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex gap-4 pt-4">
-                <button
-                    type="submit"
-                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-                >
-                    Simpan
-                </button>
-                <a
-                    href="{{ route('obat.index') }}"
-                    class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors"
-                >
-                    Batal
-                </a>
-            </div>
-        </form>
     </div>
+
+    <form action="{{ route('obat.store') }}" method="POST">
+        @csrf
+
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    Informasi Data Obat
+                </h2>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Nama Obat -->
+                    <div>
+                        <label for="nama_obat" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Nama Obat <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                </svg>
+                            </div>
+                            <input type="text" id="nama_obat" name="nama_obat" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Nama obat" required>
+                        </div>
+                    </div>
+
+                    <!-- Jenis Obat -->
+                    <div>
+                        <label for="jenis_obat" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Jenis Obat <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select id="jenis_obat" name="jenis_obat" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none bg-white" required>
+                                <option value="">-- Pilih Jenis Obat --</option>
+                                <option value="Tablet">Tablet</option>
+                                <option value="Kapsul">Kapsul</option>
+                                <option value="Sirup">Sirup</option>
+                                <option value="Salep">Salep</option>
+                                <option value="Injeksi">Injeksi</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Satuan Obat -->
+                    <div>
+                        <label for="satuan_obat" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Satuan Obat <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select id="satuan_obat" name="satuan_obat" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none bg-white" required>
+                                <option value="">-- Pilih Satuan --</option>
+                                <option value="Strip">Strip</option>
+                                <option value="Botol">Botol</option>
+                                <option value="Box">Box</option>
+                                <option value="Tube">Tube</option>
+                                <option value="Ampul">Ampul</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Harga -->
+                    <div>
+                        <label for="harga" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Harga <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 font-medium">Rp</span>
+                            </div>
+                            <input type="number" id="harga" name="harga" class="w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="0" required>
+                        </div>
+                    </div>
+
+                    <!-- Stok -->
+                    <div>
+                        <label for="stok" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Stok <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                            </div>
+                            <input type="number" id="stok" name="stok" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Jumlah stok" required>
+                        </div>
+                    </div>
+
+                    <!-- Tanggal Kadaluarsa -->
+                    <div>
+                        <label for="tanggal_kadaluarsa" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Tanggal Kadaluarsa
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <input type="date" id="tanggal_kadaluarsa" name="tanggal_kadaluarsa" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        </div>
+                    </div>
+
+                    <!-- Keterangan (Full Width) -->
+                    <div class="md:col-span-2">
+                        <label for="keterangan" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Keterangan
+                        </label>
+                        <textarea id="keterangan" name="keterangan" rows="3" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="Deskripsi atau keterangan tambahan obat (opsional)"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                <button type="button" onclick="window.location.href='{{ route('obat.index') }}'" class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Batal
+                </button>
+                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Simpan Data Obat
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
-
-@push('scripts')
-<script>
-    // Fungsi untuk menghitung stok akhir
-    function hitungStok() {
-        const stokAwal = parseInt(document.getElementById('stok_awal').value) || 0;
-        const stokMasuk = parseInt(document.getElementById('stok_masuk').value) || 0;
-        const stokKeluar = parseInt(document.getElementById('stok_keluar').value) || 0;
-
-        const stokAkhir = stokAwal + stokMasuk - stokKeluar;
-        document.getElementById('stok_akhir').value = stokAkhir;
-    }
-
-    // Fungsi untuk menghitung harga per satuan
-    function hitungHargaSatuan() {
-        const hargaKemasan = parseInt(document.getElementById('harga_per_kemasan').value) || 0;
-        const jumlahKemasan = parseInt(document.getElementById('jumlah_per_kemasan').value) || 1;
-
-        const hargaSatuan = jumlahKemasan > 0 ? Math.round(hargaKemasan / jumlahKemasan) : 0;
-        document.getElementById('harga_per_satuan').value = hargaSatuan;
-    }
-
-    // Inisialisasi perhitungan saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', function() {
-        hitungStok();
-        hitungHargaSatuan();
-    });
-</script>
-@endpush
 @endsection
