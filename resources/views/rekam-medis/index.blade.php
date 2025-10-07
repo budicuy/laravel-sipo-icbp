@@ -126,6 +126,7 @@
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Catatan</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tanggal</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
+                        <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Detail</th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -179,7 +180,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Selesai</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
                             <button class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -187,6 +188,20 @@
                                 </svg>
                                 Detail
                             </button>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                <button class="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
                         </td>
                     </tr>
 
@@ -207,9 +222,19 @@
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">Kontrol tensi rutin</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">04-10-2025</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">Proses</span>
+                            <div class="relative inline-block">
+                                <select onchange="updateStatus(this, '3')" class="appearance-none cursor-pointer px-3 py-1 rounded-full text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-500 transition-colors" style="min-width: 100px;">
+                                    <option value="proses" selected class="bg-white text-gray-900">Proses</option>
+                                    <option value="selesai" class="bg-white text-gray-900">Selesai</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                            </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
                             <button class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -217,6 +242,20 @@
                                 </svg>
                                 Detail
                             </button>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                <button class="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -244,4 +283,50 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+function updateStatus(selectElement, id) {
+    const newStatus = selectElement.value;
+    const selectContainer = selectElement.parentElement;
+    
+    // Update styling based on status
+    if (newStatus === 'selesai') {
+        selectElement.className = selectElement.className.replace('bg-yellow-100 text-yellow-800', 'bg-green-100 text-green-800');
+        selectElement.className = selectElement.className.replace('ring-yellow-500', 'ring-green-500');
+    } else {
+        selectElement.className = selectElement.className.replace('bg-green-100 text-green-800', 'bg-yellow-100 text-yellow-800');
+        selectElement.className = selectElement.className.replace('ring-green-500', 'ring-yellow-500');
+    }
+
+    // Here you would typically make an AJAX call to update the status in the backend
+    fetch(`/rekam-medis/${id}/update-status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            status: newStatus
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Optional: Show success message
+            console.log('Status updated successfully');
+        } else {
+            // Handle error and possibly revert the select
+            console.error('Failed to update status');
+            selectElement.value = selectElement.value === 'selesai' ? 'proses' : 'selesai';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Revert the select on error
+        selectElement.value = selectElement.value === 'selesai' ? 'proses' : 'selesai';
+    });
+}
+</script>
+@endpush
+
 @endsection
