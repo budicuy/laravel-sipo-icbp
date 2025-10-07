@@ -250,7 +250,7 @@ const originalPreview = document.getElementById('preview-container').innerHTML;
 
 function confirmUpdate(event) {
     event.preventDefault();
-    
+
     Swal.fire({
         title: 'Update Data Karyawan?',
         text: "Pastikan perubahan data sudah benar!",
@@ -270,7 +270,7 @@ function confirmUpdate(event) {
             document.getElementById('formKaryawan').submit();
         }
     });
-    
+
     return false;
 }
 

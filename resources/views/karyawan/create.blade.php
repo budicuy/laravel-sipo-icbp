@@ -323,7 +323,7 @@
 <script>
 function confirmSave(event) {
     event.preventDefault();
-    
+
     Swal.fire({
         title: 'Simpan Data Karyawan?',
         text: "Pastikan semua data sudah benar!",
@@ -343,7 +343,7 @@ function confirmSave(event) {
             document.getElementById('formKaryawan').submit();
         }
     });
-    
+
     return false;
 }
 
