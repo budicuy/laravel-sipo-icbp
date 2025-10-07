@@ -1,0 +1,473 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Karyawan;
+use App\Models\Departemen;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+
+class KaryawanController extends Controller
+{
+    public function index(Request $request)
+    {
+        $departemens = Departemen::orderBy('nama_departemen')->get();
+        $query = Karyawan::with('departemen');
+
+        if ($request->filled('departemen')) {
+            $query->where('id_departemen', $request->input('departemen'));
+        }
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nik_karyawan', 'like', "%$q%")
+                    ->orWhere('nama_karyawan', 'like', "%$q%");
+            });
+        }
+
+        // Handle sorting
+        $allowedSorts = ['id_karyawan', 'nik_karyawan', 'nama_karyawan', 'jenis_kelamin', 'id_departemen', 'no_hp', 'tanggal_lahir', 'alamat'];
+        $sortField = $request->input('sort', 'id_karyawan');
+        $sortDirection = $request->input('direction', 'asc');
+
+        // Validate sort field and direction
+        if (!in_array($sortField, $allowedSorts)) {
+            $sortField = 'id_karyawan';
+        }
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+
+        $query->orderBy($sortField, $sortDirection);
+
+        // Get per_page from request, default to 50
+        $perPage = $request->input('per_page', 50);
+
+        // Validate per_page to only allow specific values
+        if (!in_array($perPage, [50, 100, 150, 200])) {
+            $perPage = 50;
+        }
+
+        $karyawans = $query->paginate($perPage)->appends($request->except('page'));
+        return view('karyawan.index', compact('karyawans', 'departemens'));
+    }
+
+    public function create()
+    {
+        $departemens = Departemen::orderBy('nama_departemen')->get();
+        return view('karyawan.create', compact('departemens'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nik' => ['required','string','size:16','unique:karyawan,nik_karyawan'],
+            'nama' => ['required','string','max:100'],
+            'tanggal_lahir' => ['required','date'],
+            'jenis_kelamin' => ['required', Rule::in(['L', 'P', 'J', 'Laki - Laki','Perempuan'])],
+            'alamat' => ['required','string'],
+            'no_hp' => ['required','regex:/^08\d+$/'],
+            'departemen' => ['required','integer','exists:departemen,id_departemen'],
+            'foto' => ['nullable','image','max:30'],
+        ]);
+
+        $path = null;
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('karyawan', 'public');
+        }
+
+        Karyawan::create([
+            'nik_karyawan' => $validated['nik'],
+            'nama_karyawan' => $validated['nama'],
+            'tanggal_lahir' => $validated['tanggal_lahir'],
+            'jenis_kelamin' => $validated['jenis_kelamin'],
+            'alamat' => $validated['alamat'],
+            'no_hp' => $validated['no_hp'],
+            'id_departemen' => $validated['departemen'],
+            'foto' => $path,
+        ]);
+
+        return redirect()->route('karyawan.index')->with('success', 'Karyawan berhasil ditambahkan');
+    }
+
+    public function edit(Karyawan $karyawan)
+    {
+        $departemens = Departemen::orderBy('nama_departemen')->get();
+        return view('karyawan.edit', compact('karyawan','departemens'));
+    }
+
+    public function update(Request $request, Karyawan $karyawan)
+    {
+        $validated = $request->validate([
+            'nik' => ['required','string','size:16', Rule::unique('karyawan','nik_karyawan')->ignore($karyawan->id_karyawan, 'id_karyawan')],
+            'nama' => ['required','string','max:100'],
+            'tanggal_lahir' => ['required','date'],
+            'jenis_kelamin' => ['required', Rule::in(['L', 'P', 'J', 'Laki - Laki','Perempuan'])],
+            'alamat' => ['required','string'],
+            'no_hp' => ['required','regex:/^08\d+$/'],
+            'departemen' => ['required','integer','exists:departemen,id_departemen'],
+            'foto' => ['nullable','image','max:30'],
+        ]);
+
+        $data = [
+            'nik_karyawan' => $validated['nik'],
+            'nama_karyawan' => $validated['nama'],
+            'tanggal_lahir' => $validated['tanggal_lahir'],
+            'jenis_kelamin' => $validated['jenis_kelamin'],
+            'alamat' => $validated['alamat'],
+            'no_hp' => $validated['no_hp'],
+            'id_departemen' => $validated['departemen'],
+        ];
+
+        if ($request->hasFile('foto')) {
+            if ($karyawan->foto) {
+                Storage::disk('public')->delete($karyawan->foto);
+            }
+            $data['foto'] = $request->file('foto')->store('karyawan', 'public');
+        }
+
+        $karyawan->update($data);
+
+        return redirect()->route('karyawan.index')->with('success', 'Karyawan berhasil diperbarui');
+    }
+
+    public function destroy(Karyawan $karyawan)
+    {
+        if ($karyawan->foto) {
+            Storage::disk('public')->delete($karyawan->foto);
+        }
+        $karyawan->delete();
+        return back()->with('success', 'Karyawan dihapus');
+    }
+
+    public function downloadTemplate()
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Template Import');
+
+        // Set document properties
+        $spreadsheet->getProperties()
+            ->setCreator('SIPO ICBP')
+            ->setTitle('Template Import Karyawan')
+            ->setSubject('Template Import Karyawan')
+            ->setDescription('Template untuk import data karyawan');
+
+        // Header columns
+        $headers = ['NIK', 'Nama', 'Tanggal Lahir', 'Jenis Kelamin', 'Alamat', 'No HP', 'Departemen'];
+        $column = 'A';
+
+        foreach ($headers as $header) {
+            $sheet->setCellValue($column . '1', $header);
+            $column++;
+        }
+
+        // Style header
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 12,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '4F46E5'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ];
+
+        $sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
+
+        // Add sample data
+        $sheet->setCellValue('A2', '1234567890123456');
+        $sheet->setCellValue('B2', 'John Doe');
+        $sheet->setCellValue('C2', '1990-01-01');
+        $sheet->setCellValue('D2', 'L');
+        $sheet->setCellValue('E2', 'Jl. Contoh No. 123, Jakarta');
+        $sheet->setCellValue('F2', '081234567890');
+        $sheet->setCellValue('G2', 'IT');
+
+        // Style sample data
+        $dataStyle = [
+            'alignment' => [
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'CCCCCC'],
+                ],
+            ],
+        ];
+
+        $sheet->getStyle('A2:G2')->applyFromArray($dataStyle);
+
+        // Set column widths
+        $sheet->getColumnDimension('A')->setWidth(20);
+        $sheet->getColumnDimension('B')->setWidth(25);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(35);
+        $sheet->getColumnDimension('F')->setWidth(15);
+        $sheet->getColumnDimension('G')->setWidth(20);
+
+        // Set row heights
+        $sheet->getRowDimension(1)->setRowHeight(25);
+        $sheet->getRowDimension(2)->setRowHeight(20);
+
+        // Add notes
+        $sheet->setCellValue('A4', 'CATATAN:');
+        $sheet->setCellValue('A5', '• NIK harus 16 digit');
+        $sheet->setCellValue('A6', '• Format Tanggal Lahir: YYYY-MM-DD (contoh: 1990-01-01)');
+        $sheet->setCellValue('A7', '• Jenis Kelamin: "L" (Laki-laki), "J" (Laki-laki), atau "P" (Perempuan)');
+        $sheet->setCellValue('A8', '• No HP harus diawali dengan 08');
+        $sheet->setCellValue('A9', '• Lihat daftar departemen di sheet "Daftar Departemen"');
+
+        $sheet->getStyle('A4')->getFont()->setBold(true);
+        $sheet->getStyle('A5:A9')->getFont()->setItalic(true)->setSize(10);
+
+        // ===== CREATE SECOND SHEET FOR DEPARTMENTS =====
+        $departemenSheet = $spreadsheet->createSheet();
+        $departemenSheet->setTitle('Daftar Departemen');
+
+        // Get all departments from database
+        $departemens = Departemen::orderBy('nama_departemen')->get();
+
+        // Header for department sheet
+        $departemenSheet->setCellValue('A1', 'No');
+        $departemenSheet->setCellValue('B1', 'Nama Departemen');
+
+        $deptHeaderStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 12,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '059669'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ];
+
+        $departemenSheet->getStyle('A1:B1')->applyFromArray($deptHeaderStyle);
+
+        // Add departments data
+        $row = 2;
+        foreach ($departemens as $index => $dept) {
+            $departemenSheet->setCellValue('A' . $row, $index + 1);
+            $departemenSheet->setCellValue('B' . $row, $dept->nama_departemen);
+
+            // Style data rows
+            $departemenSheet->getStyle('A' . $row . ':B' . $row)->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => 'CCCCCC'],
+                    ],
+                ],
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            $row++;
+        }
+
+        // Set column widths for department sheet
+        $departemenSheet->getColumnDimension('A')->setWidth(10);
+        $departemenSheet->getColumnDimension('B')->setWidth(30);
+
+        // Set row height
+        $departemenSheet->getRowDimension(1)->setRowHeight(25);
+
+        // Add note in department sheet
+        $departemenSheet->setCellValue('A' . ($row + 1), 'CATATAN:');
+        $departemenSheet->setCellValue('A' . ($row + 2), '• Salin nama departemen yang sesuai ke kolom Departemen di sheet "Template Import"');
+        $departemenSheet->setCellValue('A' . ($row + 3), '• Nama departemen harus sama persis dengan yang ada di daftar');
+
+        $departemenSheet->getStyle('A' . ($row + 1))->getFont()->setBold(true);
+        $departemenSheet->getStyle('A' . ($row + 2) . ':A' . ($row + 3))->getFont()->setItalic(true)->setSize(10);
+
+        // Set active sheet back to first sheet
+        $spreadsheet->setActiveSheetIndex(0);
+
+        // Create Excel file
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'template_karyawan_' . date('Y-m-d') . '.xlsx';
+
+        // Set headers for download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls'],
+        ], [
+            'file.required' => 'File harus dipilih',
+            'file.mimes' => 'File harus berformat Excel (.xlsx atau .xls)',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray();
+
+            // Skip header row
+            $header = array_shift($rows);
+
+            $created = 0;
+            $updated = 0;
+            $errors = [];
+
+            foreach ($rows as $index => $row) {
+                $rowNumber = $index + 2; // +2 karena index dimulai dari 0 dan ada header
+
+                // Skip empty rows
+                if (empty(array_filter($row))) {
+                    continue;
+                }
+
+                // Map data
+                $nik = trim((string)($row[0] ?? ''));
+                $nama = trim((string)($row[1] ?? ''));
+                $tanggalLahir = trim((string)($row[2] ?? ''));
+                $jenisKelamin = strtoupper(trim((string)($row[3] ?? '')));
+                $alamat = trim((string)($row[4] ?? ''));
+                $noHp = trim((string)($row[5] ?? ''));
+                $departemenName = trim((string)($row[6] ?? ''));
+
+                // Validate NIK
+                if (strlen($nik) !== 16) {
+                    $errors[] = "Baris $rowNumber: NIK harus 16 digit";
+                    continue;
+                }
+
+                // Validate required fields
+                if (empty($nama)) {
+                    $errors[] = "Baris $rowNumber: Nama tidak boleh kosong";
+                    continue;
+                }
+
+                // Validate jenis kelamin
+                if (!in_array($jenisKelamin, ['L', 'J', 'P', 'LAKI - LAKI', 'PEREMPUAN'])) {
+                    $errors[] = "Baris $rowNumber: Jenis kelamin harus 'L', 'J', atau 'P'";
+                    continue;
+                }
+
+                // Validate no HP
+                if (!preg_match('/^08\d+$/', $noHp)) {
+                    $errors[] = "Baris $rowNumber: No HP harus diawali dengan 08";
+                    continue;
+                }
+
+                // Get or create departemen
+                if (empty($departemenName)) {
+                    $errors[] = "Baris $rowNumber: Departemen tidak boleh kosong";
+                    continue;
+                }
+
+                $departemen = Departemen::firstOrCreate(['nama_departemen' => $departemenName]);
+
+                // Check if update or create
+                $exists = Karyawan::where('nik_karyawan', $nik)->exists();
+
+                // Create or update karyawan
+                Karyawan::updateOrCreate(
+                    ['nik_karyawan' => $nik],
+                    [
+                        'nama_karyawan' => $nama,
+                        'tanggal_lahir' => $tanggalLahir,
+                        'jenis_kelamin' => $jenisKelamin,
+                        'alamat' => $alamat,
+                        'no_hp' => $noHp,
+                        'id_departemen' => $departemen->id_departemen,
+                        'foto' => null,
+                    ]
+                );
+
+                if ($exists) {
+                    $updated++;
+                } else {
+                    $created++;
+                }
+            }
+
+            $message = "Import selesai: $created data baru ditambahkan, $updated data diperbarui";
+
+            if (!empty($errors)) {
+                $errorMessage = implode('<br>', array_slice($errors, 0, 10)); // Show first 10 errors
+                if (count($errors) > 10) {
+                    $errorMessage .= '<br>... dan ' . (count($errors) - 10) . ' error lainnya';
+                }
+                return back()->with('warning', $message . '<br><br>Error:<br>' . $errorMessage);
+            }
+
+            return back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal import data: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer', 'exists:karyawan,id_karyawan']
+        ]);
+
+        $ids = $request->input('ids');
+
+        // Get karyawan records to delete their photos
+        $karyawans = Karyawan::whereIn('id_karyawan', $ids)->get();
+
+        // Delete photos from storage
+        foreach ($karyawans as $karyawan) {
+            if ($karyawan->foto) {
+                Storage::disk('public')->delete($karyawan->foto);
+            }
+        }
+
+        // Delete karyawan records
+        $deleted = Karyawan::whereIn('id_karyawan', $ids)->delete();
+
+        return back()->with('success', "$deleted karyawan berhasil dihapus");
+    }
+
+
+}
+
+

@@ -17,6 +17,9 @@
         <!-- Alpine.js -->
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+        <!-- SweetAlert2 -->
+        <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
+
         @stack('styles')
     </head>
     <body class="bg-gray-100">
@@ -35,6 +38,82 @@
                 </main>
             </div>
         </div>
+
+        <!-- SweetAlert2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+
+        <!-- SweetAlert2 Notifications -->
+        @if(session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                position: 'top-end',
+                background: '#f0fdf4',
+                iconColor: '#22c55e',
+                customClass: {
+                    popup: 'colored-toast'
+                }
+            });
+        </script>
+        @endif
+
+        @if(session('warning'))
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Peringatan!',
+                text: '{{ session('warning') }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                position: 'top-end',
+                background: '#fef3c7',
+                iconColor: '#f59e0b',
+                customClass: {
+                    popup: 'colored-toast'
+                }
+            });
+        </script>
+        @endif
+
+        @if(session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: '{{ session('error') }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true,
+                position: 'top-end',
+                background: '#fee2e2',
+                iconColor: '#ef4444',
+                customClass: {
+                    popup: 'colored-toast'
+                }
+            });
+        </script>
+        @endif
+
+        @if($errors->any())
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan!',
+                html: '<ul style="text-align: left; padding-left: 20px;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3b82f6'
+            });
+        </script>
+        @endif
 
         @stack('scripts')
     </body>

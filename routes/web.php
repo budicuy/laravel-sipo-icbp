@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\KaryawanController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -17,18 +18,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
 
-    // Master Data Routes
-    Route::get('/karyawan', function () {
-        return view('karyawan.index');
-    })->name('karyawan.index');
+    // Karyawan Routes - Custom routes BEFORE resource routes
+    Route::get('/karyawan/template', [KaryawanController::class, 'downloadTemplate'])->name('karyawan.template');
+    Route::post('/karyawan/import', [KaryawanController::class, 'import'])->name('karyawan.import');
+    Route::post('/karyawan/bulk-delete', [KaryawanController::class, 'bulkDelete'])->name('karyawan.bulkDelete');
 
-    Route::get('/karyawan/create', function () {
-        return view('karyawan.create');
-    })->name('karyawan.create');
-
-    Route::get('/karyawan/{id}/edit', function ($id) {
-        return view('karyawan.edit');
-    })->name('karyawan.edit');
+    // Karyawan Resource Routes
+    Route::resource('karyawan', KaryawanController::class)->parameters([
+        'karyawan' => 'karyawan'
+    ]);
 
     Route::get('/keluarga', function () {
         return view('keluarga.index');

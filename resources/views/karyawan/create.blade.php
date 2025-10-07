@@ -26,49 +26,52 @@
         </div>
     </div>
 
-    <form action="#" method="POST" enctype="multipart/form-data">
-        @csrf
+    <!-- Import Section Card -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                Import Data (Opsional)
+            </h2>
+        </div>
 
-        <!-- Import Section Card -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
-                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    Import Data (Opsional)
-                </h2>
-            </div>
-
-            <div class="p-6">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Import Data Karyawan -->
-                    <div class="space-y-3">
-                        <label class="block text-sm font-semibold text-gray-700">Import Data Karyawan dari Excel</label>
-                        <div class="flex flex-col gap-3">
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Import Data Karyawan -->
+                <div class="space-y-3">
+                    <label class="block text-sm font-semibold text-gray-700">Import Data Karyawan dari Excel</label>
+                    <div class="flex flex-col gap-3">
+                        <form action="{{ route('karyawan.import') }}" method="POST" enctype="multipart/form-data" class="space-y-3">
+                            @csrf
                             <div class="relative">
-                                <input type="file" accept=".xlsx,.xls,.csv" class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-400 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                                <input name="file" type="file" accept=".xlsx,.xls,.csv" class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-400 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                             </div>
+                            @error('file')
+                                <p class="text-xs text-red-600">{{ $message }}</p>
+                            @enderror
                             <div class="flex gap-2">
-                                <button type="button" class="flex-1 inline-flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                                <button type="submit" class="flex-1 inline-flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
                                     Import Sekarang
                                 </button>
-                                <button type="button" class="flex-1 inline-flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                                <a href="{{ route('karyawan.template') }}" class="flex-1 inline-flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                     Download Template
-                                </button>
+                                </a>
                             </div>
-                        </div>
+                        </form>
+                    </div>
                         <p class="text-xs text-gray-500 flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            Format: Excel (.xlsx, .xls) atau CSV
+                            Format: Excel (.xlsx, .xls)
                         </p>
                     </div>
 
@@ -111,6 +114,8 @@
             </div>
         </div>
 
+        <form action="{{ route('karyawan.store') }}" method="POST" enctype="multipart/form-data" id="formKaryawan" onsubmit="return confirmSave(event)">
+        @csrf
         <!-- Manual Input Section Card -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
             <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
@@ -138,8 +143,13 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="nik" name="nik" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan NIK" required>
+                                    <input type="text" id="nik" name="nik" value="{{ old('nik') }}"
+                                    maxlength="16"
+                                     class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500  focus:border-blue-500" placeholder="Masukkan NIK" required>
                                 </div>
+                                @error('nik')
+                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <!-- Nama Karyawan -->
@@ -153,8 +163,11 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="nama" name="nama" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Nama lengkap karyawan" required>
+                                    <input type="text" id="nama" name="nama" value="{{ old('nama') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Nama lengkap karyawan" required>
                                 </div>
+                                @error('nama')
+                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <!-- Departemen -->
@@ -165,11 +178,9 @@
                                 <div class="relative">
                                     <select id="departemen" name="departemen" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white" required>
                                         <option value="">-- Pilih Departemen --</option>
-                                        <option value="ADM HR">ADM HR</option>
-                                        <option value="ADM Financial & Accounting">ADM Financial & Accounting</option>
-                                        <option value="MFG Production">MFG Production</option>
-                                        <option value="MKT Marketing">MKT Marketing</option>
-                                        <option value="MFG Technical">MFG Technical</option>
+                                        @foreach($departemens as $dept)
+                                            <option value="{{ $dept->id_departemen }}" {{ old('departemen') == $dept->id_departemen ? 'selected' : '' }}>{{ $dept->nama_departemen }}</option>
+                                        @endforeach
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,6 +188,9 @@
                                         </svg>
                                     </div>
                                 </div>
+                                @error('departemen')
+                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <!-- Jenis Kelamin -->
@@ -187,8 +201,8 @@
                                 <div class="relative">
                                     <select id="jenis_kelamin" name="jenis_kelamin" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white" required>
                                         <option value="">-- Pilih Jenis Kelamin --</option>
-                                        <option value="Laki - Laki">Laki - Laki</option>
-                                        <option value="Perempuan">Perempuan</option>
+                                        <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,6 +210,9 @@
                                         </svg>
                                     </div>
                                 </div>
+                                @error('jenis_kelamin')
+                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <!-- Tanggal Lahir -->
@@ -209,8 +226,11 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
                                     </div>
-                                    <input type="date" id="tanggal_lahir" name="tanggal_lahir" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                                    <input type="date" id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
                                 </div>
+                                @error('tanggal_lahir')
+                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <!-- No HP -->
@@ -224,8 +244,11 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="no_hp" name="no_hp" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="08xxxxxxxxxx" required>
+                                    <input type="text" id="no_hp" name="no_hp" value="{{ old('no_hp') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="08xxxxxxxxxx" required>
                                 </div>
+                                @error('no_hp')
+                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
 
@@ -235,8 +258,11 @@
                                 Alamat <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <textarea id="alamat" name="alamat" rows="4" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan alamat lengkap karyawan" required></textarea>
+                                <textarea id="alamat" name="alamat" rows="4" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan alamat lengkap karyawan" required>{{ old('alamat') }}</textarea>
                             </div>
+                            @error('alamat')
+                                <p class="text-xs text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -254,15 +280,18 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                             <p class="mb-2 text-sm text-gray-500 font-semibold">Klik untuk upload foto</p>
-                                            <p class="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 2MB)</p>
+                                            <p class="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 30KB)</p>
                                         </div>
                                     </label>
                                 </div>
+                                @error('foto')
+                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                @enderror
 
                                 <!-- Info -->
                                 <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
                                     <p class="text-xs text-blue-800">
-                                        <span class="font-semibold">Tips:</span> Upload foto dengan latar belakang polos untuk hasil terbaik
+                                        <span class="font-semibold">Tips:</span> Maksimal ukuran pas foto 30KB
                                     </p>
                                 </div>
                             </div>
@@ -292,6 +321,32 @@
 
 @push('scripts')
 <script>
+function confirmSave(event) {
+    event.preventDefault();
+
+    Swal.fire({
+        title: 'Simpan Data Karyawan?',
+        text: "Pastikan semua data sudah benar!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Simpan!',
+        cancelButtonText: 'Cek Lagi',
+        reverseButtons: true,
+        customClass: {
+            confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
+            cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('formKaryawan').submit();
+        }
+    });
+
+    return false;
+}
+
 function previewImage(event) {
     const file = event.target.files[0];
     const container = document.getElementById('preview-container');
