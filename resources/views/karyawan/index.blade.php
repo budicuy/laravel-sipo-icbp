@@ -52,7 +52,7 @@
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Departemen</label>
                     <div class="relative">
-                        <select name="departemen" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
+                        <select name="departemen" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
                             <option value="">-- Semua Departemen --</option>
                             @isset($departemens)
                                 @foreach($departemens as $dept)
@@ -81,24 +81,27 @@
         </div>
 
         <!-- Table Controls -->
-        <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="flex items-center gap-2">
+        <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
+            <div class="flex items-center gap-3">
                 <label class="text-sm font-medium text-gray-700">Tampilkan</label>
-                <select class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
-                    <option>50</option>
-                    <option>100</option>
-                    <option>200</option>
-                </select>
-                <span class="text-sm font-medium text-gray-700">data</span>
+                <form method="GET" id="perPageForm" class="inline">
+                    @if(request('departemen'))
+                        <input type="hidden" name="departemen" value="{{ request('departemen') }}">
+                    @endif
+                    @if(request('q'))
+                        <input type="hidden" name="q" value="{{ request('q') }}">
+                    @endif
+                    <select name="per_page" onchange="document.getElementById('perPageForm').submit()" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white shadow-sm">
+                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        <option value="150" {{ request('per_page') == 150 ? 'selected' : '' }}>150</option>
+                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                    </select>
+                </form>
+                <span class="text-sm font-medium text-gray-700">data per halaman</span>
             </div>
-            <div class="flex items-center gap-2">
-                <label class="text-sm font-medium text-gray-700">Pencarian:</label>
-                <div class="relative">
-                    <input type="text" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-64" placeholder="Cari karyawan...">
-                    <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
+            <div class="text-sm text-gray-600">
+                Total: <span class="font-semibold text-gray-900">{{ $karyawans->total() }}</span> karyawan
             </div>
         </div>
 
@@ -133,9 +136,19 @@
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                    {{ strtoupper(Str::of($karyawan->nama_karyawan)->explode(' ')->map(fn($p) => Str::substr($p,0,1))->take(2)->implode('')) }}
-                                </div>
+                                @if($karyawan->foto)
+                                    <img src="{{ asset('storage/' . $karyawan->foto) }}"
+                                         alt="{{ $karyawan->nama_karyawan }}"
+                                         class="w-10 h-10 rounded-full object-cover border-2 border-blue-200 shadow-sm"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full items-center justify-center text-white text-xs font-bold hidden">
+                                        {{ strtoupper(Str::of($karyawan->nama_karyawan)->explode(' ')->map(fn($p) => Str::substr($p,0,1))->take(2)->implode('')) }}
+                                    </div>
+                                @else
+                                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                                        {{ strtoupper(Str::of($karyawan->nama_karyawan)->explode(' ')->map(fn($p) => Str::substr($p,0,1))->take(2)->implode('')) }}
+                                    </div>
+                                @endif
                                 <span class="text-sm font-medium text-gray-900">{{ $karyawan->nama_karyawan }}</span>
                             </div>
                         </td>
@@ -183,16 +196,114 @@
             </table>
         </div>
 
-        <!-- Pagination -->
+        <!-- Custom Pagination -->
         @isset($karyawans)
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="text-sm text-gray-700 font-medium">
-                Menampilkan <span class="font-semibold text-gray-900">{{ $karyawans->firstItem() }}</span> sampai <span class="font-semibold text-gray-900">{{ $karyawans->lastItem() }}</span> dari <span class="font-semibold text-gray-900">{{ $karyawans->total() }}</span> data
-            </div>
-            <div>
-                {{ $karyawans->withQueryString()->links() }}
+        @if($karyawans->hasPages())
+        <div class="px-6 py-5 border-t border-gray-200 bg-white">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <!-- Info Text -->
+                <div class="text-sm text-gray-600">
+                    Halaman <span class="font-semibold text-gray-900">{{ $karyawans->currentPage() }}</span>
+                    dari <span class="font-semibold text-gray-900">{{ $karyawans->lastPage() }}</span>
+                    <span class="mx-2 text-gray-400">•</span>
+                    Total <span class="font-semibold text-gray-900">{{ $karyawans->total() }}</span> data
+                </div>
+
+                <!-- Pagination Buttons -->
+                <nav class="flex items-center gap-2" role="navigation" aria-label="Pagination Navigation">
+                    {{-- First Page --}}
+                    @if($karyawans->onFirstPage())
+                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </span>
+                    @else
+                        <a href="{{ $karyawans->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </a>
+                    @endif
+
+                    {{-- Previous Page --}}
+                    @if($karyawans->onFirstPage())
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            Previous
+                        </span>
+                    @else
+                        <a href="{{ $karyawans->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                            Previous
+                        </a>
+                    @endif
+
+                    {{-- Page Numbers --}}
+                    <div class="flex items-center gap-1">
+                        @php
+                            $start = max($karyawans->currentPage() - 2, 1);
+                            $end = min($karyawans->currentPage() + 2, $karyawans->lastPage());
+                        @endphp
+
+                        @if($start > 1)
+                            <a href="{{ $karyawans->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                                1
+                            </a>
+                            @if($start > 2)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                        @endif
+
+                        @for($i = $start; $i <= $end; $i++)
+                            @if($i == $karyawans->currentPage())
+                                <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-md">
+                                    {{ $i }}
+                                </span>
+                            @else
+                                <a href="{{ $karyawans->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                                    {{ $i }}
+                                </a>
+                            @endif
+                        @endfor
+
+                        @if($end < $karyawans->lastPage())
+                            @if($end < $karyawans->lastPage() - 1)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                            <a href="{{ $karyawans->appends(request()->except('page'))->url($karyawans->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                                {{ $karyawans->lastPage() }}
+                            </a>
+                        @endif
+                    </div>
+
+                    {{-- Next Page --}}
+                    @if($karyawans->hasMorePages())
+                        <a href="{{ $karyawans->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                            Next
+                        </a>
+                    @else
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            Next
+                        </span>
+                    @endif
+
+                    {{-- Last Page --}}
+                    @if($karyawans->currentPage() == $karyawans->lastPage())
+                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    @else
+                        <a href="{{ $karyawans->appends(request()->except('page'))->url($karyawans->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    @endif
+                </nav>
             </div>
         </div>
+        @endif
         @endisset
     </div>
 </div>

@@ -23,7 +23,7 @@
                 </h1>
                 <p class="text-gray-600 mt-1 ml-1">Perbarui informasi data karyawan</p>
             </div>
-        </div>      
+        </div>
     </div>
 
     <form action="{{ route('karyawan.update', $karyawan->id_karyawan) }}" method="POST" enctype="multipart/form-data">
@@ -40,7 +40,7 @@
                     Informasi Data Karyawan
                 </h2>
             </div>
-            
+
             <div class="p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Left Column - Form Fields -->
@@ -57,7 +57,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="nik" name="nik" value="{{ old('nik', $karyawan->nik_karyawan) }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500" placeholder="Masukkan NIK" required>
+                                    <input type="text" id="nik" name="nik" maxlength="16" value="{{ old('nik', $karyawan->nik_karyawan) }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500" placeholder="Masukkan NIK" required>
                                 </div>
                                 @error('nik')
                                     <p class="text-xs text-red-600">{{ $message }}</p>
@@ -113,8 +113,8 @@
                                 <div class="relative">
                                     <select id="jenis_kelamin" name="jenis_kelamin" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 appearance-none bg-white" required>
                                         <option value="">-- Pilih Jenis Kelamin --</option>
-                                        <option value="Laki - Laki" {{ old('jenis_kelamin', $karyawan->jenis_kelamin) == 'Laki - Laki' ? 'selected' : '' }}>Laki - Laki</option>
-                                        <option value="Perempuan" {{ old('jenis_kelamin', $karyawan->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                        <option value="L" {{ old('jenis_kelamin', $karyawan->jenis_kelamin_short) == 'L' || $karyawan->jenis_kelamin == 'Laki - Laki' ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="P" {{ old('jenis_kelamin', $karyawan->jenis_kelamin_short) == 'P' || $karyawan->jenis_kelamin == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,9 +190,9 @@
                                         <div id="preview-container" class="flex flex-col items-center justify-center w-full h-full">
                                             @if ($karyawan->foto)
                                                 <div class="relative w-full h-full">
-                                                    <img src="{{ asset('storage/' . $karyawan->foto) }}" 
-                                                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($karyawan->nama_karyawan) }}&background=0D8ABC&color=fff&size=256';" 
-                                                         class="w-full h-full object-cover rounded-lg" 
+                                                    <img src="{{ asset('storage/' . $karyawan->foto) }}"
+                                                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($karyawan->nama_karyawan) }}&background=0D8ABC&color=fff&size=256';"
+                                                         class="w-full h-full object-cover rounded-lg"
                                                          alt="Foto saat ini">
                                                 </div>
                                             @else
