@@ -38,25 +38,13 @@ Route::middleware('auth')->group(function () {
         'keluarga' => 'id_keluarga'
     ]);
 
-    Route::get('/obat', function () {
-        return view('obat.index');
-    })->name('obat.index');
+    // Obat Routes - Custom routes BEFORE resource routes
+    Route::post('/obat/bulk-delete', [App\Http\Controllers\ObatController::class, 'bulkDelete'])->name('obat.bulkDelete');
 
-    Route::get('/obat/create', function () {
-        return view('obat.create');
-    })->name('obat.create');
-
-    Route::post('/obat', function () {
-        return redirect()->route('obat.index');
-    })->name('obat.store');
-
-    Route::get('/obat/{id}/edit', function ($id) {
-        return view('obat.edit');
-    })->name('obat.edit');
-
-    Route::put('/obat/{id}', function ($id) {
-        return redirect()->route('obat.index');
-    })->name('obat.update');
+    // Obat Resource Routes
+    Route::resource('obat', App\Http\Controllers\ObatController::class)->parameters([
+        'obat' => 'id_obat'
+    ]);
 
     Route::get('/diagnosa', function () {
         return view('diagnosa.index');

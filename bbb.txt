@@ -1,19 +1,17 @@
 buatkan crud data obat dengan field data obat sebagai berikut ini :
-
 - nama obat
 - Keterangan
 - Jenis obat berelasi dengan id jenis obat
 - satuan obat berelasi dengan id satuan obat
-
 - stok awal
 - stok masuk
 - stok keluar
 - stok akhir
 - jumlah perkemasan
 - harga perkemasan
-- hargsa per satuan
+- harga per satuan
 
-stok + stok masuk - stok keluar x jumlah perkemasan = stok akhir
+stok awal + stok masuk - stok keluar x jumlah perkemasan = stok akhir
 harga perkemasan / jumlah perkemasan = harga per satuan
 
 ['nama_satuan' => 'Ampul'], // per satuan
@@ -31,6 +29,8 @@ harga perkemasan / jumlah perkemasan = harga per satuan
 
 jika hitungan ada per satuan maka field perkemasan bisa di isi 2, 4, 6, dan 10 pakai select option
 jika hitungan ada perkemasan maka field per satuan di isi 1 dan disable
+
+buatkan hitungan otomatis pada saat input data dan edit data realtime menggunakan alpine.js
 
 list data tabel data obat yang menampilkan field sebagai berikut ini :
 - nama obat

@@ -24,8 +24,6 @@ class SatuanObatSeeder extends Seeder
             ['nama_satuan' => 'Dus'],
             ['nama_satuan' => 'Strip'],
             ['nama_satuan' => 'Injek'],
-            ['nama_satuan' => 'Kamar'],
-            ['nama_satuan' => 'Ampul'],
             ['nama_satuan' => 'Sachet'],
             ['nama_satuan' => 'Pcs'],
             ['nama_satuan' => 'Bungkus'],
