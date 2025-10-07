@@ -17,16 +17,19 @@ class SatuanObatSeeder extends Seeder
         DB::table('satuan_obat')->delete();
 
         $satuanObats = [
-            ['nama_satuan' => 'Tablet'],
-            ['nama_satuan' => 'Strip'],
+            ['nama_satuan' => 'Ampul'],
+            ['nama_satuan' => 'Kapsul'],
             ['nama_satuan' => 'Botol'],
-            ['nama_satuan' => 'Botol (Tetes)'],
-            ['nama_satuan' => 'Tube'],
+            ['nama_satuan' => 'Box'],
+            ['nama_satuan' => 'Dus'],
+            ['nama_satuan' => 'Strip'],
+            ['nama_satuan' => 'Injek'],
+            ['nama_satuan' => 'Kamar'],
             ['nama_satuan' => 'Ampul'],
             ['nama_satuan' => 'Sachet'],
             ['nama_satuan' => 'Pcs'],
+            ['nama_satuan' => 'Bungkus'],
         ];
-
         DB::table('satuan_obat')->insert($satuanObats);
     }
 }

@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
             ObatSeeder::class,
             HubunganSeeder::class,
             UserSeeder::class,
-            KaryawanSeeder::class, // Added: Seed 200 karyawan
+            KaryawanSeeder::class, // Seed 200 karyawan
+            KeluargaSeeder::class, // Seed 200 keluarga
         ]);
 
         // Tabel users belum ada, komentari dulu

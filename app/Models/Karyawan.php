@@ -59,6 +59,12 @@ class Karyawan extends Model
     {
         return $this->belongsTo(Departemen::class, 'id_departemen', 'id_departemen');
     }
+
+    // Relasi ke Keluarga
+    public function keluargas()
+    {
+        return $this->hasMany(Keluarga::class, 'id_karyawan', 'id_karyawan');
+    }
 }
 
 

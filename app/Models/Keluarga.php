@@ -11,7 +11,7 @@ class Keluarga extends Model
 
     protected $table = 'keluarga';
     protected $primaryKey = 'id_keluarga';
-    
+
     protected $fillable = [
         'id_karyawan',
         'nama_keluarga',

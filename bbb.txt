@@ -1,0 +1,50 @@
+buatkan crud data obat dengan field data obat sebagai berikut ini :
+
+- nama obat
+- Keterangan
+- Jenis obat berelasi dengan id jenis obat
+- satuan obat berelasi dengan id satuan obat
+
+- stok awal
+- stok masuk
+- stok keluar
+- stok akhir
+- jumlah perkemasan
+- harga perkemasan
+- hargsa per satuan
+
+stok + stok masuk - stok keluar x jumlah perkemasan = stok akhir
+harga perkemasan / jumlah perkemasan = harga per satuan
+
+['nama_satuan' => 'Ampul'], // per satuan
+['nama_satuan' => 'Kapsul'], // perkemasan
+['nama_satuan' => 'Botol'], // per satuan
+['nama_satuan' => 'Box'], // perkemasan
+['nama_satuan' => 'Dus'], // perkemasan
+['nama_satuan' => 'Strip'], // perkemasan
+['nama_satuan' => 'Injek'], // per satuan
+['nama_satuan' => 'Ampul'], // per satuan
+['nama_satuan' => 'Sachet'], // perkemasan
+['nama_satuan' => 'Pcs'], // perkemasan
+['nama_satuan' => 'Bungkus'], //perkemasan
+
+
+jika hitungan ada per satuan maka field perkemasan bisa di isi 2, 4, 6, dan 10 pakai select option
+jika hitungan ada perkemasan maka field per satuan di isi 1 dan disable
+
+list data tabel data obat yang menampilkan field sebagai berikut ini :
+- nama obat
+- Jenis obat
+- satuan obat
+- jumlah perkemasan
+- harga perkemasan
+- harga per satuan
+- Keterangan
+- stok awal
+- stok masuk
+- stok keluar
+- stok akhir
+- Tanggal update
+- aksi (edit dan delete)
+
+Note penting : jangan rubah desain yang sudah ada dan sesuaikan dengan desain yang sudah ada saja

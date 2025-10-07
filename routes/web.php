@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KaryawanController;
+use App\Http\Controllers\KeluargaController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -28,25 +29,14 @@ Route::middleware('auth')->group(function () {
         'karyawan' => 'karyawan'
     ]);
 
-    Route::get('/keluarga', function () {
-        return view('keluarga.index');
-    })->name('keluarga.index');
+    // Keluarga Routes - Custom routes BEFORE resource routes
+    Route::get('/keluarga/search-karyawan', [KeluargaController::class, 'searchKaryawan'])->name('keluarga.searchKaryawan');
+    Route::post('/keluarga/bulk-delete', [KeluargaController::class, 'bulkDelete'])->name('keluarga.bulkDelete');
 
-    Route::get('/keluarga/create', function () {
-        return view('keluarga.create');
-    })->name('keluarga.create');
-
-    Route::post('/keluarga', function () {
-        return redirect()->route('keluarga.index');
-    })->name('keluarga.store');
-
-    Route::get('/keluarga/{id}/edit', function ($id) {
-        return view('keluarga.edit');
-    })->name('keluarga.edit');
-
-    Route::put('/keluarga/{id}', function ($id) {
-        return redirect()->route('keluarga.index');
-    })->name('keluarga.update');
+    // Keluarga Resource Routes
+    Route::resource('keluarga', KeluargaController::class)->parameters([
+        'keluarga' => 'id_keluarga'
+    ]);
 
     Route::get('/obat', function () {
         return view('obat.index');
