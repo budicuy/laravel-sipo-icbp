@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('harga_satuan', 10, 2)->nullable()->default(0);
             $table->decimal('subtotal', 10, 2)->nullable()->storedAs('jumlah * harga_satuan');
             $table->text('keterangan')->nullable();
-            
+
             // Foreign keys
             $table->foreign(['id_rekam'], 'resep_obat_ibfk_1')->references(['id_rekam'])->on('rekam_medis')->onUpdate('restrict')->onDelete('cascade');
             $table->foreign(['id_obat'], 'resep_obat_ibfk_2')->references(['id_obat'])->on('obat')->onUpdate('restrict')->onDelete('restrict');
