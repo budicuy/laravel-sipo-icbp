@@ -55,7 +55,7 @@ class Obat extends Model
         static::saving(function ($obat) {
             // Calculate stok_akhir: (stok_awal + stok_masuk - stok_keluar)
             $obat->stok_akhir = ($obat->stok_awal ?? 0) + ($obat->stok_masuk ?? 0) - ($obat->stok_keluar ?? 0);
-            
+
             // Update tanggal_update
             $obat->tanggal_update = now();
         });

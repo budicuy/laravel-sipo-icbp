@@ -76,7 +76,7 @@
 
              if (this.jumlah_per_kemasan > 0) {            </div>
 
-                 this.harga_per_satuan = (this.harga_per_kemasan / this.jumlah_per_kemasan).toFixed(2);            
+                 this.harga_per_satuan = (this.harga_per_kemasan / this.jumlah_per_kemasan).toFixed(2);
 
              } else {            <div class="p-6">
 
@@ -377,7 +377,7 @@
                                 </svg>
                             </div>
                             <input type="number" id="stok_awal" name="stok_awal" value="{{ old('stok_awal', 0) }}" required min="0" x-model="stok_awal"
-                                   class="pl-10 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('stok_awal') border-red-500 @enderror" 
+                                   class="pl-10 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('stok_awal') border-red-500 @enderror"
                                    placeholder="0">
                         </div>
                         @error('stok_awal')
@@ -397,7 +397,7 @@
                                 </svg>
                             </div>
                             <input type="number" id="stok_masuk" name="stok_masuk" value="{{ old('stok_masuk', 0) }}" required min="0" x-model="stok_masuk"
-                                   class="pl-10 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('stok_masuk') border-red-500 @enderror" 
+                                   class="pl-10 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('stok_masuk') border-red-500 @enderror"
                                    placeholder="0">
                         </div>
                         @error('stok_masuk')
@@ -417,7 +417,7 @@
                                 </svg>
                             </div>
                             <input type="number" id="stok_keluar" name="stok_keluar" value="{{ old('stok_keluar', 0) }}" required min="0" x-model="stok_keluar"
-                                   class="pl-10 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('stok_keluar') border-red-500 @enderror" 
+                                   class="pl-10 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('stok_keluar') border-red-500 @enderror"
                                    placeholder="0">
                         </div>
                         @error('stok_keluar')
@@ -437,7 +437,7 @@
                                 </svg>
                             </div>
                             <input type="text" id="stok_akhir" x-model="stok_akhir" readonly
-                                   class="pl-10 w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" 
+                                   class="pl-10 w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                                    placeholder="0">
                         </div>
                         <p class="mt-1 text-xs text-gray-500">Formula: Stok Awal + Stok Masuk - Stok Keluar</p>
@@ -453,7 +453,7 @@
                                 <span class="text-gray-500 font-medium">Rp</span>
                             </div>
                             <input type="number" id="harga_per_kemasan" name="harga_per_kemasan" value="{{ old('harga_per_kemasan', 0) }}" required min="0" step="0.01" x-model="harga_per_kemasan"
-                                   class="pl-12 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('harga_per_kemasan') border-red-500 @enderror" 
+                                   class="pl-12 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('harga_per_kemasan') border-red-500 @enderror"
                                    placeholder="0">
                         </div>
                         @error('harga_per_kemasan')
@@ -471,7 +471,7 @@
                                 <span class="text-gray-500 font-medium">Rp</span>
                             </div>
                             <input type="text" id="harga_per_satuan" name="harga_per_satuan" x-model="harga_per_satuan" readonly
-                                   class="pl-12 w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" 
+                                   class="pl-12 w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                                    placeholder="0">
                         </div>
                         <p class="mt-1 text-xs text-gray-500">Formula: Harga Per Kemasan / Jumlah Per Kemasan</p>
@@ -482,8 +482,8 @@
                         <label for="keterangan" class="block text-sm font-semibold text-gray-700 mb-2">
                             Keterangan
                         </label>
-                        <textarea id="keterangan" name="keterangan" rows="4" 
-                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('keterangan') border-red-500 @enderror" 
+                        <textarea id="keterangan" name="keterangan" rows="4"
+                                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('keterangan') border-red-500 @enderror"
                                   placeholder="Masukkan keterangan atau catatan obat (opsional)">{{ old('keterangan') }}</textarea>
                         @error('keterangan')
                             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
