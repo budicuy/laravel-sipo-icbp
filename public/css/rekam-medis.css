@@ -1,0 +1,45 @@
+/* Toggle Switch Animations */
+label[data-status] {
+    transition: transform 0.2s ease;
+}
+
+label[data-status] .status-text {
+    transition: color 0.3s ease;
+}
+
+/* Success animation */
+@keyframes success-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.update-success {
+    animation: success-pulse 0.5s ease-in-out;
+}
+
+/* Error animation */
+@keyframes error-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.update-error {
+    animation: error-shake 0.5s ease-in-out;
+}
+
+/* Toggle switch hover effect */
+.toggle-switch:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+/* Active status colors */
+label[data-status="close"] .status-text {
+    color: #15803d; /* green-800 */
+}
+
+label[data-status="progress"] .status-text {
+    color: #854d0e; /* yellow-800 */
+}

@@ -69,10 +69,11 @@
                         <div class="relative">
                             <select id="hubungan" name="hubungan" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white" required>
                                 <option value="">-- Pilih Hubungan --</option>
-                                <option value="Karyawan">Karyawan</option>
-                                <option value="Suami">Suami</option>
-                                <option value="Istri">Istri</option>
-                                <option value="Anak">Anak</option>
+                                <option value="A">Karyawan</option>
+                                <option value="B">Pasangan</option>
+                                <option value="C">Anak 1</option>
+                                <option value="D">Anak 2</option>
+                                <option value="E">Anak 3</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

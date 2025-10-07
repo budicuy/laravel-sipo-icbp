@@ -107,6 +107,50 @@
                         </div>
                     </div>
 
+                    <!-- Kode Hubungan -->
+                    <div>
+                        <label for="kode_hubungan" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Kode Hubungan <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select id="kode_hubungan" name="kode_hubungan" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required onchange="updateHubungan(this)">
+                                <option value="">-- Pilih Kode --</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hubungan -->
+                    <div>
+                        <label for="hubungan" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Hubungan <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select id="hubungan" name="hubungan" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
+                                <option value="">-- Pilih Hubungan --</option>
+                                <option value="Karyawan">Karyawan</option>
+                                <option value="Pasangan">Pasangan</option>
+                                <option value="Anak 1">Anak 1</option>
+                                <option value="Anak 2">Anak 2</option>
+                                <option value="Anak 3">Anak 3</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Tanggal Lahir -->
                     <div>
                         <label for="tanggal_lahir" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -136,36 +180,17 @@
                             <input type="date" id="tanggal_periksa" name="tanggal_periksa" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Diagnosa & Terapi Section -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-            <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
-                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                    Diagnosa & Terapi
-                </h2>
-            </div>
-            
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Diagnosa / Penyakit -->
+                    <!-- Jumlah Keluhan -->
                     <div>
-                        <label for="diagnosa" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Diagnosa / Penyakit <span class="text-red-500">*</span>
+                        <label for="jumlah_keluhan" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Jumlah Keluhan <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
-                            <select id="diagnosa" name="diagnosa" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
-                                <option value="">-- Pilih Diagnosa --</option>
-                                <option value="1">Demam Berdarah</option>
-                                <option value="2">Hipertensi</option>
-                                <option value="3">Diabetes Mellitus</option>
-                                <option value="4">ISPA (Infeksi Saluran Pernapasan Atas)</option>
-                                <option value="5">Gastritis</option>
+                            <select id="jumlah_keluhan" name="jumlah_keluhan" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required onchange="updateKeluhanSections(this.value)">
+                                <option value="1">1 Keluhan</option>
+                                <option value="2">2 Keluhan</option>
+                                <option value="3">3 Keluhan</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,93 +199,155 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Terapi -->
-                    <div>
-                        <label for="terapi" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Terapi <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <select id="terapi" name="terapi" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
-                                <option value="">-- Pilih Terapi --</option>
-                                <option value="Obat">Obat</option>
-                                <option value="Lab">Lab</option>
-                                <option value="-">-</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Keterangan -->
-                    <div class="md:col-span-2">
-                        <label for="keterangan" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Keterangan / Catatan
-                        </label>
-                        <textarea id="keterangan" name="keterangan" rows="4" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Masukkan catatan medis, anjuran dokter, atau informasi penting lainnya..."></textarea>
-                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Resep Obat Section -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4">
-                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                    Resep Obat
-                </h2>
-            </div>
-            
-            <div class="p-6">
-                <div id="obat-container">
-                    <!-- Obat Row 1 -->
-                    <div class="obat-row grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 pb-4 border-b border-gray-200">
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Nama Obat <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <select name="obat[]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
-                                    <option value="">-- Pilih Obat --</option>
-                                    <option value="1">Paracetamol 500mg</option>
-                                    <option value="2">Amoxicillin 500mg</option>
-                                    <option value="3">Vitamin C 1000mg</option>
-                                    <option value="4">Antasida</option>
-                                </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                    </svg>
+        <!-- Combined Diagnosa & Resep Section -->
+        <div id="keluhan-container">
+            <div class="keluhan-section bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+                <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Diagnosa & Resep Obat
+                        <span class="keluhan-number">(Keluhan 1)</span>
+                    </h2>
+                </div>
+                
+                <div class="p-6">
+                    <!-- Diagnosa Section -->
+                    <div class="mb-6 pb-6 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Diagnosa</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Diagnosa / Penyakit -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Diagnosa / Penyakit <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <select name="diagnosa[]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
+                                        <option value="">-- Pilih Diagnosa --</option>
+                                        <option value="1">Demam Berdarah</option>
+                                        <option value="2">Hipertensi</option>
+                                        <option value="3">Diabetes Mellitus</option>
+                                        <option value="4">ISPA (Infeksi Saluran Pernapasan Atas)</option>
+                                        <option value="5">Gastritis</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Terapi -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Terapi <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <select name="terapi[]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
+                                        <option value="">-- Pilih Terapi --</option>
+                                        <option value="Obat">Obat</option>
+                                        <option value="Lab">Lab</option>
+                                        <option value="Istirahat dirumah">Istirahat dirumah</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Keterangan -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Keterangan / Catatan
+                                </label>
+                                <textarea name="keterangan[]" rows="4" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Masukkan catatan medis, anjuran dokter, atau informasi penting lainnya..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resep Obat Section -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Resep Obat</h3>
+                        <div class="obat-container">
+                            <div class="obat-row grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Nama Obat <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <select name="obat[0][]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
+                                            <option value="">-- Pilih Obat --</option>
+                                            <option value="1">Paracetamol 500mg</option>
+                                            <option value="2">Amoxicillin 500mg</option>
+                                            <option value="3">Vitamin C 1000mg</option>
+                                            <option value="4">Antasida</option>
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Jumlah <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" name="jumlah[0][]" min="1" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="0" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Aturan Pakai <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="relative">
+                                            <select name="jumlah_pakai[0][]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
+                                                <option value="">-- Jumlah --</option>
+                                                <option value="1x sehari">1x sehari</option>
+                                                <option value="2x sehari">2x sehari</option>
+                                                <option value="3x sehari">3x sehari</option>
+                                                <option value="4x sehari">4x sehari</option>
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div class="relative">
+                                            <select name="waktu_pakai[0][]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
+                                                <option value="">-- Waktu --</option>
+                                                <option value="Sebelum makan">Sebelum makan</option>
+                                                <option value="Sesudah makan">Sesudah makan</option>
+                                                <option value="Saat makan">Saat makan</option>
+                                            </select>
+                                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Jumlah <span class="text-red-500">*</span>
-                            </label>
-                            <input type="number" name="jumlah[]" min="1" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="0" required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Aturan Pakai
-                            </label>
-                            <input type="text" name="aturan_pakai[]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="3x sehari">
-                        </div>
+
+                        <button type="button" class="tambah-obat-btn mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Tambah Obat
+                        </button>
                     </div>
                 </div>
-
-                <button type="button" onclick="tambahObat()" class="mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Tambah Obat
-                </button>
             </div>
         </div>
 
@@ -286,6 +373,133 @@
 
 @push('scripts')
 <script>
+// Handle hubungan selection based on kode_hubungan
+function updateHubungan(select) {
+    const kodeHubungan = select.value;
+    const hubunganSelect = document.getElementById('hubungan');
+    
+    // Define mapping of kode to hubungan
+    const hubunganMapping = {
+        'A': 'Karyawan',
+        'B': 'Pasangan',
+        'C': 'Anak 1',
+        'D': 'Anak 2',
+        'E': 'Anak 3'
+    };
+    
+    // Set the hubungan value based on kode
+    if (kodeHubungan in hubunganMapping) {
+        hubunganSelect.value = hubunganMapping[kodeHubungan];
+    } else {
+        hubunganSelect.value = '';
+    }
+}
+// Handle hubungan selection based on kode_hubungan
+function updateHubungan(select) {
+    const kodeHubungan = select.value;
+    const hubunganSelect = document.getElementById('hubungan');
+    
+    // Define mapping of kode to hubungan
+    const hubunganMapping = {
+        'A': 'Karyawan',
+        'B': 'Pasangan',
+        'C': 'Anak 1',
+        'D': 'Anak 2',
+        'E': 'Anak 3'
+    };
+    
+    // Set the hubungan value based on kode
+    if (kodeHubungan in hubunganMapping) {
+        hubunganSelect.value = hubunganMapping[kodeHubungan];
+    } else {
+        hubunganSelect.value = '';
+    }
+}
+
+// Handle multiple keluhan sections
+function updateKeluhanSections(value) {
+    const container = document.getElementById('keluhan-container');
+    const template = container.querySelector('.keluhan-section');
+    
+    // Remove existing sections except the first one
+    while (container.children.length > 1) {
+        container.removeChild(container.lastChild);
+    }
+    
+    // Clone and add new sections based on selected value
+    for (let i = 1; i < value; i++) {
+        const newSection = template.cloneNode(true);
+        const keluhanIndex = i;
+        
+        // Update section title
+        const title = newSection.querySelector('.keluhan-number');
+        title.textContent = `(Keluhan ${i + 1})`;
+        
+        // Update form field names with proper index
+        newSection.querySelectorAll('select, input, textarea').forEach(element => {
+            if (element.name && element.name.includes('[')) {
+                element.name = element.name.replace(/\[\d+\]/, `[${keluhanIndex}]`);
+            }
+        });
+        
+        // Reset form values
+        newSection.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+        newSection.querySelectorAll('input').forEach(input => input.value = '');
+        newSection.querySelectorAll('textarea').forEach(textarea => textarea.value = '');
+        
+        // Set up obat button handler
+        const tambahObatBtn = newSection.querySelector('.tambah-obat-btn');
+        tambahObatBtn.onclick = function() { tambahObat(this); };
+        
+        container.appendChild(newSection);
+    }
+}
+
+// Handle adding obat rows
+function tambahObat(button) {
+    const keluhanSection = button.closest('.keluhan-section');
+    const container = keluhanSection.querySelector('.obat-container');
+    const template = container.querySelector('.obat-row');
+    const keluhanIndex = Array.from(document.querySelectorAll('.keluhan-section')).indexOf(keluhanSection);
+    
+    const newRow = template.cloneNode(true);
+    
+    // Reset values and update indices
+    newRow.querySelectorAll('input, select').forEach(element => {
+        element.value = '';
+        if (element.name && element.name.includes('[')) {
+            // Update array index for all form elements
+            if (element.name.startsWith('jumlah_pakai[') || element.name.startsWith('waktu_pakai[')) {
+                element.name = element.name.replace(/\[\d+\]/, `[${keluhanIndex}]`);
+            } else {
+                element.name = element.name.replace(/\[\d+\]/, `[${keluhanIndex}]`);
+            }
+        }
+    });
+    
+    // Add remove button
+    const removeBtn = document.createElement('div');
+    removeBtn.className = 'md:col-span-4 flex justify-end';
+    removeBtn.innerHTML = `
+        <button type="button" onclick="this.closest('.obat-row').remove()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Hapus
+        </button>
+    `;
+    newRow.appendChild(removeBtn);
+    
+    container.appendChild(newRow);
+}
+
+// Initialize the tambah obat button handlers
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.tambah-obat-btn').forEach(button => {
+        button.onclick = function() { tambahObat(this); };
+    });
+});
+
 function updatePasienInfo(select) {
     const selectedOption = select.options[select.selectedIndex];
     if (selectedOption.value) {
