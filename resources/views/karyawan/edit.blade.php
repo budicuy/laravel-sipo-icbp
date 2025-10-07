@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <form action="{{ route('karyawan.update', $karyawan->id_karyawan) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('karyawan.update', $karyawan->id_karyawan) }}" method="POST" enctype="multipart/form-data" id="formKaryawan" onsubmit="return confirmUpdate(event)">
         @csrf
         @method('PUT')
 
@@ -247,6 +247,32 @@
 @push('scripts')
 <script>
 const originalPreview = document.getElementById('preview-container').innerHTML;
+
+function confirmUpdate(event) {
+    event.preventDefault();
+    
+    Swal.fire({
+        title: 'Update Data Karyawan?',
+        text: "Pastikan perubahan data sudah benar!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Update!',
+        cancelButtonText: 'Cek Lagi',
+        reverseButtons: true,
+        customClass: {
+            confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
+            cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('formKaryawan').submit();
+        }
+    });
+    
+    return false;
+}
 
 function previewImage(event) {
     const file = event.target.files[0];

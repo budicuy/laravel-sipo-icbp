@@ -106,7 +106,7 @@
         </div>
 
         <!-- Table -->
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto" x-data="{ sortField: '{{ request('sort', '') }}', sortDirection: '{{ request('direction', 'asc') }}' }">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
                     <tr class="bg-gradient-to-r from-gray-800 to-gray-900">
@@ -114,13 +114,167 @@
                             <input type="checkbox" onclick="toggleAll(this)" class="rounded border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500">
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">NIK</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Nama</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Jenis Kelamin</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Departemen</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No HP</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Tanggal Lahir</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Alamat</th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nik_karyawan', 'direction' => (request('sort') == 'nik_karyawan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-blue-300 transition-colors">
+                                <span>NIK</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'nik_karyawan')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <   path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nama_karyawan', 'direction' => (request('sort') == 'nama_karyawan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-blue-300 transition-colors">
+                                <span>Nama</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'nama_karyawan')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'jenis_kelamin', 'direction' => (request('sort') == 'jenis_kelamin' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-blue-300 transition-colors">
+                                <span>Jenis Kelamin</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'jenis_kelamin')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'id_departemen', 'direction' => (request('sort') == 'id_departemen' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-blue-300 transition-colors">
+                                <span>Departemen</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'id_departemen')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'no_hp', 'direction' => (request('sort') == 'no_hp' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-blue-300 transition-colors">
+                                <span>No HP</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'no_hp')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'tanggal_lahir', 'direction' => (request('sort') == 'tanggal_lahir' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-blue-300 transition-colors">
+                                <span>Tanggal Lahir</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'tanggal_lahir')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'alamat', 'direction' => (request('sort') == 'alamat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-blue-300 transition-colors">
+                                <span>Alamat</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'alamat')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -175,10 +329,10 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </a>
-                                <form action="{{ route('karyawan.destroy', $karyawan->id_karyawan) }}" method="POST" onsubmit="return confirm('Hapus karyawan ini?')">
+                                <form action="{{ route('karyawan.destroy', $karyawan->id_karyawan) }}" method="POST" class="delete-form">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
+                                    <button type="button" onclick="confirmDelete(this)" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
@@ -314,41 +468,83 @@ function toggleAll(source) {
   checkboxes.forEach(cb => cb.checked = source.checked);
 }
 
+function confirmDelete(button) {
+  Swal.fire({
+    title: 'Hapus Karyawan?',
+    text: "Data yang dihapus tidak dapat dikembalikan!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Ya, Hapus!',
+    cancelButtonText: 'Batal',
+    reverseButtons: true,
+    customClass: {
+      confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
+      cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      button.closest('form').submit();
+    }
+  });
+}
+
 function submitBulkDelete() {
   const ids = getSelectedIds();
   if (ids.length === 0) {
-    alert('Pilih minimal satu karyawan untuk dihapus');
+    Swal.fire({
+      icon: 'warning',
+      title: 'Tidak Ada Data Terpilih',
+      text: 'Pilih minimal satu karyawan untuk dihapus',
+      confirmButtonColor: '#3b82f6',
+      confirmButtonText: 'OK'
+    });
     return;
   }
 
-  if (!confirm(`Apakah Anda yakin ingin menghapus ${ids.length} karyawan yang dipilih?`)) {
-    return;
-  }
+  Swal.fire({
+    title: 'Hapus ' + ids.length + ' Karyawan?',
+    text: "Data yang dihapus tidak dapat dikembalikan!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Ya, Hapus Semua!',
+    cancelButtonText: 'Batal',
+    reverseButtons: true,
+    customClass: {
+      confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
+      cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Create form dynamically
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '{{ route("karyawan.bulkDelete") }}';
 
-  // Create form dynamically
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = '{{ route("karyawan.bulkDelete") }}';
+      // Add CSRF token
+      const csrfInput = document.createElement('input');
+      csrfInput.type = 'hidden';
+      csrfInput.name = '_token';
+      csrfInput.value = '{{ csrf_token() }}';
+      form.appendChild(csrfInput);
 
-  // Add CSRF token
-  const csrfInput = document.createElement('input');
-  csrfInput.type = 'hidden';
-  csrfInput.name = '_token';
-  csrfInput.value = '{{ csrf_token() }}';
-  form.appendChild(csrfInput);
+      // Add IDs
+      ids.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = id;
+        form.appendChild(input);
+      });
 
-  // Add IDs
-  ids.forEach(id => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'ids[]';
-    input.value = id;
-    form.appendChild(input);
+      // Append to body and submit
+      document.body.appendChild(form);
+      form.submit();
+    }
   });
-
-  // Append to body and submit
-  document.body.appendChild(form);
-  form.submit();
 }
 
 function getSelectedIds() {

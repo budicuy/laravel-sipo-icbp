@@ -114,7 +114,7 @@
             </div>
         </div>
 
-        <form action="{{ route('karyawan.store') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('karyawan.store') }}" method="POST" enctype="multipart/form-data" id="formKaryawan" onsubmit="return confirmSave(event)">
         @csrf
         <!-- Manual Input Section Card -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -321,6 +321,32 @@
 
 @push('scripts')
 <script>
+function confirmSave(event) {
+    event.preventDefault();
+    
+    Swal.fire({
+        title: 'Simpan Data Karyawan?',
+        text: "Pastikan semua data sudah benar!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3b82f6',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Simpan!',
+        cancelButtonText: 'Cek Lagi',
+        reverseButtons: true,
+        customClass: {
+            confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
+            cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('formKaryawan').submit();
+        }
+    });
+    
+    return false;
+}
+
 function previewImage(event) {
     const file = event.target.files[0];
     const container = document.getElementById('preview-container');

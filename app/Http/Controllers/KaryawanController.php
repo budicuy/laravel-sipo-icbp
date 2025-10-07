@@ -32,6 +32,21 @@ class KaryawanController extends Controller
             });
         }
 
+        // Handle sorting
+        $allowedSorts = ['id_karyawan', 'nik_karyawan', 'nama_karyawan', 'jenis_kelamin', 'id_departemen', 'no_hp', 'tanggal_lahir', 'alamat'];
+        $sortField = $request->input('sort', 'id_karyawan');
+        $sortDirection = $request->input('direction', 'asc');
+
+        // Validate sort field and direction
+        if (!in_array($sortField, $allowedSorts)) {
+            $sortField = 'id_karyawan';
+        }
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+
+        $query->orderBy($sortField, $sortDirection);
+
         // Get per_page from request, default to 50
         $perPage = $request->input('per_page', 50);
 
