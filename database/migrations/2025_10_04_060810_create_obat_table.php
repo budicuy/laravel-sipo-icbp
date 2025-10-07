@@ -15,8 +15,8 @@ return new class extends Migration
             $table->integer('id_obat', true);
             $table->string('nama_obat', 100)->unique('nama_obat');
             $table->text('keterangan')->nullable();
-            $table->integer('id_jenis_obat')->nullable()->index('fk_jenis_obat');
-            $table->integer('id_satuan')->nullable()->index('fk_obat_satuan');
+            $table->integer('id_jenis_obat')->nullable();
+            $table->integer('id_satuan')->nullable();
             $table->integer('stok_awal')->nullable()->default(0);
             $table->integer('stok_masuk')->nullable()->default(0);
             $table->integer('stok_keluar')->nullable()->default(0);

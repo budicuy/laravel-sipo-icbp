@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('kunjungan', function (Blueprint $table) {
             $table->integer('id_kunjungan', true);
-            $table->integer('id_keluarga')->index('fk_kunjungan_keluarga');
+            $table->integer('id_keluarga');
             $table->string('kode_transaksi', 50);
             $table->date('tanggal_kunjungan')->default(DB::raw('CURRENT_DATE'));
             $table->timestamp('created_at')->nullable()->useCurrent();

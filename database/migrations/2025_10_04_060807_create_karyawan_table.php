@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('jenis_kelamin', ['Laki - Laki', 'Perempuan']);
             $table->text('alamat')->nullable();
             $table->string('no_hp', 20)->nullable();
-            $table->integer('id_departemen')->index('fk_departemen');
+            $table->integer('id_departemen');
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
 

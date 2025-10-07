@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('penyakit_obat', function (Blueprint $table) {
             $table->integer('id_penyakit');
-            $table->integer('id_obat')->index('fk_obat');
+            $table->integer('id_obat');
 
             $table->primary(['id_penyakit', 'id_obat']);
             
