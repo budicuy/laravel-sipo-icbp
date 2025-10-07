@@ -25,7 +25,7 @@ return new class extends Migration
             $table->decimal('harga_per_satuan', 15)->default(0);
             $table->decimal('harga_per_kemasan', 15);
             $table->dateTime('tanggal_update')->nullable()->useCurrent();
-            
+
             // Foreign keys
             $table->foreign(['id_jenis_obat'], 'fk_jenis_obat')->references(['id_jenis_obat'])->on('jenis_obat')->onUpdate('cascade')->onDelete('set null');
             $table->foreign(['id_satuan'], 'fk_obat_satuan')->references(['id_satuan'])->on('satuan_obat')->onUpdate('restrict')->onDelete('restrict');
