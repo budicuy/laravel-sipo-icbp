@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             KeluargaSeeder::class, // Seed 200 keluarga
         ]);
 
+
         // Tabel users belum ada, komentari dulu
         // User::factory()->create([
         //     'name' => 'Test User',
