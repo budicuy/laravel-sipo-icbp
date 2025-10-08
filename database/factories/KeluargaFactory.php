@@ -25,7 +25,7 @@ class KeluargaFactory extends Factory
             'tanggal_daftar' => fake()->dateTimeBetween('-2 years', 'now'),
             'no_rm' => 'RM' . fake()->unique()->numerify('########'),
             'kode_hubungan' => $kode_hubungan,
-            'no_ktp' => $kode_hubungan !== 'A' ? fake()->unique()->numerify('################') : null,
+            'bpjs_id' => $kode_hubungan !== 'A' ? (string) fake()->numberBetween(1000000000, 9999999999) : null, // 10 digit BPJS ID
         ];
     }
 
@@ -37,7 +37,7 @@ class KeluargaFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'kode_hubungan' => 'A',
-                'no_ktp' => null,
+                'bpjs_id' => null,
             ];
         });
     }
@@ -50,7 +50,7 @@ class KeluargaFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'kode_hubungan' => 'B',
-                'no_ktp' => fake()->unique()->numerify('################'),
+                'bpjs_id' => (string) fake()->numberBetween(1000000000, 9999999999), // 10 digit BPJS ID
             ];
         });
     }

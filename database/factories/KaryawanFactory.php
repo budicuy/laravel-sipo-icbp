@@ -23,7 +23,7 @@ class KaryawanFactory extends Factory
         $jenisKelamin = fake()->randomElement(['L', 'P']);
 
         return [
-            'nik_karyawan' => fake()->unique()->numerify('################'), // 16 digit
+            'nik_karyawan' => (string) fake()->unique()->numberBetween(100000, 999999), // 6 digit NIK unik
             'nama_karyawan' => fake()->name(),
             'tanggal_lahir' => fake()->date('Y-m-d', '-20 years'), // Minimal 20 tahun yang lalu
             'jenis_kelamin' => $jenisKelamin, // Will be converted to full format by mutator
