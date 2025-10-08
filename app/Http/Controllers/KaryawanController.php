@@ -368,46 +368,39 @@ class KaryawanController extends Controller
             $file = $request->file('file');
             $spreadsheet = IOFactory::load($file->getRealPath());
             $sheet = $spreadsheet->getActiveSheet();
-            $rows = $sheet->toArray();
 
-            // Skip header row
-            $header = array_shift($rows);
+            // Get highest row number
+            $highestRow = $sheet->getHighestRow();
 
+            // Skip header row, start from row 2
             $created = 0;
             $updated = 0;
             $errors = [];
 
-            foreach ($rows as $index => $row) {
-                $rowNumber = $index + 2; // +2 karena index dimulai dari 0 dan ada header
+            for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
+
+                // Read cell values - use getValue() then convert to string to preserve leading zeros
+                $nikCell = $sheet->getCell('A' . $rowNumber)->getValue();
+                $nik = $nikCell !== null ? trim((string)$nikCell) : '';
+
+                $nama = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
+                $tanggalLahir = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? '');
+                $jenisKelamin = strtoupper(trim($sheet->getCell('D' . $rowNumber)->getValue() ?? ''));
+                $alamat = trim($sheet->getCell('E' . $rowNumber)->getValue() ?? '');
+
+                $noHpCell = $sheet->getCell('F' . $rowNumber)->getValue();
+                $noHp = $noHpCell !== null ? trim((string)$noHpCell) : '';
+
+                $departemenName = trim($sheet->getCell('G' . $rowNumber)->getValue() ?? '');
+                $email = trim($sheet->getCell('H' . $rowNumber)->getValue() ?? '');
+
+                // For BPJS ID, convert to string to preserve leading zeros
+                $bpjsIdCell = $sheet->getCell('I' . $rowNumber)->getValue();
+                $bpjsId = $bpjsIdCell !== null ? trim((string)$bpjsIdCell) : '';
 
                 // Skip empty rows
-                if (empty(array_filter($row))) {
+                if (empty($nik) && empty($nama)) {
                     continue;
-                }
-
-                // Map data
-                $nik = trim((string)($row[0] ?? ''));
-                $nama = trim((string)($row[1] ?? ''));
-                $tanggalLahir = trim((string)($row[2] ?? ''));
-                $jenisKelamin = strtoupper(trim((string)($row[3] ?? '')));
-                $alamat = trim((string)($row[4] ?? ''));
-                $noHp = trim((string)($row[5] ?? ''));
-                $departemenName = trim((string)($row[6] ?? ''));
-                $email = trim((string)($row[7] ?? ''));
-                
-                // Handle BPJS ID - convert to string and remove any non-numeric chars except digits
-                $bpjsId = '';
-                if (isset($row[8]) && $row[8] !== null && $row[8] !== '') {
-                    // Convert to string, handle scientific notation
-                    $bpjsIdRaw = $row[8];
-                    if (is_numeric($bpjsIdRaw)) {
-                        // If it's a number, format it properly to preserve all digits
-                        $bpjsId = sprintf('%.0f', $bpjsIdRaw);
-                    } else {
-                        $bpjsId = trim((string)$bpjsIdRaw);
-                    }
-                    // Remove any non-digit characters
-                    $bpjsId = preg_replace('/[^0-9]/', '', $bpjsId);
                 }
 
                 // Validate NIK
