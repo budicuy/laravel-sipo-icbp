@@ -222,7 +222,7 @@
                                     Diagnosa / Penyakit <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select name="keluhan[0][id_diagnosa]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
+                                    <select name="keluhan[0][id_diagnosa]" class="diagnosa-select w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required data-keluhan-index="0">
                                         <option value="">-- Pilih Diagnosa --</option>
                                         @foreach($diagnosas as $diagnosa)
                                             <option value="{{ $diagnosa->id_diagnosa }}">{{ $diagnosa->nama_diagnosa }}</option>
@@ -269,49 +269,21 @@
                     <!-- Resep Obat Section -->
                     <div>
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Resep Obat (Opsional)</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Nama Obat -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Nama Obat
-                                </label>
-                                <div class="relative">
-                                    <select name="keluhan[0][id_obat]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white">
-                                        <option value="">-- Pilih Obat (Opsional) --</option>
-                                        @foreach($obats as $obat)
-                                            <option value="{{ $obat->id_obat }}">{{ $obat->nama_obat }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
+
+                        <!-- Obat Checkbox List Container -->
+                        <div class="obat-checkbox-container mb-4" data-keluhan-index="0">
+                            <div class="obat-list bg-gray-50 border border-gray-300 rounded-lg p-4 max-h-60 overflow-y-auto">
+                                <p class="text-sm text-gray-500 italic">Pilih diagnosa terlebih dahulu untuk menampilkan daftar obat yang sesuai.</p>
+                            </div>
+                        </div>
+
+                        <!-- Details for selected obat (will be shown when obat is selected) -->
+                        <div class="selected-obat-details mt-4" data-keluhan-index="0" style="display: none;">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="text-sm font-semibold text-blue-900 mb-3">Detail Obat yang Dipilih</h4>
+                                <div class="obat-details-list space-y-3">
+                                    <!-- Will be populated by JavaScript -->
                                 </div>
-                            </div>
-
-                            <!-- Jumlah Obat -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Jumlah
-                                </label>
-                                <input type="number" name="keluhan[0][jumlah_obat]" min="1" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="0">
-                            </div>
-
-                            <!-- Aturan Pakai -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Aturan Pakai
-                                </label>
-                                <input type="text" name="keluhan[0][aturan_pakai]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Contoh: 3x sehari">
-                            </div>
-
-                            <!-- Waktu Pakai -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Waktu Pakai (Hari)
-                                </label>
-                                <input type="number" name="keluhan[0][waktu_pakai]" min="1" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="0">
                             </div>
                         </div>
                     </div>
@@ -365,7 +337,7 @@ document.getElementById('search_pasien').addEventListener('input', function() {
                     resultsDiv.innerHTML = data.map(pasien => `
                         <div class="px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 transition-colors" onclick="selectPasien(${JSON.stringify(pasien).replace(/"/g, '&quot;')})">
                             <div class="font-medium text-gray-900">${pasien.nama}</div>
-                            <div class="text-sm text-gray-600">NIK: ${pasien.nik || '-'}</div>
+                            <div class="text-sm text-gray-600">NIK Karyawan (Penanggung Jawab): ${pasien.nik_karyawan || '-'}</div>
                         </div>
                     `).join('');
                 }
@@ -426,11 +398,159 @@ function updateKeluhanSections(value) {
                 element.name = element.name.replace(/keluhan\[\d+\]/, `keluhan[${i}]`);
                 element.value = '';
             }
+            // Update data-keluhan-index for diagnosa selects
+            if (element.classList.contains('diagnosa-select')) {
+                element.setAttribute('data-keluhan-index', i);
+            }
         });
+
+        // Update data-keluhan-index for obat containers
+        const obatContainer = newSection.querySelector('.obat-checkbox-container');
+        if (obatContainer) {
+            obatContainer.setAttribute('data-keluhan-index', i);
+            obatContainer.querySelector('.obat-list').innerHTML = '<p class="text-sm text-gray-500 italic">Pilih diagnosa terlebih dahulu untuk menampilkan daftar obat yang sesuai.</p>';
+        }
+
+        const detailsContainer = newSection.querySelector('.selected-obat-details');
+        if (detailsContainer) {
+            detailsContainer.setAttribute('data-keluhan-index', i);
+            detailsContainer.style.display = 'none';
+        }
 
         container.appendChild(newSection);
     }
+
+    // Re-attach event listeners for all diagnosa selects
+    attachDiagnosaChangeListeners();
 }
+
+// Function to handle diagnosa change and show obat checkboxes
+function handleDiagnosaChange(event) {
+    const diagnosaSelect = event.target;
+    const diagnosaId = diagnosaSelect.value;
+    const keluhanIndex = diagnosaSelect.getAttribute('data-keluhan-index');
+
+    // Find the corresponding obat container in the same keluhan section
+    const keluhanSection = diagnosaSelect.closest('.keluhan-section');
+    const obatContainer = keluhanSection.querySelector('.obat-checkbox-container[data-keluhan-index="' + keluhanIndex + '"]');
+    const obatList = obatContainer.querySelector('.obat-list');
+    const detailsContainer = keluhanSection.querySelector('.selected-obat-details[data-keluhan-index="' + keluhanIndex + '"]');
+
+    if (!diagnosaId) {
+        // Reset obat list if no diagnosa selected
+        obatList.innerHTML = '<p class="text-sm text-gray-500 italic">Pilih diagnosa terlebih dahulu untuk menampilkan daftar obat yang sesuai.</p>';
+        detailsContainer.style.display = 'none';
+        return;
+    }
+
+    // Show loading state
+    obatList.innerHTML = '<p class="text-sm text-gray-500 italic">Memuat daftar obat...</p>';
+
+    // Fetch obat based on selected diagnosa
+    fetch(`{{ route('rekam-medis.getObatByDiagnosa') }}?diagnosa_id=${diagnosaId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                // Build checkbox list
+                let checkboxHTML = '<div class="space-y-2">';
+                data.forEach(obat => {
+                    checkboxHTML += `
+                        <label class="flex items-start space-x-3 p-2 hover:bg-white rounded cursor-pointer transition-colors">
+                            <input type="checkbox"
+                                   class="obat-checkbox mt-1 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                                   value="${obat.id_obat}"
+                                   data-obat-name="${obat.nama_obat}"
+                                   data-keluhan-index="${keluhanIndex}"
+                                   onchange="updateObatDetails(${keluhanIndex})">
+                            <span class="text-sm text-gray-700 flex-1">${obat.nama_obat}</span>
+                        </label>
+                    `;
+                });
+                checkboxHTML += '</div>';
+                obatList.innerHTML = checkboxHTML;
+            } else {
+                obatList.innerHTML = '<p class="text-sm text-gray-500 italic">Tidak ada obat terkait dengan diagnosa ini.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching obat:', error);
+            obatList.innerHTML = '<p class="text-sm text-red-500 italic">Error memuat daftar obat.</p>';
+        });
+}
+
+// Function to update obat details when checkbox is selected
+function updateObatDetails(keluhanIndex) {
+    const keluhanSection = document.querySelector(`.keluhan-section[data-keluhan-index="${keluhanIndex}"]`);
+    const checkedBoxes = keluhanSection.querySelectorAll(`.obat-checkbox[data-keluhan-index="${keluhanIndex}"]:checked`);
+    const detailsContainer = keluhanSection.querySelector(`.selected-obat-details[data-keluhan-index="${keluhanIndex}"]`);
+    const detailsList = detailsContainer.querySelector('.obat-details-list');
+
+    if (checkedBoxes.length === 0) {
+        detailsContainer.style.display = 'none';
+        detailsList.innerHTML = '';
+        return;
+    }
+
+    // Show details container
+    detailsContainer.style.display = 'block';
+
+    // Build details for each selected obat
+    let detailsHTML = '';
+    checkedBoxes.forEach((checkbox, index) => {
+        const obatId = checkbox.value;
+        const obatName = checkbox.getAttribute('data-obat-name');
+
+        detailsHTML += `
+            <div class="border border-gray-300 rounded-lg p-3 bg-white">
+                <h5 class="font-semibold text-sm text-gray-800 mb-2">${obatName}</h5>
+                <input type="hidden" name="keluhan[${keluhanIndex}][obat_list][${index}][id_obat]" value="${obatId}">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Jumlah</label>
+                        <input type="number"
+                               name="keluhan[${keluhanIndex}][obat_list][${index}][jumlah_obat]"
+                               min="1"
+                               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                               placeholder="0">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Aturan Pakai</label>
+                        <input type="text"
+                               name="keluhan[${keluhanIndex}][obat_list][${index}][aturan_pakai]"
+                               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                               placeholder="3x sehari">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Waktu (Hari)</label>
+                        <input type="number"
+                               name="keluhan[${keluhanIndex}][obat_list][${index}][waktu_pakai]"
+                               min="1"
+                               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                               placeholder="0">
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    detailsList.innerHTML = detailsHTML;
+}
+
+// Attach event listeners to all diagnosa selects
+function attachDiagnosaChangeListeners() {
+    document.querySelectorAll('.diagnosa-select').forEach(select => {
+        // Remove old listener if exists (to prevent duplicate)
+        select.removeEventListener('change', handleDiagnosaChange);
+        // Add new listener
+        select.addEventListener('change', handleDiagnosaChange);
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    attachDiagnosaChangeListeners();
+});
 </script>
 @endpush
 @endsection

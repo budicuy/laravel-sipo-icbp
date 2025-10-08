@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
 
     // Rekam Medis Routes - Custom routes BEFORE resource routes
     Route::get('/rekam-medis/search-pasien', [RekamMedisController::class, 'searchPasien'])->name('rekam-medis.searchPasien');
+    Route::get('/rekam-medis/get-obat-by-diagnosa', [RekamMedisController::class, 'getObatByDiagnosa'])->name('rekam-medis.getObatByDiagnosa');
 
     // Rekam Medis Resource Routes
     Route::resource('rekam-medis', RekamMedisController::class)->parameters([

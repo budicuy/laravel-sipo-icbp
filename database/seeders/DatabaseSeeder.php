@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             KaryawanSeeder::class, // Seed 200 karyawan
             KeluargaSeeder::class, // Seed 200 keluarga
+            DiagnosaSeeder::class, // Seed 200 diagnosa dengan relasi obat
         ]);
 
 

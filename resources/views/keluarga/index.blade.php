@@ -488,7 +488,6 @@ function getSelectedIds() {
 
 // Import Excel Modal Functions
 function openImportModal() {
-    console.log('openImportModal called'); // Debug log
     Swal.fire({
         title: 'Import Data Keluarga dari Excel',
         html: `
@@ -612,7 +611,9 @@ function openImportModal() {
                     confirmButtonColor: '#9333ea'
                 }).then(() => {
                     // Reload page to show new data
-                    window.location.reload();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000); // 2-second delay
                 });
             })
             .catch(error => {

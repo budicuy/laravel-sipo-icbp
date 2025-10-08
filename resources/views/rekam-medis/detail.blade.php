@@ -2,10 +2,36 @@
 
 @section('page-title', 'Detail Rekam Medis')
 
+@push('styles')
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .print-area, .print-area * {
+            visibility: visible;
+        }
+        .print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        .no-print {
+            display: none !important;
+        }
+        .bg-gradient-to-r, .bg-gradient-to-br {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="p-6 bg-gray-50 min-h-screen">
+<div class="p-6 bg-gray-50 min-h-screen print-area">
     <!-- Header Section -->
-    <div class="mb-6">
+    <div class="mb-6 no-print">
         <div class="flex items-center gap-3 mb-3">
             <a href="{{ route('rekam-medis.index') }}" class="p-2 hover:bg-white rounded-lg transition-colors">
                 <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -27,195 +53,173 @@
     </div>
 
     <!-- Informasi Pasien Section -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
-            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+    <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-6 overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                 </svg>
-                Informasi Pasien
-            </h2>
+                <h2 class="text-xl font-bold text-white">Informasi Pasien</h2>
+            </div>
         </div>
 
         <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="flex items-start">
-                    <span class="font-semibold text-gray-700 w-40 flex-shrink-0">No RM</span>
-                    <span class="text-gray-600 mx-2">:</span>
-                    <span class="text-gray-900 font-medium">{{ ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->kode_hubungan ?? '') }}</span>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">No Rekam Medis</div>
+                    <div class="text-lg font-bold text-blue-600">{{ ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->kode_hubungan ?? '') }}</div>
                 </div>
-                <div class="flex items-start">
-                    <span class="font-semibold text-gray-700 w-40 flex-shrink-0">Nama Pasien</span>
-                    <span class="text-gray-600 mx-2">:</span>
-                    <span class="text-gray-900 font-medium">{{ $rekamMedis->keluarga->nama_keluarga ?? '-' }}</span>
+                <div>
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Nama Pasien</div>
+                    <div class="text-lg font-bold text-gray-900">{{ $rekamMedis->keluarga->nama_keluarga ?? '-' }}</div>
                 </div>
-                <div class="flex items-start">
-                    <span class="font-semibold text-gray-700 w-40 flex-shrink-0">NIK Karyawan</span>
-                    <span class="text-gray-600 mx-2">:</span>
-                    <span class="text-gray-900">{{ $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-' }}</span>
+                <div>
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">NIK Karyawan</div>
+                    <div class="text-lg font-bold text-gray-900">{{ $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-' }}</div>
                 </div>
-                <div class="flex items-start">
-                    <span class="font-semibold text-gray-700 w-40 flex-shrink-0">Hubungan</span>
-                    <span class="text-gray-600 mx-2">:</span>
-                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                        {{ $rekamMedis->keluarga->kode_hubungan ?? '' }}. {{ $rekamMedis->keluarga->hubungan->hubungan ?? '-' }}
-                    </span>
+            </div>
+            <div class="border-t pt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <div class="text-xs text-gray-500 font-medium">Hubungan</div>
+                        <div class="text-sm font-semibold text-gray-900">{{ $rekamMedis->keluarga->kode_hubungan ?? '' }}. {{ $rekamMedis->keluarga->hubungan->hubungan ?? '-' }}</div>
+                    </div>
                 </div>
-                <div class="flex items-start">
-                    <span class="font-semibold text-gray-700 w-40 flex-shrink-0">Tanggal Lahir</span>
-                    <span class="text-gray-600 mx-2">:</span>
-                    <span class="text-gray-900">{{ $rekamMedis->keluarga->tanggal_lahir ? $rekamMedis->keluarga->tanggal_lahir->format('d-m-Y') : '-' }}</span>
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <div class="text-xs text-gray-500 font-medium">Tanggal Lahir</div>
+                        <div class="text-sm font-semibold text-gray-900">{{ $rekamMedis->keluarga->tanggal_lahir ? $rekamMedis->keluarga->tanggal_lahir->format('d F Y') : '-' }}</div>
+                    </div>
                 </div>
-                <div class="flex items-start">
-                    <span class="font-semibold text-gray-700 w-40 flex-shrink-0">Jenis Kelamin</span>
-                    <span class="text-gray-600 mx-2">:</span>
-                    <span class="text-gray-900">{{ $rekamMedis->keluarga->jenis_kelamin ?? '-' }}</span>
+                <div class="flex items-center gap-2">
+                    @if($rekamMedis->keluarga->jenis_kelamin == 'Laki-Laki')
+                        <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                    @else
+                        <svg class="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                    @endif
+                    <div>
+                        <div class="text-xs text-gray-500 font-medium">Jenis Kelamin</div>
+                        <div class="text-sm font-semibold text-gray-900">{{ $rekamMedis->keluarga->jenis_kelamin ?? '-' }}</div>
+                    </div>
                 </div>
-                <div class="flex items-start md:col-span-2">
-                    <span class="font-semibold text-gray-700 w-40 flex-shrink-0">Alamat</span>
-                    <span class="text-gray-600 mx-2">:</span>
-                    <span class="text-gray-900">{{ $rekamMedis->keluarga->alamat ?? '-' }}</span>
+            </div>
+            <div class="border-t pt-4 mt-4">
+                <div class="flex items-start gap-2">
+                    <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="flex-1">
+                        <div class="text-xs text-gray-500 font-medium mb-1">Alamat Lengkap</div>
+                        <div class="text-sm text-gray-900">{{ $rekamMedis->keluarga->alamat ?? '-' }}</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Riwayat Kunjungan Section -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+    <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-6 overflow-hidden">
         <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
-            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                Riwayat Kunjungan Pasien
-                <span class="ml-2 px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm text-purple-500">
-                    {{ $riwayatKunjungan->count() }} Kunjungan
-                </span>
-            </h2>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                    </svg>
+                    <h2 class="text-xl font-bold text-white">Riwayat Kunjungan Pasien</h2>
+                </div>
+                <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-white text-sm font-semibold">{{ $riwayatKunjungan->count() }} Kunjungan</span>
+            </div>
         </div>
 
-        <div class="p-6">
+        <div class="p-6 space-y-6">
             @forelse($riwayatKunjungan as $index => $kunjungan)
-            <!-- Kunjungan Card -->
-            <div class="bg-gray-50 rounded-lg border-2 border-gray-200 overflow-hidden mb-6 last:mb-0 ">
-                <!-- Kunjungan Header -->
-                <div class="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-white font-semibold flex items-center gap-2">
-                            <span class="bg-white bg-opacity-30 rounded-full px-3 py-1 text-sm text-purple-500">
-                                Kunjungan #{{ $riwayatKunjungan->count() - $index }}
-                            </span>
-                        </h3>
-                        <div class="flex items-center text-white text-sm">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <div class="border-l-4 border-blue-500 bg-gray-50 rounded-r-lg p-5">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold">Kunjungan #{{ $riwayatKunjungan->count() - $index }}</span>
+                        <div class="flex items-center gap-2 text-gray-700">
+                            <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
                             </svg>
-                            {{ $kunjungan->tanggal_periksa->format('d F Y') }}
+                            <span class="font-semibold">{{ $kunjungan->tanggal_periksa->format('d F Y') }}</span>
                         </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-gray-600">
+                        <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-sm font-medium">{{ $kunjungan->user->nama_lengkap ?? '-' }}</span>
                     </div>
                 </div>
 
-                <!-- Kunjungan Details -->
-                <div class="p-6">
-                    <div class="mb-4">
-                        <div class="flex items-start mb-2">
-                            <span class="font-semibold text-gray-700 w-32">Petugas</span>
-                            <span class="text-gray-600 mx-2">:</span>
-                            <span class="text-gray-900">{{ $kunjungan->user->nama_lengkap ?? '-' }}</span>
-                        </div>
-                        <div class="flex items-start">
-                            <span class="font-semibold text-gray-700 w-32">Jumlah Keluhan</span>
-                            <span class="text-gray-600 mx-2">:</span>
-                            <span class="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                                {{ $kunjungan->jumlah_keluhan }} Keluhan
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Keluhan List -->
+                <div class="space-y-4">
                     @foreach($kunjungan->keluhans as $keluhanIndex => $keluhan)
-                    <div class="bg-white rounded-lg border border-gray-200 p-5 mb-4 last:mb-0">
-                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
-                            <h4 class="font-semibold text-gray-800 flex items-center gap-2">
-                                <span class="bg-red-100 text-red-700 rounded-full px-3 py-1 text-sm">
-                                    Keluhan {{ $keluhanIndex + 1 }}
-                                </span>
-                            </h4>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <div class="text-sm font-semibold text-gray-600 mb-1">Diagnosa / Penyakit</div>
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    <span class="text-gray-900 font-medium">{{ $keluhan->diagnosa->nama_diagnosa ?? '-' }}</span>
-                                </div>
+                    <div class="bg-white rounded-lg border border-gray-200 p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">{{ $keluhanIndex + 1 }}</span>
+                                <span class="font-bold text-gray-900">{{ $keluhan->diagnosa->nama_diagnosa ?? '-' }}</span>
                             </div>
-
-                            <div>
-                                <div class="text-sm font-semibold text-gray-600 mb-1">Terapi</div>
-                                <span class="px-3 py-1
-                                    @if($keluhan->terapi == 'Obat') bg-purple-100 text-purple-800
-                                    @elseif($keluhan->terapi == 'Lab') bg-orange-100 text-orange-800
-                                    @else bg-green-100 text-green-800
-                                    @endif
-                                    text-sm font-medium rounded-full inline-block">
-                                    {{ $keluhan->terapi }}
-                                </span>
-                            </div>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                {{ $keluhan->terapi == 'Obat' ? 'bg-purple-100 text-purple-700' : '' }}
+                                {{ $keluhan->terapi == 'Lab' ? 'bg-orange-100 text-orange-700' : '' }}
+                                {{ $keluhan->terapi == 'Istirahat' ? 'bg-green-100 text-green-700' : '' }}">
+                                {{ $keluhan->terapi }}
+                            </span>
                         </div>
 
                         @if($keluhan->keterangan)
-                        <div class="mb-4">
-                            <div class="text-sm font-semibold text-gray-600 mb-1">Keterangan</div>
-                            <div class="bg-gray-50 rounded-lg p-3 text-gray-700 text-sm">
-                                {{ $keluhan->keterangan }}
-                            </div>
+                        <div class="mb-3 text-sm text-gray-600 bg-blue-50 p-3 rounded border-l-4 border-blue-400">
+                            <span class="font-semibold text-blue-700">Catatan:</span> {{ $keluhan->keterangan }}
                         </div>
                         @endif
 
-                        <!-- Resep Obat -->
                         @if($keluhan->obat)
-                        <div class="bg-green-50 rounded-lg p-4 border border-green-200">
-                            <h5 class="font-semibold text-green-800 mb-3 flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        <div class="bg-green-50 rounded-lg p-3 border border-green-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"/>
                                 </svg>
-                                Resep Obat
-                            </h5>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                                <div class="flex items-start">
-                                    <span class="font-semibold text-gray-700 w-32">Nama Obat</span>
-                                    <span class="text-gray-600 mx-2">:</span>
-                                    <span class="text-gray-900 font-medium">{{ $keluhan->obat->nama_obat }}</span>
+                                <span class="font-bold text-green-800">Resep Obat</span>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                <div>
+                                    <div class="text-xs text-green-600 font-medium">Nama Obat</div>
+                                    <div class="font-semibold text-gray-900">{{ $keluhan->obat->nama_obat }}</div>
                                 </div>
                                 @if($keluhan->jumlah_obat)
-                                <div class="flex items-start">
-                                    <span class="font-semibold text-gray-700 w-32">Jumlah</span>
-                                    <span class="text-gray-600 mx-2">:</span>
-                                    <span class="text-gray-900">{{ $keluhan->jumlah_obat }}</span>
+                                <div>
+                                    <div class="text-xs text-green-600 font-medium">Jumlah</div>
+                                    <div class="font-semibold text-gray-900">{{ $keluhan->jumlah_obat }} {{ $keluhan->obat->satuan_obat->satuan ?? '' }}</div>
                                 </div>
                                 @endif
                                 @if($keluhan->aturan_pakai)
-                                <div class="flex items-start">
-                                    <span class="font-semibold text-gray-700 w-32">Aturan Pakai</span>
-                                    <span class="text-gray-600 mx-2">:</span>
-                                    <span class="text-gray-900">{{ $keluhan->aturan_pakai }}</span>
+                                <div>
+                                    <div class="text-xs text-green-600 font-medium">Aturan Pakai</div>
+                                    <div class="font-semibold text-gray-900">{{ $keluhan->aturan_pakai }}</div>
                                 </div>
                                 @endif
                                 @if($keluhan->waktu_pakai)
-                                <div class="flex items-start">
-                                    <span class="font-semibold text-gray-700 w-32">Waktu Pakai</span>
-                                    <span class="text-gray-600 mx-2">:</span>
-                                    <span class="text-gray-900">{{ $keluhan->waktu_pakai }} hari</span>
+                                <div>
+                                    <div class="text-xs text-green-600 font-medium">Durasi</div>
+                                    <div class="font-semibold text-gray-900">{{ $keluhan->waktu_pakai }} Hari</div>
                                 </div>
                                 @endif
                             </div>
                         </div>
                         @else
-                        <div class="bg-gray-100 rounded-lg p-3 text-center text-gray-500 text-sm">
+                        <div class="text-center py-3 text-gray-400 text-sm border border-dashed border-gray-300 rounded">
                             Tidak ada resep obat
                         </div>
                         @endif
@@ -224,33 +228,46 @@
                 </div>
             </div>
             @empty
-            <div class="text-center py-12 text-gray-500">
-                <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <div class="text-center py-12">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
                 </svg>
-                <p class="text-lg font-medium">Belum ada riwayat kunjungan</p>
+                <p class="text-gray-500 font-medium">Belum ada riwayat kunjungan</p>
             </div>
             @endforelse
         </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-        <div class="bg-gray-50 px-6 py-4 flex justify-between items-center">
-            <a href="{{ route('rekam-medis.index') }}" class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md inline-flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Kembali
-            </a>
-
-            <div class="flex gap-3">
-                <a href="{{ route('rekam-medis.edit', $rekamMedis->id_rekam) }}" class="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-all hover:shadow-md inline-flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+    <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden no-print">
+        <div class="p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+                <a href="{{ route('rekam-medis.index') }}"
+                   class="w-full sm:w-auto px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-all inline-flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
                     </svg>
-                    Edit
+                    <span>Kembali</span>
                 </a>
+
+                <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <button onclick="window.print()"
+                            class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all inline-flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Cetak</span>
+                    </button>
+
+                    <a href="{{ route('rekam-medis.edit', $rekamMedis->id_rekam) }}"
+                       class="w-full sm:w-auto px-6 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg transition-all inline-flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                        </svg>
+                        <span>Edit</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
