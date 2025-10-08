@@ -6,6 +6,7 @@ use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KeluargaController;
 use App\Http\Controllers\DiagnosaController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RekamMedisController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -70,22 +71,13 @@ Route::middleware('auth')->group(function () {
         return view('kunjungan.detail');
     })->name('kunjungan.detail');
 
-    // Rekam Medis Routes
-    Route::get('/rekam-medis', function () {
-        return view('rekam-medis.index');
-    })->name('rekam-medis.index');
+    // Rekam Medis Routes - Custom routes BEFORE resource routes
+    Route::get('/rekam-medis/search-pasien', [RekamMedisController::class, 'searchPasien'])->name('rekam-medis.searchPasien');
 
-    Route::get('/rekam-medis/create', function () {
-        return view('rekam-medis.create');
-    })->name('rekam-medis.create');
-
-    Route::post('/rekam-medis', function () {
-        return redirect()->route('rekam-medis.index');
-    })->name('rekam-medis.store');
-
-    Route::get('/rekam-medis/{id}', function ($id) {
-        return view('rekam-medis.detail');
-    })->name('rekam-medis.detail');
+    // Rekam Medis Resource Routes
+    Route::resource('rekam-medis', RekamMedisController::class)->parameters([
+        'rekam-medis' => 'id_rekam'
+    ]);
 
     // Surat Sakit Routes
     Route::get('/surat-sakit', function () {

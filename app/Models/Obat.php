@@ -57,6 +57,12 @@ class Obat extends Model
         );
     }
 
+    // Relasi ke Keluhan
+    public function keluhans()
+    {
+        return $this->hasMany(Keluhan::class, 'id_obat', 'id_obat');
+    }
+
     // Auto-calculate stok_akhir before saving
     protected static function boot()
     {

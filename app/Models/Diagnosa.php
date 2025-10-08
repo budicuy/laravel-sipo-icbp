@@ -27,4 +27,10 @@ class Diagnosa extends Model
             'id_obat'
         );
     }
+
+    // Relasi ke Keluhan
+    public function keluhans()
+    {
+        return $this->hasMany(Keluhan::class, 'id_diagnosa', 'id_diagnosa');
+    }
 }

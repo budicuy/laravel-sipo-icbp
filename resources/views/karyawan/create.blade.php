@@ -144,8 +144,8 @@
                                         </svg>
                                     </div>
                                     <input type="text" id="nik" name="nik" value="{{ old('nik') }}"
-                                    maxlength="16"
-                                     class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500  focus:border-blue-500" placeholder="Masukkan NIK" required>
+                                    maxlength="15"
+                                     class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500  focus:border-blue-500" placeholder="Masukkan NIK (1-15 karakter)" required>
                                 </div>
                                 @error('nik')
                                     <p class="text-xs text-red-600">{{ $message }}</p>
@@ -298,6 +298,45 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Email and BPJS ID Fields (Full Width Below) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Email
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <input type="email" id="email" name="email" value="{{ old('email') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="contoh@email.com">
+                        </div>
+                        @error('email')
+                            <p class="text-xs text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- BPJS ID -->
+                    <div>
+                        <label for="bpjs_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            BPJS ID
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                </svg>
+                            </div>
+                            <input type="text" id="bpjs_id" name="bpjs_id" value="{{ old('bpjs_id') }}" maxlength="50" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: 0001234567890 (hanya angka)">
+                        </div>
+                        @error('bpjs_id')
+                            <p class="text-xs text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
             <!-- Form Actions -->
@@ -379,6 +418,11 @@ function clearImage() {
         <p class="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 2MB)</p>
     `;
 }
+
+// Validasi BPJS ID hanya angka
+document.getElementById('bpjs_id').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
 </script>
 @endpush
 @endsection

@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('diagnosa', function (Blueprint $table) {
-            $table->unsignedInteger('id_diagnosa')->autoIncrement();
-            $table->string('nama_diagnosa', 100);
-            $table->text('deskripsi')->nullable();
-            $table->timestamps();
+        Schema::table('karyawan', function (Blueprint $table) {
+            $table->string('bpjs_id', 50)->nullable()->change();
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('diagnosa');
+        Schema::table('karyawan', function (Blueprint $table) {
+            $table->string('bpjs_id', 20)->nullable()->change();
+        });
     }
 };

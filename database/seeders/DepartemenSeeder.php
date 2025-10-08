@@ -17,18 +17,17 @@ class DepartemenSeeder extends Seeder
         DB::table('departemen')->delete();
 
         $departemens = [
-            ['nama_departemen' => 'ADM Gen. MGT'],
+            ['nama_departemen' => 'ADM Gen.Mgt'],
             ['nama_departemen' => 'ADM HR'],
             ['nama_departemen' => 'MFG Warehouse'],
             ['nama_departemen' => 'MFG Purchasing'],
             ['nama_departemen' => 'MFG Production'],
-            ['nama_departemen' => 'MFG QC'],
-            ['nama_departemen' => 'MKT Marketing'],
+            ['nama_departemen' => 'R&D QC/QA'],
+            ['nama_departemen' => 'MKT Sales&Distr'],
             ['nama_departemen' => 'MFG Technical'],
-            ['nama_departemen' => 'ADM Financial Accounting'],
+            ['nama_departemen' => 'ADM Fin. & Acct.'],
             ['nama_departemen' => 'MFG PPIC'],
-            ['nama_departemen' => 'MKT Sales Distributor'],
-            ['nama_departemen' => 'MKT Task Force'],
+            ['nama_departemen' => 'Outsouching'],
         ];
 
         DB::table('departemen')->insert($departemens);

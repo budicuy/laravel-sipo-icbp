@@ -23,6 +23,8 @@ class Karyawan extends Model
         'no_hp',
         'id_departemen',
         'foto',
+        'email',
+        'bpjs_id',
     ];
 
     protected $casts = [

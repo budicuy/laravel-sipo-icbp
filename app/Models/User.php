@@ -103,4 +103,12 @@ class User extends Authenticatable
     {
         return $this->role === 'User';
     }
+
+    /**
+     * Relasi ke Rekam Medis
+     */
+    public function rekamMedis()
+    {
+        return $this->hasMany(RekamMedis::class, 'id_user', 'id_user');
+    }
 }

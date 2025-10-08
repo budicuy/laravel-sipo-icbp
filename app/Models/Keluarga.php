@@ -41,6 +41,18 @@ class Keluarga extends Model
         return $this->belongsTo(Hubungan::class, 'kode_hubungan', 'kode_hubungan');
     }
 
+    // Relasi ke Rekam Medis
+    public function rekamMedis()
+    {
+        return $this->hasMany(RekamMedis::class, 'id_keluarga', 'id_keluarga');
+    }
+
+    // Relasi ke Keluhan
+    public function keluhans()
+    {
+        return $this->hasMany(Keluhan::class, 'id_keluarga', 'id_keluarga');
+    }
+
     // Accessor untuk jenis kelamin pendek
     public function getJenisKelaminShortAttribute()
     {

@@ -230,6 +230,12 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <span>Email</span>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <span>BPJS ID</span>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                             <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'tanggal_lahir', 'direction' => (request('sort') == 'tanggal_lahir' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
                                class="flex items-center justify-between group hover:text-blue-300 transition-colors">
                                 <span>Tanggal Lahir</span>
@@ -313,6 +319,8 @@
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ optional($karyawan->departemen)->nama_departemen }}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ $karyawan->no_hp }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ $karyawan->email ?? '-' }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ $karyawan->bpjs_id ?? '-' }}</td>
                         <td class="px-4 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-1 text-sm text-gray-700">
                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -343,7 +351,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data</td>
+                        <td colspan="12" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data</td>
                     </tr>
                     @endforelse
                 </tbody>

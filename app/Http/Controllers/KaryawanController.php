@@ -68,7 +68,7 @@ class KaryawanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nik' => ['required','string','size:16','unique:karyawan,nik_karyawan'],
+            'nik' => ['required','string','min:1','max:15','unique:karyawan,nik_karyawan'],
             'nama' => ['required','string','max:100'],
             'tanggal_lahir' => ['required','date'],
             'jenis_kelamin' => ['required', Rule::in(['L', 'P', 'J', 'Laki - Laki','Perempuan'])],
@@ -76,6 +76,10 @@ class KaryawanController extends Controller
             'no_hp' => ['required','regex:/^08\d+$/'],
             'departemen' => ['required','integer','exists:departemen,id_departemen'],
             'foto' => ['nullable','image','max:30'],
+            'email' => ['nullable','email','max:100'],
+            'bpjs_id' => ['nullable','string','max:50','regex:/^[0-9]+$/'],
+        ], [
+            'bpjs_id.regex' => 'BPJS ID hanya boleh berisi angka',
         ]);
 
         $path = null;
@@ -92,6 +96,8 @@ class KaryawanController extends Controller
             'no_hp' => $validated['no_hp'],
             'id_departemen' => $validated['departemen'],
             'foto' => $path,
+            'email' => $validated['email'] ?? null,
+            'bpjs_id' => $validated['bpjs_id'] ?? null,
         ]);
 
         return redirect()->route('karyawan.index')->with('success', 'Karyawan berhasil ditambahkan');
@@ -106,7 +112,7 @@ class KaryawanController extends Controller
     public function update(Request $request, Karyawan $karyawan)
     {
         $validated = $request->validate([
-            'nik' => ['required','string','size:16', Rule::unique('karyawan','nik_karyawan')->ignore($karyawan->id_karyawan, 'id_karyawan')],
+            'nik' => ['required','string','min:1','max:15', Rule::unique('karyawan','nik_karyawan')->ignore($karyawan->id_karyawan, 'id_karyawan')],
             'nama' => ['required','string','max:100'],
             'tanggal_lahir' => ['required','date'],
             'jenis_kelamin' => ['required', Rule::in(['L', 'P', 'J', 'Laki - Laki','Perempuan'])],
@@ -114,6 +120,10 @@ class KaryawanController extends Controller
             'no_hp' => ['required','regex:/^08\d+$/'],
             'departemen' => ['required','integer','exists:departemen,id_departemen'],
             'foto' => ['nullable','image','max:30'],
+            'email' => ['nullable','email','max:100'],
+            'bpjs_id' => ['nullable','string','max:50','regex:/^[0-9]+$/'],
+        ], [
+            'bpjs_id.regex' => 'BPJS ID hanya boleh berisi angka',
         ]);
 
         $data = [
@@ -124,6 +134,8 @@ class KaryawanController extends Controller
             'alamat' => $validated['alamat'],
             'no_hp' => $validated['no_hp'],
             'id_departemen' => $validated['departemen'],
+            'email' => $validated['email'] ?? null,
+            'bpjs_id' => $validated['bpjs_id'] ?? null,
         ];
 
         if ($request->hasFile('foto')) {
@@ -161,7 +173,7 @@ class KaryawanController extends Controller
             ->setDescription('Template untuk import data karyawan');
 
         // Header columns
-        $headers = ['NIK', 'Nama', 'Tanggal Lahir', 'Jenis Kelamin', 'Alamat', 'No HP', 'Departemen'];
+        $headers = ['NIK', 'Nama', 'Tanggal Lahir', 'Jenis Kelamin', 'Alamat', 'No HP', 'Departemen', 'Email', 'BPJS ID'];
         $column = 'A';
 
         foreach ($headers as $header) {
@@ -192,16 +204,19 @@ class KaryawanController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A1:G1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:I1')->applyFromArray($headerStyle);
 
         // Add sample data
-        $sheet->setCellValue('A2', '1234567890123456');
+        $sheet->setCellValue('A2', '123456789012345');
         $sheet->setCellValue('B2', 'John Doe');
         $sheet->setCellValue('C2', '1990-01-01');
         $sheet->setCellValue('D2', 'L');
         $sheet->setCellValue('E2', 'Jl. Contoh No. 123, Jakarta');
         $sheet->setCellValue('F2', '081234567890');
         $sheet->setCellValue('G2', 'IT');
+        $sheet->setCellValue('H2', 'john.doe@email.com');
+        // Set BPJS ID as explicit string to preserve leading zeros
+        $sheet->setCellValueExplicit('I2', '0001234567890', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 
         // Style sample data
         $dataStyle = [
@@ -216,7 +231,7 @@ class KaryawanController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A2:G2')->applyFromArray($dataStyle);
+        $sheet->getStyle('A2:I2')->applyFromArray($dataStyle);
 
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(20);
@@ -226,6 +241,13 @@ class KaryawanController extends Controller
         $sheet->getColumnDimension('E')->setWidth(35);
         $sheet->getColumnDimension('F')->setWidth(15);
         $sheet->getColumnDimension('G')->setWidth(20);
+        $sheet->getColumnDimension('H')->setWidth(25);
+        $sheet->getColumnDimension('I')->setWidth(20);
+
+        // Format kolom I (BPJS ID) sebagai Text untuk menjaga leading zeros
+        $sheet->getStyle('I:I')
+            ->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -233,11 +255,14 @@ class KaryawanController extends Controller
 
         // Add notes
         $sheet->setCellValue('A4', 'CATATAN:');
-        $sheet->setCellValue('A5', '• NIK harus 16 digit');
+        $sheet->setCellValue('A5', '• NIK minimal 1 karakter dan maksimal 15 karakter');
         $sheet->setCellValue('A6', '• Format Tanggal Lahir: YYYY-MM-DD (contoh: 1990-01-01)');
         $sheet->setCellValue('A7', '• Jenis Kelamin: "L" (Laki-laki), "J" (Laki-laki), atau "P" (Perempuan)');
         $sheet->setCellValue('A8', '• No HP harus diawali dengan 08');
-        $sheet->setCellValue('A9', '• Lihat daftar departemen di sheet "Daftar Departemen"');
+        $sheet->setCellValue('A9', '• Email format: contoh@email.com (opsional)');
+        $sheet->setCellValue('A10', '• BPJS ID hanya boleh angka, maksimal 50 karakter (opsional)');
+        $sheet->setCellValue('A11', '• PENTING: Format kolom BPJS ID sebagai TEXT di Excel untuk menjaga angka 0 di depan');
+        $sheet->setCellValue('A12', '• Lihat daftar departemen di sheet "Daftar Departemen"');
 
         $sheet->getStyle('A4')->getFont()->setBold(true);
         $sheet->getStyle('A5:A9')->getFont()->setItalic(true)->setSize(10);
@@ -368,10 +393,26 @@ class KaryawanController extends Controller
                 $alamat = trim((string)($row[4] ?? ''));
                 $noHp = trim((string)($row[5] ?? ''));
                 $departemenName = trim((string)($row[6] ?? ''));
+                $email = trim((string)($row[7] ?? ''));
+                
+                // Handle BPJS ID - convert to string and remove any non-numeric chars except digits
+                $bpjsId = '';
+                if (isset($row[8]) && $row[8] !== null && $row[8] !== '') {
+                    // Convert to string, handle scientific notation
+                    $bpjsIdRaw = $row[8];
+                    if (is_numeric($bpjsIdRaw)) {
+                        // If it's a number, format it properly to preserve all digits
+                        $bpjsId = sprintf('%.0f', $bpjsIdRaw);
+                    } else {
+                        $bpjsId = trim((string)$bpjsIdRaw);
+                    }
+                    // Remove any non-digit characters
+                    $bpjsId = preg_replace('/[^0-9]/', '', $bpjsId);
+                }
 
                 // Validate NIK
-                if (strlen($nik) !== 16) {
-                    $errors[] = "Baris $rowNumber: NIK harus 16 digit";
+                if (strlen($nik) < 1 || strlen($nik) > 15) {
+                    $errors[] = "Baris $rowNumber: NIK minimal 1 dan maksimal 15 karakter";
                     continue;
                 }
 
@@ -390,6 +431,24 @@ class KaryawanController extends Controller
                 // Validate no HP
                 if (!preg_match('/^08\d+$/', $noHp)) {
                     $errors[] = "Baris $rowNumber: No HP harus diawali dengan 08";
+                    continue;
+                }
+
+                // Validate email
+                if (!empty($email) && strlen($email) > 100) {
+                    $errors[] = "Baris $rowNumber: Email maksimal 100 karakter";
+                    continue;
+                }
+
+                // Validate BPJS ID
+                if (!empty($bpjsId) && strlen($bpjsId) > 50) {
+                    $errors[] = "Baris $rowNumber: BPJS ID maksimal 50 karakter";
+                    continue;
+                }
+
+                // Validate BPJS ID harus angka
+                if (!empty($bpjsId) && !preg_match('/^[0-9]+$/', $bpjsId)) {
+                    $errors[] = "Baris $rowNumber: BPJS ID hanya boleh berisi angka";
                     continue;
                 }
 
@@ -415,6 +474,8 @@ class KaryawanController extends Controller
                         'no_hp' => $noHp,
                         'id_departemen' => $departemen->id_departemen,
                         'foto' => null,
+                        'email' => !empty($email) ? $email : null,
+                        'bpjs_id' => !empty($bpjsId) ? $bpjsId : null,
                     ]
                 );
 
