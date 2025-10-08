@@ -13,8 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('kunjungan', function (Blueprint $table) {
-            $table->integer('id_kunjungan', true);
-            $table->integer('id_keluarga');
+            $table->unsignedInteger('id_kunjungan')->autoIncrement();
+            $table->unsignedInteger('id_keluarga');
             $table->string('kode_transaksi', 50);
             $table->date('tanggal_kunjungan')->default(DB::raw('CURRENT_DATE'));
             $table->timestamp('created_at')->nullable()->useCurrent();

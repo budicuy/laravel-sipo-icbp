@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('karyawan', function (Blueprint $table) {
-            $table->integer('id_karyawan', true);
+            $table->unsignedInteger('id_karyawan')->autoIncrement();
             $table->string('nik_karyawan', 16)->unique('nik_karyawan');
             $table->string('nama_karyawan', 100);
             $table->date('tanggal_lahir');
             $table->enum('jenis_kelamin', ['Laki - Laki', 'Perempuan']);
             $table->text('alamat')->nullable();
             $table->string('no_hp', 20)->nullable();
-            $table->integer('id_departemen');
+            $table->unsignedInteger('id_departemen');
             $table->string('foto', 255)->nullable();
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();

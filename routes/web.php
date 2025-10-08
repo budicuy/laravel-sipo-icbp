@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KeluargaController;
 use App\Http\Controllers\DiagnosaController;
+use App\Http\Controllers\UserController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -55,25 +56,10 @@ Route::middleware('auth')->group(function () {
         'diagnosa' => 'id_diagnosa'
     ]);
 
-    Route::get('/user', function () {
-        return view('user.index');
-    })->name('user.index');
-
-    Route::get('/user/create', function () {
-        return view('user.create');
-    })->name('user.create');
-
-    Route::post('/user', function () {
-        return redirect()->route('user.index');
-    })->name('user.store');
-
-    Route::get('/user/{id}/edit', function ($id) {
-        return view('user.edit');
-    })->name('user.edit');
-
-    Route::put('/user/{id}', function ($id) {
-        return redirect()->route('user.index');
-    })->name('user.update');
+    // User Routes - Resource Routes
+    Route::resource('user', UserController::class)->parameters([
+        'user' => 'id_user'
+    ]);
 
     // Kunjungan Routes
     Route::get('/kunjungan', function () {

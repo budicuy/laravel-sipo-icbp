@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('jenis_obat', function (Blueprint $table) {
-            $table->integer('id_jenis_obat', true);
-            $table->string('nama_jenis', 100)->unique('nama_jenis');
+            $table->unsignedInteger('id_jenis_obat')->autoIncrement();
+            $table->string('nama_jenis_obat', 50)->unique('nama_jenis_obat');
+            $table->timestamp('created_at')->nullable()->useCurrent();
         });
     }
 

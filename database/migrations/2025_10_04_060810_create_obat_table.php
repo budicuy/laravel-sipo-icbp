@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('obat', function (Blueprint $table) {
-            $table->integer('id_obat', true);
+            $table->unsignedInteger('id_obat')->autoIncrement();
             $table->string('nama_obat', 100)->unique('nama_obat');
             $table->text('keterangan')->nullable();
-            $table->integer('id_jenis_obat')->nullable();
-            $table->integer('id_satuan')->nullable();
+            $table->unsignedInteger('id_jenis_obat')->nullable();
+            $table->unsignedInteger('id_satuan')->nullable();
             $table->integer('stok_awal')->nullable()->default(0);
             $table->integer('stok_masuk')->nullable()->default(0);
             $table->integer('stok_keluar')->nullable()->default(0);

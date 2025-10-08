@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('resep_obat', function (Blueprint $table) {
-            $table->integer('id_resep_obat', true);
-            $table->integer('id_rekam');
-            $table->integer('id_obat');
+            $table->unsignedInteger('id_resep_obat')->autoIncrement();
+            $table->unsignedInteger('id_rekam');
+            $table->unsignedInteger('id_obat');
             $table->integer('jumlah')->nullable()->default(1);
             $table->decimal('harga_satuan', 10, 2)->nullable()->default(0);
             $table->decimal('subtotal', 10, 2)->nullable()->storedAs('jumlah * harga_satuan');
