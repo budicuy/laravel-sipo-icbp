@@ -100,22 +100,18 @@
         <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div class="flex items-center gap-2">
                 <label class="text-sm font-medium text-gray-700">Tampilkan</label>
-                <select class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm bg-white">
-                    <option>50</option>
-                    <option>100</option>
-                    <option>200</option>
-                </select>
-                <span class="text-sm font-medium text-gray-700">data</span>
+                <span class="text-sm font-medium text-gray-700">{{ $diagnosas->count() }} data</span>
             </div>
-            <div class="flex items-center gap-2">
+            <form method="GET" action="{{ route('diagnosa.index') }}" class="flex items-center gap-2">
                 <label class="text-sm font-medium text-gray-700">Pencarian:</label>
                 <div class="relative">
-                    <input type="text" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm w-64" placeholder="Cari diagnosa...">
+                    <input type="text" name="search" value="{{ request('search') }}" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm w-64" placeholder="Cari diagnosa...">
                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-            </div>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">Cari</button>
+            </form>
         </div>
 
         <!-- Table -->
@@ -123,88 +119,81 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
                     <tr class="bg-gradient-to-r from-gray-800 to-gray-900">
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <input type="checkbox" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
-                        </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Nama Penyakit</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Kode ICD</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Kategori</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Tingkat Keparahan</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Gejala Utama</th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Nama Diagnosa</th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Deskripsi</th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Obat Rekomendasi</th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @php
-                        $diagnosaData = [
-                            ['no' => 1, 'nama' => 'Demam Berdarah', 'inisial' => 'DB', 'icd' => 'A90', 'kategori' => 'Infeksi', 'tingkat' => 'Berat', 'gejala' => 'Demam tinggi, nyeri otot, bintik merah'],
-                            ['no' => 2, 'nama' => 'Hipertensi', 'inisial' => 'HT', 'icd' => 'I10', 'kategori' => 'Kronis', 'tingkat' => 'Sedang', 'gejala' => 'Tekanan darah tinggi, pusing'],
-                            ['no' => 3, 'nama' => 'Diabetes Mellitus', 'inisial' => 'DM', 'icd' => 'E11', 'kategori' => 'Kronis', 'tingkat' => 'Sedang', 'gejala' => 'Kadar gula darah tinggi'],
-                            ['no' => 4, 'nama' => 'ISPA', 'inisial' => 'IS', 'icd' => 'J06.9', 'kategori' => 'Akut', 'tingkat' => 'Ringan', 'gejala' => 'Batuk, pilek, demam ringan'],
-                        ];
-                    @endphp
-
-                    @foreach($diagnosaData as $diagnosa)
+                    @forelse($diagnosas as $index => $diagnosa)
                     <tr class="hover:bg-red-50 transition-colors">
-                        <td class="px-4 py-4 whitespace-nowrap">
-                            <input type="checkbox" class="rounded border-gray-300 text-red-600 focus:ring-red-500">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ ($diagnosas->currentPage() - 1) * $diagnosas->perPage() + $index + 1 }}
                         </td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $diagnosa['no'] }}</td>
                         <td class="px-4 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-2">
                                 <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                    {{ $diagnosa['inisial'] }}
+                                    {{ strtoupper(substr($diagnosa->nama_diagnosa, 0, 2)) }}
                                 </div>
-                                <span class="text-sm font-medium text-gray-900">{{ $diagnosa['nama'] }}</span>
+                                <span class="text-sm font-medium text-gray-900">{{ $diagnosa->nama_diagnosa }}</span>
                             </div>
                         </td>
-                        <td class="px-4 py-4 whitespace-nowrap">
-                            <span class="text-sm font-semibold text-red-600">{{ $diagnosa['icd'] }}</span>
+                        <td class="px-4 py-4 text-sm text-gray-600 max-w-xs">
+                            <div class="line-clamp-2" title="{{ $diagnosa->deskripsi }}">
+                                {{ $diagnosa->deskripsi ?? '-' }}
+                            </div>
                         </td>
-                        <td class="px-4 py-4 whitespace-nowrap">
-                            @php
-                                $kategoriColors = [
-                                    'Infeksi' => 'bg-orange-100 text-orange-800',
-                                    'Kronis' => 'bg-purple-100 text-purple-800',
-                                    'Akut' => 'bg-blue-100 text-blue-800',
-                                ];
-                                $color = $kategoriColors[$diagnosa['kategori']] ?? 'bg-gray-100 text-gray-800';
-                            @endphp
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $color }}">
-                                {{ $diagnosa['kategori'] }}
-                            </span>
+                        <td class="px-4 py-4 text-sm text-gray-600">
+                            @if($diagnosa->obats->count() > 0)
+                                <div class="flex flex-wrap gap-1">
+                                    @foreach($diagnosa->obats->take(3) as $obat)
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                            {{ $obat->nama_obat }}
+                                        </span>
+                                    @endforeach
+                                    @if($diagnosa->obats->count() > 3)
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
+                                            +{{ $diagnosa->obats->count() - 3 }}
+                                        </span>
+                                    @endif
+                                </div>
+                            @else
+                                <span class="text-gray-400 italic">Tidak ada</span>
+                            @endif
                         </td>
-                        <td class="px-4 py-4 whitespace-nowrap">
-                            @php
-                                $tingkatColors = [
-                                    'Ringan' => 'bg-green-100 text-green-800',
-                                    'Sedang' => 'bg-yellow-100 text-yellow-800',
-                                    'Berat' => 'bg-red-100 text-red-800',
-                                ];
-                                $color = $tingkatColors[$diagnosa['tingkat']] ?? 'bg-gray-100 text-gray-800';
-                            @endphp
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $color }}">
-                                {{ $diagnosa['tingkat'] }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-4 text-sm text-gray-600 max-w-xs truncate" title="{{ $diagnosa['gejala'] }}">{{ $diagnosa['gejala'] }}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm">
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('diagnosa.edit', $diagnosa['no']) }}" class="inline-flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Edit">
+                                <a href="{{ route('diagnosa.edit', $diagnosa->id_diagnosa) }}" class="inline-flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </a>
-                                <button class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
+                                <form action="{{ route('diagnosa.destroy', $diagnosa->id_diagnosa) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus diagnosa ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                            <div class="flex flex-col items-center gap-2">
+                                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p class="text-sm">Tidak ada data diagnosa</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -212,18 +201,10 @@
         <!-- Pagination -->
         <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div class="text-sm text-gray-700 font-medium">
-                Menampilkan <span class="font-semibold text-gray-900">1</span> sampai <span class="font-semibold text-gray-900">4</span> dari <span class="font-semibold text-gray-900">4</span> data
+                Menampilkan <span class="font-semibold text-gray-900">{{ $diagnosas->firstItem() ?? 0 }}</span> sampai <span class="font-semibold text-gray-900">{{ $diagnosas->lastItem() ?? 0 }}</span> dari <span class="font-semibold text-gray-900">{{ $diagnosas->total() }}</span> data
             </div>
             <div class="flex gap-2">
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors font-medium">
-                    Previous
-                </button>
-                <button class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors font-medium shadow-sm">
-                    1
-                </button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors font-medium">
-                    Next
-                </button>
+                {{ $diagnosas->links() }}
             </div>
         </div>
     </div>

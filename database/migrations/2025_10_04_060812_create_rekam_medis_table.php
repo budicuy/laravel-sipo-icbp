@@ -19,14 +19,12 @@ return new class extends Migration
             $table->integer('id_user');
             $table->date('tanggal')->default(DB::raw('CURRENT_DATE'));
             $table->enum('terapi', ['Obat', 'Lab', '-'])->nullable()->default('-');
-            $table->integer('id_penyakit')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->decimal('total_biaya', 10)->nullable()->default(0);
 
             // Foreign keys
             $table->foreign(['id_keluarga'], 'fk_keluarga')->references(['id_keluarga'])->on('keluarga')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign(['id_penyakit'], 'fk_penyakit_rekam')->references(['id_penyakit'])->on('penyakit')->onUpdate('cascade')->onDelete('set null');
             $table->foreign(['id_kunjungan'], 'fk_rekam_kunjungan')->references(['id_kunjungan'])->on('kunjungan')->onUpdate('restrict')->onDelete('cascade');
             $table->foreign(['id_user'], 'fk_user')->references(['id_user'])->on('user')->onUpdate('cascade')->onDelete('cascade');
         });

@@ -37,13 +37,23 @@
                     Informasi Data Diagnosa
                 </h2>
             </div>
-            
+
             <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Nama Penyakit -->
+                @if ($errors->any())
+                    <div class="mb-4 bg-red-50 border border-red-200 text-red-800 rounded-lg p-4">
+                        <ul class="list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <div class="grid grid-cols-1 gap-6">
+                    <!-- Nama Diagnosa -->
                     <div>
-                        <label for="nama_penyakit" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Nama Penyakit <span class="text-red-500">*</span>
+                        <label for="nama_diagnosa" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Nama Diagnosa <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -51,80 +61,37 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
-                            <input type="text" id="nama_penyakit" name="nama_penyakit" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Nama penyakit" required>
+                            <input type="text" id="nama_diagnosa" name="nama_diagnosa" value="{{ old('nama_diagnosa') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Nama diagnosa" required>
                         </div>
                     </div>
 
-                    <!-- Kode ICD -->
+                    <!-- Deskripsi -->
                     <div>
-                        <label for="kode_icd" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Kode ICD <span class="text-red-500">*</span>
+                        <label for="deskripsi" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Deskripsi
                         </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                                </svg>
-                            </div>
-                            <input type="text" id="kode_icd" name="kode_icd" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Contoh: A90" required>
-                        </div>
+                        <textarea id="deskripsi" name="deskripsi" rows="4" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Deskripsikan diagnosa">{{ old('deskripsi') }}</textarea>
                     </div>
 
-                    <!-- Kategori -->
+                    <!-- Obat yang Direkomendasikan -->
                     <div>
-                        <label for="kategori" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Kategori <span class="text-red-500">*</span>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Obat yang Direkomendasikan
                         </label>
-                        <div class="relative">
-                            <select id="kategori" name="kategori" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 appearance-none bg-white" required>
-                                <option value="">-- Pilih Kategori --</option>
-                                <option value="Infeksi">Infeksi</option>
-                                <option value="Kronis">Kronis</option>
-                                <option value="Akut">Akut</option>
-                                <option value="Degeneratif">Degeneratif</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
+                        <div class="border border-gray-300 rounded-lg p-4 max-h-64 overflow-y-auto">
+                            @foreach($obats as $obat)
+                                <div class="flex items-center mb-2">
+                                    <input type="checkbox" id="obat_{{ $obat->id_obat }}" name="obat_ids[]" value="{{ $obat->id_obat }}" class="rounded border-gray-300 text-red-600 focus:ring-red-500 mr-3" {{ in_array($obat->id_obat, old('obat_ids', [])) ? 'checked' : '' }}>
+                                    <label for="obat_{{ $obat->id_obat }}" class="text-sm text-gray-700">
+                                        {{ $obat->nama_obat }}
+                                        @if($obat->keterangan)
+                                            <span class="text-gray-500 text-xs">({{ Str::limit($obat->keterangan, 30) }})</span>
+                                        @endif
+                                    </label>
+                                </div>
+                            @endforeach
                         </div>
-                    </div>
-
-                    <!-- Tingkat Keparahan -->
-                    <div>
-                        <label for="tingkat_keparahan" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Tingkat Keparahan <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <select id="tingkat_keparahan" name="tingkat_keparahan" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 appearance-none bg-white" required>
-                                <option value="">-- Pilih Tingkat --</option>
-                                <option value="Ringan">Ringan</option>
-                                <option value="Sedang">Sedang</option>
-                                <option value="Berat">Berat</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Gejala Utama (Full Width) -->
-                    <div class="md:col-span-2">
-                        <label for="gejala_utama" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Gejala Utama <span class="text-red-500">*</span>
-                        </label>
-                        <textarea id="gejala_utama" name="gejala_utama" rows="3" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Deskripsikan gejala utama penyakit" required></textarea>
-                    </div>
-
-                    <!-- Keterangan (Full Width) -->
-                    <div class="md:col-span-2">
-                        <label for="keterangan" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Keterangan Tambahan
-                        </label>
-                        <textarea id="keterangan" name="keterangan" rows="2" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Informasi tambahan (opsional)"></textarea>
+                        <p class="text-xs text-gray-500 mt-2">Pilih obat yang direkomendasikan untuk diagnosa ini</p>
                     </div>
                 </div>
             </div>

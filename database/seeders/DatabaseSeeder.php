@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
             DepartemenSeeder::class,
             SatuanObatSeeder::class,
             JenisObatSeeder::class,
-            PenyakitSeeder::class,
             ObatSeeder::class,
             HubunganSeeder::class,
             UserSeeder::class,

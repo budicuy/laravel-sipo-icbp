@@ -47,6 +47,16 @@ class Obat extends Model
         return $this->belongsTo(SatuanObat::class, 'id_satuan', 'id_satuan');
     }
 
+    public function diagnosas()
+    {
+        return $this->belongsToMany(
+            Diagnosa::class,
+            'diagnosa_obat',
+            'id_obat',
+            'id_diagnosa'
+        );
+    }
+
     // Auto-calculate stok_akhir before saving
     protected static function boot()
     {

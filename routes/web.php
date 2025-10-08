@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KeluargaController;
+use App\Http\Controllers\DiagnosaController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -46,25 +47,13 @@ Route::middleware('auth')->group(function () {
         'obat' => 'id_obat'
     ]);
 
-    Route::get('/diagnosa', function () {
-        return view('diagnosa.index');
-    })->name('diagnosa.index');
+    // Diagnosa Routes - Custom routes BEFORE resource routes
+    Route::post('/diagnosa/bulk-delete', [DiagnosaController::class, 'bulkDelete'])->name('diagnosa.bulkDelete');
 
-    Route::get('/diagnosa/create', function () {
-        return view('diagnosa.create');
-    })->name('diagnosa.create');
-
-    Route::post('/diagnosa', function () {
-        return redirect()->route('diagnosa.index');
-    })->name('diagnosa.store');
-
-    Route::get('/diagnosa/{id}/edit', function ($id) {
-        return view('diagnosa.edit');
-    })->name('diagnosa.edit');
-
-    Route::put('/diagnosa/{id}', function ($id) {
-        return redirect()->route('diagnosa.index');
-    })->name('diagnosa.update');
+    // Diagnosa Resource Routes
+    Route::resource('diagnosa', DiagnosaController::class)->parameters([
+        'diagnosa' => 'id_diagnosa'
+    ]);
 
     Route::get('/user', function () {
         return view('user.index');
