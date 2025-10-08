@@ -7,7 +7,6 @@ use App\Models\Karyawan;
 use App\Models\Hubungan;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -214,8 +213,6 @@ class KeluargaController extends Controller
         ]);
 
         try {
-            set_time_limit(300); // 5 minutes for large files
-
             $file = $request->file('file');
             $spreadsheet = IOFactory::load($file->getPathname());
             $sheet = $spreadsheet->getActiveSheet();
@@ -227,187 +224,139 @@ class KeluargaController extends Controller
             $errors = [];
 
             for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
+                // Read cell values - use getValue() then convert to string to preserve leading zeros
+                $nikCell = $sheet->getCell('A' . $rowNumber)->getValue();
+                $nik = $nikCell !== null ? trim((string)$nikCell) : '';
+
+                $nama = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
+                $tanggalLahir = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? '');
+                $kodeHubungan = trim($sheet->getCell('D' . $rowNumber)->getValue() ?? '');
+                // Column E (Family Relationship) is skipped - just for information
+                $alamat = trim($sheet->getCell('F' . $rowNumber)->getValue() ?? '');
+                $jenisKelamin = strtoupper(trim($sheet->getCell('G' . $rowNumber)->getValue() ?? ''));
+
+                // For BPJS ID, convert to string to preserve leading zeros
+                $bpjsIdCell = $sheet->getCell('H' . $rowNumber)->getValue();
+                $bpjsId = $bpjsIdCell !== null ? trim((string)$bpjsIdCell) : '';
+
+                // Skip empty rows
+                if (empty($nik) && empty($nama)) {
+                    continue;
+                }
+
+                // Validate NIK
+                if (strlen($nik) < 1 || strlen($nik) > 15) {
+                    $errors[] = "Baris $rowNumber: NIK minimal 1 dan maksimal 15 karakter";
+                    continue;
+                }
+
+                // Find karyawan by NIK
+                $karyawan = Karyawan::where('nik_karyawan', $nik)->first();
+                if (!$karyawan) {
+                    $errors[] = "Baris $rowNumber: Karyawan dengan NIK $nik tidak ditemukan";
+                    continue;
+                }
+
+                // Validate required fields
+                if (empty($nama)) {
+                    $errors[] = "Baris $rowNumber: Nama tidak boleh kosong";
+                    continue;
+                }
+
+                if (empty($tanggalLahir)) {
+                    $errors[] = "Baris $rowNumber: Tanggal lahir tidak boleh kosong";
+                    continue;
+                }
+
+                // Validate jenis kelamin
+                if (!in_array($jenisKelamin, ['L', 'P'])) {
+                    $errors[] = "Baris $rowNumber: Jenis kelamin harus 'L' atau 'P'";
+                    continue;
+                }
+
+                if (empty($alamat)) {
+                    $errors[] = "Baris $rowNumber: Alamat tidak boleh kosong";
+                    continue;
+                }
+
+                // Parse kode hubungan (format: NIK-Kode, e.g., 200032-A)
+                $hubunganCode = null;
+                if (!empty($kodeHubungan)) {
+                    $parts = explode('-', $kodeHubungan);
+                    if (count($parts) >= 2) {
+                        $hubunganCode = strtoupper(trim($parts[count($parts) - 1])); // Get last part (A, B, C, D, E)
+                    }
+                }
+
+                if (empty($hubunganCode) || !in_array($hubunganCode, ['A', 'B', 'C', 'D', 'E'])) {
+                    $errors[] = "Baris $rowNumber: Kode hubungan tidak valid. Format: NIK-Kode (contoh: 200032-A). Kode: A/B/C/D/E";
+                    continue;
+                }
+
+                // Validate BPJS ID
+                if (!empty($bpjsId) && strlen($bpjsId) > 50) {
+                    $errors[] = "Baris $rowNumber: BPJS ID maksimal 50 karakter";
+                    continue;
+                }
+
+                // Validate BPJS ID harus angka
+                if (!empty($bpjsId) && !preg_match('/^[0-9]+$/', $bpjsId)) {
+                    $errors[] = "Baris $rowNumber: BPJS ID hanya boleh berisi angka";
+                    continue;
+                }
+
+                // Parse tanggal lahir
                 try {
-                    // Read cell values - use getValue() then convert to string to preserve leading zeros
-                    $nikCell = $sheet->getCell('A' . $rowNumber)->getValue();
-                    $nik = $nikCell !== null ? trim((string)$nikCell) : '';
-
-                    $nama = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
-
-                    $tanggalLahirRaw = $sheet->getCell('C' . $rowNumber)->getValue();
-                    $tanggalLahir = $tanggalLahirRaw !== null ? trim((string)$tanggalLahirRaw) : '';
-
-                    $kodeHubungan = trim($sheet->getCell('D' . $rowNumber)->getValue() ?? '');
-                    // Column E (Family Relationship) is skipped - just for information
-                    $alamat = trim($sheet->getCell('F' . $rowNumber)->getValue() ?? '');
-                    $jenisKelamin = strtoupper(trim($sheet->getCell('G' . $rowNumber)->getValue() ?? ''));
-
-                    // For BPJS ID, convert to string to preserve leading zeros
-                    $bpjsIdCell = $sheet->getCell('H' . $rowNumber)->getValue();
-                    $bpjsId = $bpjsIdCell !== null ? trim((string)$bpjsIdCell) : '';
-
-                    // Skip empty rows
-                    if (empty($nik) && empty($nama)) {
-                        continue;
-                    }
-
-                    // Validate NIK
-                    if (strlen($nik) < 1 || strlen($nik) > 15) {
-                        $errors[] = "Baris $rowNumber: NIK minimal 1 dan maksimal 15 karakter";
-                        continue;
-                    }
-
-                    // Find karyawan by NIK
-                    $karyawan = Karyawan::where('nik_karyawan', $nik)->first();
-                    if (!$karyawan) {
-                        $errors[] = "Baris $rowNumber: Karyawan dengan NIK $nik tidak ditemukan";
-                        continue;
-                    }
-
-                    // Validate required fields
-                    if (empty($nama)) {
-                        $errors[] = "Baris $rowNumber: Nama tidak boleh kosong";
-                        continue;
-                    }
-
-                    if (empty($tanggalLahir)) {
-                        $errors[] = "Baris $rowNumber: Tanggal lahir tidak boleh kosong";
-                        continue;
-                    }
-
-                    // Validate jenis kelamin
-                    if (!in_array($jenisKelamin, ['L', 'P'])) {
-                        $errors[] = "Baris $rowNumber: Jenis kelamin harus 'L' atau 'P'";
-                        continue;
-                    }
-
-                    if (empty($alamat)) {
-                        $errors[] = "Baris $rowNumber: Alamat tidak boleh kosong";
-                        continue;
-                    }
-
-                    // Parse kode hubungan (format: NIK-Kode, e.g., 200032-A)
-                    $hubunganCode = null;
-                    if (!empty($kodeHubungan)) {
-                        $parts = explode('-', $kodeHubungan);
-                        if (count($parts) >= 2) {
-                            $hubunganCode = strtoupper(trim($parts[count($parts) - 1])); // Get last part (A, B, C, D, E)
-                        }
-                    }
-
-                    if (empty($hubunganCode) || !in_array($hubunganCode, ['A', 'B', 'C', 'D', 'E'])) {
-                        $errors[] = "Baris $rowNumber: Kode hubungan tidak valid. Format: NIK-Kode (contoh: 200032-A). Kode: A/B/C/D/E";
-                        continue;
-                    }
-
-                    // Validate BPJS ID
-                    if (!empty($bpjsId) && strlen($bpjsId) > 50) {
-                        $errors[] = "Baris $rowNumber: BPJS ID maksimal 50 karakter";
-                        continue;
-                    }
-
-                    // Validate BPJS ID harus angka
-                    if (!empty($bpjsId) && !preg_match('/^[0-9]+$/', $bpjsId)) {
-                        $errors[] = "Baris $rowNumber: BPJS ID hanya boleh berisi angka";
-                        continue;
-                    }
-
-                    // Parse tanggal lahir with better error handling
-                    $parsedDate = null;
-
-                    // Try different date formats
                     if (is_numeric($tanggalLahir)) {
-                        // Excel numeric date format
-                        try {
-                            $parsedDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($tanggalLahir)->format('Y-m-d');
-                        } catch (\Exception $e) {
-                            $errors[] = "Baris $rowNumber: Format tanggal lahir Excel tidak valid";
-                            continue;
-                        }
-                    } elseif (preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalLahir)) {
-                        // Already in Y-m-d format
-                        $parsedDate = $tanggalLahir;
+                        // Excel date format
+                        $tanggalLahir = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($tanggalLahir)->format('Y-m-d');
                     } else {
-                        // Try to parse string date
-                        try {
-                            $timestamp = strtotime($tanggalLahir);
-                            if ($timestamp === false) {
-                                throw new \Exception('Invalid date');
-                            }
-                            $parsedDate = date('Y-m-d', $timestamp);
-                        } catch (\Exception $e) {
-                            $errors[] = "Baris $rowNumber: Format tanggal lahir tidak valid (gunakan format: YYYY-MM-DD atau DD/MM/YYYY)";
-                            continue;
-                        }
-                    }
-
-                    // Prepare data
-                    $data = [
-                        'id_karyawan' => $karyawan->id_karyawan,
-                        'nama_keluarga' => $nama,
-                        'tanggal_lahir' => $parsedDate,
-                        'jenis_kelamin' => $jenisKelamin === 'L' ? 'Laki - Laki' : 'Perempuan',
-                        'alamat' => $alamat,
-                        'kode_hubungan' => $hubunganCode,
-                        'bpjs_id' => $bpjsId ?: null,
-                    ];
-
-                    // Check if keluarga already exists (by karyawan + hubungan)
-                    $existing = Keluarga::where('id_karyawan', $karyawan->id_karyawan)
-                        ->where('kode_hubungan', $hubunganCode)
-                        ->first();
-
-                    if ($existing) {
-                        $existing->update($data);
-                        $updated++;
-                    } else {
-                        Keluarga::create($data);
-                        $created++;
+                        // String date format
+                        $tanggalLahir = date('Y-m-d', strtotime($tanggalLahir));
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Baris $rowNumber: " . $e->getMessage();
-                    Log::error("Import error at row $rowNumber: " . $e->getMessage());
+                    $errors[] = "Baris $rowNumber: Format tanggal lahir tidak valid";
                     continue;
+                }
+
+                // Prepare data
+                $data = [
+                    'id_karyawan' => $karyawan->id_karyawan,
+                    'nama_keluarga' => $nama,
+                    'tanggal_lahir' => $tanggalLahir,
+                    'jenis_kelamin' => $jenisKelamin === 'L' ? 'Laki - Laki' : 'Perempuan',
+                    'alamat' => $alamat,
+                    'kode_hubungan' => $hubunganCode,
+                    'bpjs_id' => $bpjsId ?: null,
+                ];
+
+                // Check if keluarga already exists (by karyawan + hubungan)
+                $existing = Keluarga::where('id_karyawan', $karyawan->id_karyawan)
+                    ->where('kode_hubungan', $hubunganCode)
+                    ->first();
+
+                if ($existing) {
+                    $existing->update($data);
+                    $updated++;
+                } else {
+                    Keluarga::create($data);
+                    $created++;
                 }
             }
 
             $message = "Import selesai: $created data baru ditambahkan, $updated data diperbarui";
-            $hasErrors = count($errors) > 0;
 
-            if ($hasErrors) {
-                $errorMessage = implode(', ', array_slice($errors, 0, 10));
+            if (count($errors) > 0) {
+                $errorMessage = implode('<br>', array_slice($errors, 0, 10));
                 if (count($errors) > 10) {
-                    $errorMessage .= ' ... dan ' . (count($errors) - 10) . ' error lainnya';
+                    $errorMessage .= '<br>... dan ' . (count($errors) - 10) . ' error lainnya';
                 }
-                $message .= '. Error: ' . $errorMessage;
-            }
-
-            // Return JSON response for AJAX requests
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'data' => [
-                        'created' => $created,
-                        'updated' => $updated,
-                        'errors' => $errors
-                    ]
-                ]);
+                $message .= '<br><br>Error:<br>' . $errorMessage;
             }
 
             return redirect()->route('keluarga.index')->with('success', $message);
 
         } catch (\Exception $e) {
-            Log::error('Import failed: ' . $e->getMessage());
-
-            // Return JSON response for AJAX requests
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal import data: ' . $e->getMessage()
-                ], 500);
-            }
-
             return redirect()->route('keluarga.index')
                 ->with('error', 'Gagal import data: ' . $e->getMessage());
         }
