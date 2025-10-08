@@ -37,7 +37,7 @@
                     Informasi Data User
                 </h2>
             </div>
-            
+
             <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Username -->
@@ -139,22 +139,6 @@
                         </div>
                     </div>
 
-                    <!-- Status -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            Status <span class="text-red-500">*</span>
-                        </label>
-                        <div class="flex items-center gap-6">
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="status" value="Aktif" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300" checked>
-                                <span class="ml-2 text-sm font-medium text-gray-700">Aktif</span>
-                            </label>
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="status" value="Nonaktif" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
-                                <span class="ml-2 text-sm font-medium text-gray-700">Nonaktif</span>
-                            </label>
-                        </div>
-                    </div>
                 </div>
             </div>
 

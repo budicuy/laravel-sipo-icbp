@@ -4,7 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Diagnosa;
+use App\Models\Obat;
 
 class DiagnosaSeeder extends Seeder
 {
@@ -13,37 +14,26 @@ class DiagnosaSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('diagnosa')->insert([
-            [
-                'nama_diagnosa' => 'Demam Berdarah Dengue (DBD)',
-                'deskripsi' => 'Penyakit infeksi virus dengue yang ditularkan melalui gigitan nyamuk Aedes aegypti. Gejala utama meliputi demam tinggi mendadak, nyeri otot dan sendi, sakit kepala, mual, muntah, dan munculnya ruam atau bintik merah pada kulit.',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_diagnosa' => 'Hipertensi',
-                'deskripsi' => 'Kondisi tekanan darah tinggi yang persisten. Dapat menyebabkan komplikasi serius seperti penyakit jantung, stroke, dan gagal ginjal jika tidak dikelola dengan baik.',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_diagnosa' => 'Diabetes Mellitus Tipe 2',
-                'deskripsi' => 'Gangguan metabolik yang ditandai dengan kadar gula darah tinggi akibat resistensi insulin atau produksi insulin yang tidak mencukupi. Memerlukan manajemen diet, olahraga, dan pengobatan.',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_diagnosa' => 'ISPA (Infeksi Saluran Pernapasan Akut)',
-                'deskripsi' => 'Infeksi pada saluran pernapasan yang dapat disebabkan oleh virus atau bakteri. Gejala meliputi batuk, pilek, demam ringan, dan sakit tenggorokan.',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_diagnosa' => 'Gastritis',
-                'deskripsi' => 'Peradangan pada dinding lambung yang menyebabkan nyeri atau rasa tidak nyaman di perut bagian atas, mual, kembung, dan kadang muntah.',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+        // Ambil semua ID obat yang tersedia
+        $obatIds = Obat::pluck('id_obat')->toArray();
+
+        if (empty($obatIds)) {
+            $this->command->warn('Tidak ada data obat. Pastikan ObatSeeder sudah dijalankan terlebih dahulu.');
+            return;
+        }
+
+        $this->command->info('Membuat 200 data diagnosa dengan relasi obat...');
+
+        // Buat 200 data diagnosa menggunakan factory
+        Diagnosa::factory(200)->create()->each(function ($diagnosa) use ($obatIds) {
+            // Setiap diagnosa akan memiliki 1-5 obat rekomendasi secara random
+            $jumlahObat = rand(1, 5);
+            $selectedObatIds = collect($obatIds)->random(min($jumlahObat, count($obatIds)))->toArray();
+
+            // Attach obat ke diagnosa
+            $diagnosa->obats()->attach($selectedObatIds);
+        });
+
+        $this->command->info('Berhasil membuat 200 data diagnosa dengan relasi obat.');
     }
 }
