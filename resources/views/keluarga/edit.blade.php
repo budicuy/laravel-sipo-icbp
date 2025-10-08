@@ -102,15 +102,16 @@
                 @enderror
             </div>
 
-            <!-- No KTP (Conditional) -->
-            <div id="ktp_field" class="{{ old('kode_hubungan', $keluarga->kode_hubungan) == 'A' ? 'hidden' : '' }}">
-                <label for="no_ktp" class="block text-sm font-semibold text-gray-700 mb-2">
-                    No KTP <span class="text-red-600" id="ktp_required">*</span>
+            <!-- BPJS ID -->
+            <div>
+                <label for="bpjs_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                    BPJS ID
                 </label>
-                <input type="text" name="no_ktp" id="no_ktp" value="{{ old('no_ktp', $keluarga->no_ktp) }}"
-                       class="w-full px-4 py-2.5 border @error('no_ktp') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                       placeholder="Masukkan nomor KTP (16 digit)" maxlength="16">
-                @error('no_ktp')
+                <input type="text" name="bpjs_id" id="bpjs_id" value="{{ old('bpjs_id', $keluarga->bpjs_id) }}"
+                       class="w-full px-4 py-2.5 border @error('bpjs_id') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                       placeholder="Masukkan BPJS ID (hanya angka)" maxlength="50">
+                <p class="mt-1 text-xs text-gray-500">Hanya angka, maksimal 50 karakter</p>
+                @error('bpjs_id')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
@@ -250,12 +251,9 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// Handle hubungan change - Toggle KTP field and auto-fill if "Diri Sendiri"
+// Handle hubungan change - Auto-fill if "Diri Sendiri"
 function handleHubunganChange() {
     const hubungan = document.getElementById('kode_hubungan').value;
-    const ktpField = document.getElementById('ktp_field');
-    const ktpInput = document.getElementById('no_ktp');
-    const ktpRequired = document.getElementById('ktp_required');
 
     // Get form fields
     const namaField = document.getElementById('nama_keluarga');
@@ -263,12 +261,8 @@ function handleHubunganChange() {
     const tanggalLahirField = document.getElementById('tanggal_lahir');
     const alamatField = document.getElementById('alamat');
 
-    // Toggle KTP field
+    // Auto-fill and disable fields if "Diri Sendiri"
     if (hubungan === 'A') {
-        ktpField.classList.add('hidden');
-        ktpInput.value = '';
-        ktpInput.removeAttribute('required');
-        ktpRequired.classList.add('hidden');
 
         // Auto-fill from selected karyawan if "Diri Sendiri"
         if (selectedKaryawanData) {
@@ -341,12 +335,7 @@ function handleHubunganChange() {
             });
         }
     } else {
-        // Show KTP field for other relationships
-        ktpField.classList.remove('hidden');
-        ktpInput.setAttribute('required', 'required');
-        ktpRequired.classList.remove('hidden');
-
-        // Enable all fields
+        // Enable all fields for other relationships
         namaField.removeAttribute('readonly');
         namaField.classList.remove('bg-gray-100', 'cursor-not-allowed');
         jenisKelaminField.classList.remove('bg-gray-100', 'cursor-not-allowed', 'pointer-events-none');
@@ -390,6 +379,14 @@ function confirmUpdate() {
 // Initialize KTP field visibility on page load
 document.addEventListener('DOMContentLoaded', function() {
     handleHubunganChange();
+
+    // BPJS ID - Only allow numbers
+    const bpjsIdInput = document.getElementById('bpjs_id');
+    if (bpjsIdInput) {
+        bpjsIdInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    }
 });
 </script>
 @endpush

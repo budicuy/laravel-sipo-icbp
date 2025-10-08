@@ -21,7 +21,7 @@ class Keluarga extends Model
         'tanggal_daftar',
         'no_rm',
         'kode_hubungan',
-        'no_ktp'
+        'bpjs_id'
     ];
 
     protected $casts = [

@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function () {
 
     // Keluarga Routes - Custom routes BEFORE resource routes
     Route::get('/keluarga/search-karyawan', [KeluargaController::class, 'searchKaryawan'])->name('keluarga.searchKaryawan');
+    Route::get('/keluarga/download-template', [KeluargaController::class, 'downloadTemplate'])->name('keluarga.downloadTemplate');
+    Route::post('/keluarga/import', [KeluargaController::class, 'import'])->name('keluarga.import');
     Route::post('/keluarga/bulk-delete', [KeluargaController::class, 'bulkDelete'])->name('keluarga.bulkDelete');
 
     // Keluarga Resource Routes

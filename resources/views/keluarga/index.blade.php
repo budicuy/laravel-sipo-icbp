@@ -49,7 +49,7 @@
 
             <form method="GET" class="grid grid-cols-1 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari berdasarkan NIK Karyawan, Nama Karyawan, Nama Keluarga, atau No KTP</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari berdasarkan NIK Karyawan, Nama Karyawan, atau Nama Keluarga</label>
                     <div class="flex gap-2">
                         <input type="text" name="q" value="{{ request('q') }}" class="flex-1 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm" placeholder="Masukkan kata kunci pencarian...">
                         <button class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
@@ -96,7 +96,7 @@
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No</th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'id_karyawan', 'direction' => (request('sort') == 'id_karyawan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}" 
+                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'id_karyawan', 'direction' => (request('sort') == 'id_karyawan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
                                class="flex items-center justify-between group hover:text-purple-300 transition-colors">
                                 <span>NIK Karyawan</span>
                                 <span class="ml-2">
@@ -119,7 +119,7 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nama_keluarga', 'direction' => (request('sort') == 'nama_keluarga' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}" 
+                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nama_keluarga', 'direction' => (request('sort') == 'nama_keluarga' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
                                class="flex items-center justify-between group hover:text-purple-300 transition-colors">
                                 <span>Nama Keluarga</span>
                                 <span class="ml-2">
@@ -142,7 +142,7 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'kode_hubungan', 'direction' => (request('sort') == 'kode_hubungan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}" 
+                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'kode_hubungan', 'direction' => (request('sort') == 'kode_hubungan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
                                class="flex items-center justify-between group hover:text-purple-300 transition-colors">
                                 <span>Hubungan</span>
                                 <span class="ml-2">
@@ -165,7 +165,7 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'jenis_kelamin', 'direction' => (request('sort') == 'jenis_kelamin' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}" 
+                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'jenis_kelamin', 'direction' => (request('sort') == 'jenis_kelamin' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
                                class="flex items-center justify-between group hover:text-purple-300 transition-colors">
                                 <span>JK</span>
                                 <span class="ml-2">
@@ -188,7 +188,7 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'tanggal_lahir', 'direction' => (request('sort') == 'tanggal_lahir' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}" 
+                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'tanggal_lahir', 'direction' => (request('sort') == 'tanggal_lahir' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
                                class="flex items-center justify-between group hover:text-purple-300 transition-colors">
                                 <span>Tanggal Lahir</span>
                                 <span class="ml-2">
@@ -211,7 +211,7 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'alamat', 'direction' => (request('sort') == 'alamat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}" 
+                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'alamat', 'direction' => (request('sort') == 'alamat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
                                class="flex items-center justify-between group hover:text-purple-300 transition-colors">
                                 <span>Alamat</span>
                                 <span class="ml-2">
@@ -233,6 +233,7 @@
                                 </span>
                             </a>
                         </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">BPJS ID</th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -271,6 +272,9 @@
                             </div>
                         </td>
                         <td class="px-4 py-4 text-sm text-gray-900 max-w-xs truncate" title="{{ $keluarga->alamat }}">{{ $keluarga->alamat }}</td>
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {{ $keluarga->bpjs_id ?? '-' }}
+                        </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm">
                             <div class="flex items-center gap-2">
                                 <a href="{{ route('keluarga.edit', $keluarga->id_keluarga) }}" class="inline-flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Edit">
@@ -292,7 +296,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data keluarga</td>
+                        <td colspan="10" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data keluarga</td>
                     </tr>
                     @endforelse
                 </tbody>
