@@ -26,28 +26,90 @@
         </div>
     </div>
 
+    <!-- Enhanced Error Messages -->
     @if($errors->any())
-        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
-            <div class="flex">
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md" id="error-container">
+            <div class="flex items-start">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                     </svg>
                 </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">Terdapat kesalahan:</h3>
-                    <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
+                    <div class="mt-2">
                         @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                            <div class="flex items-center py-1">
+                                <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-sm text-red-700">{{ $error }}</span>
+                            </div>
                         @endforeach
-                    </ul>
+                    </div>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button onclick="document.getElementById('error-container').style.display='none'" class="text-red-400 hover:text-red-600">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
     @endif
 
-    <form action="{{ route('rekam-medis.store') }}" method="POST">
+    <!-- Success Messages -->
+    @if(session('success'))
+        <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-md" id="success-container">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button onclick="document.getElementById('success-container').style.display='none'" class="text-green-400 hover:text-green-600">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Error Messages -->
+    @if(session('error'))
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md" id="error-session-container">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button onclick="document.getElementById('error-session-container').style.display='none'" class="text-red-400 hover:text-red-600">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <form action="{{ route('rekam-medis.store') }}" method="POST" id="rekam-medis-form" onsubmit="return validateForm()">
         @csrf
+
+        <!-- Hidden field for kunjungan_id -->
+        <input type="hidden" id="kunjungan_id" name="kunjungan_id" value="{{ old('kunjungan_id') }}">
 
         <!-- Data Pasien Section -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
@@ -534,8 +596,9 @@ function updateObatDetails(keluhanIndex) {
                         <input type="number"
                                name="keluhan[${keluhanIndex}][obat_list][${index}][jumlah_obat]"
                                min="1"
+                               max="10000"
                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                               placeholder="Masukkan jumlah obat">
+                               placeholder="Masukkan jumlah obat (maks 10.000)">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -567,9 +630,282 @@ function attachDiagnosaChangeListeners() {
     });
 }
 
+// Form validation function
+function validateForm() {
+    let isValid = true;
+    let errorMessages = [];
+
+    // Clear previous error states
+    clearValidationErrors();
+
+    // Validate kunjungan (skip validation for hidden field)
+    // const kunjunganId = document.getElementById('kunjungan_id').value;
+    // if (!kunjunganId) {
+    //     showFieldError('kunjungan_id', 'Kunjungan ID harus diisi');
+    //     errorMessages.push('Kunjungan ID harus diisi');
+    //     isValid = false;
+    // }
+
+    // Validate pasien selection
+    const idKeluarga = document.getElementById('id_keluarga').value;
+    if (!idKeluarga) {
+        showFieldError('search_pasien', 'Silakan pilih pasien terlebih dahulu');
+        errorMessages.push('Pasien harus dipilih');
+        isValid = false;
+    }
+
+    // Validate tanggal periksa
+    const tanggalPeriksa = document.getElementById('tanggal_periksa').value;
+    if (!tanggalPeriksa) {
+        showFieldError('tanggal_periksa', 'Tanggal periksa harus diisi');
+        errorMessages.push('Tanggal periksa harus diisi');
+        isValid = false;
+    } else {
+        // Check if date is not in the future
+        const selectedDate = new Date(tanggalPeriksa);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate > today) {
+            showFieldError('tanggal_periksa', 'Tanggal periksa tidak boleh melebihi hari ini');
+            errorMessages.push('Tanggal periksa tidak boleh melebihi hari ini');
+            isValid = false;
+        }
+    }
+
+    // Validate keluhan sections
+    const keluhanSections = document.querySelectorAll('.keluhan-section');
+    let keluhanIndex = 0;
+
+    keluhanSections.forEach(section => {
+        const diagnosaSelect = section.querySelector(`select[name="keluhan[${keluhanIndex}][id_diagnosa]"]`);
+        const terapiSelect = section.querySelector(`select[name="keluhan[${keluhanIndex}][terapi]"]`);
+
+        if (!diagnosaSelect || !diagnosaSelect.value) {
+            showFieldError(diagnosaSelect, `Diagnosa untuk keluhan ${keluhanIndex + 1} harus dipilih`);
+            errorMessages.push(`Diagnosa untuk keluhan ${keluhanIndex + 1} harus dipilih`);
+            isValid = false;
+        }
+
+        if (!terapiSelect || !terapiSelect.value) {
+            showFieldError(terapiSelect, `Terapi untuk keluhan ${keluhanIndex + 1} harus dipilih`);
+            errorMessages.push(`Terapi untuk keluhan ${keluhanIndex + 1} harus dipilih`);
+            isValid = false;
+        }
+
+        // Validate obat details if terapi is "Obat"
+        if (terapiSelect && terapiSelect.value === 'Obat') {
+            const checkedBoxes = section.querySelectorAll(`.obat-checkbox[data-keluhan-index="${keluhanIndex}"]:checked`);
+
+            if (checkedBoxes.length === 0) {
+                showSectionError(section, `Jika terapi adalah "Obat", minimal satu obat harus dipilih untuk keluhan ${keluhanIndex + 1}`);
+                errorMessages.push(`Jika terapi adalah "Obat", minimal satu obat harus dipilih untuk keluhan ${keluhanIndex + 1}`);
+                isValid = false;
+            } else {
+                // Validate obat details
+                checkedBoxes.forEach((checkbox, index) => {
+                    const jumlahInput = section.querySelector(`input[name="keluhan[${keluhanIndex}][obat_list][${index}][jumlah_obat]"]`);
+
+                    if (jumlahInput && (!jumlahInput.value || parseInt(jumlahInput.value) < 1)) {
+                        showFieldError(jumlahInput, `Jumlah obat harus diisi dan minimal 1`);
+                        errorMessages.push(`Jumlah obat harus diisi dan minimal 1`);
+                        isValid = false;
+                    } else if (jumlahInput && parseInt(jumlahInput.value) > 10000) {
+                        showFieldError(jumlahInput, `Jumlah obat tidak boleh lebih dari 10.000`);
+                        errorMessages.push(`Jumlah obat tidak boleh lebih dari 10.000`);
+                        isValid = false;
+                    }
+                });
+            }
+        }
+
+        keluhanIndex++;
+    });
+
+    // Show validation summary if there are errors
+    if (!isValid) {
+        showValidationSummary(errorMessages);
+        // Scroll to first error
+        const firstError = document.querySelector('.field-error, .section-error');
+        if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    return isValid;
+}
+
+// Show field error
+function showFieldError(field, message) {
+    if (!field) return;
+
+    field.classList.add('border-red-500', 'bg-red-50');
+
+    // Create or update error message
+    let errorDiv = field.parentNode.querySelector('.field-error-message');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error-message text-sm text-red-600 mt-1 flex items-center';
+        errorDiv.innerHTML = `
+            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <span>${message}</span>
+        `;
+        field.parentNode.appendChild(errorDiv);
+    } else {
+        errorDiv.querySelector('span').textContent = message;
+    }
+
+    // Add focus event to clear error when user starts typing
+    field.addEventListener('focus', function() {
+        clearFieldError(field);
+    }, { once: true });
+}
+
+// Show section error
+function showSectionError(section, message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'section-error bg-red-50 border-l-4 border-red-500 p-3 mb-3 rounded';
+    errorDiv.innerHTML = `
+        <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-sm text-red-700">${message}</span>
+        </div>
+    `;
+
+    // Insert at the beginning of the section content
+    const sectionContent = section.querySelector('.p-6');
+    sectionContent.insertBefore(errorDiv, sectionContent.firstChild);
+}
+
+// Show validation summary
+function showValidationSummary(errors) {
+    // Remove existing summary if any
+    const existingSummary = document.getElementById('validation-summary');
+    if (existingSummary) {
+        existingSummary.remove();
+    }
+
+    // Create new summary
+    const summaryDiv = document.createElement('div');
+    summaryDiv.id = 'validation-summary';
+    summaryDiv.className = 'mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md';
+    summaryDiv.innerHTML = `
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3 flex-1">
+                <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
+                <div class="mt-2">
+                    ${errors.map(error => `
+                        <div class="flex items-center py-1">
+                            <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-sm text-red-700">${error}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            <div class="ml-auto pl-3">
+                <button onclick="document.getElementById('validation-summary').remove()" class="text-red-400 hover:text-red-600">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Insert after the header section
+    const headerSection = document.querySelector('.mb-6');
+    headerSection.parentNode.insertBefore(summaryDiv, headerSection.nextSibling);
+
+    // Scroll to summary
+    summaryDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Clear field error
+function clearFieldError(field) {
+    if (!field) return;
+
+    field.classList.remove('border-red-500', 'bg-red-50');
+
+    const errorDiv = field.parentNode.querySelector('.field-error-message');
+    if (errorDiv) {
+        errorDiv.remove();
+    }
+}
+
+// Clear all validation errors
+function clearValidationErrors() {
+    // Remove field errors
+    document.querySelectorAll('.field-error-message').forEach(el => el.remove());
+    document.querySelectorAll('.border-red-500').forEach(el => {
+        el.classList.remove('border-red-500', 'bg-red-50');
+    });
+
+    // Remove section errors
+    document.querySelectorAll('.section-error').forEach(el => el.remove());
+
+    // Remove validation summary
+    const summary = document.getElementById('validation-summary');
+    if (summary) {
+        summary.remove();
+    }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     attachDiagnosaChangeListeners();
+
+    // Add real-time validation for critical fields
+    document.getElementById('search_pasien').addEventListener('blur', function() {
+        const idKeluarga = document.getElementById('id_keluarga').value;
+        if (!idKeluarga) {
+            showFieldError(this, 'Silakan pilih pasien dari daftar yang muncul');
+        } else {
+            clearFieldError(this);
+        }
+    });
+
+    document.getElementById('tanggal_periksa').addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate > today) {
+            showFieldError(this, 'Tanggal periksa tidak boleh melebihi hari ini');
+        } else {
+            clearFieldError(this);
+        }
+    });
+
+    // Add confirmation before leaving page if form has changes
+    let formChanged = false;
+    const form = document.getElementById('rekam-medis-form');
+
+    form.addEventListener('change', function() {
+        formChanged = true;
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Reset form changed flag on submit
+    form.addEventListener('submit', function() {
+        formChanged = false;
+    });
 });
 </script>
 @endpush

@@ -26,29 +26,91 @@
         </div>
     </div>
 
+    <!-- Enhanced Error Messages -->
     @if($errors->any())
-        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
-            <div class="flex">
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md" id="error-container">
+            <div class="flex items-start">
                 <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                     </svg>
                 </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">Terdapat kesalahan:</h3>
-                    <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
+                    <div class="mt-2">
                         @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
+                            <div class="flex items-center py-1">
+                                <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-sm text-red-700">{{ $error }}</span>
+                            </div>
                         @endforeach
-                    </ul>
+                    </div>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button onclick="document.getElementById('error-container').style.display='none'" class="text-red-400 hover:text-red-600">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
     @endif
 
-    <form action="{{ route('rekam-medis.update', $rekamMedis->id_rekam) }}" method="POST">
+    <!-- Success Messages -->
+    @if(session('success'))
+        <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-md" id="success-container">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button onclick="document.getElementById('success-container').style.display='none'" class="text-green-400 hover:text-green-600">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Error Messages -->
+    @if(session('error'))
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md" id="error-session-container">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button onclick="document.getElementById('error-session-container').style.display='none'" class="text-red-400 hover:text-red-600">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <form action="{{ route('rekam-medis.update', $rekamMedis->id_rekam) }}" method="POST" id="rekamMedisForm">
         @csrf
         @method('PUT')
+
+        <!-- Hidden field for kunjungan_id -->
+        <input type="hidden" id="kunjungan_id" name="kunjungan_id" value="{{ old('kunjungan_id', $rekamMedis->kunjungan_id) }}">
 
         <!-- Data Pasien Section -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
@@ -669,8 +731,9 @@ function updateObatDetails(keluhanIndex) {
                         <input type="number"
                                name="keluhan[${keluhanIndex}][obat_list][${index}][jumlah_obat]"
                                min="1"
+                               max="10000"
                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                               placeholder="Masukkan jumlah obat">
+                               placeholder="Masukkan jumlah obat (maks 10.000)">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -706,7 +769,194 @@ function attachDiagnosaChangeListeners() {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize keluhan sections with existing data
     updateKeluhanSections({{ $rekamMedis->jumlah_keluhan }});
+
+    // Form validation
+    const form = document.getElementById('rekamMedisForm');
+    form.addEventListener('submit', validateForm);
+
+    // Real-time validation
+    form.addEventListener('input', function(e) {
+        validateField(e.target);
+    });
+
+    // Auto-hide success messages after 5 seconds
+    setTimeout(function() {
+        const successAlert = document.querySelector('#success-container');
+        if (successAlert) {
+            successAlert.style.transition = 'opacity 0.5s';
+            successAlert.style.opacity = '0';
+            setTimeout(() => successAlert.remove(), 500);
+        }
+    }, 5000);
 });
+
+function validateForm(e) {
+    const form = document.getElementById('rekamMedisForm');
+    const isValid = performValidation();
+
+    if (!isValid) {
+        e.preventDefault();
+
+        // Show custom error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'mb-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md';
+        errorDiv.innerHTML = `
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-red-800">Mohon lengkapi semua field yang wajib diisi dengan benar.</p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-red-400 hover:text-red-600">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        form.parentNode.insertBefore(errorDiv, form);
+
+        // Scroll to top of form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.style.transition = 'opacity 0.5s';
+                errorDiv.style.opacity = '0';
+                setTimeout(() => errorDiv.remove(), 500);
+            }
+        }, 5000);
+    }
+}
+
+function performValidation() {
+    let isValid = true;
+    const form = document.getElementById('rekamMedisForm');
+
+    // Reset all error states
+    form.querySelectorAll('.border-red-500').forEach(el => {
+        el.classList.remove('border-red-500', 'bg-red-50');
+        el.classList.add('border-gray-300');
+    });
+
+    // Validate kunjungan (skip validation for hidden field)
+    // const kunjunganInput = form.querySelector('#kunjungan_id');
+    // if (!kunjunganInput.value) {
+    //     showFieldError(kunjunganInput);
+    //     isValid = false;
+    // }
+
+    // Validate pasien
+    const pasienInput = form.querySelector('#id_keluarga');
+    if (!pasienInput.value) {
+        showFieldError(pasienInput);
+        isValid = false;
+    }
+
+    // Validate tensi darah if exists
+    const tensiInput = form.querySelector('#tensi_darah');
+    if (tensiInput && !tensiInput.value.trim()) {
+        showFieldError(tensiInput);
+        isValid = false;
+    }
+
+    // Validate tanggal periksa
+    const tanggalInput = form.querySelector('#tanggal_periksa');
+    if (!tanggalInput.value) {
+        showFieldError(tanggalInput);
+        isValid = false;
+    }
+
+    // Validate status
+    const statusSelect = form.querySelector('#status');
+    if (!statusSelect.value) {
+        showFieldError(statusSelect);
+        isValid = false;
+    }
+
+    // Validate keluhan sections
+    const keluhanSections = form.querySelectorAll('.keluhan-section');
+    let hasAtLeastOneKeluhan = false;
+
+    keluhanSections.forEach(section => {
+        const diagnosaSelect = section.querySelector('[name^="keluhan"][name$="[id_diagnosa]"]');
+        const terapiSelect = section.querySelector('[name^="keluhan"][name$="[terapi]"]');
+
+        if (diagnosaSelect.value && terapiSelect.value) {
+            hasAtLeastOneKeluhan = true;
+        }
+    });
+
+    if (!hasAtLeastOneKeluhan) {
+        // Show error for all empty keluhan sections
+        keluhanSections.forEach(section => {
+            const diagnosaSelect = section.querySelector('[name^="keluhan"][name$="[id_diagnosa]"]');
+            const terapiSelect = section.querySelector('[name^="keluhan"][name$="[terapi]"]');
+            if (!diagnosaSelect.value) {
+                showFieldError(diagnosaSelect);
+            }
+            if (!terapiSelect.value) {
+                showFieldError(terapiSelect);
+            }
+        });
+
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+function validateField(field) {
+    // Skip validation for hidden fields and non-required fields
+    if (field.type === 'hidden' || !field.hasAttribute('required')) {
+        return;
+    }
+
+    // Remove existing error state
+    field.classList.remove('border-red-500', 'bg-red-50');
+    field.classList.add('border-gray-300');
+
+    // Check if field has value
+    if (field.type === 'select-one' || field.type === 'select-multiple') {
+        if (!field.value) {
+            showFieldError(field);
+        }
+    } else if (field.type === 'number') {
+        // Special validation for number fields (like jumlah_obat)
+        if (!field.value.trim()) {
+            showFieldError(field);
+        } else if (field.name && field.name.includes('jumlah_obat')) {
+            const value = parseInt(field.value);
+            if (value < 1) {
+                showFieldError(field);
+            } else if (value > 10000) {
+                showFieldError(field);
+            }
+        }
+    } else {
+        if (!field.value.trim()) {
+            showFieldError(field);
+        }
+    }
+}
+
+function showFieldError(field) {
+    field.classList.remove('border-gray-300');
+    field.classList.add('border-red-500', 'bg-red-50');
+
+    // Add shake animation
+    field.classList.add('animate-pulse');
+    setTimeout(() => {
+        field.classList.remove('animate-pulse');
+    }, 1000);
+}
 </script>
 @endpush
 @endsection

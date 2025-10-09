@@ -75,7 +75,7 @@ class RekamMedisController extends Controller
             'keluhan.*.keterangan' => 'nullable|string',
             'keluhan.*.obat_list' => 'nullable|array',
             'keluhan.*.obat_list.*.id_obat' => 'required|exists:obat,id_obat',
-            'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1',
+            'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
             'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string',
         ]);
 
@@ -173,7 +173,7 @@ class RekamMedisController extends Controller
             'keluhan.*.keterangan' => 'nullable|string',
             'keluhan.*.obat_list' => 'nullable|array',
             'keluhan.*.obat_list.*.id_obat' => 'required|exists:obat,id_obat',
-            'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1',
+            'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
             'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string',
         ]);
 
