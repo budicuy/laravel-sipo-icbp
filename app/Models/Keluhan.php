@@ -18,14 +18,12 @@ class Keluhan extends Model
         'id_obat',
         'jumlah_obat',
         'aturan_pakai',
-        'waktu_pakai',
         'id_keluarga',
     ];
 
     protected $casts = [
         'tanggal_periksa' => 'date',
         'jumlah_obat' => 'integer',
-        'waktu_pakai' => 'integer',
     ];
 
     /**

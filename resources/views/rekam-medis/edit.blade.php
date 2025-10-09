@@ -503,11 +503,6 @@ function fillKeluhanWithData(section, keluhanData, index) {
                             aturanInput.value = keluhanData.aturan_pakai;
                         }
 
-                        // Fill waktu pakai
-                        const waktuInput = obatDetailsDiv.querySelector(`input[name="keluhan[${index}][obat_list][0][waktu_pakai]"]`);
-                        if (waktuInput && keluhanData.waktu_pakai) {
-                            waktuInput.value = keluhanData.waktu_pakai;
-                        }
                     }
                 }
             }
@@ -596,29 +591,31 @@ function updateObatDetails(keluhanIndex) {
                 <h5 class="font-semibold text-sm text-gray-800 mb-2">${obatName}</h5>
                 <input type="hidden" name="keluhan[${keluhanIndex}][obat_list][${index}][id_obat]" value="${obatId}">
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Jumlah</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <svg class="w-4 h-4 inline mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                            </svg>
+                            Jumlah Obat
+                        </label>
                         <input type="number"
                                name="keluhan[${keluhanIndex}][obat_list][${index}][jumlah_obat]"
                                min="1"
-                               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-                               placeholder="0">
+                               class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                               placeholder="Masukkan jumlah obat">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Aturan Pakai</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <svg class="w-4 h-4 inline mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3" />
+                            </svg>
+                            Aturan Pakai
+                        </label>
                         <input type="text"
                                name="keluhan[${keluhanIndex}][obat_list][${index}][aturan_pakai]"
-                               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-                               placeholder="3x sehari">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Waktu (Hari)</label>
-                        <input type="number"
-                               name="keluhan[${keluhanIndex}][obat_list][${index}][waktu_pakai]"
-                               min="1"
-                               class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-                               placeholder="0">
+                               class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                               placeholder="Contoh: 3x sehari setelah makan">
                     </div>
                 </div>
             </div>

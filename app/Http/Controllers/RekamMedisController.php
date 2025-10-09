@@ -77,7 +77,6 @@ class RekamMedisController extends Controller
             'keluhan.*.obat_list.*.id_obat' => 'required|exists:obat,id_obat',
             'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1',
             'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string',
-            'keluhan.*.obat_list.*.waktu_pakai' => 'nullable|integer|min:1',
         ]);
 
         DB::beginTransaction();
@@ -108,7 +107,6 @@ class RekamMedisController extends Controller
                                 'id_obat' => $obatData['id_obat'],
                                 'jumlah_obat' => $obatData['jumlah_obat'] ?? null,
                                 'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
-                                'waktu_pakai' => $obatData['waktu_pakai'] ?? null,
                             ]);
                         }
                     } else {
@@ -122,7 +120,6 @@ class RekamMedisController extends Controller
                             'id_obat' => null,
                             'jumlah_obat' => null,
                             'aturan_pakai' => null,
-                            'waktu_pakai' => null,
                         ]);
                     }
                 }
@@ -177,7 +174,6 @@ class RekamMedisController extends Controller
             'keluhan.*.id_obat' => 'nullable|exists:obat,id_obat',
             'keluhan.*.jumlah_obat' => 'nullable|integer|min:1',
             'keluhan.*.aturan_pakai' => 'nullable|string',
-            'keluhan.*.waktu_pakai' => 'nullable|integer|min:1',
         ]);
 
         DB::beginTransaction();
@@ -206,7 +202,6 @@ class RekamMedisController extends Controller
                         'id_obat' => $keluhanData['id_obat'] ?? null,
                         'jumlah_obat' => $keluhanData['jumlah_obat'] ?? null,
                         'aturan_pakai' => $keluhanData['aturan_pakai'] ?? null,
-                        'waktu_pakai' => $keluhanData['waktu_pakai'] ?? null,
                     ]);
                 }
             }
