@@ -54,6 +54,8 @@ Route::middleware('auth')->group(function () {
     ]);
 
     // Diagnosa Routes - Custom routes BEFORE resource routes
+    Route::get('/diagnosa/template', [DiagnosaController::class, 'downloadTemplate'])->name('diagnosa.template');
+    Route::post('/diagnosa/import', [DiagnosaController::class, 'import'])->name('diagnosa.import');
     Route::post('/diagnosa/bulk-delete', [DiagnosaController::class, 'bulkDelete'])->name('diagnosa.bulkDelete');
 
     // Diagnosa Resource Routes
