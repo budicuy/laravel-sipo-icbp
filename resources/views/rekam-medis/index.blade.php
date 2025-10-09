@@ -252,74 +252,54 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-lg bg-white">
-        <div class="mt-3">
-            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
-                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-            </div>
-            <div class="text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi Hapus Data</h3>
-                <div class="mt-2 px-7 py-3">
-                    <p class="text-sm text-gray-500">
-                        Apakah Anda yakin ingin menghapus data rekam medis untuk pasien <strong id="deletePatientName"></strong>?
-                    </p>
-                    <p class="text-xs text-red-500 mt-2">Tindakan ini tidak dapat dibatalkan.</p>
-                </div>
-            </div>
-            <div class="flex justify-center gap-3 mt-4">
-                <button type="button" id="cancelDelete" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors">
-                    Batal
-                </button>
-                <form id="deleteForm" method="POST" class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                        Hapus
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle delete confirmation modal
-    const deleteModal = document.getElementById('deleteModal');
-    const deleteForm = document.getElementById('deleteForm');
-    const deletePatientName = document.getElementById('deletePatientName');
-    const cancelDeleteBtn = document.getElementById('cancelDelete');
-
-    // Show modal when delete button is clicked
+    // Handle delete confirmation with SweetAlert
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
             const nama = this.getAttribute('data-nama');
 
-            // Set form action and patient name
-            deleteForm.action = `{{ route('rekam-medis.destroy', ':id') }}`.replace(':id', id);
-            deletePatientName.textContent = nama;
+            Swal.fire({
+                title: 'Konfirmasi Hapus Data',
+                html: `Apakah Anda yakin ingin menghapus data rekam medis untuk pasien <strong>${nama}</strong>?<br><small class="text-red-500">Tindakan ini tidak dapat dibatalkan.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function(resolve) {
+                        // Create form element
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `{{ route('rekam-medis.destroy', ':id') }}`.replace(':id', id);
 
-            // Show modal
-            deleteModal.classList.remove('hidden');
+                        // Add CSRF token
+                        const csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = '_token';
+                        csrfToken.value = '{{ csrf_token() }}';
+                        form.appendChild(csrfToken);
+
+                        // Add DELETE method
+                        const methodInput = document.createElement('input');
+                        methodInput.type = 'hidden';
+                        methodInput.name = '_method';
+                        methodInput.value = 'DELETE';
+                        form.appendChild(methodInput);
+
+                        // Submit form
+                        document.body.appendChild(form);
+                        form.submit();
+                    });
+                }
+            });
         });
-    });
-
-    // Hide modal when cancel button is clicked
-    cancelDeleteBtn.addEventListener('click', function() {
-        deleteModal.classList.add('hidden');
-    });
-
-    // Hide modal when clicking outside the modal
-    deleteModal.addEventListener('click', function(e) {
-        if (e.target === deleteModal) {
-            deleteModal.classList.add('hidden');
-        }
     });
 
     // Handle status change
