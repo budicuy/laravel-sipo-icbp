@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page-title', 'Tambah Rekam Medis')
+@section('page-title', 'Edit Rekam Medis')
 
 @section('content')
 <div class="p-6 bg-gray-50 min-h-screen">
@@ -14,14 +14,14 @@
             </a>
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                    <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">
+                    <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-3 rounded-lg shadow-lg">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                     </div>
-                    Tambah Rekam Medis
+                    Edit Rekam Medis
                 </h1>
-                <p class="text-gray-600 mt-1 ml-1">Buat rekam medis baru untuk pasien</p>
+                <p class="text-gray-600 mt-1 ml-1">Ubah data rekam medis pasien</p>
             </div>
         </div>
     </div>
@@ -46,8 +46,9 @@
         </div>
     @endif
 
-    <form action="{{ route('rekam-medis.store') }}" method="POST">
+    <form action="{{ route('rekam-medis.update', $rekamMedis->id_rekam) }}" method="POST">
         @csrf
+        @method('PUT')
 
         <!-- Data Pasien Section -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
@@ -68,11 +69,12 @@
                             Pilih Pasien <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
-                            <input type="hidden" id="id_keluarga" name="id_keluarga" required>
+                            <input type="hidden" id="id_keluarga" name="id_keluarga" value="{{ old('id_keluarga', $rekamMedis->id_keluarga) }}" required>
                             <input type="text" id="search_pasien"
                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                    placeholder="Cari pasien berdasarkan nama atau NIK..."
-                                   autocomplete="off">
+                                   autocomplete="off"
+                                   value="{{ $rekamMedis->keluarga->nama_keluarga ?? '' }}">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -96,7 +98,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                                 </svg>
                             </div>
-                            <input type="text" id="no_rm" name="no_rm" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly>
+                            <input type="text" id="no_rm" name="no_rm" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly value="{{ ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->kode_hubungan ?? '') }}">
                         </div>
                     </div>
 
@@ -111,7 +113,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </div>
-                            <input type="text" id="nama_pasien" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly>
+                            <input type="text" id="nama_pasien" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly value="{{ $rekamMedis->keluarga->nama_keluarga ?? '' }}">
                         </div>
                     </div>
 
@@ -126,7 +128,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                                 </svg>
                             </div>
-                            <input type="text" id="nik_karyawan" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly>
+                            <input type="text" id="nik_karyawan" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly value="{{ $rekamMedis->keluarga->karyawan->nik_karyawan ?? '' }}">
                         </div>
                     </div>
 
@@ -141,7 +143,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
-                            <input type="text" id="hubungan" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly>
+                            <input type="text" id="hubungan" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly value="{{ $rekamMedis->keluarga->kode_hubungan ?? '' }}. {{ $rekamMedis->keluarga->hubungan->hubungan ?? '' }}">
                         </div>
                     </div>
 
@@ -156,7 +158,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </div>
-                            <input type="text" id="jenis_kelamin" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly>
+                            <input type="text" id="jenis_kelamin" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly value="{{ $rekamMedis->keluarga->jenis_kelamin ?? '' }}">
                         </div>
                     </div>
 
@@ -171,7 +173,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <input type="date" id="tanggal_periksa" name="tanggal_periksa" value="{{ old('tanggal_periksa', date('Y-m-d')) }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                            <input type="date" id="tanggal_periksa" name="tanggal_periksa" value="{{ old('tanggal_periksa', $rekamMedis->tanggal_periksa->format('Y-m-d')) }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
                         </div>
                     </div>
 
@@ -182,8 +184,8 @@
                         </label>
                         <div class="relative">
                             <select id="status" name="status" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
-                                <option value="On Orogres" {{ old('status', 'On Orogres') == 'On Orogres' ? 'selected' : '' }}>On Orogres</option>
-                                <option value="Close" {{ old('status') == 'Close' ? 'selected' : '' }}>Close</option>
+                                <option value="On Orogres" {{ old('status', $rekamMedis->status) == 'On Orogres' ? 'selected' : '' }}>On Orogres</option>
+                                <option value="Close" {{ old('status', $rekamMedis->status) == 'Close' ? 'selected' : '' }}>Close</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,9 +202,9 @@
                         </label>
                         <div class="relative">
                             <select id="jumlah_keluhan" name="jumlah_keluhan" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required onchange="updateKeluhanSections(this.value)">
-                                <option value="1" {{ old('jumlah_keluhan', 1) == 1 ? 'selected' : '' }}>1 Keluhan</option>
-                                <option value="2" {{ old('jumlah_keluhan') == 2 ? 'selected' : '' }}>2 Keluhan</option>
-                                <option value="3" {{ old('jumlah_keluhan') == 3 ? 'selected' : '' }}>3 Keluhan</option>
+                                <option value="1" {{ old('jumlah_keluhan', $rekamMedis->jumlah_keluhan) == 1 ? 'selected' : '' }}>1 Keluhan</option>
+                                <option value="2" {{ old('jumlah_keluhan', $rekamMedis->jumlah_keluhan) == 2 ? 'selected' : '' }}>2 Keluhan</option>
+                                <option value="3" {{ old('jumlah_keluhan', $rekamMedis->jumlah_keluhan) == 3 ? 'selected' : '' }}>3 Keluhan</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,96 +219,7 @@
 
         <!-- Combined Diagnosa & Resep Section -->
         <div id="keluhan-container">
-            <!-- Keluhan 1 (Template) -->
-            <div class="keluhan-section bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6" data-keluhan-index="0">
-                <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
-                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        Diagnosa & Resep Obat
-                        <span class="keluhan-number">(Keluhan 1)</span>
-                    </h2>
-                </div>
-
-                <div class="p-6">
-                    <!-- Diagnosa Section -->
-                    <div class="mb-6 pb-6 border-b border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Diagnosa</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Diagnosa / Penyakit -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Diagnosa / Penyakit <span class="text-red-500">*</span>
-                                </label>
-                                <div class="relative">
-                                    <select name="keluhan[0][id_diagnosa]" class="diagnosa-select w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required data-keluhan-index="0">
-                                        <option value="">-- Pilih Diagnosa --</option>
-                                        @foreach($diagnosas as $diagnosa)
-                                            <option value="{{ $diagnosa->id_diagnosa }}">{{ $diagnosa->nama_diagnosa }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Terapi -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Terapi <span class="text-red-500">*</span>
-                                </label>
-                                <div class="relative">
-                                    <select name="keluhan[0][terapi]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
-                                        <option value="">-- Pilih Terapi --</option>
-                                        <option value="Obat">Obat</option>
-                                        <option value="Lab">Lab</option>
-                                        <option value="Istirahat">Istirahat</option>
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Keterangan -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Keterangan / Catatan
-                                </label>
-                                <textarea name="keluhan[0][keterangan]" rows="3" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Masukkan catatan medis, anjuran dokter, atau informasi penting lainnya..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Resep Obat Section -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Resep Obat (Opsional)</h3>
-
-                        <!-- Obat Checkbox List Container -->
-                        <div class="obat-checkbox-container mb-4" data-keluhan-index="0">
-                            <div class="obat-list bg-gray-50 border border-gray-300 rounded-lg p-4 max-h-60 overflow-y-auto">
-                                <p class="text-sm text-gray-500 italic">Pilih diagnosa terlebih dahulu untuk menampilkan daftar obat yang sesuai.</p>
-                            </div>
-                        </div>
-
-                        <!-- Details for selected obat (will be shown when obat is selected) -->
-                        <div class="selected-obat-details mt-4" data-keluhan-index="0" style="display: none;">
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <h4 class="text-sm font-semibold text-blue-900 mb-3">Detail Obat yang Dipilih</h4>
-                                <div class="obat-details-list space-y-3">
-                                    <!-- Will be populated by JavaScript -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Keluhan sections will be populated by JavaScript based on existing data -->
         </div>
 
         <!-- Form Actions -->
@@ -318,11 +231,11 @@
                     </svg>
                     Batal
                 </button>
-                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
-                    Simpan Rekam Medis
+                    Update Rekam Medis
                 </button>
             </div>
         </div>
@@ -332,6 +245,9 @@
 @push('scripts')
 <script>
 let searchTimeout;
+
+// Data keluhan existing dari server
+const existingKeluhans = @json($rekamMedis->keluhans);
 
 // Search pasien dengan AJAX
 document.getElementById('search_pasien').addEventListener('input', function() {
@@ -353,7 +269,7 @@ document.getElementById('search_pasien').addEventListener('input', function() {
                     resultsDiv.innerHTML = '<div class="px-4 py-3 text-gray-500 text-sm">Tidak ada pasien ditemukan</div>';
                 } else {
                     resultsDiv.innerHTML = data.map(pasien => `
-                        <div class="px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 transition-colors" onclick="selectPasien(${JSON.stringify(pasien).replace(/"/g, '&quot;')})">
+                        <div class="px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 transition-colors" onclick="selectPasien(${JSON.stringify(pasien).replace(/"/g, '"')})">
                             <div class="font-medium text-gray-900">${pasien.nama}</div>
                             <div class="text-sm text-gray-600">NIK Karyawan (Penanggung Jawab): ${pasien.nik_karyawan || '-'}</div>
                         </div>
@@ -394,15 +310,15 @@ document.addEventListener('click', function(e) {
 // Handle multiple keluhan sections
 function updateKeluhanSections(value) {
     const container = document.getElementById('keluhan-container');
-    const template = container.querySelector('.keluhan-section');
 
-    // Remove existing sections except the first one
-    while (container.children.length > 1) {
-        container.removeChild(container.lastChild);
-    }
+    // Clear container
+    container.innerHTML = '';
 
-    // Clone and add new sections based on selected value
-    for (let i = 1; i < value; i++) {
+    // Create template for keluhan section
+    const template = createKeluhanTemplate();
+
+    // Create sections based on selected value
+    for (let i = 0; i < value; i++) {
         const newSection = template.cloneNode(true);
         newSection.setAttribute('data-keluhan-index', i);
 
@@ -414,7 +330,6 @@ function updateKeluhanSections(value) {
         newSection.querySelectorAll('select, input, textarea').forEach(element => {
             if (element.name && element.name.includes('keluhan[')) {
                 element.name = element.name.replace(/keluhan\[\d+\]/, `keluhan[${i}]`);
-                element.value = '';
             }
             // Update data-keluhan-index for diagnosa selects
             if (element.classList.contains('diagnosa-select')) {
@@ -426,13 +341,16 @@ function updateKeluhanSections(value) {
         const obatContainer = newSection.querySelector('.obat-checkbox-container');
         if (obatContainer) {
             obatContainer.setAttribute('data-keluhan-index', i);
-            obatContainer.querySelector('.obat-list').innerHTML = '<p class="text-sm text-gray-500 italic">Pilih diagnosa terlebih dahulu untuk menampilkan daftar obat yang sesuai.</p>';
         }
 
         const detailsContainer = newSection.querySelector('.selected-obat-details');
         if (detailsContainer) {
             detailsContainer.setAttribute('data-keluhan-index', i);
-            detailsContainer.style.display = 'none';
+        }
+
+        // Fill with existing data if available
+        if (existingKeluhans[i]) {
+            fillKeluhanWithData(newSection, existingKeluhans[i], i);
         }
 
         container.appendChild(newSection);
@@ -440,6 +358,161 @@ function updateKeluhanSections(value) {
 
     // Re-attach event listeners for all diagnosa selects
     attachDiagnosaChangeListeners();
+}
+
+function createKeluhanTemplate() {
+    const templateDiv = document.createElement('div');
+    templateDiv.className = 'keluhan-section bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6';
+    templateDiv.innerHTML = `
+        <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Diagnosa & Resep Obat
+                <span class="keluhan-number">(Keluhan 1)</span>
+            </h2>
+        </div>
+
+        <div class="p-6">
+            <!-- Diagnosa Section -->
+            <div class="mb-6 pb-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Diagnosa</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Diagnosa / Penyakit -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Diagnosa / Penyakit <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select name="keluhan[0][id_diagnosa]" class="diagnosa-select w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required data-keluhan-index="0">
+                                <option value="">-- Pilih Diagnosa --</option>
+                                @foreach($diagnosas as $diagnosa)
+                                    <option value="{{ $diagnosa->id_diagnosa }}">{{ $diagnosa->nama_diagnosa }}</option>
+                                @endforeach
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terapi -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Terapi <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select name="keluhan[0][terapi]" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
+                                <option value="">-- Pilih Terapi --</option>
+                                <option value="Obat">Obat</option>
+                                <option value="Lab">Lab</option>
+                                <option value="Istirahat">Istirahat</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Keterangan -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Keterangan / Catatan
+                        </label>
+                        <textarea name="keluhan[0][keterangan]" rows="3" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Masukkan catatan medis, anjuran dokter, atau informasi penting lainnya..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resep Obat Section -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Resep Obat (Opsional)</h3>
+
+                <!-- Obat Checkbox List Container -->
+                <div class="obat-checkbox-container mb-4" data-keluhan-index="0">
+                    <div class="obat-list bg-gray-50 border border-gray-300 rounded-lg p-4 max-h-60 overflow-y-auto">
+                        <p class="text-sm text-gray-500 italic">Pilih diagnosa terlebih dahulu untuk menampilkan daftar obat yang sesuai.</p>
+                    </div>
+                </div>
+
+                <!-- Details for selected obat (will be shown when obat is selected) -->
+                <div class="selected-obat-details mt-4" data-keluhan-index="0" style="display: none;">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="text-sm font-semibold text-blue-900 mb-3">Detail Obat yang Dipilih</h4>
+                        <div class="obat-details-list space-y-3">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return templateDiv;
+}
+
+function fillKeluhanWithData(section, keluhanData, index) {
+    // Fill diagnosa
+    const diagnosaSelect = section.querySelector(`select[name="keluhan[${index}][id_diagnosa]"]`);
+    if (diagnosaSelect && keluhanData.id_diagnosa) {
+        diagnosaSelect.value = keluhanData.id_diagnosa;
+    }
+
+    // Fill terapi
+    const terapiSelect = section.querySelector(`select[name="keluhan[${index}][terapi]"]`);
+    if (terapiSelect && keluhanData.terapi) {
+        terapiSelect.value = keluhanData.terapi;
+    }
+
+    // Fill keterangan
+    const kTextarea = section.querySelector(`textarea[name="keluhan[${index}][keterangan]"]`);
+    if (kTextarea && keluhanData.keterangan) {
+        kTextarea.value = keluhanData.keterangan;
+    }
+
+    // Trigger obat loading if diagnosa is selected
+    if (keluhanData.id_diagnosa) {
+        const event = new Event('change');
+        diagnosaSelect.dispatchEvent(event);
+
+        // After obat list is loaded, select the existing obat
+        setTimeout(() => {
+            if (keluhanData.id_obat) {
+                const obatCheckbox = section.querySelector(`input[type="checkbox"][value="${keluhanData.id_obat}"]`);
+                if (obatCheckbox) {
+                    obatCheckbox.checked = true;
+                    updateObatDetails(index);
+
+                    // Fill obat details
+                    const obatDetailsDiv = section.querySelector('.selected-obat-details');
+                    if (obatDetailsDiv && obatDetailsDiv.style.display !== 'none') {
+                        // Fill jumlah obat
+                        const jumlahInput = obatDetailsDiv.querySelector(`input[name="keluhan[${index}][obat_list][0][jumlah_obat]"]`);
+                        if (jumlahInput && keluhanData.jumlah_obat) {
+                            jumlahInput.value = keluhanData.jumlah_obat;
+                        }
+
+                        // Fill aturan pakai
+                        const aturanInput = obatDetailsDiv.querySelector(`input[name="keluhan[${index}][obat_list][0][aturan_pakai]"]`);
+                        if (aturanInput && keluhanData.aturan_pakai) {
+                            aturanInput.value = keluhanData.aturan_pakai;
+                        }
+
+                        // Fill waktu pakai
+                        const waktuInput = obatDetailsDiv.querySelector(`input[name="keluhan[${index}][obat_list][0][waktu_pakai]"]`);
+                        if (waktuInput && keluhanData.waktu_pakai) {
+                            waktuInput.value = keluhanData.waktu_pakai;
+                        }
+                    }
+                }
+            }
+        }, 500);
+    }
 }
 
 // Function to handle diagnosa change and show obat checkboxes
@@ -567,7 +640,8 @@ function attachDiagnosaChangeListeners() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    attachDiagnosaChangeListeners();
+    // Initialize keluhan sections with existing data
+    updateKeluhanSections({{ $rekamMedis->jumlah_keluhan }});
 });
 </script>
 @endpush

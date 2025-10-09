@@ -18,6 +18,7 @@ class RekamMedis extends Model
         'tanggal_periksa',
         'id_user',
         'jumlah_keluhan',
+        'status',
     ];
 
     protected $casts = [

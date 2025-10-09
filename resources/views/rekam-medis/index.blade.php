@@ -185,7 +185,17 @@
                             {{ $rm->tanggal_periksa->format('d-m-Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Selesai</span>
+                            <div class="status-dropdown" data-id="{{ $rm->id_rekam }}">
+                                <select class="status-select px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500
+                                    @if($rm->status == 'On Orogres') bg-yellow-100 text-yellow-800
+                                    @elseif($rm->status == 'Close') bg-green-100 text-green-800
+                                    @endif"
+                                    data-id="{{ $rm->id_rekam }}"
+                                    data-current-status="{{ $rm->status ?? 'On Orogres' }}">
+                                    <option value="On Orogres" {{ ($rm->status ?? 'On Orogres') == 'On Orogres' ? 'selected' : '' }}>On Orogres</option>
+                                    <option value="Close" {{ ($rm->status ?? 'On Orogres') == 'Close' ? 'selected' : '' }}>Close</option>
+                                </select>
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
                             <a href="{{ route('rekam-medis.show', $rm->id_rekam) }}" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
@@ -203,15 +213,13 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </a>
-                                <form action="{{ route('rekam-medis.destroy', $rm->id_rekam) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data rekam medis ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </form>
+                                <button type="button" class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded delete-btn"
+                                        data-id="{{ $rm->id_rekam }}"
+                                        data-nama="{{ $rm->keluarga->nama_keluarga ?? '' }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -244,4 +252,178 @@
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-lg bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+            </div>
+            <div class="text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Konfirmasi Hapus Data</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500">
+                        Apakah Anda yakin ingin menghapus data rekam medis untuk pasien <strong id="deletePatientName"></strong>?
+                    </p>
+                    <p class="text-xs text-red-500 mt-2">Tindakan ini tidak dapat dibatalkan.</p>
+                </div>
+            </div>
+            <div class="flex justify-center gap-3 mt-4">
+                <button type="button" id="cancelDelete" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors">
+                    Batal
+                </button>
+                <form id="deleteForm" method="POST" class="inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        Hapus
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle delete confirmation modal
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteForm = document.getElementById('deleteForm');
+    const deletePatientName = document.getElementById('deletePatientName');
+    const cancelDeleteBtn = document.getElementById('cancelDelete');
+
+    // Show modal when delete button is clicked
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const nama = this.getAttribute('data-nama');
+
+            // Set form action and patient name
+            deleteForm.action = `{{ route('rekam-medis.destroy', ':id') }}`.replace(':id', id);
+            deletePatientName.textContent = nama;
+
+            // Show modal
+            deleteModal.classList.remove('hidden');
+        });
+    });
+
+    // Hide modal when cancel button is clicked
+    cancelDeleteBtn.addEventListener('click', function() {
+        deleteModal.classList.add('hidden');
+    });
+
+    // Hide modal when clicking outside the modal
+    deleteModal.addEventListener('click', function(e) {
+        if (e.target === deleteModal) {
+            deleteModal.classList.add('hidden');
+        }
+    });
+
+    // Handle status change
+    document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', function() {
+            const id = this.getAttribute('data-id');
+            const newStatus = this.value;
+            const currentStatus = this.getAttribute('data-current-status');
+
+            // Show loading state
+            this.disabled = true;
+            this.classList.add('opacity-50');
+
+            // Send AJAX request
+            fetch(`{{ route('rekam-medis.updateStatus', ':id') }}`.replace(':id', id), {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update status attribute
+                    this.setAttribute('data-current-status', newStatus);
+
+                    // Update styling based on new status
+                    this.classList.remove('bg-yellow-100', 'text-yellow-800', 'bg-green-100', 'text-green-800');
+
+                    if (newStatus === 'On Orogres') {
+                        this.classList.add('bg-yellow-100', 'text-yellow-800');
+                    } else if (newStatus === 'Close') {
+                        this.classList.add('bg-green-100', 'text-green-800');
+                    }
+
+                    // Show success notification
+                    showNotification('Status berhasil diperbarui', 'success');
+                } else {
+                    // Revert to original status
+                    this.value = currentStatus;
+                    showNotification(data.message || 'Gagal memperbarui status', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Revert to original status
+                this.value = currentStatus;
+                showNotification('Terjadi kesalahan saat memperbarui status', 'error');
+            })
+            .finally(() => {
+                // Remove loading state
+                this.disabled = false;
+                this.classList.remove('opacity-50');
+            });
+        });
+    });
+
+    // Function to show notification
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full`;
+
+        // Set styling based on type
+        if (type === 'success') {
+            notification.classList.add('bg-green-500', 'text-white');
+        } else if (type === 'error') {
+            notification.classList.add('bg-red-500', 'text-white');
+        }
+
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    ${type === 'success'
+                        ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
+                        : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
+                    }
+                </svg>
+                <span>${message}</span>
+            </div>
+        `;
+
+        // Add to document
+        document.body.appendChild(notification);
+
+        // Animate in
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+            notification.classList.add('translate-x-0');
+        }, 100);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+});
+</script>
+@endpush
 @endsection

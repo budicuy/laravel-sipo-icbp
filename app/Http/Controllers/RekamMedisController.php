@@ -66,6 +66,7 @@ class RekamMedisController extends Controller
         $validated = $request->validate([
             'id_keluarga' => 'required|exists:keluarga,id_keluarga',
             'tanggal_periksa' => 'required|date',
+            'status' => 'required|in:On Orogres,Close',
             'jumlah_keluhan' => 'required|integer|min:1|max:3',
 
             // Validasi untuk setiap keluhan
@@ -88,6 +89,7 @@ class RekamMedisController extends Controller
                 'tanggal_periksa' => $validated['tanggal_periksa'],
                 'id_user' => Auth::id(),
                 'jumlah_keluhan' => $validated['jumlah_keluhan'],
+                'status' => $validated['status'],
             ]);
 
             // Simpan data keluhan sesuai jumlah
@@ -165,6 +167,7 @@ class RekamMedisController extends Controller
         $validated = $request->validate([
             'id_keluarga' => 'required|exists:keluarga,id_keluarga',
             'tanggal_periksa' => 'required|date',
+            'status' => 'required|in:On Orogres,Close',
             'jumlah_keluhan' => 'required|integer|min:1|max:3',
 
             // Validasi untuk setiap keluhan
@@ -185,6 +188,7 @@ class RekamMedisController extends Controller
                 'id_keluarga' => $validated['id_keluarga'],
                 'tanggal_periksa' => $validated['tanggal_periksa'],
                 'jumlah_keluhan' => $validated['jumlah_keluhan'],
+                'status' => $validated['status'],
             ]);
 
             // Hapus keluhan lama
@@ -282,5 +286,34 @@ class RekamMedisController extends Controller
         });
 
         return response()->json($obats);
+    }
+
+    /**
+     * Update status rekam medis via AJAX
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $rekamMedis = RekamMedis::findOrFail($id);
+
+        $validated = $request->validate([
+            'status' => 'required|in:On Orogres,Close',
+        ]);
+
+        try {
+            $rekamMedis->update([
+                'status' => $validated['status'],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diperbarui',
+                'status' => $rekamMedis->status,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui status: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }
