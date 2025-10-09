@@ -150,7 +150,7 @@
                             <td class="px-4 py-3 text-sm text-red-600 text-center">{{ $obat->stok_keluar }}</td>
                             <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-center">{{ $obat->stok_akhir }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">{{ $obat->keterangan ?? '-' }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->tanggal_update ? $obat->tanggal_update->format('d/m/Y H:i') : '-' }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->tanggal_update ? $obat->tanggal_update->format('d/m/Y') : '-' }}</td>
                             <td class="px-4 py-3 text-sm font-medium text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     <a href="{{ route('obat.edit', $obat->id_obat) }}" class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white text-xs font-medium rounded-md shadow-sm hover:shadow transition-all">
