@@ -1,5 +1,14 @@
 @extends('layouts.app')
 
+@section('title', 'Laporan Transaksi')
+
+@section('page-title', 'Laporan Transaksi')
+
+@push('styles')
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endpush
+
 @section('content')
 <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Header Section -->
@@ -21,49 +30,51 @@
             <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
-            <h3 class="text-lg font-semibold text-gray-800">Filter Periode</h3>
+            <h3 class="text-lg font-semibold text-gray-800">Filter Periode Chart</h3>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
-                <div class="relative">
-                    <select class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
-                        <option>Januari</option>
-                        <option>Februari</option>
-                        <option>Maret</option>
-                        <option>April</option>
-                        <option>Mei</option>
-                        <option>Juni</option>
-                        <option>Juli</option>
-                        <option>Agustus</option>
-                        <option>September</option>
-                        <option selected>Oktober</option>
-                        <option>November</option>
-                        <option>Desember</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
+        <form method="GET" action="{{ route('laporan.transaksi') }}">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
+                    <div class="relative">
+                        <select name="bulan" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
+                            <option value="1" {{ $bulan == '1' ? 'selected' : '' }}>Januari</option>
+                            <option value="2" {{ $bulan == '2' ? 'selected' : '' }}>Februari</option>
+                            <option value="3" {{ $bulan == '3' ? 'selected' : '' }}>Maret</option>
+                            <option value="4" {{ $bulan == '4' ? 'selected' : '' }}>April</option>
+                            <option value="5" {{ $bulan == '5' ? 'selected' : '' }}>Mei</option>
+                            <option value="6" {{ $bulan == '6' ? 'selected' : '' }}>Juni</option>
+                            <option value="7" {{ $bulan == '7' ? 'selected' : '' }}>Juli</option>
+                            <option value="8" {{ $bulan == '8' ? 'selected' : '' }}>Agustus</option>
+                            <option value="9" {{ $bulan == '9' ? 'selected' : '' }}>September</option>
+                            <option value="10" {{ $bulan == '10' ? 'selected' : '' }}>Oktober</option>
+                            <option value="11" {{ $bulan == '11' ? 'selected' : '' }}>November</option>
+                            <option value="12" {{ $bulan == '12' ? 'selected' : '' }}>Desember</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
-                <input type="number" value="2025" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Tahun">
-            </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
+                    <input type="number" name="tahun" value="{{ $tahun }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Tahun">
+                </div>
 
-            <div class="flex items-end">
-                <button class="w-full px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    Tampilkan Data
-                </button>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Filter Chart
+                    </button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 
         <!-- Statistics Cards -->
@@ -80,8 +91,8 @@
                             <div class="w-2 h-2 bg-blue-200 rounded-full animate-pulse"></div>
                             <p class="text-blue-100 text-sm font-medium">Total Pemeriksaan</p>
                         </div>
-                        <h3 class="text-5xl font-bold mb-1">1</h3>
-                        <p class="text-blue-200 text-xs">Oktober 2025</p>
+                        <h3 class="text-5xl font-bold mb-1">{{ $stats['total_pemeriksaan'] }}</h3>
+                        <p class="text-blue-200 text-xs">{{ $stats['bulan_nama'] }} {{ $stats['tahun'] }}</p>
                     </div>
                     <div class="bg-white rounded-2xl p-5 shadow-2xl">
                         <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,8 +114,8 @@
                             <div class="w-2 h-2 bg-cyan-200 rounded-full animate-pulse"></div>
                             <p class="text-cyan-100 text-sm font-medium">Total Biaya</p>
                         </div>
-                        <h3 class="text-5xl font-bold mb-1">Rp20.000</h3>
-                        <p class="text-cyan-200 text-xs">Oktober 2025</p>
+                        <h3 class="text-5xl font-bold mb-1">Rp{{ number_format($stats['total_biaya'], 0, ',', '.') }}</h3>
+                        <p class="text-cyan-200 text-xs">{{ $stats['bulan_nama'] }} {{ $stats['tahun'] }}</p>
                     </div>
                     <div class="bg-white rounded-2xl p-5 shadow-2xl">
                         <svg class="w-12 h-12 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,11 +128,31 @@
 
         <!-- Charts Section -->
         <div class="bg-white rounded-xl shadow-md p-6 mb-6 border border-gray-100">
-            <div class="flex items-center gap-2 mb-6">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                </svg>
-                <h3 class="text-lg font-semibold text-gray-800">Grafik Statistik</h3>
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                    </svg>
+                    <h3 class="text-lg font-semibold text-gray-800">Grafik Statistik Tahun {{ $tahun }}</h3>
+                </div>
+
+                <!-- Filter Tahun untuk Chart -->
+                <form method="GET" action="{{ route('laporan.transaksi') }}" class="flex items-center gap-2">
+                    <input type="hidden" name="bulan" value="{{ $bulan }}">
+                    <input type="hidden" name="tanggal_dari" value="{{ $tanggal_dari }}">
+                    <input type="hidden" name="tanggal_sampai" value="{{ $tanggal_sampai }}">
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm font-medium text-gray-700">Tahun:</label>
+                        <select name="tahun" class="px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
+                            @for($y = date('Y'); $y >= date('Y') - 5; $y--)
+                                <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
+                            @endfor
+                        </select>
+                        <button type="submit" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all">
+                            Update
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -178,34 +209,38 @@
 
             <!-- Date Filter -->
             <div class="mb-6 bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-100">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
-                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            Dari Tanggal
-                        </label>
-                        <input type="date" value="2025-10-01" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                <form method="GET" action="{{ route('laporan.transaksi') }}">
+                    <input type="hidden" name="bulan" value="{{ $bulan }}">
+                    <input type="hidden" name="tahun" value="{{ $tahun }}">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Dari Tanggal
+                            </label>
+                            <input type="date" name="tanggal_dari" value="{{ $tanggal_dari }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                        </div>
+                        <div>
+                            <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Sampai Tanggal
+                            </label>
+                            <input type="date" name="tanggal_sampai" value="{{ $tanggal_sampai }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                </svg>
+                                Filter Tabel
+                            </button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
-                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            Sampai Tanggal
-                        </label>
-                        <input type="date" value="2025-10-31" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-                    </div>
-                    <div class="flex items-end">
-                        <button class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-                            </svg>
-                            Urutkan
-                        </button>
-                    </div>
-                </div>
+                </form>
             </div>
 
             <!-- Table -->
@@ -214,65 +249,90 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr class="bg-gradient-to-r from-gray-800 to-gray-900">
-                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Kode Transaksi</th>
+                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No Registrasi</th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No RM</th>
+                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Nama Pasien</th>
+                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Hubungan</th>
+                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">NIK & Nama Karyawan</th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Tanggal</th>
-                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">NIK</th>
-                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Nama</th>
-                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Diagnosa</th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Obat</th>
-                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Biaya</th>
+                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Total Biaya</th>
+                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse($transaksi as $item)
                             <tr class="hover:bg-blue-50 transition-colors">
                                 <td class="px-4 py-4 whitespace-nowrap">
-                                    <span class="text-sm font-semibold text-blue-600">KRY001-03102025</span>
+                                    <span class="text-sm font-semibold text-blue-600">{{ $item['kode_transaksi'] }}</span>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
-                                    <span class="text-sm text-gray-900">0001/NDL/BJM/10/2025</span>
+                                    <span class="text-sm text-gray-900">{{ $item['no_rm'] }}</span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                            {{ substr($item['nama_pasien'], 0, 1) }}
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-900">{{ $item['nama_pasien'] }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="text-sm text-gray-900">{{ $item['hubungan'] }}</span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="text-sm">
+                                        <div class="font-medium text-gray-900">{{ $item['nik_karyawan'] }}</div>
+                                        <div class="text-gray-600">{{ $item['nama_karyawan'] }}</div>
+                                    </div>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
                                     <div class="flex items-center gap-1 text-sm text-gray-700">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
-                                        03-10-2025
-                                    </div>
-                                </td>
-                                <td class="px-4 py-4 whitespace-nowrap">
-                                    <span class="text-sm font-medium text-gray-900">KRY001</span>
-                                </td>
-                                <td class="px-4 py-4 whitespace-nowrap">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                            AR
-                                        </div>
-                                        <span class="text-sm font-medium text-gray-900">Awang Rio</span>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-4 whitespace-nowrap">
-                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                                        Karyawan
-                                    </span>
-                                </td>
-                                <td class="px-4 py-4">
-                                    <div class="text-sm text-gray-900 max-w-xs">
-                                        <span class="font-medium">Demam Berdarah Dengue (DBD)</span>
+                                        {{ $item['tanggal'] }}
                                     </div>
                                 </td>
                                 <td class="px-4 py-4">
-                                    <div class="text-sm text-gray-700 max-w-xs">
-                                        Paracetamol, Piracetam, Vit C
+                                    <div class="text-sm text-gray-900 max-w-xs" title="{{ $item['diagnosa'] }}">
+                                        <span class="font-medium">{{ Str::limit($item['diagnosa'], 50) }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="text-sm text-gray-700 max-w-xs" title="{{ $item['obat'] }}">
+                                        {{ Str::limit($item['obat'], 50) }}
                                     </div>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
                                     <span class="text-sm font-bold text-green-600 bg-green-50 px-3 py-1 rounded-lg border border-green-200">
-                                        Rp20.000
+                                        Rp{{ number_format($item['total_biaya'], 0, ',', '.') }}
                                     </span>
                                 </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <a href="{{ route('laporan.detail', $item['id_rekam']) }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        Detail
+                                    </a>
+                                </td>
                             </tr>
+                            @empty
+                            <tr>
+                                <td colspan="10" class="px-4 py-8 text-center text-gray-500">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        <span class="text-sm font-medium">Tidak ada data transaksi</span>
+                                        <span class="text-xs text-gray-400 mt-1">Pilih periode tanggal yang berbeda</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -284,6 +344,10 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // Data dari controller
+    const chartPemeriksaanData = @json($chartPemeriksaan);
+    const chartBiayaData = @json($chartBiaya);
+
     // Chart Jumlah Pemeriksaan
     const ctxPemeriksaan = document.getElementById('chartPemeriksaan').getContext('2d');
     const chartPemeriksaan = new Chart(ctxPemeriksaan, {
@@ -292,7 +356,7 @@
             labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
             datasets: [{
                 label: 'Jumlah Pemeriksaan',
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0.8, 1, 0, 0],
+                data: chartPemeriksaanData,
                 backgroundColor: 'rgba(20, 184, 166, 0.2)',
                 borderColor: 'rgba(20, 184, 166, 1)',
                 borderWidth: 2,
@@ -321,12 +385,10 @@
             scales: {
                 y: {
                     beginAtZero: true,
-                    min: 0,
-                    max: 1.2,
                     ticks: {
-                        stepSize: 0.2,
+                        stepSize: 1,
                         callback: function(value) {
-                            return value.toFixed(1);
+                            return Math.round(value);
                         }
                     }
                 },
@@ -347,7 +409,7 @@
             labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
             datasets: [{
                 label: 'Total Biaya',
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 15000, 20000, 0, 0],
+                data: chartBiayaData,
                 backgroundColor: 'rgba(248, 113, 113, 0.2)',
                 borderColor: 'rgba(248, 113, 113, 1)',
                 borderWidth: 2,
@@ -376,10 +438,7 @@
             scales: {
                 y: {
                     beginAtZero: true,
-                    min: 0,
-                    max: 22000,
                     ticks: {
-                        stepSize: 4000,
                         callback: function(value) {
                             return 'Rp ' + value.toLocaleString('id-ID');
                         }

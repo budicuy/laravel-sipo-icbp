@@ -317,43 +317,88 @@ function updateKeluhanSections(value) {
     // Create template for keluhan section
     const template = createKeluhanTemplate();
 
-    // Create sections based on selected value
-    for (let i = 0; i < value; i++) {
+    // Group existing keluhans by diagnosa to avoid duplicates
+    const processedDiagnosas = new Set();
+    let keluhanIndex = 0;
+
+    // Create sections based on selected value or existing data
+    existingKeluhans.forEach((keluhanData, index) => {
+        // Skip if we've already processed this diagnosa or reached the limit
+        if (processedDiagnosas.has(keluhanData.id_diagnosa) || keluhanIndex >= value) {
+            return;
+        }
+
+        processedDiagnosas.add(keluhanData.id_diagnosa);
+
         const newSection = template.cloneNode(true);
-        newSection.setAttribute('data-keluhan-index', i);
+        newSection.setAttribute('data-keluhan-index', keluhanIndex);
 
         // Update section title
         const title = newSection.querySelector('.keluhan-number');
-        title.textContent = `(Keluhan ${i + 1})`;
+        title.textContent = `(Keluhan ${keluhanIndex + 1})`;
 
         // Update form field names with proper index
         newSection.querySelectorAll('select, input, textarea').forEach(element => {
             if (element.name && element.name.includes('keluhan[')) {
-                element.name = element.name.replace(/keluhan\[\d+\]/, `keluhan[${i}]`);
+                element.name = element.name.replace(/keluhan\[\d+\]/, `keluhan[${keluhanIndex}]`);
             }
             // Update data-keluhan-index for diagnosa selects
             if (element.classList.contains('diagnosa-select')) {
-                element.setAttribute('data-keluhan-index', i);
+                element.setAttribute('data-keluhan-index', keluhanIndex);
             }
         });
 
         // Update data-keluhan-index for obat containers
         const obatContainer = newSection.querySelector('.obat-checkbox-container');
         if (obatContainer) {
-            obatContainer.setAttribute('data-keluhan-index', i);
+            obatContainer.setAttribute('data-keluhan-index', keluhanIndex);
         }
 
         const detailsContainer = newSection.querySelector('.selected-obat-details');
         if (detailsContainer) {
-            detailsContainer.setAttribute('data-keluhan-index', i);
+            detailsContainer.setAttribute('data-keluhan-index', keluhanIndex);
         }
 
-        // Fill with existing data if available
-        if (existingKeluhans[i]) {
-            fillKeluhanWithData(newSection, existingKeluhans[i], i);
+        // Fill with existing data
+        fillKeluhanWithData(newSection, keluhanData, keluhanIndex);
+
+        container.appendChild(newSection);
+        keluhanIndex++;
+    });
+
+    // Add empty sections if we need more
+    while (keluhanIndex < value) {
+        const newSection = template.cloneNode(true);
+        newSection.setAttribute('data-keluhan-index', keluhanIndex);
+
+        // Update section title
+        const title = newSection.querySelector('.keluhan-number');
+        title.textContent = `(Keluhan ${keluhanIndex + 1})`;
+
+        // Update form field names with proper index
+        newSection.querySelectorAll('select, input, textarea').forEach(element => {
+            if (element.name && element.name.includes('keluhan[')) {
+                element.name = element.name.replace(/keluhan\[\d+\]/, `keluhan[${keluhanIndex}]`);
+            }
+            // Update data-keluhan-index for diagnosa selects
+            if (element.classList.contains('diagnosa-select')) {
+                element.setAttribute('data-keluhan-index', keluhanIndex);
+            }
+        });
+
+        // Update data-keluhan-index for obat containers
+        const obatContainer = newSection.querySelector('.obat-checkbox-container');
+        if (obatContainer) {
+            obatContainer.setAttribute('data-keluhan-index', keluhanIndex);
+        }
+
+        const detailsContainer = newSection.querySelector('.selected-obat-details');
+        if (detailsContainer) {
+            detailsContainer.setAttribute('data-keluhan-index', keluhanIndex);
         }
 
         container.appendChild(newSection);
+        keluhanIndex++;
     }
 
     // Re-attach event listeners for all diagnosa selects
@@ -482,29 +527,51 @@ function fillKeluhanWithData(section, keluhanData, index) {
 
         // After obat list is loaded, select the existing obat
         setTimeout(() => {
-            if (keluhanData.id_obat) {
-                const obatCheckbox = section.querySelector(`input[type="checkbox"][value="${keluhanData.id_obat}"]`);
-                if (obatCheckbox) {
-                    obatCheckbox.checked = true;
-                    updateObatDetails(index);
+            // Group existing keluhans by diagnosa to handle multiple obat per diagnosa
+            const existingKeluhansByDiagnosa = {};
 
-                    // Fill obat details
-                    const obatDetailsDiv = section.querySelector('.selected-obat-details');
-                    if (obatDetailsDiv && obatDetailsDiv.style.display !== 'none') {
-                        // Fill jumlah obat
-                        const jumlahInput = obatDetailsDiv.querySelector(`input[name="keluhan[${index}][obat_list][0][jumlah_obat]"]`);
-                        if (jumlahInput && keluhanData.jumlah_obat) {
-                            jumlahInput.value = keluhanData.jumlah_obat;
-                        }
-
-                        // Fill aturan pakai
-                        const aturanInput = obatDetailsDiv.querySelector(`input[name="keluhan[${index}][obat_list][0][aturan_pakai]"]`);
-                        if (aturanInput && keluhanData.aturan_pakai) {
-                            aturanInput.value = keluhanData.aturan_pakai;
-                        }
-
+            // Group all existing keluhans by diagnosa
+            existingKeluhans.forEach(k => {
+                if (k.id_diagnosa === keluhanData.id_diagnosa) {
+                    if (!existingKeluhansByDiagnosa[k.id_diagnosa]) {
+                        existingKeluhansByDiagnosa[k.id_diagnosa] = [];
                     }
+                    existingKeluhansByDiagnosa[k.id_diagnosa].push(k);
                 }
+            });
+
+            // Check if there are obat for this diagnosa
+            if (existingKeluhansByDiagnosa[keluhanData.id_diagnosa]) {
+                const obatsForDiagnosa = existingKeluhansByDiagnosa[keluhanData.id_diagnosa];
+                let obatIndex = 0;
+
+                obatsForDiagnosa.forEach(keluhanWithObat => {
+                    if (keluhanWithObat.id_obat) {
+                        const obatCheckbox = section.querySelector(`input[type="checkbox"][value="${keluhanWithObat.id_obat}"]`);
+                        if (obatCheckbox) {
+                            obatCheckbox.checked = true;
+                            updateObatDetails(index);
+
+                            // Fill obat details
+                            const obatDetailsDiv = section.querySelector('.selected-obat-details');
+                            if (obatDetailsDiv && obatDetailsDiv.style.display !== 'none') {
+                                // Fill jumlah obat
+                                const jumlahInput = obatDetailsDiv.querySelector(`input[name="keluhan[${index}][obat_list][${obatIndex}][jumlah_obat]"]`);
+                                if (jumlahInput && keluhanWithObat.jumlah_obat) {
+                                    jumlahInput.value = keluhanWithObat.jumlah_obat;
+                                }
+
+                                // Fill aturan pakai
+                                const aturanInput = obatDetailsDiv.querySelector(`input[name="keluhan[${index}][obat_list][${obatIndex}][aturan_pakai]"]`);
+                                if (aturanInput && keluhanWithObat.aturan_pakai) {
+                                    aturanInput.value = keluhanWithObat.aturan_pakai;
+                                }
+                            }
+
+                            obatIndex++;
+                        }
+                    }
+                });
             }
         }, 500);
     }

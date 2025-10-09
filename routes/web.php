@@ -8,6 +8,7 @@ use App\Http\Controllers\DiagnosaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\KunjunganController;
+use App\Http\Controllers\LaporanController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -89,9 +90,9 @@ Route::middleware('auth')->group(function () {
     })->name('surat-sakit.store');
 
     // Laporan Routes
-    Route::get('/laporan/transaksi', function () {
-        return view('laporan.transaksi');
-    })->name('laporan.transaksi');
+    Route::get('/laporan/transaksi', [LaporanController::class, 'transaksi'])->name('laporan.transaksi');
+    Route::get('/laporan/transaksi/{id}/detail', [LaporanController::class, 'detailTransaksi'])->name('laporan.detail');
+    Route::post('/laporan/transaksi/export', [LaporanController::class, 'exportTransaksi'])->name('laporan.export');
 
     // Routes untuk Super Admin
     Route::middleware('role:Super Admin')->group(function () {

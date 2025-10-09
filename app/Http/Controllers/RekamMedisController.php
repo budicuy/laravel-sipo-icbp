@@ -171,9 +171,10 @@ class RekamMedisController extends Controller
             'keluhan.*.id_diagnosa' => 'required|exists:diagnosa,id_diagnosa',
             'keluhan.*.terapi' => 'required|in:Obat,Lab,Istirahat',
             'keluhan.*.keterangan' => 'nullable|string',
-            'keluhan.*.id_obat' => 'nullable|exists:obat,id_obat',
-            'keluhan.*.jumlah_obat' => 'nullable|integer|min:1',
-            'keluhan.*.aturan_pakai' => 'nullable|string',
+            'keluhan.*.obat_list' => 'nullable|array',
+            'keluhan.*.obat_list.*.id_obat' => 'required|exists:obat,id_obat',
+            'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1',
+            'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
@@ -193,16 +194,34 @@ class RekamMedisController extends Controller
             // Simpan keluhan baru
             if (isset($request->keluhan)) {
                 foreach ($request->keluhan as $keluhanData) {
-                    Keluhan::create([
-                        'id_rekam' => $rekamMedis->id_rekam,
-                        'id_keluarga' => $validated['id_keluarga'],
-                        'id_diagnosa' => $keluhanData['id_diagnosa'],
-                        'terapi' => $keluhanData['terapi'],
-                        'keterangan' => $keluhanData['keterangan'] ?? null,
-                        'id_obat' => $keluhanData['id_obat'] ?? null,
-                        'jumlah_obat' => $keluhanData['jumlah_obat'] ?? null,
-                        'aturan_pakai' => $keluhanData['aturan_pakai'] ?? null,
-                    ]);
+                    // Check if there are obat_list (multiple obat)
+                    if (isset($keluhanData['obat_list']) && is_array($keluhanData['obat_list'])) {
+                        // Save multiple keluhan entries, one for each obat
+                        foreach ($keluhanData['obat_list'] as $obatData) {
+                            Keluhan::create([
+                                'id_rekam' => $rekamMedis->id_rekam,
+                                'id_keluarga' => $validated['id_keluarga'],
+                                'id_diagnosa' => $keluhanData['id_diagnosa'],
+                                'terapi' => $keluhanData['terapi'],
+                                'keterangan' => $keluhanData['keterangan'] ?? null,
+                                'id_obat' => $obatData['id_obat'],
+                                'jumlah_obat' => $obatData['jumlah_obat'] ?? null,
+                                'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
+                            ]);
+                        }
+                    } else {
+                        // No obat selected, save keluhan without obat
+                        Keluhan::create([
+                            'id_rekam' => $rekamMedis->id_rekam,
+                            'id_keluarga' => $validated['id_keluarga'],
+                            'id_diagnosa' => $keluhanData['id_diagnosa'],
+                            'terapi' => $keluhanData['terapi'],
+                            'keterangan' => $keluhanData['keterangan'] ?? null,
+                            'id_obat' => null,
+                            'jumlah_obat' => null,
+                            'aturan_pakai' => null,
+                        ]);
+                    }
                 }
             }
 
