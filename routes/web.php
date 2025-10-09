@@ -7,6 +7,7 @@ use App\Http\Controllers\KeluargaController;
 use App\Http\Controllers\DiagnosaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RekamMedisController;
+use App\Http\Controllers\KunjunganController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -65,13 +66,8 @@ Route::middleware('auth')->group(function () {
     ]);
 
     // Kunjungan Routes
-    Route::get('/kunjungan', function () {
-        return view('kunjungan.index');
-    })->name('kunjungan.index');
-
-    Route::get('/kunjungan/{id}/detail', function ($id) {
-        return view('kunjungan.detail');
-    })->name('kunjungan.detail');
+    Route::get('/kunjungan', [KunjunganController::class, 'index'])->name('kunjungan.index');
+    Route::get('/kunjungan/{id}/detail', [KunjunganController::class, 'show'])->name('kunjungan.detail');
 
     // Rekam Medis Routes - Custom routes BEFORE resource routes
     Route::get('/rekam-medis/search-pasien', [RekamMedisController::class, 'searchPasien'])->name('rekam-medis.searchPasien');
