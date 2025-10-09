@@ -64,24 +64,46 @@
                 <h3 class="text-sm font-semibold text-gray-800">Filter & Pencarian</h3>
             </div>
 
-            <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-3">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Cari Nama Obat</label>
-                    <div class="flex gap-2">
-                        <input type="text" name="search" value="{{ request('search') }}" class="flex-1 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Masukkan nama obat...">
-                        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            Filter
-                        </button>
-                        <a href="{{ route('obat.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">Reset</a>
+                        </div>
+                        <input type="text" name="search" value="{{ request('search') }}" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Masukkan nama obat...">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <input type="date" name="tanggal_mulai" value="{{ request('tanggal_mulai') }}" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Selesai</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <input type="date" name="tanggal_selesai" value="{{ request('tanggal_selesai') }}" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Obat</label>
-                    <select name="jenis_obat" onchange="this.form.submit()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
+                    <select name="jenis_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
                         <option value="">Semua Jenis</option>
                         @foreach($jenisObats as $jenis)
                             <option value="{{ $jenis->id_jenis_obat }}" {{ request('jenis_obat') == $jenis->id_jenis_obat ? 'selected' : '' }}>{{ $jenis->nama_jenis }}</option>
@@ -91,12 +113,32 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Satuan Obat</label>
-                    <select name="satuan_obat" onchange="this.form.submit()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
+                    <select name="satuan_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
                         <option value="">Semua Satuan</option>
                         @foreach($satuanObats as $satuan)
                             <option value="{{ $satuan->id_satuan }}" {{ request('satuan_obat') == $satuan->id_satuan ? 'selected' : '' }}>{{ $satuan->nama_satuan }}</option>
                         @endforeach
                     </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tampilkan</label>
+                    <select name="per_page" onchange="this.form.submit()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
+                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        <option value="150" {{ request('per_page') == 150 ? 'selected' : '' }}>150</option>
+                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                    </select>
+                </div>
+
+                <div class="md:col-span-4 flex items-end gap-2">
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Filter
+                    </button>
+                    <a href="{{ route('obat.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">Reset</a>
                 </div>
             </form>
         </div>
@@ -117,18 +159,282 @@
                             <input type="checkbox" onclick="toggleAll(this)" class="rounded border-gray-400 text-green-600 focus:ring-2 focus:ring-green-500">
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Nama Obat</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Jenis Obat</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Satuan</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Jml/Kemasan</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Harga/Kemasan</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Harga/Satuan</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Stok Awal</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Stok Masuk</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Stok Keluar</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Stok Akhir</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Keterangan</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Tanggal Update</th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nama_obat', 'direction' => (request('sort') == 'nama_obat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
+                                <span>Nama Obat</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'nama_obat')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'jenis_obat', 'direction' => (request('sort') == 'jenis_obat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
+                                <span>Jenis Obat</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'jenis_obat')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'satuan_obat', 'direction' => (request('sort') == 'satuan_obat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
+                                <span>Satuan</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'satuan_obat')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'jumlah_per_kemasan', 'direction' => (request('sort') == 'jumlah_per_kemasan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-center group hover:text-green-300 transition-colors">
+                                <span>Jml/Kemasan</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'jumlah_per_kemasan')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'harga_per_kemasan', 'direction' => (request('sort') == 'harga_per_kemasan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
+                                <span>Harga/Kemasan</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'harga_per_kemasan')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'harga_per_satuan', 'direction' => (request('sort') == 'harga_per_satuan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
+                                <span>Harga/Satuan</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'harga_per_satuan')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'stok_awal', 'direction' => (request('sort') == 'stok_awal' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-center group hover:text-green-300 transition-colors">
+                                <span>Stok Awal</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'stok_awal')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'stok_masuk', 'direction' => (request('sort') == 'stok_masuk' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-center group hover:text-green-300 transition-colors">
+                                <span>Stok Masuk</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'stok_masuk')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'stok_keluar', 'direction' => (request('sort') == 'stok_keluar' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-center group hover:text-green-300 transition-colors">
+                                <span>Stok Keluar</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'stok_keluar')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'stok_akhir', 'direction' => (request('sort') == 'stok_akhir' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-center group hover:text-green-300 transition-colors">
+                                <span>Stok Akhir</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'stok_akhir')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'keterangan', 'direction' => (request('sort') == 'keterangan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
+                                <span>Keterangan</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'keterangan')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'tanggal_update', 'direction' => (request('sort') == 'tanggal_update' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
+                                <span>Tanggal Update</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'tanggal_update')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
                         <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -143,27 +449,32 @@
                             <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->jenisObat->nama_jenis ?? '-' }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->satuanObat->nama_satuan ?? '-' }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ $obat->jumlah_per_kemasan }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-900">Rp {{ number_format($obat->harga_per_kemasan, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-900">Rp {{ number_format($obat->harga_per_satuan, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-900 text-right">Rp {{ number_format($obat->harga_per_kemasan, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-900 text-right">Rp {{ number_format($obat->harga_per_satuan, 0, ',', '.') }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ $obat->stok_awal }}</td>
                             <td class="px-4 py-3 text-sm text-green-600 text-center">{{ $obat->stok_masuk }}</td>
                             <td class="px-4 py-3 text-sm text-red-600 text-center">{{ $obat->stok_keluar }}</td>
                             <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-center">{{ $obat->stok_akhir }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">{{ $obat->keterangan ?? '-' }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->tanggal_update ? $obat->tanggal_update->format('d/m/Y') : '-' }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate" title="{{ $obat->keterangan }}">{{ $obat->keterangan ?? '-' }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">
+                                <div class="flex items-center gap-1">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    {{ $obat->tanggal_update ? $obat->tanggal_update->format('d-m-Y') : '-' }}
+                                </div>
+                            </td>
                             <td class="px-4 py-3 text-sm font-medium text-center">
                                 <div class="flex items-center justify-center gap-2">
-                                    <a href="{{ route('obat.edit', $obat->id_obat) }}" class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white text-xs font-medium rounded-md shadow-sm hover:shadow transition-all">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <a href="{{ route('obat.edit', $obat->id_obat) }}" class="inline-flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Edit">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
-                                        Edit
                                     </a>
-                                    <button onclick="deleteObat({{ $obat->id_obat }}, '{{ $obat->nama_obat }}')" class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-xs font-medium rounded-md shadow-sm hover:shadow transition-all">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <button onclick="deleteObat({{ $obat->id_obat }}, '{{ $obat->nama_obat }}')" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
-                                        Hapus
                                     </button>
                                 </div>
                             </td>
@@ -183,10 +494,92 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-            {{ $obats->links() }}
+        <!-- Custom Pagination -->
+        @isset($obats)
+        @if($obats->hasPages())
+        <div class="px-6 py-5 border-t border-gray-200 bg-white">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="text-sm text-gray-600">
+                    Halaman <span class="font-semibold text-gray-900">{{ $obats->currentPage() }}</span>
+                    dari <span class="font-semibold text-gray-900">{{ $obats->lastPage() }}</span>
+                    <span class="mx-2 text-gray-400">•</span>
+                    Total <span class="font-semibold text-gray-900">{{ $obats->total() }}</span> data
+                </div>
+
+                <nav class="flex items-center gap-2" role="navigation">
+                    @if($obats->onFirstPage())
+                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </span>
+                    @else
+                        <a href="{{ $obats->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </a>
+                    @endif
+
+                    @if($obats->onFirstPage())
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
+                    @else
+                        <a href="{{ $obats->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">Previous</a>
+                    @endif
+
+                    <div class="flex items-center gap-1">
+                        @php
+                            $start = max($obats->currentPage() - 2, 1);
+                            $end = min($obats->currentPage() + 2, $obats->lastPage());
+                        @endphp
+
+                        @if($start > 1)
+                            <a href="{{ $obats->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">1</a>
+                            @if($start > 2)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                        @endif
+
+                        @for($i = $start; $i <= $end; $i++)
+                            @if($i == $obats->currentPage())
+                                <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-md">{{ $i }}</span>
+                            @else
+                                <a href="{{ $obats->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">{{ $i }}</a>
+                            @endif
+                        @endfor
+
+                        @if($end < $obats->lastPage())
+                            @if($end < $obats->lastPage() - 1)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                            <a href="{{ $obats->appends(request()->except('page'))->url($obats->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">{{ $obats->lastPage() }}</a>
+                        @endif
+                    </div>
+
+                    @if($obats->hasMorePages())
+                        <a href="{{ $obats->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">Next</a>
+                    @else
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
+                    @endif
+
+                    @if($obats->currentPage() == $obats->lastPage())
+                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    @else
+                        <a href="{{ $obats->appends(request()->except('page'))->url($obats->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    @endif
+                </nav>
+            </div>
         </div>
+        @endif
+        @endisset
     </div>
 </div>
 
@@ -297,5 +690,24 @@ function submitBulkDelete() {
         }
     });
 }
+
+// Fungsi untuk memastikan parameter filter tetap terjaga saat mengurutkan
+function updateSortParams(field, direction) {
+    const url = new URL(window.location);
+    url.searchParams.set('sort', field);
+    url.searchParams.set('direction', direction);
+    window.location.href = url.toString();
+}
+
+// Auto-refresh saat per_page berubah
+document.addEventListener('DOMContentLoaded', function() {
+    const perPageSelect = document.querySelector('select[name="per_page"]');
+    if (perPageSelect) {
+        perPageSelect.addEventListener('change', function() {
+            const form = this.closest('form');
+            form.submit();
+        });
+    }
+});
 </script>
 @endsection

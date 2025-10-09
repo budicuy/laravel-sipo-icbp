@@ -38,17 +38,41 @@ class ObatController extends Controller
             $query->where('id_satuan', $request->satuan_obat);
         }
 
+        // Filter by tanggal
+        if ($request->has('tanggal_mulai') && $request->tanggal_mulai != '') {
+            $query->whereDate('tanggal_update', '>=', $request->tanggal_mulai);
+        }
+
+        if ($request->has('tanggal_selesai') && $request->tanggal_selesai != '') {
+            $query->whereDate('tanggal_update', '<=', $request->tanggal_selesai);
+        }
+
         // Sorting
         $sortField = $request->get('sort', 'id_obat');
         $sortDirection = $request->get('direction', 'desc');
 
-        if (in_array($sortField, ['nama_obat', 'stok_awal', 'stok_masuk', 'stok_keluar', 'stok_akhir', 'harga_per_kemasan', 'harga_per_satuan', 'tanggal_update'])) {
-            $query->orderBy($sortField, $sortDirection);
+        if (in_array($sortField, ['nama_obat', 'jenis_obat', 'satuan_obat', 'jumlah_per_kemasan', 'stok_awal', 'stok_masuk', 'stok_keluar', 'stok_akhir', 'harga_per_kemasan', 'harga_per_satuan', 'keterangan', 'tanggal_update'])) {
+            // Handle sorting for related fields
+            if ($sortField === 'jenis_obat') {
+                $query->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
+                      ->orderBy('jenis_obat.nama_jenis', $sortDirection)
+                      ->select('obat.*');
+            } elseif ($sortField === 'satuan_obat') {
+                $query->join('satuan_obat', 'obat.id_satuan', '=', 'satuan_obat.id_satuan')
+                      ->orderBy('satuan_obat.nama_satuan', $sortDirection)
+                      ->select('obat.*');
+            } else {
+                $query->orderBy($sortField, $sortDirection);
+            }
         } else {
             $query->orderBy('id_obat', 'desc');
         }
 
-        $obats = $query->paginate(10);
+        // Pagination dengan nilai dinamis
+        $perPage = $request->get('per_page', 50);
+        $perPage = in_array($perPage, [50, 100, 150, 200]) ? $perPage : 50;
+
+        $obats = $query->paginate($perPage);
         $jenisObats = JenisObat::all();
         $satuanObats = SatuanObat::all();
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\ObatController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -46,10 +47,10 @@ Route::middleware('auth')->group(function () {
     ]);
 
     // Obat Routes - Custom routes BEFORE resource routes
-    Route::post('/obat/bulk-delete', [App\Http\Controllers\ObatController::class, 'bulkDelete'])->name('obat.bulkDelete');
+    Route::post('/obat/bulk-delete', [ObatController::class, 'bulkDelete'])->name('obat.bulkDelete');
 
     // Obat Resource Routes
-    Route::resource('obat', App\Http\Controllers\ObatController::class)->parameters([
+    Route::resource('obat', ObatController::class)->parameters([
         'obat' => 'id_obat'
     ]);
 
