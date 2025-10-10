@@ -29,68 +29,60 @@
 
                 <!-- Login Form -->
                 <div class="bg-white shadow-md rounded-lg px-8 py-10">
+                    <!-- Alert Messages -->
                     @if (session('error'))
-                        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                            <p class="text-sm text-red-600">{{ session('error') }}</p>
-                        </div>
+                        <x-alert type="error" dismissible>
+                            {{ session('error') }}
+                        </x-alert>
                     @endif
 
                     @if (session('success'))
-                        <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
-                            <p class="text-sm text-green-600">{{ session('success') }}</p>
-                        </div>
+                        <x-alert type="success" dismissible>
+                            {{ session('success') }}
+                        </x-alert>
                     @endif
 
                     <form method="POST" action="{{ route('login') }}" class="space-y-6">
                         @csrf
 
                         <!-- Username/Email -->
-                        <div>
-                            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
-                                Username
-                            </label>
-                            <input
-                                id="username"
-                                name="username"
-                                type="text"
-                                required
-                                autofocus
-                                value="{{ old('username') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 @error('username') border-red-500 @enderror"
-                                placeholder="Masukkan username"
-                            >
-                            @error('username')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        <x-form-input
+                            type="text"
+                            name="username"
+                            label="Username"
+                            placeholder="Masukkan username"
+                            value="{{ old('username') }}"
+                            required
+                            autofocus
+                            :error="$errors->first('username')"
+                            icon='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>'
+                        />
 
                         <!-- Password -->
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                                Password
-                            </label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 @error('password') border-red-500 @enderror"
-                                placeholder="Masukkan password"
-                            >
-                            @error('password')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
+                        <x-form-input
+                            type="password"
+                            name="password"
+                            label="Password"
+                            placeholder="Masukkan password"
+                            required
+                            :error="$errors->first('password')"
+                            icon='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>'
+                        />
 
                         <!-- Submit Button -->
                         <div>
-                            <button
+                            <x-button
                                 type="submit"
-                                class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150"
+                                variant="primary"
+                                class="w-full"
+                                size="lg"
                             >
                                 Masuk
-                            </button>
+                            </x-button>
                         </div>
                     </form>
                 </div>
@@ -103,4 +95,3 @@
         </div>
     </body>
 </html>
-

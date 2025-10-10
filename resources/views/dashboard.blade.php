@@ -26,133 +26,78 @@
 
     <!-- Alert Messages -->
     @if (session('success'))
-        <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg shadow-sm">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p class="text-sm text-green-700 font-medium">{{ session('success') }}</p>
-            </div>
-        </div>
+        <x-alert type="success" dismissible>
+            {{ session('success') }}
+        </x-alert>
     @endif
 
     @if (session('error'))
-        <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-sm">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p class="text-sm text-red-700 font-medium">{{ session('error') }}</p>
-            </div>
-        </div>
+        <x-alert type="error" dismissible>
+            {{ session('error') }}
+        </x-alert>
     @endif
 
     <!-- Dashboard Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-        <!-- Card 1 - Total Pasien -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full"></div>
-            <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
-
-            <div class="relative">
-                <div class="flex items-center gap-2 mb-2">
-                    <div class="w-2 h-2 bg-blue-200 rounded-full animate-pulse"></div>
-                    <h3 class="text-xs font-medium text-blue-100">Total Karyawan</h3>
-                </div>
-                <div class="flex items-end justify-between">
-                    <p class="text-5xl font-bold" id="totalKaryawan">-</p>
-                    <div class="bg-white p-3 rounded-lg shadow-lg">
-                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Card 1 - Total Karyawan -->
+        <x-stat-card
+            title="Total Karyawan"
+            value="-"
+            color="blue"
+            icon='<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>'
+            loading="true"
+            id="totalKaryawan"
+        />
 
         <!-- Card 2 - Total Rekam Medis -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full"></div>
-            <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
-
-            <div class="relative">
-                <div class="flex items-center gap-2 mb-2">
-                    <div class="w-2 h-2 bg-green-200 rounded-full animate-pulse"></div>
-                    <h3 class="text-xs font-medium text-green-100">Total Rekam Medis</h3>
-                </div>
-                <div class="flex items-end justify-between">
-                    <p class="text-5xl font-bold" id="totalRekamMedis">-</p>
-                    <div class="bg-white p-3 rounded-lg shadow-lg">
-                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-stat-card
+            title="Total Rekam Medis"
+            value="-"
+            color="green"
+            icon='<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>'
+            loading="true"
+            id="totalRekamMedis"
+        />
 
         <!-- Card 3 - Kunjungan Hari Ini -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full"></div>
-            <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
-
-            <div class="relative">
-                <div class="flex items-center gap-2 mb-2">
-                    <div class="w-2 h-2 bg-yellow-200 rounded-full animate-pulse"></div>
-                    <h3 class="text-xs font-medium text-yellow-100">Kunjungan Hari Ini</h3>
-                </div>
-                <div class="flex items-end justify-between">
-                    <p class="text-5xl font-bold" id="kunjunganHariIni">-</p>
-                    <div class="bg-white p-3 rounded-lg shadow-lg">
-                        <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-stat-card
+            title="Kunjungan Hari Ini"
+            value="-"
+            color="yellow"
+            icon='<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>'
+            loading="true"
+            id="kunjunganHariIni"
+        />
 
         <!-- Card 4 - On Progress -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full"></div>
-            <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
-
-            <div class="relative">
-                <div class="flex items-center gap-2 mb-2">
-                    <div class="w-2 h-2 bg-red-200 rounded-full animate-pulse"></div>
-                    <h3 class="text-xs font-medium text-red-100">On Progress</h3>
-                </div>
-                <div class="flex items-end justify-between">
-                    <p class="text-5xl font-bold" id="onProgress">-</p>
-                    <div class="bg-white p-3 rounded-lg shadow-lg">
-                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-stat-card
+            title="On Progress"
+            value="-"
+            color="red"
+            icon='<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>'
+            loading="true"
+            id="onProgress"
+        />
 
         <!-- Card 5 - Close -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full"></div>
-            <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
-
-            <div class="relative">
-                <div class="flex items-center gap-2 mb-2">
-                    <div class="w-2 h-2 bg-gray-300 rounded-full animate-pulse"></div>
-                    <h3 class="text-xs font-medium text-gray-200">Close</h3>
-                </div>
-                <div class="flex items-end justify-between">
-                    <p class="text-5xl font-bold" id="close">-</p>
-                    <div class="bg-white p-3 rounded-lg shadow-lg">
-                        <svg class="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <x-stat-card
+            title="Close"
+            value="-"
+            color="gray"
+            icon='<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>'
+            loading="true"
+            id="close"
+        />
     </div>
 
     <!-- Analytics Section - Combined Card -->
@@ -185,42 +130,48 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
-                        <div class="relative">
-                            <select id="monthFilter" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
-                                <option value="1" {{ date('n') == 1 ? 'selected' : '' }}>Januari</option>
-                                <option value="2" {{ date('n') == 2 ? 'selected' : '' }}>Februari</option>
-                                <option value="3" {{ date('n') == 3 ? 'selected' : '' }}>Maret</option>
-                                <option value="4" {{ date('n') == 4 ? 'selected' : '' }}>April</option>
-                                <option value="5" {{ date('n') == 5 ? 'selected' : '' }}>Mei</option>
-                                <option value="6" {{ date('n') == 6 ? 'selected' : '' }}>Juni</option>
-                                <option value="7" {{ date('n') == 7 ? 'selected' : '' }}>Juli</option>
-                                <option value="8" {{ date('n') == 8 ? 'selected' : '' }}>Agustus</option>
-                                <option value="9" {{ date('n') == 9 ? 'selected' : '' }}>September</option>
-                                <option value="10" {{ date('n') == 10 ? 'selected' : '' }}>Oktober</option>
-                                <option value="11" {{ date('n') == 11 ? 'selected' : '' }}>November</option>
-                                <option value="12" {{ date('n') == 12 ? 'selected' : '' }}>Desember</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
+                        <x-form-input
+                            type="select"
+                            name="monthFilter"
+                            label="Bulan"
+                            :options="[
+                                '1' => 'Januari',
+                                '2' => 'Februari',
+                                '3' => 'Maret',
+                                '4' => 'April',
+                                '5' => 'Mei',
+                                '6' => 'Juni',
+                                '7' => 'Juli',
+                                '8' => 'Agustus',
+                                '9' => 'September',
+                                '10' => 'Oktober',
+                                '11' => 'November',
+                                '12' => 'Desember'
+                            ]"
+                            :value="date('n')"
+                        />
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
-                        <input type="number" id="yearFilter" value="2025" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <x-form-input
+                            type="number"
+                            name="yearFilter"
+                            label="Tahun"
+                            value="2025"
+                        />
                     </div>
 
                     <div class="flex items-end">
-                        <button onclick="filterCharts()" class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <x-button
+                            variant="primary"
+                            class="w-full"
+                            onclick="filterCharts()"
+                            icon='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                            </svg>'
+                        >
                             Tampilkan Data
-                        </button>
+                        </x-button>
                     </div>
                 </div>
             </div>
@@ -320,6 +271,14 @@
             document.getElementById('kunjunganHariIni').textContent = data.kunjungan_hari_ini;
             document.getElementById('onProgress').textContent = data.on_progress;
             document.getElementById('close').textContent = data.close;
+
+            // Remove loading state
+            document.querySelectorAll('[id$="Karyawan"], [id$="RekamMedis"], [id$="HariIni"], [id$="Progress"], [id$="close"]').forEach(el => {
+                const card = el.closest('.relative');
+                if (card) {
+                    card.classList.remove('opacity-75');
+                }
+            });
 
         } catch (error) {
             console.error('Error loading statistics:', error);
