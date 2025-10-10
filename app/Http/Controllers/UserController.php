@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -152,7 +153,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         // Cek jika user yang akan dihapus adalah user yang sedang login
-        if (auth()->check() && auth()->id() == $user->id_user) {
+        if (Auth::check() && Auth::id() == $user->id_user) {
             return redirect()->route('user.index')->with('error', 'Tidak dapat menghapus user yang sedang login');
         }
 

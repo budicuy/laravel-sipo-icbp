@@ -41,6 +41,16 @@ class AuthController extends Controller
 
         // Cek apakah user ada dan password cocok
         if ($user && Hash::check($request->password, $user->password)) {
+            // Cek apakah user aktif
+            if (!$user->isActive()) {
+                return back()->withErrors([
+                    'username' => 'Akun Anda tidak aktif. Silakan hubungi administrator.',
+                ])->withInput($request->only('username'));
+            }
+
+            // Update last login
+            $user->updateLastLogin();
+
             // Login user
             Auth::login($user, $request->filled('remember'));
 

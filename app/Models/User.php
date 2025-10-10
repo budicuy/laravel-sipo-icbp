@@ -28,6 +28,8 @@ class User extends Authenticatable
         'password',
         'nama_lengkap',
         'role',
+        'last_login',
+        'is_active',
     ];
 
     /**
@@ -49,6 +51,8 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'last_login' => 'datetime',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -104,11 +108,29 @@ class User extends Authenticatable
         return $this->role === 'User';
     }
 
+
     /**
      * Relasi ke Rekam Medis
      */
     public function rekamMedis()
     {
         return $this->hasMany(RekamMedis::class, 'id_user', 'id_user');
+    }
+
+    /**
+     * Update last login timestamp
+     */
+    public function updateLastLogin()
+    {
+        $this->last_login = now();
+        $this->save();
+    }
+
+    /**
+     * Check if user is active
+     */
+    public function isActive()
+    {
+        return $this->is_active ?? true;
     }
 }

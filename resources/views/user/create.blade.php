@@ -91,9 +91,7 @@
                                 <option value="">-- Pilih Role --</option>
                                 <option value="Super Admin" {{ old('role') == 'Super Admin' ? 'selected' : '' }}>Super Admin</option>
                                 <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : '' }}>Admin</option>
-                                <option value="Dokter" {{ old('role') == 'Dokter' ? 'selected' : '' }}>Dokter</option>
-                                <option value="Perawat" {{ old('role') == 'Perawat' ? 'selected' : '' }}>Perawat</option>
-                                <option value="Apoteker" {{ old('role') == 'Apoteker' ? 'selected' : '' }}>Apoteker</option>
+                                <option value="User" {{ old('role') == 'User' ? 'selected' : '' }}>User</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -10,6 +10,7 @@ use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ObatController;
+use App\Http\Controllers\DashboardController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -24,6 +25,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Protected Routes (Requires Authentication)
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+
+    // Dashboard API Routes
+    Route::get('/api/dashboard/statistics', [DashboardController::class, 'getStatistics'])->name('api.dashboard.statistics');
+    Route::get('/api/dashboard/visit-analysis', [DashboardController::class, 'getVisitAnalysis'])->name('api.dashboard.visit-analysis');
+    Route::get('/api/dashboard/realtime', [DashboardController::class, 'getRealtimeData'])->name('api.dashboard.realtime');
 
     // Karyawan Routes - Custom routes BEFORE resource routes
     Route::get('/karyawan/template', [KaryawanController::class, 'downloadTemplate'])->name('karyawan.template');
