@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\RekamMedis;
 use App\Models\Keluarga;
+use App\Models\Karyawan;
 use App\Models\Keluhan;
 use App\Models\Diagnosa;
 use App\Models\Obat;
@@ -242,7 +243,52 @@ class RekamMedisController extends Controller
         return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil dihapus!');
     }
 
-    // API untuk pencarian pasien (AJAX)
+    // API untuk pencarian karyawan (AJAX)
+    public function searchKaryawan(Request $request)
+    {
+        $search = $request->input('q');
+
+        $karyawans = Karyawan::with(['departemen'])
+            ->where(function($query) use ($search) {
+                $query->where('nik_karyawan', 'like', "%{$search}%")
+                      ->orWhere('nama_karyawan', 'like', "%{$search}%");
+            })
+            ->limit(10)
+            ->get()
+            ->map(function($karyawan) {
+                return [
+                    'id_karyawan' => $karyawan->id_karyawan,
+                    'nik_karyawan' => $karyawan->nik_karyawan,
+                    'nama_karyawan' => $karyawan->nama_karyawan,
+                    'nama_departemen' => $karyawan->departemen->nama_departemen ?? '',
+                ];
+            });
+
+        return response()->json($karyawans);
+    }
+
+    // API untuk mendapatkan anggota keluarga berdasarkan karyawan (AJAX)
+    public function getFamilyMembers(Request $request)
+    {
+        $karyawanId = $request->input('karyawan_id');
+
+        $familyMembers = Keluarga::with(['hubungan'])
+            ->where('id_karyawan', $karyawanId)
+            ->get()
+            ->map(function($keluarga) {
+                return [
+                    'id_keluarga' => $keluarga->id_keluarga,
+                    'nama_keluarga' => $keluarga->nama_keluarga,
+                    'no_rm' => $keluarga->no_rm,
+                    'jenis_kelamin' => $keluarga->jenis_kelamin,
+                    'hubungan' => $keluarga->hubungan->hubungan ?? '',
+                ];
+            });
+
+        return response()->json($familyMembers);
+    }
+
+    // API untuk pencarian pasien (AJAX) - deprecated
     public function searchPasien(Request $request)
     {
         $search = $request->input('q');

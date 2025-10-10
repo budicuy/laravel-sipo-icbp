@@ -124,25 +124,61 @@
 
             <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Pilih Pasien dengan Search -->
+                    <!-- Pilih Karyawan dengan Search -->
                     <div class="md:col-span-2">
-                        <label for="id_keluarga" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Pilih Pasien <span class="text-red-500">*</span>
+                        <label for="search_karyawan" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Pilih Karyawan <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
-                            <input type="hidden" id="id_keluarga" name="id_keluarga" required>
-                            <input type="text" id="search_pasien"
+                            <input type="hidden" id="id_karyawan" name="id_karyawan" required>
+                            <input type="text" id="search_karyawan"
                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                   placeholder="Cari pasien berdasarkan nama atau NIK..."
+                                   placeholder="Cari karyawan (Format: NIK-Nama Karyawan)..."
                                    autocomplete="off">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
-                            <!-- Search Results Dropdown -->
-                            <div id="search_results" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <!-- Search Results Dropdown for Karyawan -->
+                            <div id="karyawan_search_results" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                                 <!-- Results will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Karyawan (Auto-filled) -->
+                    <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Informasi Karyawan</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <span class="text-xs text-gray-500">NIK Karyawan</span>
+                                <p id="info_nik" class="font-medium text-gray-900">-</p>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500">Nama Karyawan</span>
+                                <p id="info_nama" class="font-medium text-gray-900">-</p>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500">Departemen</span>
+                                <p id="info_departemen" class="font-medium text-gray-900">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pilih Anggota Keluarga -->
+                    <div class="md:col-span-2">
+                        <label for="id_keluarga" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Pilih Anggota Keluarga <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select id="id_keluarga" name="id_keluarga" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required disabled>
+                                <option value="">-- Pilih karyawan terlebih dahulu --</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
                             </div>
                         </div>
                     </div>
@@ -174,21 +210,6 @@
                                 </svg>
                             </div>
                             <input type="text" id="nama_pasien" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly>
-                        </div>
-                    </div>
-
-                    <!-- NIK Karyawan (Auto-filled) -->
-                    <div>
-                        <label for="nik_karyawan" class="block text-sm font-semibold text-gray-700 mb-2">
-                            NIK Karyawan
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                                </svg>
-                            </div>
-                            <input type="text" id="nik_karyawan" class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" placeholder="Otomatis terisi" readonly>
                         </div>
                     </div>
 
@@ -395,29 +416,29 @@
 <script>
 let searchTimeout;
 
-// Search pasien dengan AJAX
-document.getElementById('search_pasien').addEventListener('input', function() {
+// Search karyawan dengan AJAX
+document.getElementById('search_karyawan').addEventListener('input', function() {
     clearTimeout(searchTimeout);
     const searchValue = this.value.trim();
 
     if (searchValue.length < 2) {
-        document.getElementById('search_results').classList.add('hidden');
+        document.getElementById('karyawan_search_results').classList.add('hidden');
         return;
     }
 
     searchTimeout = setTimeout(function() {
-        fetch(`{{ route('rekam-medis.searchPasien') }}?q=${encodeURIComponent(searchValue)}`)
+        fetch(`{{ route('rekam-medis.searchKaryawan') }}?q=${encodeURIComponent(searchValue)}`)
             .then(response => response.json())
             .then(data => {
-                const resultsDiv = document.getElementById('search_results');
+                const resultsDiv = document.getElementById('karyawan_search_results');
 
                 if (data.length === 0) {
-                    resultsDiv.innerHTML = '<div class="px-4 py-3 text-gray-500 text-sm">Tidak ada pasien ditemukan</div>';
+                    resultsDiv.innerHTML = '<div class="px-4 py-3 text-gray-500 text-sm">Tidak ada karyawan ditemukan</div>';
                 } else {
-                    resultsDiv.innerHTML = data.map(pasien => `
-                        <div class="px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 transition-colors" onclick="selectPasien(${JSON.stringify(pasien).replace(/"/g, '&quot;')})">
-                            <div class="font-medium text-gray-900">${pasien.nama}</div>
-                            <div class="text-sm text-gray-600">NIK Karyawan (Penanggung Jawab): ${pasien.nik_karyawan || '-'}</div>
+                    resultsDiv.innerHTML = data.map(karyawan => `
+                        <div class="px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 transition-colors" onclick="selectKaryawan(${JSON.stringify(karyawan).replace(/"/g, '&quot;')})">
+                            <div class="font-medium text-gray-900">${karyawan.nik_karyawan} - ${karyawan.nama_karyawan}</div>
+                            <div class="text-sm text-gray-600">Departemen: ${karyawan.nama_departemen || '-'}</div>
                         </div>
                     `).join('');
                 }
@@ -431,27 +452,82 @@ document.getElementById('search_pasien').addEventListener('input', function() {
 });
 
 // Select pasien from dropdown
-function selectPasien(pasien) {
-    // Set values
-    document.getElementById('id_keluarga').value = pasien.id;
-    document.getElementById('search_pasien').value = pasien.nama;
-    // Auto-fill No RM dengan format: NIK_KARYAWAN-KODE_HUBUNGAN
-    document.getElementById('no_rm').value = `${pasien.nik_karyawan}-${pasien.kode_hubungan}`;
-    document.getElementById('nama_pasien').value = pasien.nama;
-    document.getElementById('nik_karyawan').value = pasien.nik_karyawan;
-    document.getElementById('hubungan').value = `${pasien.kode_hubungan}. ${pasien.hubungan}`;
-    document.getElementById('jenis_kelamin').value = pasien.jenis_kelamin;
+function selectKaryawan(karyawan) {
+    // Set karyawan values
+    document.getElementById('id_karyawan').value = karyawan.id_karyawan;
+    document.getElementById('search_karyawan').value = `${karyawan.nik_karyawan}-${karyawan.nama_karyawan}`;
+
+    // Update info karyawan
+    document.getElementById('info_nik').textContent = karyawan.nik_karyawan;
+    document.getElementById('info_nama').textContent = karyawan.nama_karyawan;
+    document.getElementById('info_departemen').textContent = karyawan.nama_departemen;
+
+    // Load family members for this employee
+    loadFamilyMembers(karyawan.id_karyawan);
 
     // Hide results
-    document.getElementById('search_results').classList.add('hidden');
+    document.getElementById('karyawan_search_results').classList.add('hidden');
+}
+
+function loadFamilyMembers(karyawanId) {
+    fetch(`{{ route('rekam-medis.getFamilyMembers') }}?karyawan_id=${karyawanId}`)
+        .then(response => response.json())
+        .then(data => {
+            const selectElement = document.getElementById('id_keluarga');
+            selectElement.innerHTML = '<option value="">-- Pilih Anggota Keluarga --</option>';
+
+            if (data.length > 0) {
+                data.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member.id_keluarga;
+                    option.textContent = `${member.nama_keluarga} (${member.hubungan})`;
+                    option.setAttribute('data-no-rm', member.no_rm || '');
+                    option.setAttribute('data-jenis-kelamin', member.jenis_kelamin || '');
+                    option.setAttribute('data-hubungan', member.hubungan || '');
+                    selectElement.appendChild(option);
+                });
+                selectElement.disabled = false;
+            } else {
+                selectElement.innerHTML = '<option value="">-- Tidak ada anggota keluarga --</option>';
+                selectElement.disabled = true;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const selectElement = document.getElementById('id_keluarga');
+            selectElement.innerHTML = '<option value="">-- Error memuat data --</option>';
+            selectElement.disabled = true;
+        });
+}
+
+function selectKeluarga() {
+    const selectElement = document.getElementById('id_keluarga');
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+
+    if (selectedOption.value) {
+        // Update patient information
+        document.getElementById('nama_pasien').value = selectedOption.textContent.split(' (')[0];
+        document.getElementById('no_rm').value = selectedOption.getAttribute('data-no-rm') || '';
+        document.getElementById('jenis_kelamin').value = selectedOption.getAttribute('data-jenis-kelamin') || '';
+        document.getElementById('hubungan').value = selectedOption.getAttribute('data-hubungan') || '';
+    } else {
+        // Clear patient information
+        document.getElementById('nama_pasien').value = '';
+        document.getElementById('no_rm').value = '';
+        document.getElementById('jenis_kelamin').value = '';
+        document.getElementById('hubungan').value = '';
+    }
 }
 
 // Hide search results when clicking outside
 document.addEventListener('click', function(e) {
-    if (!e.target.closest('#search_pasien') && !e.target.closest('#search_results')) {
-        document.getElementById('search_results').classList.add('hidden');
+    if (!e.target.closest('#search_karyawan') && !e.target.closest('#karyawan_search_results')) {
+        document.getElementById('karyawan_search_results').classList.add('hidden');
     }
 });
+
+// Add event listener for keluarga dropdown
+document.getElementById('id_keluarga').addEventListener('change', selectKeluarga);
 
 // Handle multiple keluhan sections
 function updateKeluhanSections(value) {
@@ -516,9 +592,20 @@ function handleDiagnosaChange(event) {
     const obatList = obatContainer.querySelector('.obat-list');
     const detailsContainer = keluhanSection.querySelector('.selected-obat-details[data-keluhan-index="' + keluhanIndex + '"]');
 
+    // Find the terapi select in the same section
+    const terapiSelect = keluhanSection.querySelector(`select[name="keluhan[${keluhanIndex}][terapi]"]`);
+    const terapiValue = terapiSelect ? terapiSelect.value : '';
+
     if (!diagnosaId) {
         // Reset obat list if no diagnosa selected
         obatList.innerHTML = '<p class="text-sm text-gray-500 italic">Pilih diagnosa terlebih dahulu untuk menampilkan daftar obat yang sesuai.</p>';
+        detailsContainer.style.display = 'none';
+        return;
+    }
+
+    // Only show obat recommendations if terapi is "Obat"
+    if (terapiValue !== 'Obat') {
+        obatList.innerHTML = '<p class="text-sm text-gray-500 italic">Rekomendasi obat hanya tersedia untuk terapi "Obat".</p>';
         detailsContainer.style.display = 'none';
         return;
     }
@@ -628,6 +715,42 @@ function attachDiagnosaChangeListeners() {
         // Add new listener
         select.addEventListener('change', handleDiagnosaChange);
     });
+
+    // Also add event listeners to terapi selects
+    document.querySelectorAll('select[name$="[terapi]"]').forEach(select => {
+        // Remove old listener if exists (to prevent duplicate)
+        select.removeEventListener('change', handleTerapiChange);
+        // Add new listener
+        select.addEventListener('change', handleTerapiChange);
+    });
+}
+
+// Function to handle terapi change
+function handleTerapiChange(event) {
+    const terapiSelect = event.target;
+    const terapiValue = terapiSelect.value;
+    const keluhanSection = terapiSelect.closest('.keluhan-section');
+    const keluhanIndex = Array.from(keluhanSection.parentElement.children).indexOf(keluhanSection);
+
+    // Find the diagnosa select in the same section
+    const diagnosaSelect = keluhanSection.querySelector('.diagnosa-select');
+
+    // Trigger diagnosa change to refresh obat list based on new terapi value
+    if (diagnosaSelect && diagnosaSelect.value) {
+        handleDiagnosaChange({ target: diagnosaSelect });
+    } else if (!diagnosaSelect || !diagnosaSelect.value) {
+        // If no diagnosa selected, show appropriate message
+        const obatContainer = keluhanSection.querySelector('.obat-checkbox-container[data-keluhan-index="' + keluhanIndex + '"]');
+        const obatList = obatContainer.querySelector('.obat-list');
+        const detailsContainer = keluhanSection.querySelector('.selected-obat-details[data-keluhan-index="' + keluhanIndex + '"]');
+
+        if (terapiValue === 'Obat') {
+            obatList.innerHTML = '<p class="text-sm text-gray-500 italic">Pilih diagnosa terlebih dahulu untuk menampilkan daftar obat yang sesuai.</p>';
+        } else {
+            obatList.innerHTML = '<p class="text-sm text-gray-500 italic">Rekomendasi obat hanya tersedia untuk terapi "Obat".</p>';
+        }
+        detailsContainer.style.display = 'none';
+    }
 }
 
 // Form validation function
@@ -646,11 +769,19 @@ function validateForm() {
     //     isValid = false;
     // }
 
-    // Validate pasien selection
+    // Validate karyawan selection
+    const idKaryawan = document.getElementById('id_karyawan').value;
+    if (!idKaryawan) {
+        showFieldError('search_karyawan', 'Silakan pilih karyawan terlebih dahulu');
+        errorMessages.push('Karyawan harus dipilih');
+        isValid = false;
+    }
+
+    // Validate keluarga selection
     const idKeluarga = document.getElementById('id_keluarga').value;
     if (!idKeluarga) {
-        showFieldError('search_pasien', 'Silakan pilih pasien terlebih dahulu');
-        errorMessages.push('Pasien harus dipilih');
+        showFieldError('id_keluarga', 'Silakan pilih anggota keluarga terlebih dahulu');
+        errorMessages.push('Anggota keluarga harus dipilih');
         isValid = false;
     }
 
@@ -866,10 +997,19 @@ document.addEventListener('DOMContentLoaded', function() {
     attachDiagnosaChangeListeners();
 
     // Add real-time validation for critical fields
-    document.getElementById('search_pasien').addEventListener('blur', function() {
-        const idKeluarga = document.getElementById('id_keluarga').value;
+    document.getElementById('search_karyawan').addEventListener('blur', function() {
+        const idKaryawan = document.getElementById('id_karyawan').value;
+        if (!idKaryawan) {
+            showFieldError(this, 'Silakan pilih karyawan dari daftar yang muncul');
+        } else {
+            clearFieldError(this);
+        }
+    });
+
+    document.getElementById('id_keluarga').addEventListener('blur', function() {
+        const idKeluarga = this.value;
         if (!idKeluarga) {
-            showFieldError(this, 'Silakan pilih pasien dari daftar yang muncul');
+            showFieldError(this, 'Silakan pilih anggota keluarga');
         } else {
             clearFieldError(this);
         }
