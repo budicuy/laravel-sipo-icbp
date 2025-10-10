@@ -106,7 +106,7 @@
                     <select name="jenis_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
                         <option value="">Semua Jenis</option>
                         @foreach($jenisObats as $jenis)
-                            <option value="{{ $jenis->id_jenis_obat }}" {{ request('jenis_obat') == $jenis->id_jenis_obat ? 'selected' : '' }}>{{ $jenis->nama_jenis }}</option>
+                            <option value="{{ $jenis->id_jenis_obat }}" {{ request('jenis_obat') == $jenis->id_jenis_obat ? 'selected' : '' }}>{{ $jenis->nama_jenis_obat }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -446,7 +446,7 @@
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900">{{ $obats->firstItem() + $index }}</td>
                             <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $obat->nama_obat }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->jenisObat->nama_jenis ?? '-' }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->jenisObat->nama_jenis_obat ?? '-' }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->satuanObat->nama_satuan ?? '-' }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ $obat->jumlah_per_kemasan }}</td>
                             <td class="px-4 py-3 text-sm text-gray-900 text-right">Rp {{ number_format($obat->harga_per_kemasan, 0, ',', '.') }}</td>

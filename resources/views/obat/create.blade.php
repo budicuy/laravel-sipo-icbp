@@ -115,7 +115,7 @@
                             <option value="">Pilih Jenis Obat</option>
                             @foreach($jenisObats as $jenis)
                                 <option value="{{ $jenis->id_jenis_obat }}" {{ old('id_jenis_obat') == $jenis->id_jenis_obat ? 'selected' : '' }}>
-                                    {{ $jenis->nama_jenis }}
+                                    {{ $jenis->nama_jenis_obat }}
                                 </option>
                             @endforeach
                         </select>

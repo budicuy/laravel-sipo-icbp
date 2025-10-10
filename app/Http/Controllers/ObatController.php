@@ -20,7 +20,7 @@ class ObatController extends Controller
                 $q->where('nama_obat', 'like', '%' . $search . '%')
                     ->orWhere('keterangan', 'like', '%' . $search . '%')
                     ->orWhereHas('jenisObat', function ($q) use ($search) {
-                        $q->where('nama_jenis', 'like', '%' . $search . '%');
+                        $q->where('nama_jenis_obat', 'like', '%' . $search . '%');
                     })
                     ->orWhereHas('satuanObat', function ($q) use ($search) {
                         $q->where('nama_satuan', 'like', '%' . $search . '%');
@@ -55,7 +55,7 @@ class ObatController extends Controller
             // Handle sorting for related fields
             if ($sortField === 'jenis_obat') {
                 $query->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
-                      ->orderBy('jenis_obat.nama_jenis', $sortDirection)
+                      ->orderBy('jenis_obat.nama_jenis_obat', $sortDirection)
                       ->select('obat.*');
             } elseif ($sortField === 'satuan_obat') {
                 $query->join('satuan_obat', 'obat.id_satuan', '=', 'satuan_obat.id_satuan')
