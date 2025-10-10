@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
@@ -14,8 +14,8 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Hapus data lama jika ada
-        DB::table('user')->delete();
+        // Hapus data lama jika ada menggunakan Eloquent
+        User::query()->delete();
 
         $users = [
             [
@@ -50,6 +50,9 @@ class UserSeeder extends Seeder
             ],
         ];
 
-        DB::table('user')->insert($users);
+        // Using Eloquent create method with mass assignment
+        foreach ($users as $userData) {
+            User::create($userData);
+        }
     }
 }

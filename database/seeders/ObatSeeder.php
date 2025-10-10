@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Obat;
 
 class ObatSeeder extends Seeder
 {
@@ -13,8 +13,8 @@ class ObatSeeder extends Seeder
      */
     public function run(): void
     {
-        // Hapus data lama jika ada
-        DB::table('obat')->delete();
+        // Hapus data lama jika ada menggunakan Eloquent
+        Obat::query()->delete();
 
         $obats = [
             [
@@ -695,6 +695,10 @@ class ObatSeeder extends Seeder
             ],
         ];
 
-        DB::table('obat')->insert($obats);
+        // Using Eloquent insert method for better compatibility
+        // Process in chunks to avoid memory issues with large datasets
+        foreach (array_chunk($obats, 100) as $chunk) {
+            Obat::insert($chunk);
+        }
     }
 }

@@ -66,7 +66,7 @@ class DashboardController extends Controller
 
         $visitsData = Kunjungan::selectRaw('DAY(tanggal_kunjungan) as day, COUNT(*) as count')
             ->whereBetween('tanggal_kunjungan', [$startDate, $endDate])
-            ->groupBy(DB::raw('DAY(tanggal_kunjungan)'))
+            ->groupByRaw('DAY(tanggal_kunjungan)')
             ->pluck('count', 'day')
             ->toArray();
 
@@ -94,8 +94,8 @@ class DashboardController extends Controller
         // Single query with WEEK function - OPTIMIZED
         $weeklyData = Kunjungan::selectRaw('WEEK(tanggal_kunjungan, 1) as week, COUNT(*) as count')
             ->whereBetween('tanggal_kunjungan', [$startDate, $endDate])
-            ->groupBy(DB::raw('WEEK(tanggal_kunjungan, 1)'))
-            ->orderBy(DB::raw('WEEK(tanggal_kunjungan, 1)'))
+            ->groupByRaw('WEEK(tanggal_kunjungan, 1)')
+            ->orderByRaw('WEEK(tanggal_kunjungan, 1)')
             ->pluck('count', 'week')
             ->toArray();
 
@@ -129,8 +129,8 @@ class DashboardController extends Controller
         // Single query instead of loop - OPTIMIZED
         $monthlyData = Kunjungan::selectRaw('MONTH(tanggal_kunjungan) as month, COUNT(*) as count')
             ->whereYear('tanggal_kunjungan', $year)
-            ->groupBy(DB::raw('MONTH(tanggal_kunjungan)'))
-            ->orderBy(DB::raw('MONTH(tanggal_kunjungan)'))
+            ->groupByRaw('MONTH(tanggal_kunjungan)')
+            ->orderByRaw('MONTH(tanggal_kunjungan)')
             ->pluck('count', 'month')
             ->toArray();
 

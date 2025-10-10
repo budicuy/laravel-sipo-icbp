@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Departemen;
 
 class DepartemenSeeder extends Seeder
 {
@@ -13,8 +13,8 @@ class DepartemenSeeder extends Seeder
      */
     public function run(): void
     {
-        // Hapus data lama jika ada
-        DB::table('departemen')->delete();
+        // Hapus data lama jika ada menggunakan Eloquent
+        Departemen::query()->delete();
 
         $departemens = [
             ['nama_departemen' => 'ADM Gen.Mgt'],
@@ -30,6 +30,7 @@ class DepartemenSeeder extends Seeder
             ['nama_departemen' => 'Outsouching'],
         ];
 
-        DB::table('departemen')->insert($departemens);
+        // Using Eloquent insert method for better compatibility
+        Departemen::insert($departemens);
     }
 }

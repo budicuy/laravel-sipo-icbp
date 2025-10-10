@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\JenisObat;
 
 class JenisObatSeeder extends Seeder
 {
@@ -13,8 +13,8 @@ class JenisObatSeeder extends Seeder
      */
     public function run(): void
     {
-        // Hapus data lama jika ada
-        DB::table('jenis_obat')->delete();
+        // Hapus data lama jika ada menggunakan Eloquent
+        JenisObat::query()->delete();
 
         $jenisObats = [
             ['id_jenis_obat' => 1, 'nama_jenis_obat' => 'Tablet'],
@@ -27,6 +27,7 @@ class JenisObatSeeder extends Seeder
             ['id_jenis_obat' => 8, 'nama_jenis_obat' => 'Alat Medis / Lainnya'],
         ];
 
-        DB::table('jenis_obat')->insert($jenisObats);
+        // Using Eloquent insert method for better compatibility
+        JenisObat::insert($jenisObats);
     }
 }

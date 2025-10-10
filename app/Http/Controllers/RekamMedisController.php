@@ -86,57 +86,57 @@ class RekamMedisController extends Controller
             'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string',
         ]);
 
-        DB::beginTransaction();
-
+        // Using Laravel 12's transaction method with automatic retry for better reliability
         try {
-            // Simpan data rekam medis
-            $rekamMedis = RekamMedis::create([
-                'id_keluarga' => $validated['id_keluarga'],
-                'tanggal_periksa' => $validated['tanggal_periksa'],
-                'id_user' => Auth::id(),
-                'jumlah_keluhan' => $validated['jumlah_keluhan'],
-                'status' => $validated['status'],
-            ]);
+            $rekamMedis = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request) {
+                // Simpan data rekam medis
+                $rekamMedis = RekamMedis::create([
+                    'id_keluarga' => $validated['id_keluarga'],
+                    'tanggal_periksa' => $validated['tanggal_periksa'],
+                    'id_user' => Auth::id(),
+                    'jumlah_keluhan' => $validated['jumlah_keluhan'],
+                    'status' => $validated['status'],
+                ]);
 
-            // Simpan data keluhan sesuai jumlah
-            if (isset($request->keluhan)) {
-                foreach ($request->keluhan as $keluhanData) {
-                    // Check if there are obat_list (multiple obat)
-                    if (isset($keluhanData['obat_list']) && is_array($keluhanData['obat_list'])) {
-                        // Save multiple keluhan entries, one for each obat
-                        foreach ($keluhanData['obat_list'] as $obatData) {
+                // Simpan data keluhan sesuai jumlah
+                if (isset($request->keluhan)) {
+                    foreach ($request->keluhan as $keluhanData) {
+                        // Check if there are obat_list (multiple obat)
+                        if (isset($keluhanData['obat_list']) && is_array($keluhanData['obat_list'])) {
+                            // Save multiple keluhan entries, one for each obat
+                            foreach ($keluhanData['obat_list'] as $obatData) {
+                                Keluhan::create([
+                                    'id_rekam' => $rekamMedis->id_rekam,
+                                    'id_keluarga' => $validated['id_keluarga'],
+                                    'id_diagnosa' => $keluhanData['id_diagnosa'],
+                                    'terapi' => $keluhanData['terapi'],
+                                    'keterangan' => $keluhanData['keterangan'] ?? null,
+                                    'id_obat' => $obatData['id_obat'],
+                                    'jumlah_obat' => $obatData['jumlah_obat'] ?? null,
+                                    'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
+                                ]);
+                            }
+                        } else {
+                            // No obat selected, save keluhan without obat
                             Keluhan::create([
                                 'id_rekam' => $rekamMedis->id_rekam,
                                 'id_keluarga' => $validated['id_keluarga'],
                                 'id_diagnosa' => $keluhanData['id_diagnosa'],
                                 'terapi' => $keluhanData['terapi'],
                                 'keterangan' => $keluhanData['keterangan'] ?? null,
-                                'id_obat' => $obatData['id_obat'],
-                                'jumlah_obat' => $obatData['jumlah_obat'] ?? null,
-                                'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
+                                'id_obat' => null,
+                                'jumlah_obat' => null,
+                                'aturan_pakai' => null,
                             ]);
                         }
-                    } else {
-                        // No obat selected, save keluhan without obat
-                        Keluhan::create([
-                            'id_rekam' => $rekamMedis->id_rekam,
-                            'id_keluarga' => $validated['id_keluarga'],
-                            'id_diagnosa' => $keluhanData['id_diagnosa'],
-                            'terapi' => $keluhanData['terapi'],
-                            'keterangan' => $keluhanData['keterangan'] ?? null,
-                            'id_obat' => null,
-                            'jumlah_obat' => null,
-                            'aturan_pakai' => null,
-                        ]);
                     }
                 }
-            }
 
-            DB::commit();
+                return $rekamMedis;
+            }, 3); // Retry up to 3 times on deadlock
 
             return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil ditambahkan!');
         } catch (\Exception $e) {
-            DB::rollBack();
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
     }
@@ -194,59 +194,57 @@ class RekamMedisController extends Controller
             'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string',
         ]);
 
-        DB::beginTransaction();
-
+        // Using Laravel 12's transaction method with automatic retry for better reliability
         try {
-            // Update data rekam medis
-            $rekamMedis->update([
-                'id_keluarga' => $validated['id_keluarga'],
-                'tanggal_periksa' => $validated['tanggal_periksa'],
-                'jumlah_keluhan' => $validated['jumlah_keluhan'],
-                'status' => $validated['status'],
-            ]);
+            \Illuminate\Support\Facades\DB::transaction(function () use ($rekamMedis, $validated, $request) {
+                // Update data rekam medis
+                $rekamMedis->update([
+                    'id_keluarga' => $validated['id_keluarga'],
+                    'tanggal_periksa' => $validated['tanggal_periksa'],
+                    'jumlah_keluhan' => $validated['jumlah_keluhan'],
+                    'status' => $validated['status'],
+                ]);
 
-            // Hapus keluhan lama
-            $rekamMedis->keluhans()->delete();
+                // Hapus keluhan lama
+                $rekamMedis->keluhans()->delete();
 
-            // Simpan keluhan baru
-            if (isset($request->keluhan)) {
-                foreach ($request->keluhan as $keluhanData) {
-                    // Check if there are obat_list (multiple obat)
-                    if (isset($keluhanData['obat_list']) && is_array($keluhanData['obat_list'])) {
-                        // Save multiple keluhan entries, one for each obat
-                        foreach ($keluhanData['obat_list'] as $obatData) {
+                // Simpan keluhan baru
+                if (isset($request->keluhan)) {
+                    foreach ($request->keluhan as $keluhanData) {
+                        // Check if there are obat_list (multiple obat)
+                        if (isset($keluhanData['obat_list']) && is_array($keluhanData['obat_list'])) {
+                            // Save multiple keluhan entries, one for each obat
+                            foreach ($keluhanData['obat_list'] as $obatData) {
+                                Keluhan::create([
+                                    'id_rekam' => $rekamMedis->id_rekam,
+                                    'id_keluarga' => $validated['id_keluarga'],
+                                    'id_diagnosa' => $keluhanData['id_diagnosa'],
+                                    'terapi' => $keluhanData['terapi'],
+                                    'keterangan' => $keluhanData['keterangan'] ?? null,
+                                    'id_obat' => $obatData['id_obat'],
+                                    'jumlah_obat' => $obatData['jumlah_obat'] ?? null,
+                                    'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
+                                ]);
+                            }
+                        } else {
+                            // No obat selected, save keluhan without obat
                             Keluhan::create([
                                 'id_rekam' => $rekamMedis->id_rekam,
                                 'id_keluarga' => $validated['id_keluarga'],
                                 'id_diagnosa' => $keluhanData['id_diagnosa'],
                                 'terapi' => $keluhanData['terapi'],
                                 'keterangan' => $keluhanData['keterangan'] ?? null,
-                                'id_obat' => $obatData['id_obat'],
-                                'jumlah_obat' => $obatData['jumlah_obat'] ?? null,
-                                'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
+                                'id_obat' => null,
+                                'jumlah_obat' => null,
+                                'aturan_pakai' => null,
                             ]);
                         }
-                    } else {
-                        // No obat selected, save keluhan without obat
-                        Keluhan::create([
-                            'id_rekam' => $rekamMedis->id_rekam,
-                            'id_keluarga' => $validated['id_keluarga'],
-                            'id_diagnosa' => $keluhanData['id_diagnosa'],
-                            'terapi' => $keluhanData['terapi'],
-                            'keterangan' => $keluhanData['keterangan'] ?? null,
-                            'id_obat' => null,
-                            'jumlah_obat' => null,
-                            'aturan_pakai' => null,
-                        ]);
                     }
                 }
-            }
-
-            DB::commit();
+            }, 3); // Retry up to 3 times on deadlock
 
             return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil diperbarui!');
         } catch (\Exception $e) {
-            DB::rollBack();
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: ' . $e->getMessage());
         }
     }

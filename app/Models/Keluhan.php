@@ -57,4 +57,40 @@ class Keluhan extends Model
     {
         return $this->belongsTo(Keluarga::class, 'id_keluarga', 'id_keluarga');
     }
+
+    // Scope untuk filter keluhan dengan obat
+    public function scopeWithObat($query)
+    {
+        return $query->whereNotNull('id_obat');
+    }
+
+    // Scope untuk filter berdasarkan jenis terapi
+    public function scopeByTerapi($query, $terapi)
+    {
+        return $query->where('terapi', $terapi);
+    }
+
+    // Accessor untuk menghitung subtotal biaya obat
+    public function getSubtotalBiayaAttribute()
+    {
+        return $this->jumlah_obat * ($this->obat->harga_per_satuan ?? 0);
+    }
+
+    // Accessor untuk format terapi yang lebih deskriptif
+    public function getTerapiDeskripsiAttribute()
+    {
+        $descriptions = [
+            'Obat' => 'Terapi Obat',
+            'Lab' => 'Pemeriksaan Laboratorium',
+            'Istirahat' => 'Istirahat',
+        ];
+
+        return $descriptions[$this->terapi] ?? $this->terapi;
+    }
+
+    // Mutator untuk memastikan jumlah obat selalu positif
+    public function setJumlahObatAttribute($value)
+    {
+        $this->attributes['jumlah_obat'] = max(0, (int) $value);
+    }
 }

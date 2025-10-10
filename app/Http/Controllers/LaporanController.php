@@ -51,13 +51,11 @@ class LaporanController extends Controller
      */
     private function getChartPemeriksaan($tahun)
     {
-        $data = RekamMedis::select(
-                DB::raw('MONTH(tanggal_periksa) as bulan'),
-                DB::raw('COUNT(*) as jumlah')
-            )
+        // Using Eloquent with selectRaw instead of DB::raw for better compatibility
+        $data = RekamMedis::selectRaw('MONTH(tanggal_periksa) as bulan, COUNT(*) as jumlah')
             ->whereYear('tanggal_periksa', $tahun)
-            ->groupBy(DB::raw('MONTH(tanggal_periksa)'))
-            ->orderBy(DB::raw('MONTH(tanggal_periksa)'))
+            ->groupByRaw('MONTH(tanggal_periksa)')
+            ->orderByRaw('MONTH(tanggal_periksa)')
             ->pluck('jumlah', 'bulan')
             ->toArray();
 
@@ -75,24 +73,28 @@ class LaporanController extends Controller
      */
     private function getChartBiaya($tahun)
     {
-        // Optimized query with better indexing
-        $data = Keluhan::join('rekam_medis', 'keluhan.id_rekam', '=', 'rekam_medis.id_rekam')
-            ->leftJoin('obat', 'keluhan.id_obat', '=', 'obat.id_obat')
-            ->select(
-                DB::raw('MONTH(rekam_medis.tanggal_periksa) as bulan'),
-                DB::raw('SUM(keluhan.jumlah_obat * COALESCE(obat.harga_per_satuan, 0)) as total_biaya')
-            )
-            ->whereYear('rekam_medis.tanggal_periksa', $tahun)
-            ->whereNotNull('keluhan.id_obat') // Only include records with obat
-            ->groupBy(DB::raw('MONTH(rekam_medis.tanggal_periksa)'))
-            ->orderBy(DB::raw('MONTH(rekam_medis.tanggal_periksa)'))
-            ->pluck('total_biaya', 'bulan')
+        // Using Eloquent relationships instead of raw joins for better compatibility
+        $data = Keluhan::with(['rekamMedis', 'obat'])
+            ->whereHas('rekamMedis', function($query) use ($tahun) {
+                $query->whereYear('tanggal_periksa', $tahun);
+            })
+            ->whereNotNull('id_obat')
+            ->get()
+            ->groupBy(function($keluhan) {
+                return $keluhan->rekamMedis->tanggal_periksa->format('m');
+            })
+            ->map(function($group) {
+                return $group->sum(function($keluhan) {
+                    return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
+                });
+            })
             ->toArray();
 
         // Format data untuk chart (12 bulan)
         $chartData = [];
         for ($i = 1; $i <= 12; $i++) {
-            $chartData[] = $data[$i] ?? 0;
+            $monthKey = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $chartData[] = $data[$monthKey] ?? 0;
         }
 
         return $chartData;
@@ -211,12 +213,17 @@ class LaporanController extends Controller
             ->whereYear('tanggal_periksa', $tahun)
             ->count();
 
-        $totalBiaya = Keluhan::join('rekam_medis', 'keluhan.id_rekam', '=', 'rekam_medis.id_rekam')
-            ->leftJoin('obat', 'keluhan.id_obat', '=', 'obat.id_obat')
-            ->whereMonth('rekam_medis.tanggal_periksa', $bulan)
-            ->whereYear('rekam_medis.tanggal_periksa', $tahun)
-            ->whereNotNull('keluhan.id_obat') // Only include records with obat
-            ->sum(DB::raw('keluhan.jumlah_obat * COALESCE(obat.harga_per_satuan, 0)'));
+        // Using Eloquent relationships instead of raw joins for better compatibility
+        $totalBiaya = Keluhan::with(['rekamMedis', 'obat'])
+            ->whereHas('rekamMedis', function($query) use ($bulan, $tahun) {
+                $query->whereMonth('tanggal_periksa', $bulan)
+                      ->whereYear('tanggal_periksa', $tahun);
+            })
+            ->whereNotNull('id_obat')
+            ->get()
+            ->sum(function($keluhan) {
+                return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
+            });
 
         return [
             'total_pemeriksaan' => $totalPemeriksaan,
