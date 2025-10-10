@@ -7,35 +7,42 @@
     <!-- Header Section -->
     <div class="mb-6">
         <div class="flex items-center gap-3 mb-3">
-            <a href="{{ route('keluarga.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <a href="{{ route('keluarga.index') }}" class="p-2 hover:bg-white rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
-                Kembali
             </a>
-        </div>
-        <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-3 rounded-lg shadow-lg">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-3 rounded-lg shadow-lg">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                    Tambah Data Keluarga Karyawan
+                </h1>
+                <p class="text-gray-600 mt-1 ml-1">Lengkapi form untuk menambahkan data keluarga baru</p>
             </div>
-            Tambah Data Keluarga Karyawan
-        </h1>
-        <p class="text-gray-600 mt-2 ml-1">Lengkapi form untuk menambahkan data keluarga baru</p>
+        </div>
     </div>
 
-    <!-- Form Card -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden max-w-3xl">
-        <div class="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-pink-600">
-            <h2 class="text-xl font-semibold text-white">Form Data Keluarga</h2>
-        </div>
+    <form method="POST" action="{{ route('keluarga.store') }}" id="keluargaForm">
+        @csrf
 
-        <form method="POST" action="{{ route('keluarga.store') }}" class="p-6 space-y-6" id="keluargaForm">
-            @csrf
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    Informasi Data Keluarga
+                </h2>
+            </div>
 
-            <!-- NIK Karyawan dengan Search -->
-            <div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- NIK Karyawan dengan Search -->
+                    <div class="md:col-span-2">
                 <label for="nik_search" class="block text-sm font-semibold text-gray-700 mb-2">
                     NIK Karyawan <span class="text-red-600">*</span>
                 </label>
@@ -67,10 +74,10 @@
                 @error('id_karyawan')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-            </div>
+                </div>
 
-            <!-- Hubungan -->
-            <div>
+                <!-- Hubungan -->
+                <div>
                 <label for="kode_hubungan" class="block text-sm font-semibold text-gray-700 mb-2">
                     Hubungan dengan Karyawan <span class="text-red-600">*</span>
                 </label>
@@ -86,10 +93,10 @@
                 @error('kode_hubungan')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-            </div>
+                </div>
 
-            <!-- Nama Keluarga -->
-            <div>
+                <!-- Nama Keluarga -->
+                <div>
                 <label for="nama_keluarga" class="block text-sm font-semibold text-gray-700 mb-2">
                     Nama Keluarga <span class="text-red-600">*</span>
                 </label>
@@ -99,10 +106,10 @@
                 @error('nama_keluarga')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-            </div>
+                </div>
 
-            <!-- BPJS ID -->
-            <div>
+                <!-- BPJS ID -->
+                <div>
                 <label for="bpjs_id" class="block text-sm font-semibold text-gray-700 mb-2">
                     BPJS ID
                 </label>
@@ -113,10 +120,10 @@
                 @error('bpjs_id')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-            </div>
+                </div>
 
-            <!-- Jenis Kelamin -->
-            <div>
+                <!-- Jenis Kelamin -->
+                <div>
                 <label for="jenis_kelamin" class="block text-sm font-semibold text-gray-700 mb-2">
                     Jenis Kelamin <span class="text-red-600">*</span>
                 </label>
@@ -130,10 +137,10 @@
                 @error('jenis_kelamin')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-            </div>
+                </div>
 
-            <!-- Tanggal Lahir -->
-            <div>
+                <!-- Tanggal Lahir -->
+                <div>
                 <label for="tanggal_lahir" class="block text-sm font-semibold text-gray-700 mb-2">
                     Tanggal Lahir <span class="text-red-600">*</span>
                 </label>
@@ -142,10 +149,11 @@
                 @error('tanggal_lahir')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
+                </div>
             </div>
 
-            <!-- Alamat -->
-            <div>
+            <!-- Alamat (Full Width) -->
+            <div class="mt-6">
                 <label for="alamat" class="block text-sm font-semibold text-gray-700 mb-2">
                     Alamat <span class="text-red-600">*</span>
                 </label>
@@ -156,26 +164,25 @@
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
+        </div>
 
-            <!-- Action Buttons -->
-            <div class="flex items-center gap-3 pt-6 border-t border-gray-200">
-                <button type="button" onclick="confirmSave()"
-                        class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Simpan Data
-                </button>
-                <a href="{{ route('keluarga.index') }}"
-                   class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Form Actions -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                <button type="button" onclick="window.location.href='{{ route('keluarga.index') }}'" class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     Batal
-                </a>
+                </button>
+                <button type="button" onclick="confirmSave()" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Simpan Data Keluarga
+                </button>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 
 @push('scripts')
