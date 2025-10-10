@@ -42,15 +42,6 @@ class ObatController extends Controller
             $query->where('id_satuan', $request->satuan_obat);
         }
 
-        // Filter by tanggal
-        if ($request->has('tanggal_mulai') && $request->tanggal_mulai != '') {
-            $query->whereDate('tanggal_update', '>=', $request->tanggal_mulai);
-        }
-
-        if ($request->has('tanggal_selesai') && $request->tanggal_selesai != '') {
-            $query->whereDate('tanggal_update', '<=', $request->tanggal_selesai);
-        }
-
         // Sorting
         $sortField = $request->get('sort', 'id_obat');
         $sortDirection = $request->get('direction', 'desc');

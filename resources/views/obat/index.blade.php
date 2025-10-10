@@ -64,8 +64,8 @@
                 <h3 class="text-sm font-semibold text-gray-800">Filter & Pencarian</h3>
             </div>
 
-            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="md:col-span-2">
+            <form method="GET" class="flex flex-wrap gap-4 items-end">
+                <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Cari Nama Obat</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -77,31 +77,7 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <input type="date" name="tanggal_mulai" value="{{ request('tanggal_mulai') }}" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Selesai</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <input type="date" name="tanggal_selesai" value="{{ request('tanggal_selesai') }}" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
-                    </div>
-                </div>
-
-                <div>
+                <div class="min-w-[150px]">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Obat</label>
                     <select name="jenis_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
                         <option value="">Semua Jenis</option>
@@ -111,7 +87,7 @@
                     </select>
                 </div>
 
-                <div>
+                <div class="min-w-[150px]">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Satuan Obat</label>
                     <select name="satuan_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
                         <option value="">Semua Satuan</option>
@@ -121,17 +97,7 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tampilkan</label>
-                    <select name="per_page" onchange="this.form.submit()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
-                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                        <option value="150" {{ request('per_page') == 150 ? 'selected' : '' }}>150</option>
-                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
-                    </select>
-                </div>
-
-                <div class="md:col-span-4 flex items-end gap-2">
+                <div class="flex gap-2">
                     <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -145,6 +111,27 @@
 
         <!-- Table Controls -->
         <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
+            <div class="flex items-center gap-3">
+                <label class="text-sm font-medium text-gray-700">Tampilkan</label>
+                <form method="GET" id="perPageForm" class="inline">
+                    @if(request('search'))
+                        <input type="hidden" name="search" value="{{ request('search') }}">
+                    @endif
+                    @if(request('jenis_obat'))
+                        <input type="hidden" name="jenis_obat" value="{{ request('jenis_obat') }}">
+                    @endif
+                    @if(request('satuan_obat'))
+                        <input type="hidden" name="satuan_obat" value="{{ request('satuan_obat') }}">
+                    @endif
+                    <select name="per_page" onchange="document.getElementById('perPageForm').submit()" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
+                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        <option value="150" {{ request('per_page') == 150 ? 'selected' : '' }}>150</option>
+                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                    </select>
+                </form>
+                <span class="text-sm font-medium text-gray-700">data per halaman</span>
+            </div>
             <div class="text-sm text-gray-600">
                 Total: <span class="font-semibold text-gray-900">{{ $obats->total() }}</span> obat
             </div>
@@ -699,15 +686,5 @@ function updateSortParams(field, direction) {
     window.location.href = url.toString();
 }
 
-// Auto-refresh saat per_page berubah
-document.addEventListener('DOMContentLoaded', function() {
-    const perPageSelect = document.querySelector('select[name="per_page"]');
-    if (perPageSelect) {
-        perPageSelect.addEventListener('change', function() {
-            const form = this.closest('form');
-            form.submit();
-        });
-    }
-});
 </script>
 @endsection
