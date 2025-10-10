@@ -188,10 +188,18 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
                         <div class="relative">
                             <select id="monthFilter" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
-                                <option value="10">Oktober</option>
-                                <option value="9">September</option>
-                                <option value="11">November</option>
-                                <option value="12">Desember</option>
+                                <option value="1" {{ date('n') == 1 ? 'selected' : '' }}>Januari</option>
+                                <option value="2" {{ date('n') == 2 ? 'selected' : '' }}>Februari</option>
+                                <option value="3" {{ date('n') == 3 ? 'selected' : '' }}>Maret</option>
+                                <option value="4" {{ date('n') == 4 ? 'selected' : '' }}>April</option>
+                                <option value="5" {{ date('n') == 5 ? 'selected' : '' }}>Mei</option>
+                                <option value="6" {{ date('n') == 6 ? 'selected' : '' }}>Juni</option>
+                                <option value="7" {{ date('n') == 7 ? 'selected' : '' }}>Juli</option>
+                                <option value="8" {{ date('n') == 8 ? 'selected' : '' }}>Agustus</option>
+                                <option value="9" {{ date('n') == 9 ? 'selected' : '' }}>September</option>
+                                <option value="10" {{ date('n') == 10 ? 'selected' : '' }}>Oktober</option>
+                                <option value="11" {{ date('n') == 11 ? 'selected' : '' }}>November</option>
+                                <option value="12" {{ date('n') == 12 ? 'selected' : '' }}>Desember</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -280,160 +288,246 @@
 
 @push('scripts')
 <script>
-    // Data untuk charts
-    const dailyData = [0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    const weeklyData = [8, 0, 0, 0];
-    const monthlyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0];
+    // Global variables for charts
+    let dailyChart, weeklyChart, monthlyChart;
 
-    // Chart 1 - Kunjungan Harian (Line Chart)
-    const dailyCtx = document.getElementById('dailyVisitChart').getContext('2d');
-    const dailyChart = new Chart(dailyCtx, {
-        type: 'line',
-        data: {
-            labels: Array.from({length: 31}, (_, i) => i + 1),
-            datasets: [{
-                label: 'Harian',
-                data: dailyData,
-                borderColor: 'rgb(20, 184, 166)',
-                backgroundColor: 'rgba(20, 184, 166, 0.2)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
+    // Load initial data
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set current month and year
+        const currentDate = new Date();
+        const currentMonth = (currentDate.getMonth() + 1).toString();
+        const currentYear = currentDate.getFullYear().toString();
+
+        document.getElementById('monthFilter').value = currentMonth;
+        document.getElementById('yearFilter').value = currentYear;
+
+        loadStatistics();
+        loadVisitAnalysis(currentMonth, currentYear);
+
+        // Auto refresh every 30 seconds
+        setInterval(loadStatistics, 30000);
+    });
+
+    // Load statistics data
+    async function loadStatistics() {
+        try {
+            const response = await fetch('/api/dashboard/statistics');
+            const data = await response.json();
+
+            // Update statistics cards
+            document.getElementById('totalKaryawan').textContent = data.total_karyawan;
+            document.getElementById('totalRekamMedis').textContent = data.total_rekam_medis;
+            document.getElementById('kunjunganHariIni').textContent = data.kunjungan_hari_ini;
+            document.getElementById('onProgress').textContent = data.on_progress;
+            document.getElementById('close').textContent = data.close;
+
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+        }
+    }
+
+    // Load visit analysis data
+    async function loadVisitAnalysis(month = null, year = null) {
+        try {
+            const params = new URLSearchParams();
+            if (month) params.append('month', month);
+            if (year) params.append('year', year);
+
+            const response = await fetch(`/api/dashboard/visit-analysis?${params}`);
+            const data = await response.json();
+
+            // Update charts with new data
+            updateCharts(data);
+
+        } catch (error) {
+            console.error('Error loading visit analysis:', error);
+        }
+    }
+
+    // Update charts with new data
+    function updateCharts(data) {
+        // Update daily chart
+        if (dailyChart) {
+            dailyChart.data.labels = data.daily.labels;
+            dailyChart.data.datasets[0].data = data.daily.data;
+            dailyChart.update();
+        } else {
+            createDailyChart(data.daily);
+        }
+
+        // Update weekly chart
+        if (weeklyChart) {
+            weeklyChart.data.labels = data.weekly.labels;
+            weeklyChart.data.datasets[0].data = data.weekly.data;
+            weeklyChart.update();
+        } else {
+            createWeeklyChart(data.weekly);
+        }
+
+        // Update monthly chart
+        if (monthlyChart) {
+            monthlyChart.data.datasets[0].data = data.monthly.data;
+            monthlyChart.update();
+        } else {
+            createMonthlyChart(data.monthly);
+        }
+    }
+
+    // Create daily chart
+    function createDailyChart(data) {
+        const ctx = document.getElementById('dailyVisitChart').getContext('2d');
+        dailyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Harian',
+                    data: data.data,
+                    borderColor: 'rgb(20, 184, 166)',
+                    backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Kunjungan: ' + context.parsed.y;
+                            }
+                        }
+                    }
                 },
-                tooltip: {
-                    enabled: true,
-                    callbacks: {
-                        label: function(context) {
-                            return 'Kunjungan: ' + context.parsed.y;
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
                         }
                     }
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 2
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
             }
-        }
-    });
+        });
+    }
 
-    // Chart 2 - Kunjungan Mingguan (Area Chart)
-    const weeklyCtx = document.getElementById('weeklyVisitChart').getContext('2d');
-    const weeklyChart = new Chart(weeklyCtx, {
-        type: 'line',
-        data: {
-            labels: ['01 - 07 Okt', '08 - 14 Okt', '15 - 21 Okt', '22 - 28 Okt', '29 - 31 Okt'],
-            datasets: [{
-                label: 'Mingguan',
-                data: [8, 0, 0, 0, 0],
-                borderColor: 'rgb(239, 68, 68)',
-                backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
+    // Create weekly chart
+    function createWeeklyChart(data) {
+        const ctx = document.getElementById('weeklyVisitChart').getContext('2d');
+        weeklyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Mingguan',
+                    data: data.data,
+                    borderColor: 'rgb(239, 68, 68)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Kunjungan: ' + context.parsed.y;
+                            }
+                        }
+                    }
                 },
-                tooltip: {
-                    enabled: true,
-                    callbacks: {
-                        label: function(context) {
-                            return 'Kunjungan: ' + context.parsed.y;
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
                         }
                     }
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 2
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
             }
-        }
-    });
+        });
+    }
 
-    // Chart 3 - Kunjungan Bulanan (Area Chart)
-    const monthlyCtx = document.getElementById('monthlyVisitChart').getContext('2d');
-    const monthlyChart = new Chart(monthlyCtx, {
-        type: 'line',
-        data: {
-            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-            datasets: [{
-                label: 'Bulanan',
-                data: monthlyData,
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
+    // Create monthly chart
+    function createMonthlyChart(data) {
+        const ctx = document.getElementById('monthlyVisitChart').getContext('2d');
+        monthlyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Bulanan',
+                    data: data.data,
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Kunjungan: ' + context.parsed.y;
+                            }
+                        }
+                    }
                 },
-                tooltip: {
-                    enabled: true,
-                    callbacks: {
-                        label: function(context) {
-                            return 'Kunjungan: ' + context.parsed.y;
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
                         }
                     }
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 2
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
             }
-        }
-    });
+        });
+    }
 
     // Filter function
     function filterCharts() {
@@ -448,11 +542,8 @@
         document.querySelector('#monthlyVisitChart').parentElement.previousElementSibling.querySelector('h4').textContent =
             `Kunjungan Bulanan (${year})`;
 
-        // Here you would typically fetch new data from the server
-        // For now, we'll just refresh the charts with existing data
-        dailyChart.update();
-        weeklyChart.update();
-        monthlyChart.update();
+        // Load new data from API
+        loadVisitAnalysis(month, year);
     }
 
     function getMonthName(month) {
