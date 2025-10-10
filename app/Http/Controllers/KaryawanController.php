@@ -262,7 +262,11 @@ class KaryawanController extends Controller
         $sheet->getColumnDimension('H')->setWidth(25);
         $sheet->getColumnDimension('I')->setWidth(20);
 
-        // Format kolom I (BPJS ID) sebagai Text untuk menjaga leading zeros
+        // Format kolom C (Tanggal Lahir) dan I (BPJS ID) sebagai Text untuk menjaga format
+        $sheet->getStyle('C:C')
+            ->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+
         $sheet->getStyle('I:I')
             ->getNumberFormat()
             ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
@@ -275,15 +279,16 @@ class KaryawanController extends Controller
         $sheet->setCellValue('A4', 'CATATAN:');
         $sheet->setCellValue('A5', '• NIK minimal 1 karakter dan maksimal 15 karakter');
         $sheet->setCellValue('A6', '• Format Tanggal Lahir: YYYY-MM-DD (contoh: 1990-01-01)');
-        $sheet->setCellValue('A7', '• Jenis Kelamin: "L" (Laki-laki), "J" (Laki-laki), atau "P" (Perempuan)');
-        $sheet->setCellValue('A8', '• No HP harus diawali dengan 08');
-        $sheet->setCellValue('A9', '• Email format: contoh@email.com (opsional)');
-        $sheet->setCellValue('A10', '• BPJS ID hanya boleh angka, maksimal 50 karakter (opsional)');
-        $sheet->setCellValue('A11', '• PENTING: Format kolom BPJS ID sebagai TEXT di Excel untuk menjaga angka 0 di depan');
-        $sheet->setCellValue('A12', '• Lihat daftar departemen di sheet "Daftar Departemen"');
+        $sheet->setCellValue('A7', '• PENTING: Format kolom Tanggal Lahir sebagai TEXT di Excel untuk menjaga format tanggal');
+        $sheet->setCellValue('A8', '• Jenis Kelamin: "L" (Laki-laki), "J" (Laki-laki), atau "P" (Perempuan)');
+        $sheet->setCellValue('A9', '• No HP harus diawali dengan 08');
+        $sheet->setCellValue('A10', '• Email format: contoh@email.com (opsional)');
+        $sheet->setCellValue('A11', '• BPJS ID hanya boleh angka, maksimal 50 karakter (opsional)');
+        $sheet->setCellValue('A12', '• PENTING: Format kolom BPJS ID sebagai TEXT di Excel untuk menjaga angka 0 di depan');
+        $sheet->setCellValue('A13', '• Lihat daftar departemen di sheet "Daftar Departemen"');
 
         $sheet->getStyle('A4')->getFont()->setBold(true);
-        $sheet->getStyle('A5:A9')->getFont()->setItalic(true)->setSize(10);
+        $sheet->getStyle('A5:A12')->getFont()->setItalic(true)->setSize(10);
 
         // ===== CREATE SECOND SHEET FOR DEPARTMENTS =====
         $departemenSheet = $spreadsheet->createSheet();
@@ -402,7 +407,46 @@ class KaryawanController extends Controller
                 $nik = $nikCell !== null ? trim((string)$nikCell) : '';
 
                 $nama = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
-                $tanggalLahir = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? '');
+                // Handle tanggal lahir - konversi dari format Excel ke database format
+                $tanggalLahirCell = $sheet->getCell('C' . $rowNumber);
+                $tanggalLahirValue = $tanggalLahirCell->getValue();
+                $tanggalLahir = null;
+
+                if ($tanggalLahirValue !== null && $tanggalLahirValue !== '') {
+                    // Jika ini adalah objek DateTime dari Excel
+                    if ($tanggalLahirValue instanceof \DateTime) {
+                        $tanggalLahir = $tanggalLahirValue->format('Y-m-d');
+                    }
+                    // Jika ini adalah string yang sudah dalam format yang benar
+                    elseif (is_string($tanggalLahirValue) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalLahirValue)) {
+                        $tanggalLahir = $tanggalLahirValue;
+                    }
+                    // Jika ini adalah angka serial dari Excel
+                    elseif (is_numeric($tanggalLahirValue)) {
+                        try {
+                            $date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($tanggalLahirValue);
+                            $tanggalLahir = $date->format('Y-m-d');
+                        } catch (\Exception $e) {
+                            // Jika konversi gagal, catat error
+                            $errors[] = "Baris $rowNumber: Format tanggal lahir tidak valid";
+                            continue;
+                        }
+                    }
+                    // Jika ini adalah string dalam format lain, coba konversi
+                    elseif (is_string($tanggalLahirValue)) {
+                        try {
+                            // Coba parsing dengan berbagai format
+                            $date = new \DateTime($tanggalLahirValue);
+                            $tanggalLahir = $date->format('Y-m-d');
+                        } catch (\Exception $e) {
+                            // Jika konversi gagal, catat error
+                            $errors[] = "Baris $rowNumber: Format tanggal lahir tidak valid. Gunakan format YYYY-MM-DD";
+                            continue;
+                        }
+                    }
+
+                    $tanggalLahir = trim($tanggalLahir ?? '');
+                }
                 $jenisKelamin = strtoupper(trim($sheet->getCell('D' . $rowNumber)->getValue() ?? ''));
                 $alamat = trim($sheet->getCell('E' . $rowNumber)->getValue() ?? '');
 
@@ -460,6 +504,25 @@ class KaryawanController extends Controller
                 // Validate BPJS ID harus angka
                 if (!empty($bpjsId) && !preg_match('/^[0-9]+$/', $bpjsId)) {
                     $errors[] = "Baris $rowNumber: BPJS ID hanya boleh berisi angka";
+                    continue;
+                }
+
+                // Validate tanggal lahir
+                if (empty($tanggalLahir)) {
+                    $errors[] = "Baris $rowNumber: Tanggal lahir tidak boleh kosong";
+                    continue;
+                }
+
+                // Pastikan format tanggal valid
+                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalLahir)) {
+                    $errors[] = "Baris $rowNumber: Format tanggal lahir harus YYYY-MM-DD";
+                    continue;
+                }
+
+                // Validasi tanggal dengan checkdate
+                $dateParts = explode('-', $tanggalLahir);
+                if (!checkdate($dateParts[1], $dateParts[2], $dateParts[0])) {
+                    $errors[] = "Baris $rowNumber: Tanggal lahir tidak valid";
                     continue;
                 }
 
