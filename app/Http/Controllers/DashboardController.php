@@ -18,7 +18,7 @@ class DashboardController extends Controller
     {
         $totalKaryawan = Karyawan::count();
         $totalRekamMedis = RekamMedis::count();
-        $kunjunganHariIni = Kunjungan::whereDate('tanggal_kunjungan', Carbon::today())->count();
+        $kunjunganHariIni = Kunjungan::whereDate('tanggal_kunjungan', now()->toDateString())->count();
         $onProgress = RekamMedis::where('status', 'On Orogres')->count();
         $close = RekamMedis::where('status', 'Close')->count();
 
@@ -60,13 +60,21 @@ class DashboardController extends Controller
      */
     private function getDailyVisits($month, $year)
     {
+        // Single query instead of loop - OPTIMIZED
+        $startDate = Carbon::create($year, $month, 1)->format('Y-m-d');
+        $endDate = Carbon::create($year, $month, 1)->endOfMonth()->format('Y-m-d');
+
+        $visitsData = Kunjungan::selectRaw('DAY(tanggal_kunjungan) as day, COUNT(*) as count')
+            ->whereBetween('tanggal_kunjungan', [$startDate, $endDate])
+            ->groupBy(DB::raw('DAY(tanggal_kunjungan)'))
+            ->pluck('count', 'day')
+            ->toArray();
+
         $daysInMonth = Carbon::create($year, $month)->daysInMonth;
         $dailyData = [];
 
         for ($day = 1; $day <= $daysInMonth; $day++) {
-            $date = Carbon::create($year, $month, $day);
-            $count = Kunjungan::whereDate('tanggal_kunjungan', $date)->count();
-            $dailyData[] = $count;
+            $dailyData[] = $visitsData[$day] ?? 0;
         }
 
         return [
@@ -82,27 +90,34 @@ class DashboardController extends Controller
     {
         $startDate = Carbon::create($year, $month, 1);
         $endDate = $startDate->copy()->endOfMonth();
-        $weeklyData = [];
-        $weeklyLabels = [];
 
-        $currentWeek = 1;
+        // Single query with WEEK function - OPTIMIZED
+        $weeklyData = Kunjungan::selectRaw('WEEK(tanggal_kunjungan, 1) as week, COUNT(*) as count')
+            ->whereBetween('tanggal_kunjungan', [$startDate, $endDate])
+            ->groupBy(DB::raw('WEEK(tanggal_kunjungan, 1)'))
+            ->orderBy(DB::raw('WEEK(tanggal_kunjungan, 1)'))
+            ->pluck('count', 'week')
+            ->toArray();
+
+        // Generate labels and data
+        $weeklyLabels = [];
+        $weeklyCounts = [];
         $currentDate = $startDate->copy();
 
         while ($currentDate <= $endDate) {
-            $weekStart = $currentDate->copy();
-            $weekEnd = $currentDate->copy()->addDays(6)->min($endDate);
+            $weekStart = $currentDate->copy()->startOfWeek();
+            $weekEnd = $weekStart->copy()->endOfWeek()->min($endDate);
+            $weekNumber = $weekStart->week;
 
-            $count = Kunjungan::whereBetween('tanggal_kunjungan', [$weekStart, $weekEnd])->count();
-            $weeklyData[] = $count;
             $weeklyLabels[] = $weekStart->format('d M') . ' - ' . $weekEnd->format('d M');
+            $weeklyCounts[] = $weeklyData[$weekNumber] ?? 0;
 
             $currentDate = $weekEnd->copy()->addDay();
-            $currentWeek++;
         }
 
         return [
             'labels' => $weeklyLabels,
-            'data' => $weeklyData,
+            'data' => $weeklyCounts,
         ];
     }
 
@@ -111,20 +126,25 @@ class DashboardController extends Controller
      */
     private function getMonthlyVisits($year)
     {
-        $monthlyData = [];
+        // Single query instead of loop - OPTIMIZED
+        $monthlyData = Kunjungan::selectRaw('MONTH(tanggal_kunjungan) as month, COUNT(*) as count')
+            ->whereYear('tanggal_kunjungan', $year)
+            ->groupBy(DB::raw('MONTH(tanggal_kunjungan)'))
+            ->orderBy(DB::raw('MONTH(tanggal_kunjungan)'))
+            ->pluck('count', 'month')
+            ->toArray();
+
         $monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
+        $data = [];
         for ($month = 1; $month <= 12; $month++) {
-            $count = Kunjungan::whereYear('tanggal_kunjungan', $year)
-                              ->whereMonth('tanggal_kunjungan', $month)
-                              ->count();
-            $monthlyData[] = $count;
+            $data[] = $monthlyData[$month] ?? 0;
         }
 
         return [
             'labels' => $monthNames,
-            'data' => $monthlyData,
+            'data' => $data,
         ];
     }
 

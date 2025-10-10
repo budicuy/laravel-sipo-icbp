@@ -6,12 +6,16 @@ use App\Models\Obat;
 use App\Models\JenisObat;
 use App\Models\SatuanObat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ObatController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Obat::with(['jenisObat', 'satuanObat']);
+        $query = Obat::with([
+            'jenisObat:id_jenis_obat,nama_jenis_obat',
+            'satuanObat:id_satuan,nama_satuan'
+        ]);
 
         // Search functionality
         if ($request->has('search') && $request->search != '') {
@@ -73,16 +77,25 @@ class ObatController extends Controller
         $perPage = in_array($perPage, [50, 100, 150, 200]) ? $perPage : 50;
 
         $obats = $query->paginate($perPage);
-        $jenisObats = JenisObat::all();
-        $satuanObats = SatuanObat::all();
+        // Cache reference data for better performance
+        $jenisObats = Cache::remember('jenis_obats_all', 60, function () {
+            return JenisObat::get();
+        });
+        $satuanObats = Cache::remember('satuan_obats_all', 60, function () {
+            return SatuanObat::get();
+        });
 
         return view('obat.index', compact('obats', 'jenisObats', 'satuanObats'));
     }
 
     public function create()
     {
-        $jenisObats = JenisObat::all();
-        $satuanObats = SatuanObat::all();
+        $jenisObats = Cache::remember('jenis_obats_all', 60, function () {
+            return JenisObat::get();
+        });
+        $satuanObats = Cache::remember('satuan_obats_all', 60, function () {
+            return SatuanObat::get();
+        });
         return view('obat.create', compact('jenisObats', 'satuanObats'));
     }
 
@@ -114,14 +127,22 @@ class ObatController extends Controller
 
         Obat::create($validated);
 
+        // Clear cache
+        Cache::forget('jenis_obats_all');
+        Cache::forget('satuan_obats_all');
+
         return redirect()->route('obat.index')->with('success', 'Data obat berhasil ditambahkan');
     }
 
     public function edit($id)
     {
         $obat = Obat::findOrFail($id);
-        $jenisObats = JenisObat::all();
-        $satuanObats = SatuanObat::all();
+        $jenisObats = Cache::remember('jenis_obats_all', 60, function () {
+            return JenisObat::get();
+        });
+        $satuanObats = Cache::remember('satuan_obats_all', 60, function () {
+            return SatuanObat::get();
+        });
         return view('obat.edit', compact('obat', 'jenisObats', 'satuanObats'));
     }
 
@@ -155,6 +176,10 @@ class ObatController extends Controller
 
         $obat->update($validated);
 
+        // Clear cache
+        Cache::forget('jenis_obats_all');
+        Cache::forget('satuan_obats_all');
+
         return redirect()->route('obat.index')->with('success', 'Data obat berhasil diperbarui');
     }
 
@@ -162,6 +187,10 @@ class ObatController extends Controller
     {
         $obat = Obat::findOrFail($id);
         $obat->delete();
+
+        // Clear cache
+        Cache::forget('jenis_obats_all');
+        Cache::forget('satuan_obats_all');
 
         return response()->json(['success' => true, 'message' => 'Data obat berhasil dihapus']);
     }
@@ -175,6 +204,10 @@ class ObatController extends Controller
         }
 
         Obat::whereIn('id_obat', $ids)->delete();
+
+        // Clear cache
+        Cache::forget('jenis_obats_all');
+        Cache::forget('satuan_obats_all');
 
         return response()->json(['success' => true, 'message' => count($ids) . ' data obat berhasil dihapus']);
     }

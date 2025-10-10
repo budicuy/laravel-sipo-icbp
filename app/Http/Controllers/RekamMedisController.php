@@ -16,7 +16,13 @@ class RekamMedisController extends Controller
 {
     public function index(Request $request)
     {
-        $query = RekamMedis::with(['keluarga.karyawan', 'keluarga.hubungan', 'user', 'keluhans.diagnosa', 'keluhans.obat']);
+        $query = RekamMedis::with([
+            'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
+            'keluarga.hubungan:kode_hubungan,hubungan',
+            'user:id_user,username,nama_lengkap',
+            'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
+            'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
+        ]);
 
         // Filter pencarian
         if ($request->filled('q')) {
@@ -137,14 +143,24 @@ class RekamMedisController extends Controller
 
     public function show($id)
     {
-        $rekamMedis = RekamMedis::with(['keluarga.karyawan', 'keluarga.hubungan', 'user', 'keluhans.diagnosa', 'keluhans.obat'])
-            ->findOrFail($id);
+        $rekamMedis = RekamMedis::with([
+            'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
+            'keluarga.hubungan:kode_hubungan,hubungan',
+            'user:id_user,username,nama_lengkap',
+            'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
+            'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
+        ])->findOrFail($id);
 
-        // Ambil semua riwayat kunjungan pasien ini (semua rekam medis dengan id_keluarga yang sama)
-        $riwayatKunjungan = RekamMedis::with(['user', 'keluhans.diagnosa', 'keluhans.obat'])
-            ->where('id_keluarga', $rekamMedis->id_keluarga)
-            ->orderBy('tanggal_periksa', 'desc')
-            ->get();
+        // Optimized query for riwayat kunjungan - select only needed columns
+        $riwayatKunjungan = RekamMedis::with([
+            'user:id_user,username,nama_lengkap',
+            'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
+            'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
+        ])
+        ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
+        ->where('id_keluarga', $rekamMedis->id_keluarga)
+        ->orderBy('tanggal_periksa', 'desc')
+        ->get();
 
         return view('rekam-medis.detail', compact('rekamMedis', 'riwayatKunjungan'));
     }
@@ -248,7 +264,8 @@ class RekamMedisController extends Controller
     {
         $search = $request->input('q');
 
-        $karyawans = Karyawan::with(['departemen'])
+        $karyawans = Karyawan::with(['departemen:id_departemen,nama_departemen'])
+            ->select('id_karyawan', 'nik_karyawan', 'nama_karyawan', 'id_departemen')
             ->where(function($query) use ($search) {
                 $query->where('nik_karyawan', 'like', "%{$search}%")
                       ->orWhere('nama_karyawan', 'like', "%{$search}%");
@@ -272,7 +289,8 @@ class RekamMedisController extends Controller
     {
         $karyawanId = $request->input('karyawan_id');
 
-        $familyMembers = Keluarga::with(['hubungan'])
+        $familyMembers = Keluarga::with(['hubungan:kode_hubungan,hubungan'])
+            ->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'jenis_kelamin', 'kode_hubungan')
             ->where('id_karyawan', $karyawanId)
             ->get()
             ->map(function($keluarga) {
@@ -293,30 +311,34 @@ class RekamMedisController extends Controller
     {
         $search = $request->input('q');
 
-        $pasiens = Keluarga::with(['karyawan', 'hubungan'])
-            ->where(function($query) use ($search) {
-                $query->where('nama_keluarga', 'like', "%{$search}%")
-                      ->orWhere('bpjs_id', 'like', "%{$search}%")
-                      ->orWhere('no_rm', 'like', "%{$search}%")
-                      ->orWhereHas('karyawan', function($karyawan) use ($search) {
-                          $karyawan->where('nik_karyawan', 'like', "%{$search}%");
-                      });
-            })
-            ->limit(10)
-            ->get()
-            ->map(function($keluarga) {
-                return [
-                    'id' => $keluarga->id_keluarga,
-                    'no_rm' => $keluarga->no_rm,
-                    'nama' => $keluarga->nama_keluarga,
-                    'bpjs_id' => $keluarga->bpjs_id,
-                    'nik_karyawan' => $keluarga->karyawan->nik_karyawan ?? '',
-                    'kode_hubungan' => $keluarga->kode_hubungan,
-                    'hubungan' => $keluarga->hubungan->hubungan ?? '',
-                    'jenis_kelamin' => $keluarga->jenis_kelamin,
-                    'tanggal_lahir' => $keluarga->tanggal_lahir ? $keluarga->tanggal_lahir->format('d/m/Y') : '',
-                ];
-            });
+        $pasiens = Keluarga::with([
+            'karyawan:id_karyawan,nik_karyawan',
+            'hubungan:kode_hubungan,hubungan'
+        ])
+        ->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'bpjs_id', 'kode_hubungan', 'jenis_kelamin', 'tanggal_lahir')
+        ->where(function($query) use ($search) {
+            $query->where('nama_keluarga', 'like', "%{$search}%")
+                  ->orWhere('bpjs_id', 'like', "%{$search}%")
+                  ->orWhere('no_rm', 'like', "%{$search}%")
+                  ->orWhereHas('karyawan', function($karyawan) use ($search) {
+                      $karyawan->where('nik_karyawan', 'like', "%{$search}%");
+                  });
+        })
+        ->limit(10)
+        ->get()
+        ->map(function($keluarga) {
+            return [
+                'id' => $keluarga->id_keluarga,
+                'no_rm' => $keluarga->no_rm,
+                'nama' => $keluarga->nama_keluarga,
+                'bpjs_id' => $keluarga->bpjs_id,
+                'nik_karyawan' => $keluarga->karyawan->nik_karyawan ?? '',
+                'kode_hubungan' => $keluarga->kode_hubungan,
+                'hubungan' => $keluarga->hubungan->hubungan ?? '',
+                'jenis_kelamin' => $keluarga->jenis_kelamin,
+                'tanggal_lahir' => $keluarga->tanggal_lahir ? $keluarga->tanggal_lahir->format('d/m/Y') : '',
+            ];
+        });
 
         return response()->json($pasiens);
     }

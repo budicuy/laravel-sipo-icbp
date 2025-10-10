@@ -19,7 +19,10 @@ class KeluargaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Keluarga::with(['karyawan', 'hubungan']);
+        $query = Keluarga::with([
+            'karyawan:id_karyawan,nik_karyawan,nama_karyawan',
+            'hubungan:kode_hubungan,hubungan'
+        ]);
 
         // Filter pencarian
         if ($request->filled('q')) {
@@ -136,10 +139,13 @@ class KeluargaController extends Controller
     {
         $search = $request->input('q');
 
-        $karyawans = Karyawan::where('nik_karyawan', 'like', "%{$search}%")
-            ->orWhere('nama_karyawan', 'like', "%{$search}%")
+        $karyawans = Karyawan::select('id_karyawan', 'nik_karyawan', 'nama_karyawan', 'jenis_kelamin', 'tanggal_lahir', 'alamat')
+            ->where(function($query) use ($search) {
+                $query->where('nik_karyawan', 'like', "%{$search}%")
+                      ->orWhere('nama_karyawan', 'like', "%{$search}%");
+            })
             ->limit(10)
-            ->get(['id_karyawan', 'nik_karyawan', 'nama_karyawan', 'jenis_kelamin', 'tanggal_lahir', 'alamat']);
+            ->get();
 
         return response()->json($karyawans);
     }

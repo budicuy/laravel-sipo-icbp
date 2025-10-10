@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Diagnosa;
 use App\Models\Obat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -16,7 +17,7 @@ class DiagnosaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Diagnosa::with('obats');
+        $query = Diagnosa::with('obats:id_obat,nama_obat');
 
         // Search functionality - pencarian berdasarkan nama diagnosa
         if ($request->has('search') && $request->search != '') {
@@ -52,7 +53,9 @@ class DiagnosaController extends Controller
 
     public function create()
     {
-        $obats = Obat::orderBy('nama_obat', 'asc')->get();
+        $obats = Cache::remember('obats_all', 60, function () {
+            return Obat::orderBy('nama_obat', 'asc')->get();
+        });
         return view('diagnosa.create', compact('obats'));
     }
 
@@ -78,13 +81,18 @@ class DiagnosaController extends Controller
             $diagnosa->obats()->attach($validated['obat_ids']);
         }
 
+        // Clear cache
+        Cache::forget('obats_all');
+
         return redirect()->route('diagnosa.index')->with('success', 'Data diagnosa berhasil ditambahkan');
     }
 
     public function edit($id)
     {
         $diagnosa = Diagnosa::with('obats')->findOrFail($id);
-        $obats = Obat::orderBy('nama_obat', 'asc')->get();
+        $obats = Cache::remember('obats_all', 60, function () {
+            return Obat::orderBy('nama_obat', 'asc')->get();
+        });
         return view('diagnosa.edit', compact('diagnosa', 'obats'));
     }
 
@@ -114,6 +122,9 @@ class DiagnosaController extends Controller
             $diagnosa->obats()->sync($validated['obat_ids'] ?? []);
         }
 
+        // Clear cache
+        Cache::forget('obats_all');
+
         return redirect()->route('diagnosa.index')->with('success', 'Data diagnosa berhasil diperbarui');
     }
 
@@ -122,6 +133,9 @@ class DiagnosaController extends Controller
         $diagnosa = Diagnosa::findOrFail($id);
         $diagnosa->obats()->detach(); // Hapus relasi dengan obat
         $diagnosa->delete();
+
+        // Clear cache
+        Cache::forget('obats_all');
 
         return redirect()->route('diagnosa.index')->with('success', 'Data diagnosa berhasil dihapus');
     }

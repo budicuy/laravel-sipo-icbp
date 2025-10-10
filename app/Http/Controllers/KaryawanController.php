@@ -6,6 +6,7 @@ use App\Models\Karyawan;
 use App\Models\Departemen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -18,8 +19,11 @@ class KaryawanController extends Controller
 {
     public function index(Request $request)
     {
-        $departemens = Departemen::orderBy('nama_departemen')->get();
-        $query = Karyawan::with('departemen');
+        // Cache departemen data for better performance
+        $departemens = Cache::remember('departemens_all', 60, function () {
+            return Departemen::orderBy('nama_departemen')->get();
+        });
+        $query = Karyawan::with('departemen:id_departemen,nama_departemen');
 
         if ($request->filled('departemen')) {
             $query->where('id_departemen', $request->input('departemen'));
@@ -61,7 +65,9 @@ class KaryawanController extends Controller
 
     public function create()
     {
-        $departemens = Departemen::orderBy('nama_departemen')->get();
+        $departemens = Cache::remember('departemens_all', 60, function () {
+            return Departemen::orderBy('nama_departemen')->get();
+        });
         return view('karyawan.create', compact('departemens'));
     }
 
@@ -100,12 +106,17 @@ class KaryawanController extends Controller
             'bpjs_id' => $validated['bpjs_id'] ?? null,
         ]);
 
+        // Clear cache
+        Cache::forget('departemens_all');
+
         return redirect()->route('karyawan.index')->with('success', 'Karyawan berhasil ditambahkan');
     }
 
     public function edit(Karyawan $karyawan)
     {
-        $departemens = Departemen::orderBy('nama_departemen')->get();
+        $departemens = Cache::remember('departemens_all', 60, function () {
+            return Departemen::orderBy('nama_departemen')->get();
+        });
         return view('karyawan.edit', compact('karyawan','departemens'));
     }
 
@@ -147,6 +158,9 @@ class KaryawanController extends Controller
 
         $karyawan->update($data);
 
+        // Clear cache
+        Cache::forget('departemens_all');
+
         return redirect()->route('karyawan.index')->with('success', 'Karyawan berhasil diperbarui');
     }
 
@@ -156,6 +170,10 @@ class KaryawanController extends Controller
             Storage::disk('public')->delete($karyawan->foto);
         }
         $karyawan->delete();
+
+        // Clear cache
+        Cache::forget('departemens_all');
+
         return back()->with('success', 'Karyawan dihapus');
     }
 
@@ -543,6 +561,9 @@ class KaryawanController extends Controller
 
         // Delete karyawan records
         $deleted = Karyawan::whereIn('id_karyawan', $ids)->delete();
+
+        // Clear cache
+        Cache::forget('departemens_all');
 
         return back()->with('success', "$deleted karyawan berhasil dihapus");
     }

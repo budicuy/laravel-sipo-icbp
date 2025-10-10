@@ -11,8 +11,12 @@ class KunjunganController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil semua data rekam medis untuk dijadikan kunjungan
-        $query = RekamMedis::with(['keluarga.karyawan', 'keluarga.hubungan', 'user']);
+        // Ambil semua data rekam medis untuk dijadikan kunjungan - OPTIMIZED
+        $query = RekamMedis::with([
+            'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
+            'keluarga.hubungan:kode_hubungan,hubungan',
+            'user:id_user,username,nama_lengkap'
+        ]);
 
         // Filter pencarian
         if ($request->filled('q')) {
@@ -82,9 +86,14 @@ class KunjunganController extends Controller
 
     public function show($id)
     {
-        // Ambil data rekam medis sebagai detail kunjungan
-        $rekamMedis = RekamMedis::with(['keluarga.karyawan', 'keluarga.hubungan', 'user', 'keluhans.diagnosa', 'keluhans.obat'])
-            ->findOrFail($id);
+        // Ambil data rekam medis sebagai detail kunjungan - OPTIMIZED
+        $rekamMedis = RekamMedis::with([
+            'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
+            'keluarga.hubungan:kode_hubungan,hubungan',
+            'user:id_user,username,nama_lengkap',
+            'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
+            'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
+        ])->findOrFail($id);
 
         // Generate nomor registrasi format: 1(No Running)/NDL/BJM/08/2025
         $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
@@ -106,27 +115,32 @@ class KunjunganController extends Controller
             'keluhans' => $rekamMedis->keluhans ?? []
         ];
 
-        // Ambil semua riwayat kunjungan pasien ini (semua rekam medis dengan id_keluarga yang sama)
-        $riwayatKunjungan = RekamMedis::with(['user', 'keluhans.diagnosa', 'keluhans.obat'])
-            ->where('id_keluarga', $rekamMedis->id_keluarga)
-            ->orderBy('tanggal_periksa', 'desc')
-            ->get()
-            ->map(function($rm) {
-                // Generate nomor registrasi format: 1(No Running)/NDL/BJM/08/2025
-                $noRunning = str_pad($rm->id_rekam, 1, '0', STR_PAD_LEFT);
-                $bulan = $rm->tanggal_periksa->format('m');
-                $tahun = $rm->tanggal_periksa->format('Y');
-                $nomorRegistrasi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+        // Ambil semua riwayat kunjungan pasien ini - OPTIMIZED
+        $riwayatKunjungan = RekamMedis::with([
+            'user:id_user,username,nama_lengkap',
+            'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
+            'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
+        ])
+        ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
+        ->where('id_keluarga', $rekamMedis->id_keluarga)
+        ->orderBy('tanggal_periksa', 'desc')
+        ->get()
+        ->map(function($rm) {
+            // Generate nomor registrasi format: 1(No Running)/NDL/BJM/08/2025
+            $noRunning = str_pad($rm->id_rekam, 1, '0', STR_PAD_LEFT);
+            $bulan = $rm->tanggal_periksa->format('m');
+            $tahun = $rm->tanggal_periksa->format('Y');
+            $nomorRegistrasi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
 
-                return (object) [
-                    'id_kunjungan' => $rm->id_rekam,
-                    'nomor_registrasi' => $nomorRegistrasi,
-                    'tanggal_kunjungan' => $rm->tanggal_periksa,
-                    'status' => $rm->status ?? 'On Progress',
-                    'user' => $rm->user,
-                    'keluhans' => $rm->keluhans ?? []
-                ];
-            });
+            return (object) [
+                'id_kunjungan' => $rm->id_rekam,
+                'nomor_registrasi' => $nomorRegistrasi,
+                'tanggal_kunjungan' => $rm->tanggal_periksa,
+                'status' => $rm->status ?? 'On Progress',
+                'user' => $rm->user,
+                'keluhans' => $rm->keluhans ?? []
+            ];
+        });
 
         return view('kunjungan.detail', compact('kunjungan', 'riwayatKunjungan'));
     }
