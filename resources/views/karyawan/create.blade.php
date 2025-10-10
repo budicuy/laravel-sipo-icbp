@@ -164,6 +164,45 @@
                             </div>
                         </div>
 
+                        <!-- Email and BPJS ID Fields -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <!-- Email -->
+                            <div>
+                                <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Email
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <input type="email" id="email" name="email" value="{{ old('email') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="contoh@email.com">
+                                </div>
+                                @error('email')
+                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- BPJS ID -->
+                            <div>
+                                <label for="bpjs_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                                    BPJS ID
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                        </svg>
+                                    </div>
+                                    <input type="text" id="bpjs_id" name="bpjs_id" value="{{ old('bpjs_id') }}" maxlength="50" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: 0001234567890 (hanya angka)">
+                                </div>
+                                @error('bpjs_id')
+                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
                         <!-- Alamat (Full Width) -->
                         <div>
                             <label for="alamat" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -178,21 +217,22 @@
                         </div>
                     </div>
 
-                    <!-- Right Column - Photo Upload -->
+                  <!-- Right Column - Photo Upload -->
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Foto Karyawan</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 text-center">Foto Karyawan</label>
                             <div class="space-y-3">
                                 <!-- Upload Area -->
-                                <div class="relative">
+                                <div class="relative w-full aspect-[3/4] max-w-xs mx-auto">
                                     <input type="file" id="foto" name="foto" accept="image/*" class="hidden" onchange="previewImage(event)">
-                                    <label for="foto" class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
-                                        <div id="preview-container" class="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <label for="foto" class="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                                        <div id="preview-container" class="flex flex-col items-center justify-center w-full h-full p-3">
+                                            <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            <p class="mb-2 text-sm text-gray-500 font-semibold">Klik untuk upload foto</p>
-                                            <p class="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 30KB)</p>
+                                            <p class="mb-1 text-xs text-gray-500 font-semibold">Klik untuk upload</p>
+                                            <p class="text-xs text-gray-500">PNG, JPG, JPEG</p>
+                                            <p class="text-xs text-gray-400">(MAX. 30KB)</p>
                                         </div>
                                     </label>
                                 </div>
@@ -209,46 +249,9 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
 
-                <!-- Email and BPJS ID Fields (Full Width Below) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
-                    <!-- Email -->
-                    <div>
-                        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Email
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                            <input type="email" id="email" name="email" value="{{ old('email') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="contoh@email.com">
-                        </div>
-                        @error('email')
-                            <p class="text-xs text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- BPJS ID -->
-                    <div>
-                        <label for="bpjs_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                            BPJS ID
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                                </svg>
-                            </div>
-                            <input type="text" id="bpjs_id" name="bpjs_id" value="{{ old('bpjs_id') }}" maxlength="50" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: 0001234567890 (hanya angka)">
-                        </div>
-                        @error('bpjs_id')
-                            <p class="text-xs text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
             </div>
 
             <!-- Form Actions -->
@@ -307,9 +310,9 @@ function previewImage(event) {
         reader.onload = function(e) {
             container.innerHTML = `
                 <div class="relative w-full h-full">
-                    <img src="${e.target.result}" class="w-full h-full object-cover rounded-lg" alt="Preview">
-                    <button type="button" onclick="clearImage()" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <img src="${e.target.result}" class="absolute inset-0 w-full h-full object-cover rounded-lg" alt="Preview">
+                    <button type="button" onclick="clearImage()" class="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg transition-colors z-10">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
@@ -323,11 +326,12 @@ function previewImage(event) {
 function clearImage() {
     document.getElementById('foto').value = '';
     document.getElementById('preview-container').innerHTML = `
-        <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
-        <p class="mb-2 text-sm text-gray-500 font-semibold">Klik untuk upload foto</p>
-        <p class="text-xs text-gray-500">PNG, JPG, JPEG (MAX. 2MB)</p>
+        <p class="mb-1 text-xs text-gray-500 font-semibold">Klik untuk upload</p>
+        <p class="text-xs text-gray-500">PNG, JPG, JPEG</p>
+        <p class="text-xs text-gray-400">(MAX. 30KB)</p>
     `;
 }
 
