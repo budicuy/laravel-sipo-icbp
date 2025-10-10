@@ -131,22 +131,29 @@ class DiagnosaController extends Controller
 
     public function destroy($id)
     {
+        Log::info('Destroy method called with id: ' . $id);
+
         try {
             $diagnosa = Diagnosa::findOrFail($id);
+            Log::info('Diagnosa found: ' . $diagnosa->nama_diagnosa);
 
             // Detach relasi dengan obat sebelum menghapus
             $diagnosa->obats()->detach();
+            Log::info('Relationships detached');
 
             // Hapus diagnosa
             $diagnosa->delete();
+            Log::info('Diagnosa deleted');
 
             // Clear cache
             Cache::forget('obats_all');
+            Log::info('Cache cleared');
 
             return response()->json(['success' => true, 'message' => 'Data diagnosa berhasil dihapus']);
         } catch (\Exception $e) {
             // Log error
             Log::error('Error deleting diagnosa: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
             return response()->json(['success' => false, 'message' => 'Gagal menghapus data diagnosa'], 500);
         }
@@ -355,31 +362,41 @@ class DiagnosaController extends Controller
 
     public function bulkDelete(Request $request)
     {
+        Log::info('Bulk delete method called');
+        Log::info('Request data: ' . json_encode($request->all()));
+
         try {
             $ids = $request->input('ids', []);
+            Log::info('IDs to delete: ' . json_encode($ids));
 
             if (empty($ids)) {
+                Log::info('No IDs provided');
                 return response()->json(['success' => false, 'message' => 'Tidak ada data yang dipilih'], 400);
             }
 
             // Get diagnosas to delete for detaching relationships
             $diagnosas = Diagnosa::whereIn('id_diagnosa', $ids)->get();
+            Log::info('Found ' . $diagnosas->count() . ' diagnosas to delete');
 
             // Detach relationships before deleting
             foreach ($diagnosas as $diagnosa) {
                 $diagnosa->obats()->detach();
             }
+            Log::info('Relationships detached');
 
             // Delete the diagnosas
             $count = Diagnosa::whereIn('id_diagnosa', $ids)->delete();
+            Log::info('Deleted ' . $count . ' diagnosas');
 
             // Clear cache
             Cache::forget('obats_all');
+            Log::info('Cache cleared');
 
             return response()->json(['success' => true, 'message' => "{$count} data diagnosa berhasil dihapus!"]);
         } catch (\Exception $e) {
             // Log error
             Log::error('Error bulk deleting diagnosa: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
             return response()->json(['success' => false, 'message' => 'Gagal menghapus data diagnosa'], 500);
         }

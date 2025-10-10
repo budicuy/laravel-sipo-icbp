@@ -325,6 +325,8 @@ function toggleAll(source) {
 }
 
 function deleteDiagnosa(id, nama) {
+    console.log('deleteDiagnosa called with id:', id, 'nama:', nama);
+
     Swal.fire({
         title: 'Hapus Data Diagnosa?',
         html: `Apakah Anda yakin ingin menghapus diagnosa <strong>${nama}</strong>?`,
@@ -336,7 +338,11 @@ function deleteDiagnosa(id, nama) {
         cancelButtonText: 'Batal',
         reverseButtons: true
     }).then((result) => {
+        console.log('Swal result:', result);
+
         if (result.isConfirmed) {
+            console.log('Sending DELETE request to /diagnosa/' + id);
+
             fetch(`/diagnosa/${id}`, {
                 method: 'DELETE',
                 headers: {
@@ -345,8 +351,12 @@ function deleteDiagnosa(id, nama) {
                     'Accept': 'application/json'
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response received:', response);
+                return response.json();
+            })
             .then(data => {
+                console.log('Data received:', data);
                 if (data.success) {
                     Swal.fire({
                         toast: true,
@@ -359,9 +369,12 @@ function deleteDiagnosa(id, nama) {
                     }).then(() => {
                         location.reload();
                     });
+                } else {
+                    Swal.fire('Error!', data.message || 'Gagal menghapus data', 'error');
                 }
             })
             .catch(error => {
+                console.error('Error:', error);
                 Swal.fire('Error!', 'Terjadi kesalahan saat menghapus data', 'error');
             });
         }
@@ -371,6 +384,8 @@ function deleteDiagnosa(id, nama) {
 function submitBulkDelete() {
     const checkboxes = document.querySelectorAll('.row-checkbox:checked');
     const ids = Array.from(checkboxes).map(cb => cb.value);
+
+    console.log('submitBulkDelete called with ids:', ids);
 
     if (ids.length === 0) {
         Swal.fire({
@@ -393,7 +408,11 @@ function submitBulkDelete() {
         cancelButtonText: 'Batal',
         reverseButtons: true
     }).then((result) => {
+        console.log('Bulk delete Swal result:', result);
+
         if (result.isConfirmed) {
+            console.log('Sending POST request to /diagnosa/bulk-delete with ids:', ids);
+
             fetch('/diagnosa/bulk-delete', {
                 method: 'POST',
                 headers: {
@@ -403,8 +422,12 @@ function submitBulkDelete() {
                 },
                 body: JSON.stringify({ ids: ids })
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Bulk delete response received:', response);
+                return response.json();
+            })
             .then(data => {
+                console.log('Bulk delete data received:', data);
                 if (data.success) {
                     Swal.fire({
                         toast: true,
@@ -417,9 +440,12 @@ function submitBulkDelete() {
                     }).then(() => {
                         location.reload();
                     });
+                } else {
+                    Swal.fire('Error!', data.message || 'Gagal menghapus data', 'error');
                 }
             })
             .catch(error => {
+                console.error('Bulk delete error:', error);
                 Swal.fire('Error!', 'Terjadi kesalahan saat menghapus data', 'error');
             });
         }
@@ -566,6 +592,8 @@ function openImportModal() {
             });
         }
     });
+}
+
 // Fungsi untuk memastikan parameter filter tetap terjaga saat mengurutkan
 function updateSortParams(field, direction) {
     const url = new URL(window.location);
