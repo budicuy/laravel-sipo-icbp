@@ -480,18 +480,44 @@ class KaryawanController extends Controller
             }
 
             $message = "Import selesai: $created data baru ditambahkan, $updated data diperbarui";
+            $hasErrors = count($errors) > 0;
 
-            if (!empty($errors)) {
+            if ($hasErrors) {
                 $errorMessage = implode('<br>', array_slice($errors, 0, 10)); // Show first 10 errors
                 if (count($errors) > 10) {
                     $errorMessage .= '<br>... dan ' . (count($errors) - 10) . ' error lainnya';
                 }
-                return back()->with('warning', $message . '<br><br>Error:<br>' . $errorMessage);
+                $message .= '<br><br>Error:<br>' . $errorMessage;
+            }
+
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'data' => [
+                        'created' => $created,
+                        'updated' => $updated,
+                        'errors' => $errors
+                    ]
+                ]);
+            }
+
+            if ($hasErrors) {
+                return back()->with('warning', $message);
             }
 
             return back()->with('success', $message);
 
         } catch (\Exception $e) {
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal import data: ' . $e->getMessage()
+                ], 500);
+            }
+
             return back()->with('error', 'Gagal import data: ' . $e->getMessage());
         }
     }
