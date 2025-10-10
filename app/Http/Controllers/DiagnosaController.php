@@ -18,26 +18,34 @@ class DiagnosaController extends Controller
     {
         $query = Diagnosa::with('obats');
 
-        // Search functionality
+        // Search functionality - pencarian berdasarkan nama diagnosa
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_diagnosa', 'like', '%' . $search . '%')
-                    ->orWhere('deskripsi', 'like', '%' . $search . '%');
-            });
+            $query->where('nama_diagnosa', 'like', '%' . $search . '%');
         }
 
         // Sorting
         $sortField = $request->get('sort', 'id_diagnosa');
         $sortDirection = $request->get('direction', 'desc');
 
-        if (in_array($sortField, ['nama_diagnosa', 'created_at', 'updated_at'])) {
+        // Validasi field yang bisa diurutkan
+        $allowedSortFields = ['id_diagnosa', 'nama_diagnosa', 'deskripsi', 'created_at', 'updated_at'];
+
+        if (in_array($sortField, $allowedSortFields)) {
             $query->orderBy($sortField, $sortDirection);
         } else {
             $query->orderBy('id_diagnosa', 'desc');
         }
 
-        $diagnosas = $query->paginate(10);
+        // Pagination dengan opsi custom
+        $perPage = $request->get('per_page', 50);
+        $allowedPerPage = [50, 100, 150, 200];
+
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 50;
+        }
+
+        $diagnosas = $query->paginate($perPage);
 
         return view('diagnosa.index', compact('diagnosas'));
     }

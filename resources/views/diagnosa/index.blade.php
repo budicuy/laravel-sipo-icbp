@@ -51,88 +51,106 @@
                 <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
-                <h3 class="text-sm font-semibold text-gray-800">Filter Data</h3>
+                <h3 class="text-sm font-semibold text-gray-800">Filter & Pencarian</h3>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Diagnosa</label>
+            <form method="GET" action="{{ route('diagnosa.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari Nama Diagnosa</label>
                     <div class="relative">
-                        <select class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none bg-white pr-10">
-                            <option>-- Semua Kategori --</option>
-                            <option>Infeksi</option>
-                            <option>Kronis</option>
-                            <option>Akut</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
+                        <input type="text" name="search" value="{{ request('search') }}" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm" placeholder="Masukkan nama diagnosa...">
                     </div>
                 </div>
+
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tingkat Keparahan</label>
-                    <div class="relative">
-                        <select class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none bg-white pr-10">
-                            <option>-- Semua Tingkat --</option>
-                            <option>Ringan</option>
-                            <option>Sedang</option>
-                            <option>Berat</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                    </div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tampilkan</label>
+                    <select name="per_page" onchange="this.form.submit()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm bg-white shadow-sm">
+                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        <option value="150" {{ request('per_page') == 150 ? 'selected' : '' }}>150</option>
+                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                    </select>
                 </div>
-                <div class="flex items-end gap-2">
-                    <button class="flex-1 px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+
+                <div class="md:col-span-4 flex items-end gap-2">
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                         Filter
                     </button>
-                    <button class="flex-1 px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        Reset
-                    </button>
+                    <a href="{{ route('diagnosa.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">Reset</a>
                 </div>
-            </div>
+            </form>
         </div>
 
         <!-- Table Controls -->
-        <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="flex items-center gap-2">
-                <label class="text-sm font-medium text-gray-700">Tampilkan</label>
-                <span class="text-sm font-medium text-gray-700">{{ $diagnosas->count() }} data</span>
+        <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
+            <div class="text-sm text-gray-600">
+                Total: <span class="font-semibold text-gray-900">{{ $diagnosas->total() }}</span> diagnosa
             </div>
-            <form method="GET" action="{{ route('diagnosa.index') }}" class="flex items-center gap-2">
-                <label class="text-sm font-medium text-gray-700">Pencarian:</label>
-                <div class="relative">
-                    <input type="text" name="search" value="{{ request('search') }}" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm w-64" placeholder="Cari diagnosa...">
-                    <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                </div>
-                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">Cari</button>
-            </form>
         </div>
 
         <!-- Table -->
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
-                    <tr class="bg-gradient-to-r from-gray-800 to-gray-900">
+                    <tr class="bg-gradient-to-r from-red-700 to-pink-700">
                         <th class="px-4 py-4 text-left">
                             <input type="checkbox" onclick="toggleAll(this)" class="rounded border-gray-400 text-red-600 focus:ring-2 focus:ring-red-500">
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Nama Diagnosa</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Deskripsi</th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('diagnosa.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nama_diagnosa', 'direction' => (request('sort') == 'nama_diagnosa' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-red-300 transition-colors">
+                                <span>Nama Diagnosa</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'nama_diagnosa')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('diagnosa.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'deskripsi', 'direction' => (request('sort') == 'deskripsi' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
+                               class="flex items-center justify-between group hover:text-red-300 transition-colors">
+                                <span>Deskripsi</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'deskripsi')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Obat Rekomendasi</th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
@@ -212,15 +230,92 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="text-sm text-gray-700 font-medium">
-                Menampilkan <span class="font-semibold text-gray-900">{{ $diagnosas->firstItem() ?? 0 }}</span> sampai <span class="font-semibold text-gray-900">{{ $diagnosas->lastItem() ?? 0 }}</span> dari <span class="font-semibold text-gray-900">{{ $diagnosas->total() }}</span> data
-            </div>
-            <div class="flex gap-2">
-                {{ $diagnosas->links() }}
+        <!-- Custom Pagination -->
+        @isset($diagnosas)
+        @if($diagnosas->hasPages())
+        <div class="px-6 py-5 border-t border-gray-200 bg-white">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="text-sm text-gray-600">
+                    Halaman <span class="font-semibold text-gray-900">{{ $diagnosas->currentPage() }}</span>
+                    dari <span class="font-semibold text-gray-900">{{ $diagnosas->lastPage() }}</span>
+                    <span class="mx-2 text-gray-400">•</span>
+                    Total <span class="font-semibold text-gray-900">{{ $diagnosas->total() }}</span> data
+                </div>
+
+                <nav class="flex items-center gap-2" role="navigation">
+                    @if($diagnosas->onFirstPage())
+                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </span>
+                    @else
+                        <a href="{{ $diagnosas->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </a>
+                    @endif
+
+                    @if($diagnosas->onFirstPage())
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
+                    @else
+                        <a href="{{ $diagnosas->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">Previous</a>
+                    @endif
+
+                    <div class="flex items-center gap-1">
+                        @php
+                            $start = max($diagnosas->currentPage() - 2, 1);
+                            $end = min($diagnosas->currentPage() + 2, $diagnosas->lastPage());
+                        @endphp
+
+                        @if($start > 1)
+                            <a href="{{ $diagnosas->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">1</a>
+                            @if($start > 2)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                        @endif
+
+                        @for($i = $start; $i <= $end; $i++)
+                            @if($i == $diagnosas->currentPage())
+                                <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-red-700 rounded-lg shadow-md">{{ $i }}</span>
+                            @else
+                                <a href="{{ $diagnosas->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">{{ $i }}</a>
+                            @endif
+                        @endfor
+
+                        @if($end < $diagnosas->lastPage())
+                            @if($end < $diagnosas->lastPage() - 1)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                            <a href="{{ $diagnosas->appends(request()->except('page'))->url($diagnosas->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">{{ $diagnosas->lastPage() }}</a>
+                        @endif
+                    </div>
+
+                    @if($diagnosas->hasMorePages())
+                        <a href="{{ $diagnosas->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">Next</a>
+                    @else
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
+                    @endif
+
+                    @if($diagnosas->currentPage() == $diagnosas->lastPage())
+                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    @else
+                        <a href="{{ $diagnosas->appends(request()->except('page'))->url($diagnosas->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    @endif
+                </nav>
             </div>
         </div>
+        @endif
+        @endisset
     </div>
 </div>
 
@@ -451,6 +546,24 @@ function openImportModal() {
             });
         }
     });
+// Fungsi untuk memastikan parameter filter tetap terjaga saat mengurutkan
+function updateSortParams(field, direction) {
+    const url = new URL(window.location);
+    url.searchParams.set('sort', field);
+    url.searchParams.set('direction', direction);
+    window.location.href = url.toString();
+}
+
+// Auto-refresh saat per_page berubah
+document.addEventListener('DOMContentLoaded', function() {
+    const perPageSelect = document.querySelector('select[name="per_page"]');
+    if (perPageSelect) {
+        perPageSelect.addEventListener('change', function() {
+            const form = this.closest('form');
+            form.submit();
+        });
+    }
+});
 }
 </script>
 @endpush
