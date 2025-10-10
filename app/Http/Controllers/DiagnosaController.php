@@ -6,6 +6,7 @@ use App\Models\Diagnosa;
 use App\Models\Obat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -130,14 +131,25 @@ class DiagnosaController extends Controller
 
     public function destroy($id)
     {
-        $diagnosa = Diagnosa::findOrFail($id);
-        $diagnosa->obats()->detach(); // Hapus relasi dengan obat
-        $diagnosa->delete();
+        try {
+            $diagnosa = Diagnosa::findOrFail($id);
 
-        // Clear cache
-        Cache::forget('obats_all');
+            // Detach relasi dengan obat sebelum menghapus
+            $diagnosa->obats()->detach();
 
-        return redirect()->route('diagnosa.index')->with('success', 'Data diagnosa berhasil dihapus');
+            // Hapus diagnosa
+            $diagnosa->delete();
+
+            // Clear cache
+            Cache::forget('obats_all');
+
+            return response()->json(['success' => true, 'message' => 'Data diagnosa berhasil dihapus']);
+        } catch (\Exception $e) {
+            // Log error
+            Log::error('Error deleting diagnosa: ' . $e->getMessage());
+
+            return response()->json(['success' => false, 'message' => 'Gagal menghapus data diagnosa'], 500);
+        }
     }
 
     public function downloadTemplate()
@@ -343,14 +355,33 @@ class DiagnosaController extends Controller
 
     public function bulkDelete(Request $request)
     {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:diagnosa,id_diagnosa'
-        ]);
+        try {
+            $ids = $request->input('ids', []);
 
-        $count = Diagnosa::whereIn('id_diagnosa', $request->ids)->delete();
+            if (empty($ids)) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada data yang dipilih'], 400);
+            }
 
-        return redirect()->route('diagnosa.index')
-            ->with('success', "{$count} data diagnosa berhasil dihapus!");
+            // Get diagnosas to delete for detaching relationships
+            $diagnosas = Diagnosa::whereIn('id_diagnosa', $ids)->get();
+
+            // Detach relationships before deleting
+            foreach ($diagnosas as $diagnosa) {
+                $diagnosa->obats()->detach();
+            }
+
+            // Delete the diagnosas
+            $count = Diagnosa::whereIn('id_diagnosa', $ids)->delete();
+
+            // Clear cache
+            Cache::forget('obats_all');
+
+            return response()->json(['success' => true, 'message' => "{$count} data diagnosa berhasil dihapus!"]);
+        } catch (\Exception $e) {
+            // Log error
+            Log::error('Error bulk deleting diagnosa: ' . $e->getMessage());
+
+            return response()->json(['success' => false, 'message' => 'Gagal menghapus data diagnosa'], 500);
+        }
     }
 }

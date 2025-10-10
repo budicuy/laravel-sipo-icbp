@@ -54,8 +54,8 @@
                 <h3 class="text-sm font-semibold text-gray-800">Filter & Pencarian</h3>
             </div>
 
-            <form method="GET" action="{{ route('diagnosa.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="md:col-span-2">
+            <form method="GET" action="{{ route('diagnosa.index') }}" class="flex flex-wrap gap-4 items-end">
+                <div class="flex-1 min-w-[300px]">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Cari Nama Diagnosa</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -67,30 +67,32 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tampilkan</label>
-                    <select name="per_page" onchange="this.form.submit()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm bg-white shadow-sm">
-                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                        <option value="150" {{ request('per_page') == 150 ? 'selected' : '' }}>150</option>
-                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
-                    </select>
-                </div>
-
-                <div class="md:col-span-4 flex items-end gap-2">
-                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        Filter
-                    </button>
-                    <a href="{{ route('diagnosa.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">Reset</a>
-                </div>
+                <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Filter
+                </button>
+                <a href="{{ route('diagnosa.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">Reset</a>
             </form>
         </div>
 
         <!-- Table Controls -->
         <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-medium text-gray-700">Tampilkan</label>
+                <form method="GET" action="{{ route('diagnosa.index') }}" class="inline-flex">
+                    @foreach(request()->except(['page', 'per_page']) as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+                    <select name="per_page" onchange="this.form.submit()" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm bg-white shadow-sm">
+                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        <option value="150" {{ request('per_page') == 150 ? 'selected' : '' }}>150</option>
+                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                    </select>
+                </form>
+            </div>
             <div class="text-sm text-gray-600">
                 Total: <span class="font-semibold text-gray-900">{{ $diagnosas->total() }}</span> diagnosa
             </div>
@@ -202,15 +204,11 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </a>
-                                <form action="{{ route('diagnosa.destroy', $diagnosa->id_diagnosa) }}" method="POST" class="delete-form">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" onclick="confirmDelete(this)" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </form>
+                                <button onclick="deleteDiagnosa({{ $diagnosa->id_diagnosa }}, '{{ $diagnosa->nama_diagnosa }}')" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -326,84 +324,106 @@ function toggleAll(source) {
   checkboxes.forEach(cb => cb.checked = source.checked);
 }
 
-function confirmDelete(button) {
-  Swal.fire({
-    title: 'Hapus Data Diagnosa?',
-    text: "Data yang dihapus tidak dapat dikembalikan!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#ef4444',
-    cancelButtonColor: '#6b7280',
-    confirmButtonText: 'Ya, Hapus!',
-    cancelButtonText: 'Batal',
-    reverseButtons: true,
-    customClass: {
-      confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
-      cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      button.closest('form').submit();
-    }
-  });
+function deleteDiagnosa(id, nama) {
+    Swal.fire({
+        title: 'Hapus Data Diagnosa?',
+        html: `Apakah Anda yakin ingin menghapus diagnosa <strong>${nama}</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/diagnosa/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error!', 'Terjadi kesalahan saat menghapus data', 'error');
+            });
+        }
+    });
 }
 
 function submitBulkDelete() {
-  const ids = getSelectedIds();
-  if (ids.length === 0) {
+    const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.value);
+
+    if (ids.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Tidak Ada Data Dipilih',
+            text: 'Pilih minimal satu data untuk dihapus',
+            confirmButtonColor: '#dc2626'
+        });
+        return;
+    }
+
     Swal.fire({
-      icon: 'warning',
-      title: 'Tidak Ada Data Terpilih',
-      text: 'Pilih minimal satu data diagnosa untuk dihapus',
-      confirmButtonColor: '#3b82f6',
-      confirmButtonText: 'OK'
+        title: 'Hapus Data Terpilih?',
+        html: `Apakah Anda yakin ingin menghapus <strong>${ids.length}</strong> diagnosa yang dipilih?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Hapus Semua!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/diagnosa/bulk-delete', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ ids: ids })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error!', 'Terjadi kesalahan saat menghapus data', 'error');
+            });
+        }
     });
-    return;
-  }
-
-  Swal.fire({
-    title: 'Hapus ' + ids.length + ' Data Diagnosa?',
-    text: "Data yang dihapus tidak dapat dikembalikan!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#ef4444',
-    cancelButtonColor: '#6b7280',
-    confirmButtonText: 'Ya, Hapus Semua!',
-    cancelButtonText: 'Batal',
-    reverseButtons: true,
-    customClass: {
-      confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
-      cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '{{ route("diagnosa.bulkDelete") }}';
-
-      const csrfInput = document.createElement('input');
-      csrfInput.type = 'hidden';
-      csrfInput.name = '_token';
-      csrfInput.value = '{{ csrf_token() }}';
-      form.appendChild(csrfInput);
-
-      ids.forEach(id => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'ids[]';
-        input.value = id;
-        form.appendChild(input);
-      });
-
-      document.body.appendChild(form);
-      form.submit();
-    }
-  });
-}
-
-function getSelectedIds() {
-  const nodes = Array.from(document.querySelectorAll('.row-checkbox:checked'));
-  return nodes.map(n => n.value);
 }
 
 // Import Excel Modal Functions
@@ -564,7 +584,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-}
 </script>
 @endpush
 @endsection
