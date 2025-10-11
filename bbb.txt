@@ -1,50 +1,101 @@
-buatkan crud data obat dengan field data obat sebagai berikut ini :
-- nama obat
-- Keterangan
-- Jenis obat berelasi dengan id jenis obat
-- satuan obat berelasi dengan id satuan obat
-- stok awal
-- stok masuk
-- stok keluar
-- stok akhir
-- jumlah perkemasan
-- harga perkemasan
-- harga per satuan
+-obat antiinflamasi nonsteroid (NSAID)
+- Herbal
+- mukolitik
+- calcium-channel blockers (CCBs)
+- calcium-channel blockers (CCBs)
+- penisilin
+- antasida
+- antasida
+- obat antiinflamasi nonsteroid (NSAID)
+- antidiare
+- sefalosporin
+- antibiotik sefalosporin
+- antihistamin
+- antibiotik fluoroquinolone
+- Antihistamine
+- kortikosteroid
+- Antidiare
+- Analgesik dan antipiretik, ekspektoran, dekongestan, antitusif, serta antihistamin
+- Antibiotik aminoglikosida
+- Antibiotik aminoglikosida
+- Antibiotik aminoglikosida
+- kombinasi ekspektoran (guaifenesin), antitusif (dextromethorphan), dan antihistamin (diphenhydramine)
+- Plaster Luka
+- Kortikosteroid
+- dekongestan
+- Kasa Steril
+- antasida
+- Antidiabetes
+- kortikosteroid
+- imidazole
+- Obat resep Pil KB
+- no steroid anti inflamasi (NSAID)
+- analgesik (pereda nyeri) dan antipiretik (pereda demam)
+- Antibiotik topikal
+- Analgesik & antipiretik
+- Analgesik & antipiretik
+- analgetik-antipiretik
+- obat penurun panas dan pereda nyeri (analgesic dan antipiretik)
+- obat antiinflamasi nonsteroid (NSAID)
+- antagonis H2 (H2 blocker)
+- bronkodilator golongan agonis reseptor β2 adrenergik selektif short acting
+- bronkodilator golongan agonis reseptor β2 adrenergik selektif short acting
+- aminoglikosida
+- Antispasmodik
+- statin
+- statin
+- Pembalut
+- Suntikan
+- Stick
+- Stick
+- Stick
+- alkilamina antihistamin generasi pertama
+- dekongestan
+- obat antibiotik
+- alat kontrasepsi suntik
+- Asam askorbat / antioksidan
+- antiemetik
+- analgetik-antipiretik, dekongestan
+- antihistamin
+- penghambat pompa proton
+- analgetik-antipiretik, dekongestan
+- agonis adrenoreseptor
+- suplemen
+- analgesik antipiretik
+- analgesik antipiretik
+- alkilamina antihistamin generasi pertama
+- penisilin
+- alkilamina antihistamin generasi pertama
+- Analgesik dan antipiretik, dekongestan, antihistamin, antitusif, serta ekspektoran
+- antidiare
+- antasida
+- kortikosteroid
+- analgetik, antipiretik, dekongestan, antihistamin
+- anestesi
+- Antibiotik golongan aminoglikosida
+- bronkodilator jenis short acting beta agonist
+- obat penurun panas dan pereda nyeri (analgesic dan antipiretik)
+- antibiotik
+- antibiotik sulfonamida
+- Obat antiemetik
+- Obat antijamur jenis azole
+- Anestesi lokal, antiaritmia
+- penisilin
+- bronkodilator jenis short acting beta agonist
+- penisilin
+- analgesik antipiretik
+- antiemetik
+- bronkodilator golongan agonis reseptor β2 adrenergik selektif short acting
+- bronkodilator golongan agonis reseptor β2 adrenergik selektif short acting
+- analgesik (pereda nyeri) dan antipiretik (pereda demam)
+- Antibiotik topikal
 
-stok awal + stok masuk - stok keluar x jumlah perkemasan = stok akhir
-harga perkemasan / jumlah perkemasan = harga per satuan
-
-['nama_satuan' => 'Ampul'], // per satuan
-['nama_satuan' => 'Kapsul'], // perkemasan
-['nama_satuan' => 'Botol'], // per satuan
-['nama_satuan' => 'Box'], // perkemasan
-['nama_satuan' => 'Dus'], // perkemasan
-['nama_satuan' => 'Strip'], // perkemasan
-['nama_satuan' => 'Injek'], // per satuan
-['nama_satuan' => 'Ampul'], // per satuan
-['nama_satuan' => 'Sachet'], // perkemasan
-['nama_satuan' => 'Pcs'], // perkemasan
-['nama_satuan' => 'Bungkus'], //perkemasan
+Nama Obat	Satuan	Keteranngan	Jenis Obat	 Akhir 	 Masuk 	Stok Keluar
 
 
-jika hitungan ada per satuan maka field perkemasan bisa di isi 2, 4, 6, dan 10 pakai select option
-jika hitungan ada perkemasan maka field per satuan di isi 1 dan disable
+buatkan data import obat dengan data kolom seperti ini :
+Nama Obat, Satuan, Keteranngan, Harga Satuan, Harga Perkemasan, Jenis Obat,  Stok Awal, Stok Masuk , Stok Keluar
 
-buatkan hitungan otomatis pada saat input data dan edit data realtime menggunakan alpine.js
-
-list data tabel data obat yang menampilkan field sebagai berikut ini :
-- nama obat
-- Jenis obat
-- satuan obat
-- jumlah perkemasan
-- harga perkemasan
-- harga per satuan
-- Keterangan
-- stok awal
-- stok masuk
-- stok keluar
-- stok akhir
-- Tanggal update
-- aksi (edit dan delete)
-
-Note penting : jangan rubah desain yang sudah ada dan sesuaikan dengan desain yang sudah ada saja
+Analisa file csv ini dan sesuaikan agar bisa di import ke database dengan format kolom seperti diatas
+relasikan data jenis obat dengan tabel jenis obat yang sudah ada di database
+buatkan fitur import mirip seperti di fitur import data diagnosa
