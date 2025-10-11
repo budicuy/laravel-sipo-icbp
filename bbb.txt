@@ -1,101 +1,15 @@
--obat antiinflamasi nonsteroid (NSAID)
-- Herbal
-- mukolitik
-- calcium-channel blockers (CCBs)
-- calcium-channel blockers (CCBs)
-- penisilin
-- antasida
-- antasida
-- obat antiinflamasi nonsteroid (NSAID)
-- antidiare
-- sefalosporin
-- antibiotik sefalosporin
-- antihistamin
-- antibiotik fluoroquinolone
-- Antihistamine
-- kortikosteroid
-- Antidiare
-- Analgesik dan antipiretik, ekspektoran, dekongestan, antitusif, serta antihistamin
-- Antibiotik aminoglikosida
-- Antibiotik aminoglikosida
-- Antibiotik aminoglikosida
-- kombinasi ekspektoran (guaifenesin), antitusif (dextromethorphan), dan antihistamin (diphenhydramine)
-- Plaster Luka
-- Kortikosteroid
-- dekongestan
-- Kasa Steril
-- antasida
-- Antidiabetes
-- kortikosteroid
-- imidazole
-- Obat resep Pil KB
-- no steroid anti inflamasi (NSAID)
-- analgesik (pereda nyeri) dan antipiretik (pereda demam)
-- Antibiotik topikal
-- Analgesik & antipiretik
-- Analgesik & antipiretik
-- analgetik-antipiretik
-- obat penurun panas dan pereda nyeri (analgesic dan antipiretik)
-- obat antiinflamasi nonsteroid (NSAID)
-- antagonis H2 (H2 blocker)
-- bronkodilator golongan agonis reseptor β2 adrenergik selektif short acting
-- bronkodilator golongan agonis reseptor β2 adrenergik selektif short acting
-- aminoglikosida
-- Antispasmodik
-- statin
-- statin
-- Pembalut
-- Suntikan
-- Stick
-- Stick
-- Stick
-- alkilamina antihistamin generasi pertama
-- dekongestan
-- obat antibiotik
-- alat kontrasepsi suntik
-- Asam askorbat / antioksidan
-- antiemetik
-- analgetik-antipiretik, dekongestan
-- antihistamin
-- penghambat pompa proton
-- analgetik-antipiretik, dekongestan
-- agonis adrenoreseptor
-- suplemen
-- analgesik antipiretik
-- analgesik antipiretik
-- alkilamina antihistamin generasi pertama
-- penisilin
-- alkilamina antihistamin generasi pertama
-- Analgesik dan antipiretik, dekongestan, antihistamin, antitusif, serta ekspektoran
-- antidiare
-- antasida
-- kortikosteroid
-- analgetik, antipiretik, dekongestan, antihistamin
-- anestesi
-- Antibiotik golongan aminoglikosida
-- bronkodilator jenis short acting beta agonist
-- obat penurun panas dan pereda nyeri (analgesic dan antipiretik)
-- antibiotik
-- antibiotik sulfonamida
-- Obat antiemetik
-- Obat antijamur jenis azole
-- Anestesi lokal, antiaritmia
-- penisilin
-- bronkodilator jenis short acting beta agonist
-- penisilin
-- analgesik antipiretik
-- antiemetik
-- bronkodilator golongan agonis reseptor β2 adrenergik selektif short acting
-- bronkodilator golongan agonis reseptor β2 adrenergik selektif short acting
-- analgesik (pereda nyeri) dan antipiretik (pereda demam)
-- Antibiotik topikal
+buatkan data import rekam medis dengan data kolom seperti ini :
+Hari / Tgl Periksa,NIK Karyawan, Nama Karyawan, Kode RM, Nama Pasien, Keluhan, Diagnosa, Obat 1, jumlah Obat 1, Obat 2, Qyt, Obat 3, Qyt, Obat 4, Qyt, Obat 5, Qyt, Status
+Contoh sample data:
+Hari / Tgl Periksa  : NIK Karyawan  ;   Nama Karyawan   ;Kode RM    ; Nama Pasien   ;   Keluhan                                 ; Diagnosa              ; Obat 1                ;jumlah Obat 1 ; Obat 2    ; jumlah obat 2; Obat 3    ; jumlah Obat 4 ; Obat 4    ; jumlah Obat 4   ; Obat 5    ; jumlah Obat 5; Status
+01/08/2025	        ; 1200929       ;	Purnomo         ;1200929-A	; Purnomo       ; 	S.Gigi	PPJP	                        ; Natrium Diklofenak 	; Amoxicilin 	        ;1  	    ;           ;           ;     -     ;            ;   -        ;  -            ;   -        ;     -  : Close
+01/08/2025	        ; 50172104      ;	Adam Azhari	    ;50172104-A	; Adam Azhari	:   Batuk,Pilek,S.Tenggorakan	ISPA	    ; -  	                ; Methylprednisolone 	;-          ;Parcetamol ;   1       ; Bodrex    ;   5        ;    -       ;     -         ;    -       ;    -       ; Close
+01/08/2025	        ; 1200337       ;	Suparjo         ;1200337-A	; Suparjo	    :   Pusing	                                ; -	                    ; Amlodipin 5Mg 	    ;-          ;           ;           ;   -       ;     -       ;    -       ;       -       ;     -      ;      -     : On Progres
 
-Nama Obat	Satuan	Keteranngan	Jenis Obat	 Akhir 	 Masuk 	Stok Keluar
-
-
-buatkan data import obat dengan data kolom seperti ini :
-Nama Obat, Satuan, Keteranngan, Harga Satuan, Harga Perkemasan, Jenis Obat,  Stok Awal, Stok Masuk , Stok Keluar
-
-Analisa file csv ini dan sesuaikan agar bisa di import ke database dengan format kolom seperti diatas
-relasikan data jenis obat dengan tabel jenis obat yang sudah ada di database
-buatkan fitur import mirip seperti di fitur import data diagnosa
+sesuaikan agar bisa di import ke database dengan format kolom seperti diatas
+Relasi NIK Karyawan ke tabel karyawan
+Relasi Kode RM ke tabel pasien
+keluhan relasi ke tabel keluhan
+diagnosa relasi ke tabel diagnosa
+Obat 1-5 relasi ke tabel obat
+Status : Close, On Progres

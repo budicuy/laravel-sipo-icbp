@@ -1,0 +1,92 @@
+Nama Obat;Satuan;Keterangan;Harga Satuan;Harga Perkemasan;Jenis Obat;Stok Awal;Stok Masuk;Stok Keluar
+Allopurinol;Tablet;Mengurangi Kadar Asam Urat Berlebih Di Dalam Darah;500;10000;Tablet;145;0;0
+Ambeven;Tablet;"Mengobati Wasir,Ambeien,Atau Hemoroid";300;6000;Tablet;10;100;0
+Ambroxol;Tablet;Mengencerkan Dahak;200;5000;Tablet;0;200;0
+Amlodipin 10Mg;Tablet;Tekanan Darah Tinggi (Hipertensi);800;16000;Tablet;10;200;0
+Amlodipin 5Mg;Tablet;Tekanan Darah Tinggi (Hipertensi);600;12000;Tablet;17;300;0
+Amoxicilin;Tablet;Antibiotik - Infeksi Bakteri;400;8000;Tablet;270;0;0
+Antasida Doen Sirup;Botol;Nyeri Lambung;1500;30000;Sirup;0;25;0
+Antasida Doen Tablet;Tablet;Nyeri Lambung;200;4000;Tablet;48;300;0
+Asam Mefenamat;Tablet;"Meredakan Nyeri Yang Muncul Pada Saat Sakit Gigi,Sakit Kepala,Bahkan Nyeri Haid";250;5000;Tablet;228;200;0
+Attapulgite;Tablet;Obat Untuk Meredakan Diare;150;3000;Tablet;250;0;0
+Cefadroxil;Tablet;"Infeksi Saluran Pernapasan Seperti Bronkitis,Infeksi Kulit,Tulang,Sendi,Saluran Kemih Serta Gonorrhea";600;12000;Tablet;80;0;0
+Cefixme;Tablet;"Mengatasi Infeksi Bakteri Seperti Infeksi Tht,Radang Tenggorokan,Infeksi Darah,Infeksi Tulang,Infeksi Saluran Kemih,Pneumonia,Infeksi Kulit,Sumsung Tulang,Gonore,Dan Infeksi Setelah Melahirkan";800;16000;Tablet;100;0;0
+Cetirizine;Tablet;Mengurangi Gejala Yang Diakibatkan Oleh Reaksi Alergi;300;6000;Tablet;40;300;0
+Cipropluxacin;Tablet;"Antibiotik Untuk Mengatasi Berbagai Penyakit Akibat Infeksi Bakteri,Seperti Pneumonia,Gonore,Infeksi Saluran Kemih,Infeksi Prostat,Atau Infeksi Mata Dan Telinga";1000;20000;Tablet;20;0;0
+CTM;Tablet;"Meredakan Gejala Alergi,Rhinitis Alergi (Hay Fever),Atau Batuk Pilek";200;4000;Tablet;40;100;0
+Dexamethasone;Tablet;"Meredakan Peradangan Pada Beberapa Kondisi,Seperti Reaksi Alergi,Penyakit Autoimun,Atau Radang Sendi";400;8000;Tablet;160;100;0
+Diatabs;Tablet;"Pengobatan Simtomatik Pada Diare Non-Spesifik,Yaitu Diare Yang Tidak Diketahui Penyebabnya Dengan Jelas";250;5000;Tablet;390;200;0
+Flucadex;Tablet;"Obat Yang Bermanfaat Untuk Meredakan Flu Dan Batuk,Baik Batuk Berdahak Maupun Batuk Tidak Berdahak";350;7000;Tablet;80;400;0
+Genoint S.M;Tube;"Obat Untuk Mengatasi Infeksi Bakteri Di Mata Maupun Kelopak Mata,Seperti Konjungtivitis Bakterial Atau Blefaritis";15000;150000;Tetes Mata;10;0;0
+Genoint S.K;Tube;Obat Antibiotik Oles Untuk Mengatasi Infeksi Kulit Akibat Bakteri;10000;100000;Salep / Krim;5;0;0
+Genoint T.M;Botol;Obat Antibiotik Oles Untuk Mengatasi Infeksi Kulit Akibat Bakteri;15000;150000;Salep / Krim;14;0;0
+Grantusif;Tablet;"Meredakan Batuk,Terutama Batuk Berdahak Yang Disertai Alergi";300;6000;Tablet;105;0;0
+Hansaplast;Pcs;Produk Plester Luka Dan Perawatan Luka;2000;20000;Alat Medis / Lainnya;208;0;0
+Hydrocortisone;Tube;"Obat Yang Digunakan Untuk Meredakan Peradangan,Mengurangi Reaksi Sistem Kekebalan Tubuh Yang Berlebihan,Dan Mengatasi Kekurangan Hormon Kortisol";8000;80000;Salep / Krim;20;0;0
+Insto Regular;Botol;"Mengatasi Mata Merah Dan Rasa Perih Di Mata Yang Disebabkan Oleh Iritasi Mata Ringan Karena Debu,Asap,Angin,Atau Air Kolam Renang";12000;120000;Tetes Mata;0;24;0
+Kassa Steril;Pcs;Menutup Luka. Indikasi / Kegunaan. Untuk Menutup Luka. Aturan Pakai. Digunakan Pada Daerah Yang Luka;5000;50000;Alat Medis / Lainnya;160;0;0
+Lansoprazol;Tablet;"Obat Yang Bermanfaat Untuk Mengatasi Keluhan Akibat Peningkatan Asam Lambung,Seperti Sensasi Panas Di Dada,Sakit Perut,Mulut Terasa Asam,Serta Mual Dan Muntah";600;12000;Tablet;0;0;0
+Metformin;Tablet;Mengendalikan Kadar Gula Darah Pada Penderita Diabetes Tipe 2;400;8000;Tablet;80;200;0
+Methylprednisolone;Tablet;"Meredakan Peradangan Pada Berbagai Kondisi,Termasuk Radang Sendi,Radang Usus,Asma,Psoriasis,Lupus,Hingga Multiple Sclerosis";500;10000;Tablet;0;300;0
+Miconazole Cream;Tube;"Mengatasi Infeksi Jamur Di Mulut,Sering Terjadi Pada Pasien Dengan Sistem Kekebalan Tubuh Yang Lemah Atau Pada Bayi";15000;150000;Salep / Krim;13;0;0
+Microgynon;Tablet;Pil Kb Kombinasi Yang Mengandung 2 Hormon Levonogestrel Dan Ettinilestradiol;1000;20000;Tablet;9;70;0
+Natrium Diklofenak;Tablet;"Mengurangi Nyeri Sendi Ringan Hingga Sedang,Serta Meredakan Gejala Arthritis";300;6000;Tablet;130;200;0
+Neurodex;Tablet;Meringankan Rasa Sakit Berat Yang Disebabkan Oleh Peradangan Pada Saraf (Neuritis) Dan Rasa Sakit Pada Jalur Saraf (Neuralgia);400;8000;Tablet;5;300;0
+Octenilin;Tube;Mempercepat Proses Penyembuhan Luka Dan Menurunkan Risiko Terjadinya Infeksi;25000;250000;Salep / Krim;6;0;0
+Panadol Biru;Tablet;"Meredakan Nyeri,Seperti Sakit Kepala,Sakit Gigi,Dan Nyeri Otot,Serta Menurunkan Demam";250;5000;Tablet;5;100;0
+Panadol Extra;Tablet;Menurunkan Demam Dan Meredakan Sakit Kepala Dan Sakit Gigi;300;6000;Tablet;10;200;0
+Paracetamol;Tablet;Obat Yang Digunakan Untuk Meredakan Rasa Sakit Ringan Hingga Sedang Dan Untuk Menurunkan Demam;200;4000;Tablet;0;0;0
+Paracetamol Syrup;Botol;Obat Yang Digunakan Untuk Meredakan Rasa Sakit Ringan Hingga Sedang Dan Untuk Menurunkan Demam;5000;50000;Sirup;0;0;0
+Piroxicam;Tablet;Obat Antiradang Untuk Meredakan Nyeri Sendi Dan Gejala Lain Dari Radang Sendi;400;8000;Tablet;5;100;0
+Ranitidin;Tablet;Obat Untuk Mengobati Gejala Akibat Produksi Asam Lambung Berlebih;350;7000;Tablet;90;200;0
+Salbutamol 2Mg;Tablet;"Meredakan Gejala Asma Dan Gangguan Pernapasan Lainnya,Seperti Bronkitis Dan Chronic Obstructive Pulmonary Disease";300;6000;Tablet;50;0;0
+Salbutamol 4Mg;Tablet;"Mengobati Asma Bronkial,Bronkitis Kronis,Emfisema";400;8000;Tablet;105;0;0
+Salep Mata Genoint;Tube;Antibiotik Untuk Mengatasi Infeksi Mata Yang Disebabkan Oleh Bakteri;20000;200000;Tetes Mata;0;0;0
+Scopma Plus;Tablet;Mengurangi Kram Perut Karena Menstruasi;300;6000;Tablet;40;100;0
+Simvastatin 10;Tablet;Mengobati Kolesterol Tinggi Dan Mengurangi Risiko Serangan Jantung Dan Stroke;600;12000;Tablet;55;300;0
+Simvastatin 20;Tablet;Mengobati Kolesterol Tinggi Dan Mengurangi Risiko Serangan Jantung Dan Stroke;800;16000;Tablet;0;0;0
+Softex;Pcs;Pembalut (Saat Menstruasi) Atau Pantyliner;10000;100000;Alat Medis / Lainnya;28;44;0
+Spuit 3 Cc;Pcs;Menyuntikkan Berbagai Jenis Obat Ke Dalam Tubuh Pasien;5000;50000;Alat Medis / Lainnya;21;0;0
+Stic Glukosa;Pcs;Mengukur Kadar Glukosa Atau Gula Dalam Darah Secara Cepat Dan Akurat;15000;150000;Alat Medis / Lainnya;4;25;0
+Stik Asam Urat;Pcs;Untuk Mengukur Kadar Asam Urat Dalam Darah;15000;150000;Alat Medis / Lainnya;19;25;0
+Stik Kolesterol;Pcs;Untuk Kadar Kolesterol Dalam Darah Secara Cepat Dan Praktis;15000;150000;Alat Medis / Lainnya;2;10;0
+Ternix Hijau;Botol;Obat Yang Digunakan Untuk Meringankan Gejala Pilek Dan Flu;8000;80000;Sirup;0;0;0
+Ternix Plus (Merah);Botol;"Mengobati Gejala Flu Seperti Demam,Sakit Kepala,Hidung Tersumbat,Dan Bersin-Bersin Yang Disertai Batuk Berdahak";10000;100000;Sirup;0;0;0
+Tetes Telinga;Botol;"Obat Cair Yang Digunakan Untuk Mengatasi Nyeri,Infeksi,Peradangan,Atau Kotoran Telinga Yang Menyumbat";12000;120000;Tetes Telinga;5;0;0
+Triclofem;Ampul;Obat Kontrasepsi Jangka Panjang Untuk Mencegah Kehamilan;50000;500000;Inhaler / Suntik / Cairan;11;0;0
+Vit C;Tablet;Asam Askorbat Juga Digunakan Untuk Mencegah Dan Mengobati Penyakit Kudis;200;4000;Tablet;0;300;0
+Vesprum;Tablet;Mengatasi mual dan muntah;300;6000;Tablet;0;0;0
+Brochifar;Tablet;"meredakan gejala flu seperti demam,sakit kepala,hidung tersumbat,bersin-bersin yang disertai batuk kering";250;5000;Tablet;0;0;0
+Corizine;Tablet;mengobati gejala alergi;350;7000;Tablet;0;0;0
+Dobrizol;Tablet;mengatasi asam lambung;400;8000;Tablet;90;200;0
+Flutamol;Tablet;"meredakan gejala flu seperti demam,sakit kepala,hidung tersumbat,bersin-bersin yang disertai batuk kering";250;5000;Tablet;0;0;0
+Bnachosal;Tablet;mengobati penyakit asma karena alergi tertentu;500;10000;Tablet;0;0;0
+Zink Tab;Tablet;terapi pelengkap mengatasi diare akut pada anak;300;6000;Tablet;5;100;0
+Fasidol;Tablet;"mengatasi demam dan sebagai perda nyeri seperti sakit kepala,sakit gigi dan nyeri ringan lainnya";200;4000;Tablet;0;400;0
+Mirasic;Tablet;"meredakan nyeri ringan hingga sedang,seperti nyeri kepala,nyeri otot,nyeri sendi,sakit gigi,serta untuk menurunkan demam yang menyertai berbagai kondisi";250;5000;Tablet;0;0;0
+Lodecon;Tablet;"mengatasi gejala flu seperti demam,sakit kepala,hidung tersumbat,bersin-bersin disertai batuk tidak berdahak";300;6000;Tablet;0;0;0
+Ampicilin;Tablet;"mengatasi infeksi bakteri pada berbagai bagian tubuh,seperti saluran pernapasan,saluran pencernaan,saluran kemih,kelamin,telinga,dan jantung";350;7000;Tablet;0;0;0
+Anaton;Tablet;"mengobati gejala flu,seperti demam,sakit kepala,hidung tersumbat,dan juga bersin-bersin disertai batuk";250;5000;Tablet;0;0;0
+Decolgen;Tablet;"meredakan batuk yang disertai gejala flu seperti demam,sakit kepala,hidung tersumbat,dan bersin";300;6000;Tablet;0;0;0
+Loperamide;Tablet;meredakan diare;200;4000;Tablet;0;0;0
+Hufamag;Tablet;"mengatasi gangguan pada saluran pencernaan seperti gastritis,perut kembung,maag,dispepsia,hiatus hernia,tukak lambung dan tukak usus duabelas jari";400;8000;Tablet;0;0;0
+Predneson;Tablet;"membantu meredakan peradangan pada beberapa kondisi,seperti alergi,penyakit autoimun,radang sendi,atau dermatitis kontak";450;9000;Tablet;0;0;0
+Coparcetin Syrup;Botol;"mengobati gejal influenza seperti demam,sakit kepala,hidung tersumbat,dan bersin-bersin";9000;90000;Sirup;15;0;0
+Pehacain;Ampul;untuk memberikan analgesia lokal dalam berbagai prosedur medis;25000;250000;Inhaler / Suntik / Cairan;5;0;0
+Gentamicin;Tube;mengobati infeksi pada kulit yang disebabkan oleh bakteri;12000;120000;Salep / Krim;10;0;0
+Ventasal Inject;Ampul;"meredakan gejala asma dan gangguan pernapasan lainnya,seperti bronkitis dan chronic obstructive pulmonary disease";30000;300000;Inhaler / Suntik / Cairan;4;0;0
+Fasidol;Botol;"Menurunkan demam,Meredakan nyeri ringan hingga sedang,seperti sakit kepala,sakit gigi,dan nyeri otot";9000;90000;Sirup;4;0;0
+Flutop;Botol;"meringankan gejala flu seperti demam,sakit kepala,bersin,hidung tersumbat dan batuk";10000;100000;Sirup;0;24;0
+Cotrimoxazole;Tablet;"mengobati penyakit akibat infeksi bakteri,seperti bronkitis,infeksi pada telinga bagian tengah,dan infeksi saluran kemih";500;10000;Tablet;0;100;0
+Vosea;Tablet;"meredakan mual dan muntah yang disebabkan oleh beberapa kondisi seperti pasca operasi,selepas kemoterapi dan radiologi,serta muntah akibat migrain,GERD atau komplikasi diabetes";400;8000;Tablet;0;200;0
+Ketoconazole;Tube;mengatasi infeksi jamur yang menyerang organ dalam tubuh atau infeksi jamur sistemik;18000;180000;Salep / Krim;0;0;0
+Lidocaine;Ampul;obat bius lokal untuk menghilangkan rasa sakit atau memberi efek mati rasa pada bagian tubuh tertentu;20000;200000;Inhaler / Suntik / Cairan;0;0;0
+Yusimox;Tablet;Antibiotik - Infeksi Bakteri;350;7000;Tablet;0;0;0
+Salbutamol Inject;Ampul;"meredakan gejala asma dan gangguan pernapasan lainnya,seperti bronkitis dan chronic obstructive pulmonary disease";25000;250000;Inhaler / Suntik / Cairan;0;0;0
+Novamex;Tablet;"mengatasi infeksi bakteri pada berbagai bagian tubuh,seperti saluran pernapasan,saluran pencernaan,saluran kemih,kelamin,telinga,dan jantung";400;8000;Tablet;0;0;0
+Paracetamol;Tablet;"mengatasi demam dan sebagai perda nyeri seperti sakit kepala,sakit gigi dan nyeri ringan lainnya";200;4000;Tablet;0;0;0
+Nilatika;Tablet;Mengatasi mual dan muntah;350;7000;Tablet;0;0;0
+Grafalin 2 mg;Tablet;Meredakan Gejala Asma Dan Gangguan Pernapasan Lainnya;400;8000;Tablet;0;0;0
+Grafalin 4 mg;Tablet;Meredakan Gejala Asma Dan Gangguan Pernapasan Lainnya;500;10000;Tablet;0;0;0
+Neuropyron;Tablet;Meringankan Rasa Sakit Berat Yang Disebabkan Oleh Peradangan Pada Saraf Dan Rasa Sakit Pada Jalur Saraf;450;9000;Tablet;0;0;0
+Bioplacenton;Tube;Mempercepat Proses Penyembuhan Luka Dan Menurunkan Risiko Terjadinya Infeksi;30000;300000;Salep / Krim;0;0;0
