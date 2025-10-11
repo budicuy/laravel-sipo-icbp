@@ -51,13 +51,15 @@ class LaporanController extends Controller
      */
     private function getChartPemeriksaan($tahun)
     {
-        // Using Eloquent with selectRaw instead of DB::raw for better compatibility
-        $data = RekamMedis::selectRaw('MONTH(tanggal_periksa) as bulan, COUNT(*) as jumlah')
-            ->whereYear('tanggal_periksa', $tahun)
-            ->groupByRaw('MONTH(tanggal_periksa)')
-            ->orderByRaw('MONTH(tanggal_periksa)')
-            ->pluck('jumlah', 'bulan')
-            ->toArray();
+        // Using Laravel's whereMonth() for database compatibility
+        $data = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $count = RekamMedis::whereMonth('tanggal_periksa', $i)
+                ->whereYear('tanggal_periksa', $tahun)
+                ->count();
+            $data[$i] = $count;
+        }
 
         // Format data untuk chart (12 bulan)
         $chartData = [];
