@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Obat;
 use App\Models\JenisObat;
 use App\Models\SatuanObat;
+use App\Models\StokBulanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -104,9 +106,6 @@ class ObatController extends Controller
             'keterangan' => 'nullable|string',
             'id_jenis_obat' => 'required|exists:jenis_obat,id_jenis_obat',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
-            'stok_awal' => 'required|integer|min:0',
-            'stok_masuk' => 'required|integer|min:0',
-            'stok_keluar' => 'required|integer|min:0',
             'jumlah_per_kemasan' => 'required|integer|min:1',
             'harga_per_kemasan' => 'required|numeric|min:0',
             'harga_per_satuan' => 'required|numeric|min:0',
@@ -115,9 +114,6 @@ class ObatController extends Controller
             'nama_obat.unique' => 'Nama obat sudah terdaftar',
             'id_jenis_obat.required' => 'Jenis obat wajib dipilih',
             'id_satuan.required' => 'Satuan obat wajib dipilih',
-            'stok_awal.required' => 'Stok awal wajib diisi',
-            'stok_masuk.required' => 'Stok masuk wajib diisi',
-            'stok_keluar.required' => 'Stok keluar wajib diisi',
             'jumlah_per_kemasan.required' => 'Jumlah per kemasan wajib diisi',
             'harga_per_kemasan.required' => 'Harga per kemasan wajib diisi',
             'harga_per_satuan.required' => 'Harga per satuan wajib diisi',
@@ -153,9 +149,6 @@ class ObatController extends Controller
             'keterangan' => 'nullable|string',
             'id_jenis_obat' => 'required|exists:jenis_obat,id_jenis_obat',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
-            'stok_awal' => 'required|integer|min:0',
-            'stok_masuk' => 'required|integer|min:0',
-            'stok_keluar' => 'required|integer|min:0',
             'jumlah_per_kemasan' => 'required|integer|min:1',
             'harga_per_kemasan' => 'required|numeric|min:0',
             'harga_per_satuan' => 'required|numeric|min:0',
@@ -164,9 +157,6 @@ class ObatController extends Controller
             'nama_obat.unique' => 'Nama obat sudah terdaftar',
             'id_jenis_obat.required' => 'Jenis obat wajib dipilih',
             'id_satuan.required' => 'Satuan obat wajib dipilih',
-            'stok_awal.required' => 'Stok awal wajib diisi',
-            'stok_masuk.required' => 'Stok masuk wajib diisi',
-            'stok_keluar.required' => 'Stok keluar wajib diisi',
             'jumlah_per_kemasan.required' => 'Jumlah per kemasan wajib diisi',
             'harga_per_kemasan.required' => 'Harga per kemasan wajib diisi',
             'harga_per_satuan.required' => 'Harga per satuan wajib diisi',
@@ -224,7 +214,7 @@ class ObatController extends Controller
             ->setDescription('Template untuk import data obat');
 
         // Header columns
-        $headers = ['Nama Obat', 'Satuan', 'Keterangan', 'Harga Satuan', 'Harga Perkemasan', 'Jenis Obat', 'Stok Awal', 'Stok Masuk', 'Stok Keluar'];
+        $headers = ['Nama Obat', 'Satuan', 'Keterangan', 'Harga Satuan', 'Harga Perkemasan', 'Jenis Obat'];
         $column = 'A';
 
         foreach ($headers as $header) {
@@ -255,7 +245,7 @@ class ObatController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A1:I1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
 
         // Get reference data for dropdowns
         $jenisObats = JenisObat::pluck('nama_jenis_obat')->toArray();
@@ -268,9 +258,6 @@ class ObatController extends Controller
         $sheet->setCellValue('D2', '500');
         $sheet->setCellValue('E2', '10000');
         $sheet->setCellValue('F2', 'Tablet');
-        $sheet->setCellValue('G2', '100');
-        $sheet->setCellValue('H2', '50');
-        $sheet->setCellValue('I2', '10');
 
         // Style sample data
         $dataStyle = [
@@ -285,7 +272,7 @@ class ObatController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A2:I2')->applyFromArray($dataStyle);
+        $sheet->getStyle('A2:F2')->applyFromArray($dataStyle);
 
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(30);
@@ -294,9 +281,6 @@ class ObatController extends Controller
         $sheet->getColumnDimension('D')->setWidth(15);
         $sheet->getColumnDimension('E')->setWidth(18);
         $sheet->getColumnDimension('F')->setWidth(20);
-        $sheet->getColumnDimension('G')->setWidth(12);
-        $sheet->getColumnDimension('H')->setWidth(12);
-        $sheet->getColumnDimension('I')->setWidth(12);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -363,9 +347,6 @@ class ObatController extends Controller
                 $hargaSatuan = trim($sheet->getCell('D' . $rowNumber)->getValue() ?? '');
                 $hargaPerkemasan = trim($sheet->getCell('E' . $rowNumber)->getValue() ?? '');
                 $jenisObat = trim($sheet->getCell('F' . $rowNumber)->getValue() ?? '');
-                $stokAwal = trim($sheet->getCell('G' . $rowNumber)->getValue() ?? '');
-                $stokMasuk = trim($sheet->getCell('H' . $rowNumber)->getValue() ?? '');
-                $stokKeluar = trim($sheet->getCell('I' . $rowNumber)->getValue() ?? '');
 
                 // Skip empty rows
                 if (empty($namaObat)) {
@@ -409,12 +390,6 @@ class ObatController extends Controller
                 // Validate and convert numeric fields
                 $hargaSatuan = is_numeric($hargaSatuan) ? (float)$hargaSatuan : 0;
                 $hargaPerkemasan = is_numeric($hargaPerkemasan) ? (float)$hargaPerkemasan : 0;
-                $stokAwal = is_numeric($stokAwal) ? (int)$stokAwal : 0;
-                $stokMasuk = is_numeric($stokMasuk) ? (int)$stokMasuk : 0;
-                $stokKeluar = is_numeric($stokKeluar) ? (int)$stokKeluar : 0;
-
-                // Calculate stok akhir
-                $stokAkhir = $stokAwal + $stokMasuk - $stokKeluar;
 
                 // Prepare data
                 $data = [
@@ -422,10 +397,6 @@ class ObatController extends Controller
                     'keterangan' => !empty($keterangan) ? $keterangan : null,
                     'id_jenis_obat' => $jenisObatNames[$jenisObat],
                     'id_satuan' => $satuanObatNames[$satuan],
-                    'stok_awal' => $stokAwal,
-                    'stok_masuk' => $stokMasuk,
-                    'stok_keluar' => $stokKeluar,
-                    'stok_akhir' => $stokAkhir,
                     'harga_per_satuan' => $hargaSatuan,
                     'harga_per_kemasan' => $hargaPerkemasan,
                     'jumlah_per_kemasan' => 1, // Default value
@@ -496,5 +467,232 @@ class ObatController extends Controller
 
             return back()->with('error', 'Gagal import data: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Import data stok bulanan dari CSV
+     */
+    public function importStokBulanan(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,xlsx,xls'],
+        ], [
+            'file.required' => 'File harus dipilih',
+            'file.mimes' => 'File harus berformat CSV atau Excel (.csv, .xlsx, .xls)',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+
+            // Get highest row number
+            $highestRow = $sheet->getHighestRow();
+            $highestColumn = $sheet->getHighestColumn();
+
+            // Parse header untuk mendapatkan periode
+            $headerRow = $sheet->rangeToArray('A1:' . $highestColumn . '1', NULL, TRUE, FALSE)[0];
+            $periodes = [];
+
+            // Ekstrak periode dari header (format: MM-YY)
+            for ($i = 5; $i < count($headerRow); $i += 4) {
+                if (isset($headerRow[$i]) && preg_match('/(\d{2}-\d{2})/', $headerRow[$i], $matches)) {
+                    $periodes[] = $matches[1];
+                }
+            }
+
+            // Get reference data
+            $obats = Obat::pluck('id_obat', 'nama_obat')->toArray();
+
+            // Process data
+            $successCount = 0;
+            $errorCount = 0;
+            $errors = [];
+
+            // Start transaction
+            DB::beginTransaction();
+
+            try {
+                // Skip header rows, start from row 3
+                for ($rowNumber = 3; $rowNumber <= $highestRow; $rowNumber++) {
+                    $rowData = $sheet->rangeToArray('A' . $rowNumber . ':' . $highestColumn . $rowNumber, NULL, TRUE, FALSE)[0];
+
+                    // Get nama obat dari kolom B
+                    $namaObat = trim($rowData[1] ?? '');
+
+                    if (empty($namaObat)) {
+                        continue; // Skip empty rows
+                    }
+
+                    // Check if obat exists
+                    if (!isset($obats[$namaObat])) {
+                        $errors[] = "Baris $rowNumber: Obat '$namaObat' tidak ditemukan di database";
+                        $errorCount++;
+                        continue;
+                    }
+
+                    $idObat = $obats[$namaObat];
+
+                    // Process each periode
+                    $colIndex = 5; // Start from column F (index 5)
+                    foreach ($periodes as $periode) {
+                        if ($colIndex + 3 < count($rowData)) {
+                            $stokAwal = $this->parseStokValue($rowData[$colIndex] ?? 0);
+                            $stokPakai = $this->parseStokValue($rowData[$colIndex + 1] ?? 0);
+                            $stokAkhir = $this->parseStokValue($rowData[$colIndex + 2] ?? 0);
+                            $stokMasuk = $this->parseStokValue($rowData[$colIndex + 3] ?? 0);
+
+                            // Insert or update stok bulanan
+                            StokBulanan::updateOrCreate(
+                                [
+                                    'id_obat' => $idObat,
+                                    'periode' => $periode,
+                                ],
+                                [
+                                    'stok_awal' => $stokAwal,
+                                    'stok_pakai' => $stokPakai,
+                                    'stok_akhir' => $stokAkhir,
+                                    'stok_masuk' => $stokMasuk,
+                                ]
+                            );
+                        }
+                        $colIndex += 4;
+                    }
+                    $successCount++;
+                }
+
+                DB::commit();
+
+                $message = "Import stok bulanan selesai: $successCount data berhasil diproses";
+                if ($errorCount > 0) {
+                    $message .= ", $errorCount data gagal";
+                    if (!empty($errors)) {
+                        $message .= ". Error: " . implode(', ', array_slice($errors, 0, 5));
+                        if (count($errors) > 5) {
+                            $message .= ' ... dan ' . (count($errors) - 5) . ' error lainnya';
+                        }
+                    }
+                }
+
+                return back()->with('success', $message);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error importing stok bulanan: ' . $e->getMessage());
+            return back()->with('error', 'Gagal import data stok bulanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Parse nilai stok dari CSV
+     */
+    private function parseStokValue($value)
+    {
+        // Handle nilai dengan tanda kurung (60) = -60
+        if (is_string($value) && preg_match('/^\((\d+)\)$/', $value, $matches)) {
+            return -(int)$matches[1];
+        }
+
+        // Handle nilai dengan titik atau koma
+        $value = str_replace(['.', ','], '', $value);
+
+        // Handle nilai "-" atau kosong
+        if ($value === '-' || $value === '' || $value === null) {
+            return 0;
+        }
+
+        return (int)$value;
+    }
+
+    /**
+     * Download template untuk import stok bulanan
+     */
+    public function downloadTemplateStokBulanan()
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Template Import Stok Bulanan');
+
+        // Set document properties
+        $spreadsheet->getProperties()
+            ->setCreator('SIPO ICBP')
+            ->setTitle('Template Import Stok Bulanan')
+            ->setSubject('Template Import Stok Bulanan')
+            ->setDescription('Template untuk import data stok bulanan');
+
+        // Header columns
+        $headers = [
+            'No', 'Nama Obat', 'Satuan', 'Kegunaan', 'Jenis / Golongan Obat',
+            '08-24 Awal', '08-24 Pakai', '08-24 Akhir', '08-24 Masuk',
+            '09-24 Awal', '09-24 Pakai', '09-24 Akhir', '09-24 Masuk',
+            '10-24 Awal', '10-24 Pakai', '10-24 Akhir', '10-24 Masuk'
+        ];
+
+        $column = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($column . '1', $header);
+            $column++;
+        }
+
+        // Style header
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '059669']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+        ];
+
+        $sheet->getStyle('A1:P1')->applyFromArray($headerStyle);
+
+        // Get sample data
+        $obats = Obat::with(['jenisObat', 'satuanObat'])->limit(3)->get();
+
+        $row = 2;
+        foreach ($obats as $index => $obat) {
+            $sheet->setCellValue('A' . $row, $index + 1);
+            $sheet->setCellValue('B' . $row, $obat->nama_obat);
+            $sheet->setCellValue('C' . $row, $obat->satuanObat->nama_satuan ?? '');
+            $sheet->setCellValue('D' . $row, $obat->keterangan ?? '');
+            $sheet->setCellValue('E' . $row, $obat->jenisObat->nama_jenis_obat ?? '');
+
+            // Sample stok data
+            $sheet->setCellValue('F' . $row, $obat->stok_awal);
+            $sheet->setCellValue('G' . $row, $obat->stok_keluar);
+            $sheet->setCellValue('H' . $row, $obat->stok_akhir);
+            $sheet->setCellValue('I' . $row, $obat->stok_masuk);
+
+            $row++;
+        }
+
+        // Set column widths
+        foreach (range('A', 'P') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        }
+
+        // Add notes
+        $sheet->setCellValue('A' . ($row + 2), 'CATATAN:');
+        $sheet->setCellValue('A' . ($row + 3), '• Format file: CSV atau Excel (.xlsx, .xls)');
+        $sheet->setCellValue('A' . ($row + 4), '• Nama Obat harus sesuai dengan data di database');
+        $sheet->setCellValue('A' . ($row + 5), '• Format periode: MM-YY (contoh: 08-24 untuk Agustus 2024)');
+        $sheet->setCellValue('A' . ($row + 6), '• Nilai stok dalam format angka, gunakan - untuk nilai kosong');
+        $sheet->setCellValue('A' . ($row + 7), '• Untuk nilai negatif, gunakan format (60) = -60');
+
+        $sheet->getStyle('A' . ($row + 2))->getFont()->setBold(true);
+        $sheet->getStyle('A' . ($row + 3) . ':A' . ($row + 7))->getFont()->setItalic(true)->setSize(10);
+
+        // Create Excel file
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'template_stok_bulanan_' . date('Y-m-d') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
     }
 }

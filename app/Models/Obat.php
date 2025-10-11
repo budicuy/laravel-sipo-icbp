@@ -15,10 +15,6 @@ class Obat extends Model
         'keterangan',
         'id_jenis_obat',
         'id_satuan',
-        'stok_awal',
-        'stok_masuk',
-        'stok_keluar',
-        'stok_akhir',
         'jumlah_per_kemasan',
         'harga_per_satuan',
         'harga_per_kemasan',
@@ -26,10 +22,6 @@ class Obat extends Model
     ];
 
     protected $casts = [
-        'stok_awal' => 'integer',
-        'stok_masuk' => 'integer',
-        'stok_keluar' => 'integer',
-        'stok_akhir' => 'integer',
         'jumlah_per_kemasan' => 'integer',
         'harga_per_satuan' => 'decimal:2',
         'harga_per_kemasan' => 'decimal:2',
@@ -63,15 +55,18 @@ class Obat extends Model
         return $this->hasMany(Keluhan::class, 'id_obat', 'id_obat');
     }
 
-    // Auto-calculate stok_akhir before saving
+    // Relasi ke Stok Bulanan
+    public function stokBulanans()
+    {
+        return $this->hasMany(StokBulanan::class, 'id_obat', 'id_obat');
+    }
+
+    // Auto-update tanggal_update before saving
     protected static function boot()
     {
         parent::boot();
 
         static::saving(function ($obat) {
-            // Calculate stok_akhir: (stok_awal + stok_masuk - stok_keluar)
-            $obat->stok_akhir = ($obat->stok_awal ?? 0) + ($obat->stok_masuk ?? 0) - ($obat->stok_keluar ?? 0);
-
             // Update tanggal_update
             $obat->tanggal_update = now();
         });

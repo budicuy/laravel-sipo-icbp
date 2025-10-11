@@ -1,20 +1,20 @@
 @extends('layouts.app')
 
-@section('page-title', 'Data Obat')
+@section('page-title', 'Stok Bulanan')
 
 @section('content')
 <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Header Section -->
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-lg shadow-lg">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
             </div>
-            Data Obat
+            Data Stok Bulanan
         </h1>
-        <p class="text-gray-600 mt-2 ml-1">Manajemen data obat dan persediaan farmasi</p>
+        <p class="text-gray-600 mt-2 ml-1">Monitor data stok obat per periode bulanan</p>
     </div>
 
     <!-- Success Message -->
@@ -37,29 +37,28 @@
     <!-- Main Card -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <!-- Action Buttons Section -->
-        <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-green-50">
+        <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-purple-50">
             <div class="flex flex-wrap gap-3 items-center">
-                <a href="{{ route('obat.create') }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <a href="{{ route('obat.downloadTemplateStokBulanan') }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Tambah Obat
+                    Template Import
                 </a>
 
-
-                <button type="button" onclick="openImportModal()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <button type="button" onclick="openImportModal()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
-                    Import Excel
+                    Import Data
                 </button>
 
-                <button type="button" onclick="openImportStokBulananModal()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <a href="{{ route('stok-bulanan.export', request()->query()) }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Import Stok Bulanan
-                </button>
+                    Export Excel
+                </a>
 
                 <button type="button" onclick="submitBulkDelete()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,55 +70,89 @@
         </div>
 
         <!-- Filter Section -->
-        <div class="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+        <div class="p-6 bg-gradient-to-r from-purple-50 to-indigo-50 border-b border-gray-200">
             <div class="flex items-center gap-2 mb-4">
-                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
                 <h3 class="text-sm font-semibold text-gray-800">Filter & Pencarian</h3>
             </div>
 
-            <form method="GET" class="flex flex-wrap gap-4 items-end">
+            <form method="GET" action="{{ route('stok-bulanan.index') }}" class="flex flex-wrap gap-4 items-end">
+                <div class="min-w-[150px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode</label>
+                    <select name="periode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
+                        <option value="">Semua Periode</option>
+                        @foreach($availablePeriodes as $periode)
+                            <option value="{{ $periode['value'] }}" {{ request('periode') == $periode['value'] ? 'selected' : '' }}>
+                                {{ $periode['label'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="min-w-[150px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode Awal</label>
+                    <input type="month" name="periode_start" value="{{ request('periode_start') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
+                </div>
+
+                <div class="min-w-[150px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode Akhir</label>
+                    <input type="month" name="periode_end" value="{{ request('periode_end') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
+                </div>
+
                 <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari Nama Obat</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Obat</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <input type="text" name="search" value="{{ request('search') }}" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Masukkan nama obat...">
+                        <input type="text" name="obat" value="{{ request('obat') }}" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm" placeholder="Cari nama obat...">
                     </div>
                 </div>
 
                 <div class="min-w-[150px]">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Obat</label>
-                    <select name="jenis_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
+                    <select name="jenis_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
                         <option value="">Semua Jenis</option>
                         @foreach($jenisObats as $jenis)
-                            <option value="{{ $jenis->id_jenis_obat }}" {{ request('jenis_obat') == $jenis->id_jenis_obat ? 'selected' : '' }}>{{ $jenis->nama_jenis_obat }}</option>
+                            <option value="{{ $jenis->id_jenis_obat }}" {{ request('jenis_obat') == $jenis->id_jenis_obat ? 'selected' : '' }}>
+                                {{ $jenis->nama_jenis_obat }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
 
                 <div class="min-w-[150px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Satuan Obat</label>
-                    <select name="satuan_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
-                        <option value="">Semua Satuan</option>
-                        @foreach($satuanObats as $satuan)
-                            <option value="{{ $satuan->id_satuan }}" {{ request('satuan_obat') == $satuan->id_satuan ? 'selected' : '' }}>{{ $satuan->nama_satuan }}</option>
-                        @endforeach
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Stok</label>
+                    <select name="stok_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
+                        <option value="">Semua Status</option>
+                        <option value="habis" {{ request('stok_status') == 'habis' ? 'selected' : '' }}>Habis (≤ 0)</option>
+                        <option value="rendah" {{ request('stok_status') == 'rendah' ? 'selected' : '' }}>Rendah (1-10)</option>
+                        <option value="tersedia" {{ request('stok_status') == 'tersedia' ? 'selected' : '' }}>Tersedia (> 10)</option>
+                    </select>
+                </div>
+
+                <div class="min-w-[120px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Data per Halaman</label>
+                    <select name="per_page" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
+                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                        <option value="150" {{ request('per_page') == 150 ? 'selected' : '' }}>150</option>
+                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
                     </select>
                 </div>
 
                 <div class="flex gap-2">
-                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                         <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                         Filter
                     </button>
-                    <a href="{{ route('obat.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">Reset</a>
+                    <a href="{{ route('stok-bulanan.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">Reset</a>
                 </div>
             </form>
         </div>
@@ -127,28 +160,11 @@
         <!-- Table Controls -->
         <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
             <div class="flex items-center gap-3">
-                <label class="text-sm font-medium text-gray-700">Tampilkan</label>
-                <form method="GET" id="perPageForm" class="inline">
-                    @if(request('search'))
-                        <input type="hidden" name="search" value="{{ request('search') }}">
-                    @endif
-                    @if(request('jenis_obat'))
-                        <input type="hidden" name="jenis_obat" value="{{ request('jenis_obat') }}">
-                    @endif
-                    @if(request('satuan_obat'))
-                        <input type="hidden" name="satuan_obat" value="{{ request('satuan_obat') }}">
-                    @endif
-                    <select name="per_page" onchange="document.getElementById('perPageForm').submit()" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
-                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                        <option value="150" {{ request('per_page') == 150 ? 'selected' : '' }}>150</option>
-                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
-                    </select>
-                </form>
-                <span class="text-sm font-medium text-gray-700">data per halaman</span>
+                <label class="text-sm font-medium text-gray-700">Terpilih:</label>
+                <span id="selectedCount" class="text-sm font-semibold text-purple-600">0 data</span>
             </div>
             <div class="text-sm text-gray-600">
-                Total: <span class="font-semibold text-gray-900">{{ $obats->total() }}</span> obat
+                Total: <span class="font-semibold text-gray-900">{{ $stokBulanans->total() }}</span> data stok
             </div>
         </div>
 
@@ -156,14 +172,13 @@
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
-                    <tr class="bg-gradient-to-r from-green-700 to-emerald-700">
+                    <tr class="bg-gradient-to-r from-purple-700 to-indigo-700">
                         <th class="px-4 py-4 text-left">
-                            <input type="checkbox" onclick="toggleAll(this)" class="rounded border-gray-400 text-green-600 focus:ring-2 focus:ring-green-500">
+                            <input type="checkbox" onclick="toggleAll(this)" class="rounded border-gray-400 text-purple-600 focus:ring-2 focus:ring-purple-500">
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No</th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nama_obat', 'direction' => (request('sort') == 'nama_obat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
+                            <a href="{{ route('stok-bulanan.index', array_merge(request()->query(), ['sort' => 'nama_obat', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-between group hover:text-purple-300 transition-colors">
                                 <span>Nama Obat</span>
                                 <span class="ml-2">
                                     @if(request('sort') == 'nama_obat')
@@ -184,9 +199,9 @@
                                 </span>
                             </a>
                         </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Satuan</th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'jenis_obat', 'direction' => (request('sort') == 'jenis_obat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
+                            <a href="{{ route('stok-bulanan.index', array_merge(request()->query(), ['sort' => 'jenis_obat', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-between group hover:text-purple-300 transition-colors">
                                 <span>Jenis Obat</span>
                                 <span class="ml-2">
                                     @if(request('sort') == 'jenis_obat')
@@ -208,11 +223,10 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'satuan_obat', 'direction' => (request('sort') == 'satuan_obat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
-                                <span>Satuan</span>
+                            <a href="{{ route('stok-bulanan.index', array_merge(request()->query(), ['sort' => 'periode', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-between group hover:text-purple-300 transition-colors">
+                                <span>Periode</span>
                                 <span class="ml-2">
-                                    @if(request('sort') == 'satuan_obat')
+                                    @if(request('sort') == 'periode')
                                         @if(request('direction') == 'asc')
                                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
@@ -231,11 +245,10 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'jumlah_per_kemasan', 'direction' => (request('sort') == 'jumlah_per_kemasan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-center group hover:text-green-300 transition-colors">
-                                <span>Jml/Kemasan</span>
+                            <a href="{{ route('stok-bulanan.index', array_merge(request()->query(), ['sort' => 'stok_awal', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
+                                <span>Stok Awal</span>
                                 <span class="ml-2">
-                                    @if(request('sort') == 'jumlah_per_kemasan')
+                                    @if(request('sort') == 'stok_awal')
                                         @if(request('direction') == 'asc')
                                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
@@ -253,12 +266,11 @@
                                 </span>
                             </a>
                         </th>
-                        <th class="px-4 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'harga_per_kemasan', 'direction' => (request('sort') == 'harga_per_kemasan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
-                                <span>Harga/Kemasan</span>
+                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('stok-bulanan.index', array_merge(request()->query(), ['sort' => 'stok_pakai', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
+                                <span>Stok Pakai</span>
                                 <span class="ml-2">
-                                    @if(request('sort') == 'harga_per_kemasan')
+                                    @if(request('sort') == 'stok_pakai')
                                         @if(request('direction') == 'asc')
                                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
@@ -276,12 +288,11 @@
                                 </span>
                             </a>
                         </th>
-                        <th class="px-4 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'harga_per_satuan', 'direction' => (request('sort') == 'harga_per_satuan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
-                                <span>Harga/Satuan</span>
+                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('stok-bulanan.index', array_merge(request()->query(), ['sort' => 'stok_masuk', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
+                                <span>Stok Masuk</span>
                                 <span class="ml-2">
-                                    @if(request('sort') == 'harga_per_satuan')
+                                    @if(request('sort') == 'stok_masuk')
                                         @if(request('direction') == 'asc')
                                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
@@ -299,35 +310,11 @@
                                 </span>
                             </a>
                         </th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'keterangan', 'direction' => (request('sort') == 'keterangan' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
-                                <span>Keterangan</span>
+                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('stok-bulanan.index', array_merge(request()->query(), ['sort' => 'stok_akhir', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
+                                <span>Stok Akhir</span>
                                 <span class="ml-2">
-                                    @if(request('sort') == 'keterangan')
-                                        @if(request('direction') == 'asc')
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                                            </svg>
-                                        @else
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                            </svg>
-                                        @endif
-                                    @else
-                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-                                        </svg>
-                                    @endif
-                                </span>
-                            </a>
-                        </th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'tanggal_update', 'direction' => (request('sort') == 'tanggal_update' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
-                                <span>Tanggal Update</span>
-                                <span class="ml-2">
-                                    @if(request('sort') == 'tanggal_update')
+                                    @if(request('sort') == 'stok_akhir')
                                         @if(request('direction') == 'asc')
                                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
@@ -349,40 +336,38 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($obats as $index => $obat)
-                        <tr class="hover:bg-green-50 transition-colors">
+                    @forelse($stokBulanans as $index => $stok)
+                        <tr class="hover:bg-purple-50 transition-colors {{ $stok->stok_akhir <= 0 ? 'bg-red-50' : ($stok->stok_akhir <= 10 ? 'bg-yellow-50' : '') }}">
                             <td class="px-4 py-3">
-                                <input type="checkbox" name="selected_ids[]" value="{{ $obat->id_obat }}" class="row-checkbox rounded border-gray-300 text-green-600 focus:ring-2 focus:ring-green-500">
+                                <input type="checkbox" name="selected_ids[]" value="{{ $stok->id_stok_bulanan }}" class="row-checkbox rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500">
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-900">{{ $obats->firstItem() + $index }}</td>
-                            <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $obat->nama_obat }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->jenisObat->nama_jenis_obat ?? '-' }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->satuanObat->nama_satuan ?? '-' }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ $obat->jumlah_per_kemasan }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-900 text-right">Rp {{ number_format($obat->harga_per_kemasan, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-900 text-right">Rp {{ number_format($obat->harga_per_satuan, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate" title="{{ $obat->keterangan }}">{{ $obat->keterangan ?? '-' }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">
-                                <div class="flex items-center gap-1">
-                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    {{ $obat->tanggal_update ? $obat->tanggal_update->format('d-m-Y') : '-' }}
-                                </div>
+                            <td class="px-4 py-3 text-sm text-gray-900">{{ ($stokBulanans->currentPage() - 1) * $stokBulanans->perPage() + $index + 1 }}</td>
+                            <td class="px-4 py-3">
+                                <div class="text-sm font-medium text-gray-900">{{ $stok->obat->nama_obat }}</div>
+                                @if($stok->obat->keterangan)
+                                    <div class="text-xs text-gray-500 truncate max-w-xs" title="{{ $stok->obat->keterangan }}">{{ Str::limit($stok->obat->keterangan, 50) }}</div>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-600">{{ $stok->obat->satuanObat->nama_satuan ?? '-' }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">{{ $stok->obat->jenisObat->nama_jenis_obat ?? '-' }}</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    {{ $stok->periode }}
+                                </span>
+                                <div class="text-xs text-gray-500 mt-1">{{ $stok->periode_format }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 text-center">{{ number_format($stok->stok_awal) }}</td>
+                            <td class="px-4 py-3 text-sm {{ $stok->stok_pakai > 0 ? 'text-red-600' : 'text-gray-900' }} text-center">{{ number_format($stok->stok_pakai) }}</td>
+                            <td class="px-4 py-3 text-sm {{ $stok->stok_masuk > 0 ? 'text-green-600' : 'text-gray-900' }} text-center">{{ number_format($stok->stok_masuk) }}</td>
+                            <td class="px-4 py-3 text-sm font-semibold text-center {{ $stok->stok_akhir <= 0 ? 'text-red-600' : ($stok->stok_akhir <= 10 ? 'text-yellow-600' : 'text-green-600') }}">
+                                {{ number_format($stok->stok_akhir) }}
                             </td>
                             <td class="px-4 py-3 text-sm font-medium text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <a href="{{ route('obat.edit', $obat->id_obat) }}" class="inline-flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Edit">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </a>
-                                    <button onclick="deleteObat({{ $obat->id_obat }}, '{{ $obat->nama_obat }}')" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </div>
+                                <button onclick="deleteStok({{ $stok->id_stok_bulanan }}, '{{ $stok->obat->nama_obat }} - {{ $stok->periode }}')" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
                             </td>
                         </tr>
                     @empty
@@ -391,91 +376,102 @@
                                 <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                 </svg>
-                                <p class="text-lg font-medium">Tidak ada data obat</p>
-                                <p class="text-sm mt-1">Mulai dengan menambahkan obat baru</p>
+                                <p class="text-lg font-medium">Tidak ada data stok bulanan</p>
+                                <p class="text-sm mt-1">Import data stok bulanan untuk memulai</p>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
+                @if($stokBulanans->count() > 0)
+                    <tfoot class="bg-gray-50">
+                        <tr>
+                            <th colspan="6" class="px-4 py-3 text-right text-sm font-medium text-gray-700">Total</th>
+                            <th class="px-4 py-3 text-center text-sm font-bold text-gray-900">{{ number_format($stokBulanans->sum('stok_awal')) }}</th>
+                            <th class="px-4 py-3 text-center text-sm font-bold text-red-600">{{ number_format($stokBulanans->sum('stok_pakai')) }}</th>
+                            <th class="px-4 py-3 text-center text-sm font-bold text-green-600">{{ number_format($stokBulanans->sum('stok_masuk')) }}</th>
+                            <th class="px-4 py-3 text-center text-sm font-bold text-gray-900">{{ number_format($stokBulanans->sum('stok_akhir')) }}</th>
+                            <th class="px-4 py-3"></th>
+                        </tr>
+                    </tfoot>
+                @endif
             </table>
         </div>
 
         <!-- Custom Pagination -->
-        @isset($obats)
-        @if($obats->hasPages())
+        @if($stokBulanans->hasPages())
         <div class="px-6 py-5 border-t border-gray-200 bg-white">
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-sm text-gray-600">
-                    Halaman <span class="font-semibold text-gray-900">{{ $obats->currentPage() }}</span>
-                    dari <span class="font-semibold text-gray-900">{{ $obats->lastPage() }}</span>
+                    Halaman <span class="font-semibold text-gray-900">{{ $stokBulanans->currentPage() }}</span>
+                    dari <span class="font-semibold text-gray-900">{{ $stokBulanans->lastPage() }}</span>
                     <span class="mx-2 text-gray-400">•</span>
-                    Total <span class="font-semibold text-gray-900">{{ $obats->total() }}</span> data
+                    Total <span class="font-semibold text-gray-900">{{ $stokBulanans->total() }}</span> data
                 </div>
 
                 <nav class="flex items-center gap-2" role="navigation">
-                    @if($obats->onFirstPage())
+                    @if($stokBulanans->onFirstPage())
                         <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
                             </svg>
                         </span>
                     @else
-                        <a href="{{ $obats->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">
+                        <a href="{{ $stokBulanans->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
                             </svg>
                         </a>
                     @endif
 
-                    @if($obats->onFirstPage())
+                    @if($stokBulanans->onFirstPage())
                         <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
                     @else
-                        <a href="{{ $obats->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">Previous</a>
+                        <a href="{{ $stokBulanans->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all">Previous</a>
                     @endif
 
                     <div class="flex items-center gap-1">
                         @php
-                            $start = max($obats->currentPage() - 2, 1);
-                            $end = min($obats->currentPage() + 2, $obats->lastPage());
+                            $start = max($stokBulanans->currentPage() - 2, 1);
+                            $end = min($stokBulanans->currentPage() + 2, $stokBulanans->lastPage());
                         @endphp
 
                         @if($start > 1)
-                            <a href="{{ $obats->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">1</a>
+                            <a href="{{ $stokBulanans->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all">1</a>
                             @if($start > 2)
                                 <span class="px-2 text-gray-500">...</span>
                             @endif
                         @endif
 
                         @for($i = $start; $i <= $end; $i++)
-                            @if($i == $obats->currentPage())
-                                <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-md">{{ $i }}</span>
+                            @if($i == $stokBulanans->currentPage())
+                                <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg shadow-md">{{ $i }}</span>
                             @else
-                                <a href="{{ $obats->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">{{ $i }}</a>
+                                <a href="{{ $stokBulanans->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all">{{ $i }}</a>
                             @endif
                         @endfor
 
-                        @if($end < $obats->lastPage())
-                            @if($end < $obats->lastPage() - 1)
+                        @if($end < $stokBulanans->lastPage())
+                            @if($end < $stokBulanans->lastPage() - 1)
                                 <span class="px-2 text-gray-500">...</span>
                             @endif
-                            <a href="{{ $obats->appends(request()->except('page'))->url($obats->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">{{ $obats->lastPage() }}</a>
+                            <a href="{{ $stokBulanans->appends(request()->except('page'))->url($stokBulanans->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all">{{ $stokBulanans->lastPage() }}</a>
                         @endif
                     </div>
 
-                    @if($obats->hasMorePages())
-                        <a href="{{ $obats->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">Next</a>
+                    @if($stokBulanans->hasMorePages())
+                        <a href="{{ $stokBulanans->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all">Next</a>
                     @else
                         <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
                     @endif
 
-                    @if($obats->currentPage() == $obats->lastPage())
+                    @if($stokBulanans->currentPage() == $stokBulanans->lastPage())
                         <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
                             </svg>
                         </span>
                     @else
-                        <a href="{{ $obats->appends(request()->except('page'))->url($obats->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">
+                        <a href="{{ $stokBulanans->appends(request()->except('page'))->url($stokBulanans->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
                             </svg>
@@ -485,7 +481,6 @@
             </div>
         </div>
         @endif
-        @endisset
     </div>
 </div>
 
@@ -493,12 +488,23 @@
 function toggleAll(checkbox) {
     const checkboxes = document.querySelectorAll('.row-checkbox');
     checkboxes.forEach(cb => cb.checked = checkbox.checked);
+    updateSelectedCount();
 }
 
-function deleteObat(id, nama) {
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+    document.getElementById('selectedCount').textContent = checkboxes.length + ' data dipilih';
+}
+
+// Update count when individual checkboxes are changed
+document.querySelectorAll('.row-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', updateSelectedCount);
+});
+
+function deleteStok(id, nama) {
     Swal.fire({
-        title: 'Hapus Data Obat?',
-        html: `Apakah Anda yakin ingin menghapus obat <strong>${nama}</strong>?`,
+        title: 'Hapus Data Stok Bulanan?',
+        html: `Apakah Anda yakin ingin menghapus stok <strong>${nama}</strong>?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
@@ -508,7 +514,7 @@ function deleteObat(id, nama) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/obat/${id}`, {
+            fetch(`/stok-bulanan/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -548,14 +554,14 @@ function submitBulkDelete() {
             icon: 'warning',
             title: 'Tidak Ada Data Dipilih',
             text: 'Pilih minimal satu data untuk dihapus',
-            confirmButtonColor: '#16a34a'
+            confirmButtonColor: '#7c3aed'
         });
         return;
     }
 
     Swal.fire({
         title: 'Hapus Data Terpilih?',
-        html: `Apakah Anda yakin ingin menghapus <strong>${ids.length}</strong> obat yang dipilih?`,
+        html: `Apakah Anda yakin ingin menghapus <strong>${ids.length}</strong> data stok bulanan yang dipilih?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
@@ -565,7 +571,7 @@ function submitBulkDelete() {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch('/obat/bulk-delete', {
+            fetch('/stok-bulanan/bulk-delete', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -597,158 +603,7 @@ function submitBulkDelete() {
     });
 }
 
-// Fungsi untuk memastikan parameter filter tetap terjaga saat mengurutkan
-function updateSortParams(field, direction) {
-    const url = new URL(window.location);
-    url.searchParams.set('sort', field);
-    url.searchParams.set('direction', direction);
-    window.location.href = url.toString();
-}
-
-// Import Excel Modal Functions
 function openImportModal() {
-    Swal.fire({
-        title: 'Import Data Obat dari Excel',
-        html: `
-            <div class="text-left">
-                <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h4 class="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Informasi Penting
-                    </h4>
-                    <ul class="text-sm text-blue-800 space-y-1 ml-7">
-                        <li>• Format file: Excel (.xlsx atau .xls)</li>
-                        <li>• Maksimal ukuran file: 5MB</li>
-                        <li>• Download template terlebih dahulu</li>
-                        <li>• Format: Nama Obat | Satuan | Keterangan | Harga Satuan | Harga Perkemasan | Jenis Obat | Stok Awal | Stok Masuk | Stok Keluar</li>
-                    </ul>
-                </div>
-
-                <div class="mb-4">
-                    <a href="{{ route('obat.template') }}"
-                       class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-all w-full justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Download Template Excel
-                    </a>
-                </div>
-
-                <form id="importForm" action="{{ route('obat.import') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File Excel</label>
-                        <input type="file"
-                               name="file"
-                               id="importFile"
-                               accept=".xlsx,.xls"
-                               required
-                               class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2">
-                        <p class="mt-1 text-xs text-gray-500">File Excel (.xlsx atau .xls), maksimal 5MB</p>
-                    </div>
-                </form>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Upload & Import',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
-        width: '600px',
-        customClass: {
-            confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
-            cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
-        },
-        preConfirm: () => {
-            const fileInput = document.getElementById('importFile');
-            if (!fileInput.files || fileInput.files.length === 0) {
-                Swal.showValidationMessage('Silakan pilih file Excel terlebih dahulu');
-                return false;
-            }
-
-            const file = fileInput.files[0];
-            const maxSize = 5 * 1024 * 1024; // 5MB
-
-            if (file.size > maxSize) {
-                Swal.showValidationMessage('Ukuran file maksimal 5MB');
-                return false;
-            }
-
-            const allowedExtensions = ['xlsx', 'xls'];
-            const fileExtension = file.name.split('.').pop().toLowerCase();
-
-            if (!allowedExtensions.includes(fileExtension)) {
-                Swal.showValidationMessage('Format file harus .xlsx atau .xls');
-                return false;
-            }
-
-            return true;
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const fileInput = document.getElementById('importFile');
-            const file = fileInput.files[0];
-
-            // Create FormData
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-
-            // Show loading
-            Swal.fire({
-                title: 'Sedang Mengimport...',
-                html: 'Mohon tunggu, data sedang diproses',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Submit via AJAX
-            fetch('{{ route("obat.import") }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => Promise.reject(err));
-                }
-                return response.json();
-            })
-            .then(data => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    html: data.message,
-                    confirmButtonColor: '#dc2626'
-                }).then(() => {
-                    // Reload page to show new data
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000); // 2-second delay
-                });
-            })
-            .catch(error => {
-                console.error('Import error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal Import',
-                    html: error.message || 'Terjadi kesalahan saat mengimport data',
-                    confirmButtonColor: '#dc2626'
-                });
-            });
-        }
-    });
-}
-
-// Import Stok Bulanan Modal Functions
-function openImportStokBulananModal() {
     Swal.fire({
         title: 'Import Data Stok Bulanan dari Excel',
         html: `
@@ -764,7 +619,7 @@ function openImportStokBulananModal() {
                         <li>• Format file: Excel (.xlsx atau .xls)</li>
                         <li>• Maksimal ukuran file: 5MB</li>
                         <li>• Download template terlebih dahulu</li>
-                        <li>• Format: Nama Obat | Periode | Stok Awal | Stok Masuk | Stok Keluar | Stok Akhir</li>
+                        <li>• Format: Nama Obat | Periode | Stok Awal | Stok Pakai | Stok Masuk | Stok Akhir</li>
                     </ul>
                 </div>
 
@@ -778,13 +633,13 @@ function openImportStokBulananModal() {
                     </a>
                 </div>
 
-                <form id="importStokBulananForm" action="{{ route('obat.importStokBulanan') }}" method="POST" enctype="multipart/form-data">
+                <form id="importForm" action="{{ route('obat.importStokBulanan') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File Excel Stok Bulanan</label>
                         <input type="file"
                                name="file"
-                               id="importStokBulananFile"
+                               id="importFile"
                                accept=".xlsx,.xls"
                                required
                                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2">
@@ -804,7 +659,7 @@ function openImportStokBulananModal() {
             cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
         },
         preConfirm: () => {
-            const fileInput = document.getElementById('importStokBulananFile');
+            const fileInput = document.getElementById('importFile');
             if (!fileInput.files || fileInput.files.length === 0) {
                 Swal.showValidationMessage('Silakan pilih file Excel terlebih dahulu');
                 return false;
@@ -830,7 +685,7 @@ function openImportStokBulananModal() {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            const fileInput = document.getElementById('importStokBulananFile');
+            const fileInput = document.getElementById('importFile');
             const file = fileInput.files[0];
 
             // Create FormData
@@ -870,8 +725,10 @@ function openImportStokBulananModal() {
                     html: data.message,
                     confirmButtonColor: '#7c3aed'
                 }).then(() => {
-                    // Redirect to stok bulanan page to see imported data
-                    window.location.href = '{{ route("stok-bulanan.index") }}';
+                    // Reload page to show new data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000); // 2-second delay
                 });
             })
             .catch(error => {
@@ -887,5 +744,14 @@ function openImportStokBulananModal() {
     });
 }
 
+// Auto submit filter on periode change
+document.addEventListener('DOMContentLoaded', function() {
+    const periodeSelect = document.getElementById('periode');
+    if (periodeSelect) {
+        periodeSelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+});
 </script>
 @endsection

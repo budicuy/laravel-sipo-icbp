@@ -65,8 +65,14 @@
                         </li>
                         <li>
                             <a href="{{ route('obat.index') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('obat*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
+                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('obat*') && !request()->is('stok-bulanan*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
                                 Data Obat
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('stok-bulanan.index') }}"
+                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('stok-bulanan*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
+                                Stok Bulanan
                             </a>
                         </li>
                         <li>
