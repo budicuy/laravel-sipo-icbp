@@ -87,6 +87,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/rekam-medis/search-pasien', [RekamMedisController::class, 'searchPasien'])->name('rekam-medis.searchPasien');
     Route::get('/rekam-medis/get-obat-by-diagnosa', [RekamMedisController::class, 'getObatByDiagnosa'])->name('rekam-medis.getObatByDiagnosa');
     Route::patch('/rekam-medis/{id}/update-status', [RekamMedisController::class, 'updateStatus'])->name('rekam-medis.updateStatus');
+    Route::get('/rekam-medis/template', [RekamMedisController::class, 'downloadTemplate'])->name('rekam-medis.template');
+    Route::post('/rekam-medis/import', [RekamMedisController::class, 'import'])->name('rekam-medis.import');
 
     // Rekam Medis Resource Routes
     Route::resource('rekam-medis', RekamMedisController::class)->parameters([

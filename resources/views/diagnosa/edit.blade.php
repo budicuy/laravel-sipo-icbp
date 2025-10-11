@@ -83,7 +83,7 @@
                                     <label for="obat_{{ $obat->id_obat }}" class="text-sm text-gray-700">
                                         {{ $obat->nama_obat }}
                                         @if($obat->keterangan)
-                                            <span class="text-gray-500 text-xs">({{ Str::limit($obat->keterangan, 30) }})</span>
+                                            <span class="text-gray-500 text-xs">({{ Str::limit($obat->keterangan, 300) }})</span>
                                         @endif
                                     </label>
                                 </div>
