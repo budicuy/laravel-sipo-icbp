@@ -470,15 +470,15 @@ class ObatController extends Controller
     }
 
     /**
-     * Import data stok bulanan dari CSV
+     * Import data stok bulanan dari Excel dengan format horizontal
      */
     public function importStokBulanan(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:csv,xlsx,xls'],
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
         ], [
             'file.required' => 'File harus dipilih',
-            'file.mimes' => 'File harus berformat CSV atau Excel (.csv, .xlsx, .xls)',
+            'file.mimes' => 'File harus berformat Excel (.xlsx, .xls, atau .csv)',
         ]);
 
         try {
@@ -486,20 +486,10 @@ class ObatController extends Controller
             $spreadsheet = IOFactory::load($file->getRealPath());
             $sheet = $spreadsheet->getActiveSheet();
 
-            // Get highest row number
+            // Get highest row and column
             $highestRow = $sheet->getHighestRow();
             $highestColumn = $sheet->getHighestColumn();
-
-            // Parse header untuk mendapatkan periode
-            $headerRow = $sheet->rangeToArray('A1:' . $highestColumn . '1', NULL, TRUE, FALSE)[0];
-            $periodes = [];
-
-            // Ekstrak periode dari header (format: MM-YY)
-            for ($i = 5; $i < count($headerRow); $i += 4) {
-                if (isset($headerRow[$i]) && preg_match('/(\d{2}-\d{2})/', $headerRow[$i], $matches)) {
-                    $periodes[] = $matches[1];
-                }
-            }
+            $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
 
             // Get reference data
             $obats = Obat::pluck('id_obat', 'nama_obat')->toArray();
@@ -513,52 +503,15 @@ class ObatController extends Controller
             DB::beginTransaction();
 
             try {
-                // Skip header rows, start from row 3
-                for ($rowNumber = 3; $rowNumber <= $highestRow; $rowNumber++) {
-                    $rowData = $sheet->rangeToArray('A' . $rowNumber . ':' . $highestColumn . $rowNumber, NULL, TRUE, FALSE)[0];
+                // Check if this is horizontal format (by checking if there are more than 6 columns)
+                $isHorizontalFormat = $highestColumnIndex > 6;
 
-                    // Get nama obat dari kolom B
-                    $namaObat = trim($rowData[1] ?? '');
-
-                    if (empty($namaObat)) {
-                        continue; // Skip empty rows
-                    }
-
-                    // Check if obat exists
-                    if (!isset($obats[$namaObat])) {
-                        $errors[] = "Baris $rowNumber: Obat '$namaObat' tidak ditemukan di database";
-                        $errorCount++;
-                        continue;
-                    }
-
-                    $idObat = $obats[$namaObat];
-
-                    // Process each periode
-                    $colIndex = 5; // Start from column F (index 5)
-                    foreach ($periodes as $periode) {
-                        if ($colIndex + 3 < count($rowData)) {
-                            $stokAwal = $this->parseStokValue($rowData[$colIndex] ?? 0);
-                            $stokPakai = $this->parseStokValue($rowData[$colIndex + 1] ?? 0);
-                            $stokAkhir = $this->parseStokValue($rowData[$colIndex + 2] ?? 0);
-                            $stokMasuk = $this->parseStokValue($rowData[$colIndex + 3] ?? 0);
-
-                            // Insert or update stok bulanan
-                            StokBulanan::updateOrCreate(
-                                [
-                                    'id_obat' => $idObat,
-                                    'periode' => $periode,
-                                ],
-                                [
-                                    'stok_awal' => $stokAwal,
-                                    'stok_pakai' => $stokPakai,
-                                    'stok_akhir' => $stokAkhir,
-                                    'stok_masuk' => $stokMasuk,
-                                ]
-                            );
-                        }
-                        $colIndex += 4;
-                    }
-                    $successCount++;
+                if ($isHorizontalFormat) {
+                    // Process horizontal format
+                    $this->processHorizontalFormat($sheet, $highestRow, $highestColumnIndex, $obats, $successCount, $errorCount, $errors);
+                } else {
+                    // Process vertical format (old format)
+                    $this->processVerticalFormat($sheet, $highestRow, $obats, $successCount, $errorCount, $errors);
                 }
 
                 DB::commit();
@@ -574,6 +527,18 @@ class ObatController extends Controller
                     }
                 }
 
+                // Return JSON response for AJAX requests
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $message,
+                        'data' => [
+                            'created' => $successCount,
+                            'errors' => $errors
+                        ]
+                    ]);
+                }
+
                 return back()->with('success', $message);
 
             } catch (\Exception $e) {
@@ -583,7 +548,162 @@ class ObatController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error importing stok bulanan: ' . $e->getMessage());
+
+            // Return JSON response for AJAX requests
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal import data stok bulanan: ' . $e->getMessage()
+                ], 500);
+            }
+
             return back()->with('error', 'Gagal import data stok bulanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Process horizontal format for stok bulanan import
+     */
+    private function processHorizontalFormat($sheet, $highestRow, $highestColumnIndex, $obats, &$successCount, &$errorCount, &$errors)
+    {
+        // Extract periode headers from row 1 (starting from column F)
+        $periodes = [];
+        for ($col = 6; $col <= $highestColumnIndex; $col += 4) {
+            $cellValue = $sheet->getCellByColumnAndRow($col, 1)->getValue();
+            if ($cellValue) {
+                // Extract periode from header like "08-24 Awal"
+                if (preg_match('/(\d{2}-\d{2})/', $cellValue, $matches)) {
+                    $periodes[] = $matches[1];
+                }
+            }
+        }
+
+        // Process each row
+        for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
+            // Read basic info
+            $no = trim($sheet->getCellByColumnAndRow(1, $rowNumber)->getValue() ?? '');
+            $namaObat = trim($sheet->getCellByColumnAndRow(2, $rowNumber)->getValue() ?? '');
+
+            // Skip empty rows
+            if (empty($namaObat)) {
+                continue;
+            }
+
+            // Check if obat exists
+            if (!isset($obats[$namaObat])) {
+                $errors[] = "Baris $rowNumber: Obat '$namaObat' tidak ditemukan di database";
+                $errorCount++;
+                continue;
+            }
+
+            $idObat = $obats[$namaObat];
+
+            // Process stok data for each periode
+            $colIndex = 6; // Start from column F (index 6)
+            foreach ($periodes as $periode) {
+                if ($colIndex + 3 <= $highestColumnIndex) {
+                    $stokAwal = trim($sheet->getCellByColumnAndRow($colIndex, $rowNumber)->getValue() ?? '');
+                    $stokPakai = trim($sheet->getCellByColumnAndRow($colIndex + 1, $rowNumber)->getValue() ?? '');
+                    $stokAkhir = trim($sheet->getCellByColumnAndRow($colIndex + 2, $rowNumber)->getValue() ?? '');
+                    $stokMasuk = trim($sheet->getCellByColumnAndRow($colIndex + 3, $rowNumber)->getValue() ?? '');
+
+                    // Parse stok values
+                    $stokAwal = $this->parseStokValue($stokAwal);
+                    $stokPakai = $this->parseStokValue($stokPakai);
+                    $stokMasuk = $this->parseStokValue($stokMasuk);
+                    $stokAkhir = $this->parseStokValue($stokAkhir);
+
+                    // Insert or update stok bulanan
+                    StokBulanan::updateOrCreate(
+                        [
+                            'id_obat' => $idObat,
+                            'periode' => $periode,
+                        ],
+                        [
+                            'stok_awal' => $stokAwal,
+                            'stok_pakai' => $stokPakai,
+                            'stok_akhir' => $stokAkhir,
+                            'stok_masuk' => $stokMasuk,
+                        ]
+                    );
+
+                    $successCount++;
+                }
+                $colIndex += 4;
+            }
+        }
+    }
+
+    /**
+     * Process vertical format for stok bulanan import (old format)
+     */
+    private function processVerticalFormat($sheet, $highestRow, $obats, &$successCount, &$errorCount, &$errors)
+    {
+        // Skip header row, start from row 2
+        for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
+            // Read cell values
+            $namaObat = trim($sheet->getCell('A' . $rowNumber)->getValue() ?? '');
+            $periode = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
+            $stokAwal = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? '');
+            $stokPakai = trim($sheet->getCell('D' . $rowNumber)->getValue() ?? '');
+            $stokMasuk = trim($sheet->getCell('E' . $rowNumber)->getValue() ?? '');
+            $stokAkhir = trim($sheet->getCell('F' . $rowNumber)->getValue() ?? '');
+
+            // Skip empty rows
+            if (empty($namaObat)) {
+                continue;
+            }
+
+            // Validate required fields
+            if (empty($namaObat)) {
+                $errors[] = "Baris $rowNumber: Nama Obat tidak boleh kosong";
+                $errorCount++;
+                continue;
+            }
+
+            if (empty($periode)) {
+                $errors[] = "Baris $rowNumber: Periode tidak boleh kosong";
+                $errorCount++;
+                continue;
+            }
+
+            // Validate periode format
+            if (!preg_match('/^\d{2}-\d{2}$/', $periode)) {
+                $errors[] = "Baris $rowNumber: Format periode salah. Gunakan format MM-YY (contoh: 01-25)";
+                $errorCount++;
+                continue;
+            }
+
+            // Check if obat exists
+            if (!isset($obats[$namaObat])) {
+                $errors[] = "Baris $rowNumber: Obat '$namaObat' tidak ditemukan di database";
+                $errorCount++;
+                continue;
+            }
+
+            $idObat = $obats[$namaObat];
+
+            // Parse stok values
+            $stokAwal = $this->parseStokValue($stokAwal);
+            $stokPakai = $this->parseStokValue($stokPakai);
+            $stokMasuk = $this->parseStokValue($stokMasuk);
+            $stokAkhir = $this->parseStokValue($stokAkhir);
+
+            // Insert or update stok bulanan
+            StokBulanan::updateOrCreate(
+                [
+                    'id_obat' => $idObat,
+                    'periode' => $periode,
+                ],
+                [
+                    'stok_awal' => $stokAwal,
+                    'stok_pakai' => $stokPakai,
+                    'stok_akhir' => $stokAkhir,
+                    'stok_masuk' => $stokMasuk,
+                ]
+            );
+
+            $successCount++;
         }
     }
 
@@ -609,7 +729,7 @@ class ObatController extends Controller
     }
 
     /**
-     * Download template untuk import stok bulanan
+     * Download template untuk import stok bulanan dengan format horizontal
      */
     public function downloadTemplateStokBulanan()
     {
@@ -624,13 +744,19 @@ class ObatController extends Controller
             ->setSubject('Template Import Stok Bulanan')
             ->setDescription('Template untuk import data stok bulanan');
 
-        // Header columns
+        // Header columns - Format dengan periode horizontal
         $headers = [
-            'No', 'Nama Obat', 'Satuan', 'Kegunaan', 'Jenis / Golongan Obat',
-            '08-24 Awal', '08-24 Pakai', '08-24 Akhir', '08-24 Masuk',
-            '09-24 Awal', '09-24 Pakai', '09-24 Akhir', '09-24 Masuk',
-            '10-24 Awal', '10-24 Pakai', '10-24 Akhir', '10-24 Masuk'
+            'No', 'Nama Obat', 'Satuan', 'Kegunaan', 'Jenis / Golongan Obat'
         ];
+
+        // Add periode headers (sample 3 months)
+        $periodes = ['08-24', '09-24', '10-24'];
+        foreach ($periodes as $periode) {
+            $headers[] = $periode . ' Awal';
+            $headers[] = $periode . ' Pakai';
+            $headers[] = $periode . ' Akhir';
+            $headers[] = $periode . ' Masuk';
+        }
 
         $column = 'A';
         foreach ($headers as $header) {
@@ -642,47 +768,111 @@ class ObatController extends Controller
         $headerStyle = [
             'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
             'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '059669']],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
         ];
 
-        $sheet->getStyle('A1:P1')->applyFromArray($headerStyle);
+        $lastColumn = chr(ord('A') + count($headers) - 1);
+        $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray($headerStyle);
 
         // Get sample data
-        $obats = Obat::with(['jenisObat', 'satuanObat'])->limit(3)->get();
+        $obats = Obat::with(['jenisObat', 'satuanObat'])->limit(5)->get();
 
         $row = 2;
-        foreach ($obats as $index => $obat) {
-            $sheet->setCellValue('A' . $row, $index + 1);
+        $no = 1;
+        foreach ($obats as $obat) {
+            // Basic info
+            $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $obat->nama_obat);
             $sheet->setCellValue('C' . $row, $obat->satuanObat->nama_satuan ?? '');
             $sheet->setCellValue('D' . $row, $obat->keterangan ?? '');
             $sheet->setCellValue('E' . $row, $obat->jenisObat->nama_jenis_obat ?? '');
 
-            // Sample stok data
-            $sheet->setCellValue('F' . $row, $obat->stok_awal);
-            $sheet->setCellValue('G' . $row, $obat->stok_keluar);
-            $sheet->setCellValue('H' . $row, $obat->stok_akhir);
-            $sheet->setCellValue('I' . $row, $obat->stok_masuk);
+            // Fill stok data for each periode
+            $colIndex = 5; // Start from column F (index 5)
+            foreach ($periodes as $periode) {
+                $sheet->setCellValue(chr(ord('A') + $colIndex) . $row, 100); // Sample stok awal
+                $sheet->setCellValue(chr(ord('A') + $colIndex + 1) . $row, 20); // Sample stok pakai
+                $sheet->setCellValue(chr(ord('A') + $colIndex + 2) . $row, 80); // Sample stok akhir
+                $sheet->setCellValue(chr(ord('A') + $colIndex + 3) . $row, 50); // Sample stok masuk
+                $colIndex += 4;
+            }
+
+            // Style data rows
+            $dataStyle = [
+                'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
+                'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
+            ];
+
+            $sheet->getStyle('A' . $row . ':' . $lastColumn . $row)->applyFromArray($dataStyle);
 
             $row++;
+            $no++;
         }
 
         // Set column widths
-        foreach (range('A', 'P') as $columnID) {
-            $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        $sheet->getColumnDimension('A')->setWidth(5);
+        $sheet->getColumnDimension('B')->setWidth(30);
+        $sheet->getColumnDimension('C')->setWidth(12);
+        $sheet->getColumnDimension('D')->setWidth(40);
+        $sheet->getColumnDimension('E')->setWidth(20);
+
+        // Set width for periode columns
+        for ($i = 5; $i < count($headers); $i++) {
+            $sheet->getColumnDimension(chr(ord('A') + $i))->setWidth(12);
         }
 
-        // Add notes
-        $sheet->setCellValue('A' . ($row + 2), 'CATATAN:');
-        $sheet->setCellValue('A' . ($row + 3), '• Format file: CSV atau Excel (.xlsx, .xls)');
-        $sheet->setCellValue('A' . ($row + 4), '• Nama Obat harus sesuai dengan data di database');
-        $sheet->setCellValue('A' . ($row + 5), '• Format periode: MM-YY (contoh: 08-24 untuk Agustus 2024)');
-        $sheet->setCellValue('A' . ($row + 6), '• Nilai stok dalam format angka, gunakan - untuk nilai kosong');
-        $sheet->setCellValue('A' . ($row + 7), '• Untuk nilai negatif, gunakan format (60) = -60');
+        // Set row heights for headers
+        $sheet->getRowDimension(1)->setRowHeight(25);
 
-        $sheet->getStyle('A' . ($row + 2))->getFont()->setBold(true);
-        $sheet->getStyle('A' . ($row + 3) . ':A' . ($row + 7))->getFont()->setItalic(true)->setSize(10);
+        // Add instructions sheet
+        $spreadsheet->createSheet();
+        $spreadsheet->setActiveSheetIndex(1);
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Petunjuk Import');
+
+        // Add instructions
+        $instructions = [
+            'Petunjuk Import Data Stok Bulanan:',
+            '',
+            '1. Format File:',
+            '   - Gunakan file CSV atau Excel (.csv, .xlsx, .xls)',
+            '   - Pastikan format kolom sesuai dengan template',
+            '',
+            '2. Struktur Kolom:',
+            '   - No: Nomor urut',
+            '   - Nama Obat: Nama obat yang sudah ada di sistem',
+            '   - Satuan: Satuan obat',
+            '   - Kegunaan: Keterangan penggunaan obat',
+            '   - Jenis / Golongan Obat: Kategori obat',
+            '   - Periode: Format MM-YY (contoh: 01-25 untuk Januari 2025)',
+            '   - Setiap periode memiliki 4 kolom: Awal, Pakai, Akhir, Masuk',
+            '',
+            '3. Ketentuan:',
+            '   - Pastikan nama obat sudah terdaftar di sistem',
+            '   - Format periode harus MM-YY',
+            '   - Isi hanya dengan angka pada kolom stok',
+            '   - Gunakan - untuk nilai kosong',
+            '   - Untuk nilai negatif, gunakan format (60) = -60',
+            '',
+            '4. Contoh Data:',
+            '   1, Paracetamol, Tablet, Obat demam, Analgetik, 100, 20, 80, 50, 01-25 Awal, 01-25 Pakai, 01-25 Akhir, 01-25 Masuk',
+        ];
+
+        $row = 1;
+        foreach ($instructions as $instruction) {
+            $sheet->setCellValue('A' . $row, $instruction);
+            $row++;
+        }
+
+        // Style instructions
+        $sheet->getStyle('A1:A' . ($row - 1))->getFont()->setSize(11);
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getColumnDimension('A')->setWidth(80);
+
+        // Set active sheet back to data
+        $spreadsheet->setActiveSheetIndex(0);
+        $sheet = $spreadsheet->getActiveSheet();
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);

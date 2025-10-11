@@ -115,7 +115,7 @@ class StokBulananController extends Controller
     }
 
     /**
-     * Export data stok bulanan to Excel
+     * Export data stok bulanan to Excel dengan format periode horizontal
      */
     public function export(Request $request)
     {
@@ -159,39 +159,43 @@ class StokBulananController extends Controller
             }
         }
 
-        // Order by periode and nama obat
-        $query->orderBy('periode', 'desc')
-              ->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
-              ->orderBy('obat.nama_obat', 'asc')
-              ->select('stok_bulanan.*');
+        // Get data
+        $data = $query->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
+                     ->orderBy('obat.nama_obat', 'asc')
+                     ->orderBy('stok_bulanan.periode', 'asc')
+                     ->select('stok_bulanan.*')
+                     ->get();
 
-        $data = $query->get();
+        // Group data by obat
+        $groupedData = $data->groupBy('id_obat');
+
+        // Get all unique periodes
+        $periodes = $data->pluck('periode')->unique()->sort()->values()->toArray();
 
         // Create spreadsheet
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Laporan Stok Bulanan');
+        $sheet->setTitle('Data Stok Bulanan');
 
         // Set document properties
         $spreadsheet->getProperties()
             ->setCreator('SIPO ICBP')
-            ->setTitle('Laporan Stok Bulanan')
-            ->setSubject('Laporan Stok Bulanan')
-            ->setDescription('Laporan data stok obat perbulan');
+            ->setTitle('Data Stok Bulanan')
+            ->setSubject('Data Stok Bulanan')
+            ->setDescription('Data stok obat perbulan');
 
-        // Header columns
+        // Header columns - Format dengan periode horizontal
         $headers = [
-            'No',
-            'Nama Obat',
-            'Satuan',
-            'Jenis Obat',
-            'Periode',
-            'Stok Awal',
-            'Stok Pakai',
-            'Stok Masuk',
-            'Stok Akhir',
-            'Keterangan'
+            'No', 'Nama Obat', 'Satuan', 'Kegunaan', 'Jenis / Golongan Obat'
         ];
+
+        // Add periode headers
+        foreach ($periodes as $periode) {
+            $headers[] = $periode . ' Awal';
+            $headers[] = $periode . ' Pakai';
+            $headers[] = $periode . ' Akhir';
+            $headers[] = $periode . ' Masuk';
+        }
 
         $column = 'A';
         foreach ($headers as $header) {
@@ -207,111 +211,135 @@ class StokBulananController extends Controller
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
         ];
 
-        $sheet->getStyle('A1:J1')->applyFromArray($headerStyle);
+        // Calculate last column index properly
+        $lastColumnIndex = count($headers) - 1;
+        $lastColumn = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($lastColumnIndex + 1);
+        $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray($headerStyle);
 
         // Fill data
         $row = 2;
         $no = 1;
 
-        // Group data by periode
-        $groupedData = $data->groupBy('periode');
+        foreach ($groupedData as $obatId => $items) {
+            $obat = $items->first()->obat;
 
-        foreach ($groupedData as $periode => $items) {
-            // Add periode header
-            $sheet->mergeCells('A' . $row . ':J' . $row);
-            $sheet->setCellValue('A' . $row, 'PERIODE: ' . $items->first()->periode_format);
+            // Basic info
+            $sheet->setCellValue('A' . $row, $no);
+            $sheet->setCellValue('B' . $row, $obat->nama_obat);
+            $sheet->setCellValue('C' . $row, $obat->satuanObat->nama_satuan ?? '');
+            $sheet->setCellValue('D' . $row, $obat->keterangan ?? '');
+            $sheet->setCellValue('E' . $row, $obat->jenisObat->nama_jenis_obat ?? '');
 
-            $periodeStyle = [
-                'font' => ['bold' => true, 'size' => 12],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E5E7EB']],
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
-            ];
-
-            $sheet->getStyle('A' . $row . ':J' . $row)->applyFromArray($periodeStyle);
-            $row++;
-
+            // Create a map of periode to stok data for this obat
+            $stokByPeriode = [];
             foreach ($items as $item) {
-                $sheet->setCellValue('A' . $row, $no);
-                $sheet->setCellValue('B' . $row, $item->obat->nama_obat);
-                $sheet->setCellValue('C' . $row, $item->obat->satuanObat->nama_satuan ?? '');
-                $sheet->setCellValue('D' . $row, $item->obat->jenisObat->nama_jenis_obat ?? '');
-                $sheet->setCellValue('E' . $row, $item->periode);
-                $sheet->setCellValue('F' . $row, $item->stok_awal);
-                $sheet->setCellValue('G' . $row, $item->stok_pakai);
-                $sheet->setCellValue('H' . $row, $item->stok_masuk);
-                $sheet->setCellValue('I' . $row, $item->stok_akhir);
-                $sheet->setCellValue('J' . $row, $item->obat->keterangan ?? '');
-
-                // Style data rows
-                $dataStyle = [
-                    'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
-                ];
-
-                // Color code based on stock status
-                if ($item->stok_akhir <= 0) {
-                    $dataStyle['fill'] = ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FEE2E2']];
-                } elseif ($item->stok_akhir <= 10) {
-                    $dataStyle['fill'] = ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FEF3C7']];
-                }
-
-                $sheet->getStyle('A' . $row . ':J' . $row)->applyFromArray($dataStyle);
-
-                $row++;
-                $no++;
+                $stokByPeriode[$item->periode] = $item;
             }
 
-            // Add summary for this period
-            $totalAwal = $items->sum('stok_awal');
-            $totalPakai = $items->sum('stok_pakai');
-            $totalMasuk = $items->sum('stok_masuk');
-            $totalAkhir = $items->sum('stok_akhir');
+            // Fill stok data for each periode
+            $colIndex = 5; // Start from column F (index 5)
+            foreach ($periodes as $periode) {
+                $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
+                $colLetter1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 2);
+                $colLetter2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 3);
+                $colLetter3 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 4);
 
-            $sheet->mergeCells('A' . $row . ':E' . $row);
-            $sheet->setCellValue('A' . $row, 'TOTAL PERIODE ' . $periode);
-            $sheet->setCellValue('F' . $row, $totalAwal);
-            $sheet->setCellValue('G' . $row, $totalPakai);
-            $sheet->setCellValue('H' . $row, $totalMasuk);
-            $sheet->setCellValue('I' . $row, $totalAkhir);
-            $sheet->setCellValue('J' . $row, '');
+                if (isset($stokByPeriode[$periode])) {
+                    $stok = $stokByPeriode[$periode];
+                    $sheet->setCellValue($colLetter . $row, $stok->stok_awal);
+                    $sheet->setCellValue($colLetter1 . $row, $stok->stok_pakai);
+                    $sheet->setCellValue($colLetter2 . $row, $stok->stok_akhir);
+                    $sheet->setCellValue($colLetter3 . $row, $stok->stok_masuk);
+                } else {
+                    // Empty if no data for this periode
+                    $sheet->setCellValue($colLetter . $row, '-');
+                    $sheet->setCellValue($colLetter1 . $row, '-');
+                    $sheet->setCellValue($colLetter2 . $row, '-');
+                    $sheet->setCellValue($colLetter3 . $row, '-');
+                }
+                $colIndex += 4;
+            }
 
-            $summaryStyle = [
-                'font' => ['bold' => true],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'DBEAFE']],
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT, 'vertical' => Alignment::VERTICAL_CENTER],
+            // Style data rows
+            $dataStyle = [
+                'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
             ];
 
-            $sheet->getStyle('A' . $row . ':J' . $row)->applyFromArray($summaryStyle);
-            $sheet->getStyle('A' . $row . ':E' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A' . $row . ':' . $lastColumn . $row)->applyFromArray($dataStyle);
 
             $row++;
+            $no++;
         }
 
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(5);
         $sheet->getColumnDimension('B')->setWidth(30);
         $sheet->getColumnDimension('C')->setWidth(12);
-        $sheet->getColumnDimension('D')->setWidth(20);
-        $sheet->getColumnDimension('E')->setWidth(10);
-        $sheet->getColumnDimension('F')->setWidth(12);
-        $sheet->getColumnDimension('G')->setWidth(12);
-        $sheet->getColumnDimension('H')->setWidth(12);
-        $sheet->getColumnDimension('I')->setWidth(12);
-        $sheet->getColumnDimension('J')->setWidth(40);
+        $sheet->getColumnDimension('D')->setWidth(40);
+        $sheet->getColumnDimension('E')->setWidth(20);
+
+        // Set width for periode columns
+        for ($i = 5; $i < count($headers); $i++) {
+            $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i + 1);
+            $sheet->getColumnDimension($columnLetter)->setWidth(12);
+        }
 
         // Set row heights for headers
         $sheet->getRowDimension(1)->setRowHeight(25);
 
-        // Add footer info
-        $row += 2;
-        $sheet->setCellValue('A' . $row, 'Dicetak pada: ' . date('d/m/Y H:i:s'));
-        $sheet->setCellValue('A' . ($row + 1), 'Total Data: ' . $data->count() . ' obat');
+        // Add instructions sheet
+        $spreadsheet->createSheet();
+        $spreadsheet->setActiveSheetIndex(1);
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Petunjuk Import');
+
+        // Add instructions
+        $instructions = [
+            'Petunjuk Import Data Stok Bulanan:',
+            '',
+            '1. Format File:',
+            '   - Gunakan file CSV atau Excel (.csv, .xlsx, .xls)',
+            '   - Pastikan format kolom sesuai dengan template',
+            '',
+            '2. Struktur Kolom:',
+            '   - No: Nomor urut',
+            '   - Nama Obat: Nama obat yang sudah ada di sistem',
+            '   - Satuan: Satuan obat',
+            '   - Kegunaan: Keterangan penggunaan obat',
+            '   - Jenis / Golongan Obat: Kategori obat',
+            '   - Periode: Format MM-YY (contoh: 01-25 untuk Januari 2025)',
+            '   - Setiap periode memiliki 4 kolom: Awal, Pakai, Akhir, Masuk',
+            '',
+            '3. Ketentuan:',
+            '   - Pastikan nama obat sudah terdaftar di sistem',
+            '   - Format periode harus MM-YY',
+            '   - Isi hanya dengan angka pada kolom stok',
+            '   - Gunakan - untuk nilai kosong',
+            '   - Untuk nilai negatif, gunakan format (60) = -60',
+            '',
+            '4. Contoh Data:',
+            '   1, Paracetamol, Tablet, Obat demam, Analgetik, 100, 20, 80, 50, 01-25 Awal, 01-25 Pakai, 01-25 Akhir, 01-25 Masuk',
+        ];
+
+        $row = 1;
+        foreach ($instructions as $instruction) {
+            $sheet->setCellValue('A' . $row, $instruction);
+            $row++;
+        }
+
+        // Style instructions
+        $sheet->getStyle('A1:A' . ($row - 1))->getFont()->setSize(11);
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getColumnDimension('A')->setWidth(80);
+
+        // Set active sheet back to data
+        $spreadsheet->setActiveSheetIndex(0);
+        $sheet = $spreadsheet->getActiveSheet();
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'laporan_stok_bulanan_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $filename = 'data_stok_bulanan_' . date('Y-m-d_H-i-s') . '.xlsx';
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
