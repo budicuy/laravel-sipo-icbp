@@ -13,3 +13,4 @@ keluhan relasi ke tabel keluhan
 diagnosa relasi ke tabel diagnosa
 Obat 1-5 relasi ke tabel obat
 Status : Close, On Progres
+
