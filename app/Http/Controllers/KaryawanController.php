@@ -28,6 +28,9 @@ class KaryawanController extends Controller
         if ($request->filled('departemen')) {
             $query->where('id_departemen', $request->input('departemen'));
         }
+        if ($request->filled('jenis_kelamin')) {
+            $query->where('jenis_kelamin', $request->input('jenis_kelamin'));
+        }
         if ($request->filled('q')) {
             $q = $request->input('q');
             $query->where(function ($sub) use ($q) {

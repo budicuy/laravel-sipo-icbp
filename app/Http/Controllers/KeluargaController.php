@@ -36,6 +36,21 @@ class KeluargaController extends Controller
             });
         }
 
+        // Filter jenis kelamin
+        if ($request->filled('jenis_kelamin')) {
+            $jenisKelamin = $request->input('jenis_kelamin');
+            if ($jenisKelamin === 'L') {
+                $query->where('jenis_kelamin', 'Laki - Laki');
+            } elseif ($jenisKelamin === 'P') {
+                $query->where('jenis_kelamin', 'Perempuan');
+            }
+        }
+
+        // Filter hubungan
+        if ($request->filled('kode_hubungan')) {
+            $query->where('kode_hubungan', $request->input('kode_hubungan'));
+        }
+
         // Handle sorting
         $allowedSorts = ['id_keluarga', 'id_karyawan', 'nama_keluarga', 'tanggal_lahir', 'jenis_kelamin', 'kode_hubungan', 'alamat'];
         $sortField = $request->input('sort', 'id_keluarga');
@@ -58,7 +73,10 @@ class KeluargaController extends Controller
 
         $keluargas = $query->paginate($perPage)->appends($request->except('page'));
 
-        return view('keluarga.index', compact('keluargas'));
+        // Get data for filters
+        $hubungans = Hubungan::all();
+
+        return view('keluarga.index', compact('keluargas', 'hubungans'));
     }
 
     public function create()

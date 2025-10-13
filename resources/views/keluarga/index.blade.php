@@ -54,19 +54,46 @@
                 <h3 class="text-sm font-semibold text-gray-800">Filter & Pencarian</h3>
             </div>
 
-            <form method="GET" class="grid grid-cols-1 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari berdasarkan NIK Karyawan, Nama Karyawan, atau Nama Keluarga</label>
-                    <div class="flex gap-2">
-                        <input type="text" name="q" value="{{ request('q') }}" class="flex-1 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm" placeholder="Masukkan kata kunci pencarian...">
-                        <button class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            Filter
-                        </button>
-                        <a href="{{ route('keluarga.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">Reset</a>
-                    </div>
+            <form method="GET" class="flex flex-wrap items-end gap-3">
+                <div class="flex-1 min-w-[250px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari</label>
+                    <input type="text" name="q" value="{{ request('q') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm" placeholder="NIK, Nama Karyawan, atau Nama Keluarga">
+                </div>
+
+                <div class="min-w-[150px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Kelamin</label>
+                    <select name="jenis_kelamin" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white">
+                        <option value="">Semua</option>
+                        <option value="L" {{ request('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                        <option value="P" {{ request('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
+                    </select>
+                </div>
+
+                <div class="min-w-[180px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Hubungan</label>
+                    <select name="kode_hubungan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white">
+                        <option value="">Semua</option>
+                        @foreach($hubungans as $hubungan)
+                            <option value="{{ $hubungan->kode_hubungan }}" {{ request('kode_hubungan') == $hubungan->kode_hubungan ? 'selected' : '' }}>
+                                {{ $hubungan->hubungan }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Filter
+                    </button>
+                    <a href="{{ route('keluarga.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Reset
+                    </a>
                 </div>
             </form>
         </div>
@@ -78,6 +105,12 @@
                 <form method="GET" id="perPageForm" class="inline">
                     @if(request('q'))
                         <input type="hidden" name="q" value="{{ request('q') }}">
+                    @endif
+                    @if(request('jenis_kelamin'))
+                        <input type="hidden" name="jenis_kelamin" value="{{ request('jenis_kelamin') }}">
+                    @endif
+                    @if(request('kode_hubungan'))
+                        <input type="hidden" name="kode_hubungan" value="{{ request('kode_hubungan') }}">
                     @endif
                     <select name="per_page" onchange="document.getElementById('perPageForm').submit()" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
                         <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
@@ -217,29 +250,6 @@
                                 </span>
                             </a>
                         </th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('keluarga.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'alamat', 'direction' => (request('sort') == 'alamat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-purple-300 transition-colors">
-                                <span>Alamat</span>
-                                <span class="ml-2">
-                                    @if(request('sort') == 'alamat')
-                                        @if(request('direction') == 'asc')
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                                            </svg>
-                                        @else
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                            </svg>
-                                        @endif
-                                    @else
-                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-                                        </svg>
-                                    @endif
-                                </span>
-                            </a>
-                        </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">BPJS ID</th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
@@ -266,9 +276,15 @@
                             </span>
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-pink-100 text-pink-800">
-                                {{ $keluarga->jenis_kelamin }}
-                            </span>
+                            @if($keluarga->jenis_kelamin == 'L' || $keluarga->jenis_kelamin == 'Laki - Laki')
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    {{ $keluarga->jenis_kelamin }}
+                                </span>
+                            @else
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-pink-100 text-pink-800">
+                                    {{ $keluarga->jenis_kelamin }}
+                                </span>
+                            @endif
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-1 text-sm text-gray-700">
@@ -278,7 +294,6 @@
                                 {{ optional($keluarga->tanggal_lahir)->format('d-m-Y') }}
                             </div>
                         </td>
-                        <td class="px-4 py-4 text-sm text-gray-900 max-w-xs truncate" title="{{ $keluarga->alamat }}">{{ $keluarga->alamat }}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
                             {{ $keluarga->bpjs_id ?? '-' }}
                         </td>
@@ -303,7 +318,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data keluarga</td>
+                        <td colspan="9" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data keluarga</td>
                     </tr>
                     @endforelse
                 </tbody>

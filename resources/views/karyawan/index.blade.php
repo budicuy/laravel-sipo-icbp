@@ -46,45 +46,42 @@
         </div>
 
         <!-- Filter Section -->
-        <div class="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-gray-200">
-            <div class="flex items-center gap-2 mb-4">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                </svg>
-                <h3 class="text-sm font-semibold text-gray-800">Filter Data</h3>
-            </div>
-
-            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Departemen</label>
-                    <div class="relative">
-                        <select name="departemen" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
-                            <option value="">-- Semua Departemen --</option>
-                            @isset($departemens)
-                                @foreach($departemens as $dept)
-                                    <option value="{{ $dept->id_departemen }}" {{ request('departemen') == $dept->id_departemen ? 'selected' : '' }}>{{ $dept->nama_departemen }}</option>
-                                @endforeach
-                            @endisset
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                <div class="md:col-span-2 flex items-end gap-2">
-                    <input type="text" name="q" value="{{ request('q') }}" class="flex-1 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Cari karyawan...">
-                    <button class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        Filter
-                    </button>
-                    <a href="{{ route('karyawan.index') }}" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">Reset</a>
-                </div>
-            </form>
-        </div>
+        <x-filter-section
+            theme="blue"
+            action="{{ route('karyawan.index') }}"
+            reset-url="{{ route('karyawan.index') }}"
+            :fields="[
+                [
+                    'type' => 'text',
+                    'name' => 'q',
+                    'label' => 'Cari Karyawan',
+                    'placeholder' => 'Nama karyawan...',
+                    'withIcon' => true,
+                    'colSpan' => 'md:col-span-1'
+                ],
+                [
+                    'type' => 'select',
+                    'name' => 'jenis_kelamin',
+                    'label' => 'Jenis Kelamin',
+                    'options' => [
+                        ['value' => '', 'label' => '-- Semua --'],
+                        ['value' => 'L', 'label' => 'Laki-laki'],
+                        ['value' => 'P', 'label' => 'Perempuan']
+                    ],
+                    'colSpan' => 'md:col-span-1'
+                ],
+                [
+                    'type' => 'select',
+                    'name' => 'departemen',
+                    'label' => 'Departemen',
+                    'options' => array_merge(
+                        [['value' => '', 'label' => '-- Semua Departemen --']],
+                        $departemens?->map(fn($dept) => ['value' => $dept->id_departemen, 'label' => $dept->nama_departemen])->toArray() ?? []
+                    ),
+                    'colSpan' => 'md:col-span-1'
+                ]
+            ]"
+        />
 
         <!-- Table Controls -->
         <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
@@ -93,6 +90,9 @@
                 <form method="GET" id="perPageForm" class="inline">
                     @if(request('departemen'))
                         <input type="hidden" name="departemen" value="{{ request('departemen') }}">
+                    @endif
+                    @if(request('jenis_kelamin'))
+                        <input type="hidden" name="jenis_kelamin" value="{{ request('jenis_kelamin') }}">
                     @endif
                     @if(request('q'))
                         <input type="hidden" name="q" value="{{ request('q') }}">
@@ -264,29 +264,6 @@
                                 </span>
                             </a>
                         </th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'alamat', 'direction' => (request('sort') == 'alamat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-blue-300 transition-colors">
-                                <span>Alamat</span>
-                                <span class="ml-2">
-                                    @if(request('sort') == 'alamat')
-                                        @if(request('direction') == 'asc')
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                                            </svg>
-                                        @else
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                            </svg>
-                                        @endif
-                                    @else
-                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-                                        </svg>
-                                    @endif
-                                </span>
-                            </a>
-                        </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -319,9 +296,15 @@
                             </div>
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                {{ $karyawan->jenis_kelamin }}
-                            </span>
+                            @if(strtolower($karyawan->jenis_kelamin) == 'l' || strtolower($karyawan->jenis_kelamin) == 'j' || strtolower($karyawan->jenis_kelamin) == 'laki - laki')
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    Laki-laki
+                                </span>
+                            @else
+                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-pink-100 text-pink-800">
+                                    Perempuan
+                                </span>
+                            @endif
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ optional($karyawan->departemen)->nama_departemen }}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ $karyawan->no_hp }}</td>
@@ -335,7 +318,6 @@
                                 {{ optional($karyawan->tanggal_lahir)->format('d-m-Y') }}
                             </div>
                         </td>
-                        <td class="px-4 py-4 text-sm text-gray-900 max-w-xs truncate" title="{{ $karyawan->alamat }}">{{ $karyawan->alamat }}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm">
                             <div class="flex items-center gap-2">
                                 <a href="{{ route('karyawan.edit', $karyawan->id_karyawan) }}" class="inline-flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Edit">
@@ -357,7 +339,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="12" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data</td>
+                        <td colspan="11" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data</td>
                     </tr>
                     @endforelse
                 </tbody>
