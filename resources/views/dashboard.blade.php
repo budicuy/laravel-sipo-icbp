@@ -19,7 +19,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
             </div>
-            Selamat Datang di Dashboard SIPO-ICBP
+            Selamat Datang <span id="typing-name" class="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent"></span><span id="cursor" class="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent animate-pulse">|</span> di Dashboard SIPO-ICBP
         </h1>
         <p class="text-gray-600 mt-2 ml-1">Sistem Informasi Klinik Indofood - Monitoring Real-time</p>
     </div>
@@ -60,7 +60,7 @@
                     <h3 class="text-xs font-medium text-blue-100">Total Karyawan</h3>
                 </div>
                 <div class="flex items-end justify-between">
-                    <p class="text-5xl font-bold" id="totalKaryawan">-</p>
+                    <p class="text-5xl font-bold" id="totalKaryawan">9999</p>
                     <div class="bg-white p-3 rounded-lg shadow-lg">
                         <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -81,7 +81,7 @@
                     <h3 class="text-xs font-medium text-green-100">Total Rekam Medis</h3>
                 </div>
                 <div class="flex items-end justify-between">
-                    <p class="text-5xl font-bold" id="totalRekamMedis">-</p>
+                    <p class="text-5xl font-bold" id="totalRekamMedis">9999</p>
                     <div class="bg-white p-3 rounded-lg shadow-lg">
                         <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -102,7 +102,7 @@
                     <h3 class="text-xs font-medium text-yellow-100">Kunjungan Hari Ini</h3>
                 </div>
                 <div class="flex items-end justify-between">
-                    <p class="text-5xl font-bold" id="kunjunganHariIni">-</p>
+                    <p class="text-5xl font-bold" id="kunjunganHariIni">9999</p>
                     <div class="bg-white p-3 rounded-lg shadow-lg">
                         <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -123,7 +123,7 @@
                     <h3 class="text-xs font-medium text-red-100">On Progress</h3>
                 </div>
                 <div class="flex items-end justify-between">
-                    <p class="text-5xl font-bold" id="onProgress">-</p>
+                    <p class="text-5xl font-bold" id="onProgress">9999</p>
                     <div class="bg-white p-3 rounded-lg shadow-lg">
                         <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -144,7 +144,7 @@
                     <h3 class="text-xs font-medium text-gray-200">Close</h3>
                 </div>
                 <div class="flex items-end justify-between">
-                    <p class="text-5xl font-bold" id="close">-</p>
+                    <p class="text-5xl font-bold" id="close">9999</p>
                     <div class="bg-white p-3 rounded-lg shadow-lg">
                         <svg class="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -301,6 +301,9 @@
         document.getElementById('monthFilter').value = currentMonth;
         document.getElementById('yearFilter').value = currentYear;
 
+        // Start typing effect
+        typeUserName('{{ $user->nama_lengkap }}');
+
         loadStatistics();
         loadVisitAnalysis(currentMonth, currentYear);
 
@@ -308,22 +311,74 @@
         setInterval(loadStatistics, 30000);
     });
 
+    // Typing effect function
+    function typeUserName(name) {
+        const element = document.getElementById('typing-name');
+        const cursor = document.getElementById('cursor');
+        let index = 0;
+
+        function type() {
+            if (index < name.length) {
+                element.textContent += name.charAt(index);
+                index++;
+                setTimeout(type, 100); // Adjust typing speed here (100ms per character)
+            } else {
+                // Hide cursor after typing is complete
+                setTimeout(() => {
+                    cursor.style.display = 'none';
+                }, 1000);
+            }
+        }
+
+        type();
+    }
+
     // Load statistics data
     async function loadStatistics() {
         try {
             const response = await fetch('/api/dashboard/statistics');
             const data = await response.json();
 
-            // Update statistics cards
-            document.getElementById('totalKaryawan').textContent = data.total_karyawan;
-            document.getElementById('totalRekamMedis').textContent = data.total_rekam_medis;
-            document.getElementById('kunjunganHariIni').textContent = data.kunjungan_hari_ini;
-            document.getElementById('onProgress').textContent = data.on_progress;
-            document.getElementById('close').textContent = data.close;
+            // Animate statistics cards from 999 to actual values
+            animateCounter('totalKaryawan', data.total_karyawan);
+            animateCounter('totalRekamMedis', data.total_rekam_medis);
+            animateCounter('kunjunganHariIni', data.kunjungan_hari_ini);
+            animateCounter('onProgress', data.on_progress);
+            animateCounter('close', data.close);
 
         } catch (error) {
             console.error('Error loading statistics:', error);
         }
+    }
+
+    // Animate counter from 9999 to target value
+    function animateCounter(elementId, targetValue) {
+        const element = document.getElementById(elementId);
+        const startValue = 9999;
+        const duration = 2000; // 2 seconds animation
+        const startTime = performance.now();
+
+        function updateCounter(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Easing function for smooth animation
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+
+            // Calculate current value
+            const currentValue = Math.floor(startValue - (startValue - targetValue) * easeOutQuart);
+
+            // Update element
+            element.textContent = currentValue;
+
+            // Continue animation if not complete
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            }
+        }
+
+        // Start animation
+        requestAnimationFrame(updateCounter);
     }
 
     // Load visit analysis data
