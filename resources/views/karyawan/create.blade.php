@@ -55,9 +55,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="nik" name="nik" value="{{ old('nik') }}"
-                                    maxlength="15"
-                                     class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500  focus:border-blue-500" placeholder="Masukkan NIK (1-15 karakter)" required>
+                                    <input type="number" id="nik" name="nik" value="{{ old('nik') }}"
+                                    maxlength="15" min="0" pattern="[0-9]*" inputmode="numeric"
+                                     class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500  focus:border-blue-500" placeholder="Masukkan NIK (hanya angka)" required>
                                 </div>
                                 @error('nik')
                                     <p class="text-xs text-red-600">{{ $message }}</p>
@@ -276,29 +276,68 @@
 @push('scripts')
 <script>
 function confirmSave(event) {
-    event.preventDefault();
+    // Validasi form sebelum submit
+    const form = document.getElementById('formKaryawan');
 
-    Swal.fire({
-        title: 'Simpan Data Karyawan?',
-        text: "Pastikan semua data sudah benar!",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#3b82f6',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Ya, Simpan!',
-        cancelButtonText: 'Cek Lagi',
-        reverseButtons: true,
-        customClass: {
-            confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
-            cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('formKaryawan').submit();
+    // Cek semua required field
+    const requiredFields = form.querySelectorAll('[required]');
+    let isValid = true;
+    let firstInvalidField = null;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            if (!firstInvalidField) {
+                firstInvalidField = field;
+            }
+            // Tambahkan class error
+            field.classList.add('border-red-500');
+            // Buat pesan error jika belum ada
+            const errorMsg = field.parentNode.querySelector('.field-error');
+            if (!errorMsg) {
+                const errorDiv = document.createElement('p');
+                errorDiv.className = 'field-error mt-2 text-sm text-red-600';
+                errorDiv.textContent = getFieldLabel(field) + ' wajib diisi';
+                field.parentNode.appendChild(errorDiv);
+            }
+        } else {
+            // Hapus class error jika sudah valid
+            field.classList.remove('border-red-500');
+            // Hapus pesan error jika ada
+            const errorMsg = field.parentNode.querySelector('.field-error');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
         }
     });
 
-    return false;
+    if (!isValid) {
+        // Fokus ke field pertama yang error
+        if (firstInvalidField) {
+            firstInvalidField.focus();
+            // Scroll ke field error
+            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        event.preventDefault();
+        return false;
+    }
+
+    // Jika semua valid, tampilkan konfirmasi sederhana
+    if (confirm('Apakah Anda yakin ingin menyimpan data karyawan ini?')) {
+        return true; // Lanjutkan submit
+    } else {
+        event.preventDefault();
+        return false;
+    }
+}
+
+// Fungsi untuk mendapatkan label field
+function getFieldLabel(field) {
+    const label = form.querySelector(`label[for="${field.id}"]`);
+    if (label) {
+        return label.textContent.replace('*', '').trim();
+    }
+    return 'Field ini';
 }
 
 function previewImage(event) {
@@ -335,7 +374,12 @@ function clearImage() {
     `;
 }
 
-// Validasi BPJS ID hanya angka
+// Validasi NIK dan BPJS ID hanya angka
+document.getElementById('nik').addEventListener('input', function(e) {
+    // Hapus karakter non-angka
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
 document.getElementById('bpjs_id').addEventListener('input', function(e) {
     this.value = this.value.replace(/[^0-9]/g, '');
 });

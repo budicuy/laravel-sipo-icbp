@@ -74,7 +74,7 @@ class KaryawanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nik' => ['required','string','min:1','max:15','unique:karyawan,nik_karyawan'],
+            'nik' => ['required','numeric','min:1','max:999999999999999','unique:karyawan,nik_karyawan'],
             'nama' => ['required','string','max:100'],
             'tanggal_lahir' => ['required','date'],
             'jenis_kelamin' => ['required', Rule::in(['L', 'P', 'J', 'Laki - Laki','Perempuan'])],
@@ -85,7 +85,28 @@ class KaryawanController extends Controller
             'email' => ['nullable','email','max:100'],
             'bpjs_id' => ['nullable','string','max:50','regex:/^[0-9]+$/'],
         ], [
+            'nik.required' => 'NIK karyawan wajib diisi',
+            'nik.numeric' => 'NIK karyawan hanya boleh berisi angka',
+            'nik.min' => 'NIK karyawan minimal 1 digit',
+            'nik.max' => 'NIK karyawan maksimal 15 digit',
+            'nik.unique' => 'NIK karyawan sudah terdaftar',
+            'nama.required' => 'Nama karyawan wajib diisi',
+            'nama.max' => 'Nama karyawan maksimal 100 karakter',
+            'tanggal_lahir.required' => 'Tanggal lahir wajib diisi',
+            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih',
+            'jenis_kelamin.in' => 'Jenis kelamin tidak valid',
+            'alamat.required' => 'Alamat wajib diisi',
+            'no_hp.required' => 'Nomor HP wajib diisi',
+            'no_hp.regex' => 'Nomor HP harus diawali dengan 08',
+            'departemen.required' => 'Departemen wajib dipilih',
+            'departemen.exists' => 'Departemen tidak valid',
+            'foto.image' => 'File harus berupa gambar',
+            'foto.max' => 'Ukuran foto maksimal 30KB',
+            'email.email' => 'Format email tidak valid',
+            'email.max' => 'Email maksimal 100 karakter',
             'bpjs_id.regex' => 'BPJS ID hanya boleh berisi angka',
+            'bpjs_id.max' => 'BPJS ID maksimal 50 karakter',
         ]);
 
         $path = null;
@@ -123,7 +144,7 @@ class KaryawanController extends Controller
     public function update(Request $request, Karyawan $karyawan)
     {
         $validated = $request->validate([
-            'nik' => ['required','string','min:1','max:15', Rule::unique('karyawan','nik_karyawan')->ignore($karyawan->id_karyawan, 'id_karyawan')],
+            'nik' => ['required','numeric','min:1','max:999999999999999', Rule::unique('karyawan','nik_karyawan')->ignore($karyawan->id_karyawan, 'id_karyawan')],
             'nama' => ['required','string','max:100'],
             'tanggal_lahir' => ['required','date'],
             'jenis_kelamin' => ['required', Rule::in(['L', 'P', 'J', 'Laki - Laki','Perempuan'])],
@@ -134,7 +155,28 @@ class KaryawanController extends Controller
             'email' => ['nullable','email','max:100'],
             'bpjs_id' => ['nullable','string','max:50','regex:/^[0-9]+$/'],
         ], [
+            'nik.required' => 'NIK karyawan wajib diisi',
+            'nik.numeric' => 'NIK karyawan hanya boleh berisi angka',
+            'nik.min' => 'NIK karyawan minimal 1 digit',
+            'nik.max' => 'NIK karyawan maksimal 15 digit',
+            'nik.unique' => 'NIK karyawan sudah terdaftar',
+            'nama.required' => 'Nama karyawan wajib diisi',
+            'nama.max' => 'Nama karyawan maksimal 100 karakter',
+            'tanggal_lahir.required' => 'Tanggal lahir wajib diisi',
+            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih',
+            'jenis_kelamin.in' => 'Jenis kelamin tidak valid',
+            'alamat.required' => 'Alamat wajib diisi',
+            'no_hp.required' => 'Nomor HP wajib diisi',
+            'no_hp.regex' => 'Nomor HP harus diawali dengan 08',
+            'departemen.required' => 'Departemen wajib dipilih',
+            'departemen.exists' => 'Departemen tidak valid',
+            'foto.image' => 'File harus berupa gambar',
+            'foto.max' => 'Ukuran foto maksimal 30KB',
+            'email.email' => 'Format email tidak valid',
+            'email.max' => 'Email maksimal 100 karakter',
             'bpjs_id.regex' => 'BPJS ID hanya boleh berisi angka',
+            'bpjs_id.max' => 'BPJS ID maksimal 50 karakter',
         ]);
 
         $data = [

@@ -78,6 +78,21 @@ class KeluargaController extends Controller
             'kode_hubungan' => 'required|exists:hubungan,kode_hubungan',
             'tanggal_daftar' => 'nullable|date',
             'bpjs_id' => 'nullable|max:50|regex:/^[0-9]+$/',
+        ], [
+            'id_karyawan.required' => 'Karyawan wajib dipilih',
+            'id_karyawan.exists' => 'Karyawan tidak valid',
+            'nama_keluarga.required' => 'Nama keluarga wajib diisi',
+            'nama_keluarga.max' => 'Nama keluarga maksimal 100 karakter',
+            'tanggal_lahir.required' => 'Tanggal lahir wajib diisi',
+            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih',
+            'jenis_kelamin.in' => 'Jenis kelamin tidak valid',
+            'alamat.required' => 'Alamat wajib diisi',
+            'kode_hubungan.required' => 'Hubungan keluarga wajib dipilih',
+            'kode_hubungan.exists' => 'Hubungan keluarga tidak valid',
+            'tanggal_daftar.date' => 'Format tanggal daftar tidak valid',
+            'bpjs_id.regex' => 'BPJS ID hanya boleh berisi angka',
+            'bpjs_id.max' => 'BPJS ID maksimal 50 karakter',
         ]);
 
         Keluarga::create($validated);
@@ -106,6 +121,21 @@ class KeluargaController extends Controller
             'kode_hubungan' => 'required|exists:hubungan,kode_hubungan',
             'tanggal_daftar' => 'nullable|date',
             'bpjs_id' => 'nullable|max:50|regex:/^[0-9]+$/',
+        ], [
+            'id_karyawan.required' => 'Karyawan wajib dipilih',
+            'id_karyawan.exists' => 'Karyawan tidak valid',
+            'nama_keluarga.required' => 'Nama keluarga wajib diisi',
+            'nama_keluarga.max' => 'Nama keluarga maksimal 100 karakter',
+            'tanggal_lahir.required' => 'Tanggal lahir wajib diisi',
+            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih',
+            'jenis_kelamin.in' => 'Jenis kelamin tidak valid',
+            'alamat.required' => 'Alamat wajib diisi',
+            'kode_hubungan.required' => 'Hubungan keluarga wajib dipilih',
+            'kode_hubungan.exists' => 'Hubungan keluarga tidak valid',
+            'tanggal_daftar.date' => 'Format tanggal daftar tidak valid',
+            'bpjs_id.regex' => 'BPJS ID hanya boleh berisi angka',
+            'bpjs_id.max' => 'BPJS ID maksimal 50 karakter',
         ]);
 
         $keluarga->update($validated);

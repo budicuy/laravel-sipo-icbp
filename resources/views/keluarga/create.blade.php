@@ -49,7 +49,7 @@
                 <div class="relative">
                     <input type="text" id="nik_search" autocomplete="off"
                            class="w-full px-4 py-2.5 border @error('id_karyawan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                           placeholder="Ketik NIK atau nama karyawan...">
+                           placeholder="Ketik NIK (hanya angka) atau nama karyawan...">
                     <div id="search_results" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-64 overflow-y-auto">
                         <!-- Search results will be displayed here -->
                     </div>
@@ -359,34 +359,94 @@ function handleHubunganChange() {
     }
 }
 
-// Confirm save with SweetAlert
+// Confirm save with validation
 function confirmSave() {
     const form = document.getElementById('keluargaForm');
 
-    if (!form.checkValidity()) {
-        form.reportValidity();
+    // Cek semua required field
+    const requiredFields = form.querySelectorAll('[required]');
+    let isValid = true;
+    let firstInvalidField = null;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            if (!firstInvalidField) {
+                firstInvalidField = field;
+            }
+            // Tambahkan class error
+            field.classList.add('border-red-500');
+            // Buat pesan error jika belum ada
+            const errorMsg = field.parentNode.querySelector('.field-error');
+            if (!errorMsg) {
+                const errorDiv = document.createElement('p');
+                errorDiv.className = 'field-error mt-2 text-sm text-red-600';
+                errorDiv.textContent = getFieldLabel(field) + ' wajib diisi';
+                field.parentNode.appendChild(errorDiv);
+            }
+        } else {
+            // Hapus class error jika sudah valid
+            field.classList.remove('border-red-500');
+            // Hapus pesan error jika ada
+            const errorMsg = field.parentNode.querySelector('.field-error');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        }
+    });
+
+    // Validasi khusus untuk id_karyawan (hidden field)
+    const idKaryawanField = document.getElementById('id_karyawan');
+    if (!idKaryawanField.value.trim()) {
+        isValid = false;
+        const nikSearchField = document.getElementById('nik_search');
+        nikSearchField.classList.add('border-red-500');
+
+        // Buat pesan error jika belum ada
+        const errorMsg = nikSearchField.parentNode.parentNode.querySelector('.field-error');
+        if (!errorMsg) {
+            const errorDiv = document.createElement('p');
+            errorDiv.className = 'field-error mt-2 text-sm text-red-600';
+            errorDiv.textContent = 'Karyawan wajib dipilih';
+            nikSearchField.parentNode.parentNode.appendChild(errorDiv);
+        }
+
+        if (!firstInvalidField) {
+            firstInvalidField = nikSearchField;
+        }
+    } else {
+        const nikSearchField = document.getElementById('nik_search');
+        nikSearchField.classList.remove('border-red-500');
+        // Hapus pesan error jika ada
+        const errorMsg = nikSearchField.parentNode.parentNode.querySelector('.field-error');
+        if (errorMsg) {
+            errorMsg.remove();
+        }
+    }
+
+    if (!isValid) {
+        // Fokus ke field pertama yang error
+        if (firstInvalidField) {
+            firstInvalidField.focus();
+            // Scroll ke field error
+            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         return;
     }
 
-    Swal.fire({
-        title: 'Simpan Data Keluarga?',
-        text: "Pastikan semua data sudah benar!",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#9333ea',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Ya, Simpan!',
-        cancelButtonText: 'Cek Lagi',
-        reverseButtons: true,
-        customClass: {
-            confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
-            cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            form.submit();
-        }
-    });
+    // Jika semua valid, tampilkan konfirmasi sederhana
+    if (confirm('Apakah Anda yakin ingin menyimpan data keluarga ini?')) {
+        form.submit();
+    }
+}
+
+// Fungsi untuk mendapatkan label field
+function getFieldLabel(field) {
+    const label = form.querySelector(`label[for="${field.id}"]`);
+    if (label) {
+        return label.textContent.replace('*', '').trim();
+    }
+    return 'Field ini';
 }
 
 // Initialize KTP field visibility on page load
@@ -398,6 +458,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (bpjsIdInput) {
         bpjsIdInput.addEventListener('input', function(e) {
             this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    }
+
+    // NIK Search - Allow numbers and letters for search, but show validation message
+    const nikSearchInput = document.getElementById('nik_search');
+    if (nikSearchInput) {
+        nikSearchInput.addEventListener('input', function(e) {
+            // Tidak membatasi input karena user bisa mencari dengan nama juga
+            // Tapi menambahkan pesan informatif
+            const searchValue = this.value.trim();
+            if (searchValue.length > 0 && /^\d+$/.test(searchValue)) {
+                // Jika input hanya angka, pastikan tidak ada karakter non-angka
+                this.value = this.value.replace(/[^0-9]/g, '');
+            }
         });
     }
 });
