@@ -67,8 +67,29 @@ class Obat extends Model
         parent::boot();
 
         static::saving(function ($obat) {
-            // Update tanggal_update
-            $obat->tanggal_update = now();
+            // Update tanggal_update only if not already set
+            if (!$obat->tanggal_update) {
+                $obat->tanggal_update = now();
+            }
+        });
+
+        // Add logging for debugging
+        static::created(function ($obat) {
+            \Log::info('Obat created successfully', [
+                'id_obat' => $obat->id_obat,
+                'nama_obat' => $obat->nama_obat,
+                'id_jenis_obat' => $obat->id_jenis_obat,
+                'id_satuan' => $obat->id_satuan
+            ]);
+        });
+
+        static::updated(function ($obat) {
+            \Log::info('Obat updated successfully', [
+                'id_obat' => $obat->id_obat,
+                'nama_obat' => $obat->nama_obat,
+                'id_jenis_obat' => $obat->id_jenis_obat,
+                'id_satuan' => $obat->id_satuan
+            ]);
         });
     }
 }

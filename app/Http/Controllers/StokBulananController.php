@@ -677,7 +677,8 @@ class StokBulananController extends Controller
         // Extract periode headers from row 1 (starting from column D)
         $periodes = [];
         for ($col = 4; $col <= $highestColumnIndex; $col += 4) {
-            $cellValue = $sheet->getCellByColumnAndRow($col, 1)->getValue();
+            $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col);
+            $cellValue = $sheet->getCell($columnLetter . '1')->getValue();
             if ($cellValue) {
                 // Extract periode from header like "08-24 Awal"
                 if (preg_match('/(\d{2}-\d{2})/', $cellValue, $matches)) {
@@ -689,9 +690,9 @@ class StokBulananController extends Controller
         // Process each row
         for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
             // Read basic info
-            $no = trim($sheet->getCellByColumnAndRow(1, $rowNumber)->getValue() ?? '');
-            $namaObat = trim($sheet->getCellByColumnAndRow(2, $rowNumber)->getValue() ?? '');
-            $satuan = trim($sheet->getCellByColumnAndRow(3, $rowNumber)->getValue() ?? '');
+            $no = trim($sheet->getCell('A' . $rowNumber)->getValue() ?? '');
+            $namaObat = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
+            $satuan = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? '');
 
             // Skip empty rows
             if (empty($namaObat)) {
@@ -711,10 +712,15 @@ class StokBulananController extends Controller
             $colIndex = 4; // Start from column D (index 4)
             foreach ($periodes as $periode) {
                 if ($colIndex + 3 <= $highestColumnIndex) {
-                    $stokAwal = trim($sheet->getCellByColumnAndRow($colIndex, $rowNumber)->getValue() ?? '');
-                    $stokPakai = trim($sheet->getCellByColumnAndRow($colIndex + 1, $rowNumber)->getValue() ?? '');
-                    $stokAkhir = trim($sheet->getCellByColumnAndRow($colIndex + 2, $rowNumber)->getValue() ?? '');
-                    $stokMasuk = trim($sheet->getCellByColumnAndRow($colIndex + 3, $rowNumber)->getValue() ?? '');
+                    $colLetter1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
+                    $colLetter2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
+                    $colLetter3 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 2);
+                    $colLetter4 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 3);
+
+                    $stokAwal = trim($sheet->getCell($colLetter1 . $rowNumber)->getValue() ?? '');
+                    $stokPakai = trim($sheet->getCell($colLetter2 . $rowNumber)->getValue() ?? '');
+                    $stokAkhir = trim($sheet->getCell($colLetter3 . $rowNumber)->getValue() ?? '');
+                    $stokMasuk = trim($sheet->getCell($colLetter4 . $rowNumber)->getValue() ?? '');
 
                     // Parse stok values
                     $stokAwal = $this->parseStokValue($stokAwal);

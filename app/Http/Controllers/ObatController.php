@@ -560,11 +560,23 @@ class ObatController extends Controller
             // Get highest row number
             $highestRow = $sheet->getHighestRow();
 
+            // Log informasi awal
+            Log::info('Starting import obat process', [
+                'file_name' => $file->getClientOriginalName(),
+                'highest_row' => $highestRow
+            ]);
+
             // Get reference data
             $jenisObats = JenisObat::pluck('nama_jenis_obat', 'id_jenis_obat')->toArray();
             $jenisObatNames = array_flip($jenisObats);
             $satuanObats = SatuanObat::pluck('nama_satuan', 'id_satuan')->toArray();
             $satuanObatNames = array_flip($satuanObats);
+
+            // Log reference data
+            Log::info('Reference data loaded', [
+                'jenis_obat_count' => count($jenisObats),
+                'satuan_obat_count' => count($satuanObats)
+            ]);
 
             // Skip header row, start from row 2
             $created = 0;
@@ -639,31 +651,62 @@ class ObatController extends Controller
                 // Check if update or create
                 $exists = Obat::where('nama_obat', $namaObat)->exists();
 
-                // Create or update obat
-                $obat = Obat::updateOrCreate(
-                    ['nama_obat' => $namaObat],
-                    $data
-                );
+                // Create or update obat with validation
+                try {
+                    $obat = Obat::updateOrCreate(
+                        ['nama_obat' => $namaObat],
+                        $data
+                    );
 
-                // If this is a new obat, create initial stok bulanan entry
-                if (!$exists) {
-                    $currentPeriode = now()->format('m-y');
-                    StokBulanan::create([
-                        'id_obat' => $obat->id_obat,
-                        'periode' => $currentPeriode,
-                        'stok_awal' => 0,
-                        'stok_pakai' => 0,
-                        'stok_masuk' => 0,
-                        'stok_akhir' => 0,
+                    // Log successful creation/update
+                    Log::info('Obat processed', [
+                        'row' => $rowNumber,
+                        'nama_obat' => $namaObat,
+                        'exists' => $exists,
+                        'obat_id' => $obat->id_obat
                     ]);
-                }
 
-                if ($exists) {
-                    $updated++;
-                } else {
-                    $created++;
+                    // If this is a new obat, create initial stok bulanan entry
+                    if (!$exists) {
+                        $currentPeriode = now()->format('m-y');
+                        StokBulanan::create([
+                            'id_obat' => $obat->id_obat,
+                            'periode' => $currentPeriode,
+                            'stok_awal' => 0,
+                            'stok_pakai' => 0,
+                            'stok_masuk' => 0,
+                            'stok_akhir' => 0,
+                        ]);
+
+                        Log::info('Stok bulanan created for new obat', [
+                            'obat_id' => $obat->id_obat,
+                            'periode' => $currentPeriode
+                        ]);
+                    }
+
+                    if ($exists) {
+                        $updated++;
+                    } else {
+                        $created++;
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error processing obat at row ' . $rowNumber, [
+                        'error' => $e->getMessage(),
+                        'nama_obat' => $namaObat
+                    ]);
+                    $errors[] = "Baris $rowNumber: " . $e->getMessage();
+                    continue;
                 }
             }
+
+            // Commit transaction
+            DB::commit();
+
+            Log::info('Import transaction committed', [
+                'created' => $created,
+                'updated' => $updated,
+                'errors_count' => count($errors)
+            ]);
 
             $message = "Import selesai: $created data baru ditambahkan, $updated data diperbarui";
             $hasErrors = count($errors) > 0;
@@ -700,6 +743,9 @@ class ObatController extends Controller
             return back()->with('success', $message);
 
         } catch (\Exception $e) {
+            // Rollback transaction
+            DB::rollBack();
+
             Log::error('Error importing obat: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
 
