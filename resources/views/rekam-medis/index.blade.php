@@ -195,13 +195,13 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             <div class="status-dropdown" data-id="{{ $rm->id_rekam }}">
                                 <select class="status-select px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500
-                                    @if($rm->status == 'On Orogres') bg-yellow-100 text-yellow-800
+                                    @if($rm->status == 'On Progress') bg-yellow-100 text-yellow-800
                                     @elseif($rm->status == 'Close') bg-green-100 text-green-800
                                     @endif"
                                     data-id="{{ $rm->id_rekam }}"
-                                    data-current-status="{{ $rm->status ?? 'On Orogres' }}">
-                                    <option value="On Orogres" {{ ($rm->status ?? 'On Orogres') == 'On Orogres' ? 'selected' : '' }}>On Orogres</option>
-                                    <option value="Close" {{ ($rm->status ?? 'On Orogres') == 'Close' ? 'selected' : '' }}>Close</option>
+                                    data-current-status="{{ $rm->status ?? 'On Progress' }}">
+                                    <option value="On Progress" {{ ($rm->status ?? 'On Progress') == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                                    <option value="Close" {{ ($rm->status ?? 'On Progress') == 'Close' ? 'selected' : '' }}>Close</option>
                                 </select>
                             </div>
                         </td>
@@ -341,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Update styling based on new status
                     this.classList.remove('bg-yellow-100', 'text-yellow-800', 'bg-green-100', 'text-green-800');
 
-                    if (newStatus === 'On Orogres') {
+                    if (newStatus === 'On Progress') {
                         this.classList.add('bg-yellow-100', 'text-yellow-800');
                     } else if (newStatus === 'Close') {
                         this.classList.add('bg-green-100', 'text-green-800');

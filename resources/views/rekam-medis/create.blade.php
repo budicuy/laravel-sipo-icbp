@@ -265,7 +265,7 @@
                         </label>
                         <div class="relative">
                             <select id="status" name="status" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
-                                <option value="On Orogres" {{ old('status', 'On Orogres') == 'On Orogres' ? 'selected' : '' }}>On Orogres</option>
+                                <option value="On Progress" {{ old('status', 'On Progress') == 'On Progress' ? 'selected' : '' }}>On Progress</option>
                                 <option value="Close" {{ old('status') == 'Close' ? 'selected' : '' }}>Close</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">

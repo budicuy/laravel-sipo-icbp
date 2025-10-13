@@ -283,11 +283,11 @@
                                 <div class="data-label">Status</div>
                                 <div>
                                     <span class="px-3 py-1
-                                        @if($kunjungan->status == 'On Orogres') bg-yellow-100 text-yellow-800
+                                        @if($kunjungan->status == 'On Progress') bg-yellow-100 text-yellow-800
                                         @elseif($kunjungan->status == 'Close') bg-green-100 text-green-800
                                         @endif
                                         rounded-full text-sm font-semibold">
-                                        {{ $kunjungan->status ?? 'On Orogres' }}
+                                        {{ $kunjungan->status ?? 'On Progress' }}
                                     </span>
                                 </div>
                             </div>

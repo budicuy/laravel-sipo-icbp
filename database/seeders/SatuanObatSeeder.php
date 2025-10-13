@@ -15,7 +15,7 @@ class SatuanObatSeeder extends Seeder
     public function run(): void
     {
         // Hapus data lama jika ada menggunakan Eloquent
-        // Disable foreign key checks temporarily
+        // Disable foreign key checks temporarily (MariaDB/MySQL syntax)
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         SatuanObat::query()->delete();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');

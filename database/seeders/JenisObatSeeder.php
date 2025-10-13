@@ -15,10 +15,8 @@ class JenisObatSeeder extends Seeder
     public function run(): void
     {
         // Hapus data lama jika ada menggunakan Eloquent
-        // Disable foreign key checks temporarily
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // Disable foreign key checks temporarily (MariaDB/MySQL syntax)
         JenisObat::query()->delete();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $jenisObats = [
             ['id_jenis_obat' => 1, 'nama_jenis_obat' => 'Tablet'],
@@ -35,3 +33,4 @@ class JenisObatSeeder extends Seeder
         JenisObat::insert($jenisObats);
     }
 }
+
