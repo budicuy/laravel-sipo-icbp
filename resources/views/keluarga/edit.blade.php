@@ -7,176 +7,183 @@
     <!-- Header Section -->
     <div class="mb-6">
         <div class="flex items-center gap-3 mb-3">
-            <a href="{{ route('keluarga.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <a href="{{ route('keluarga.index') }}" class="p-2 hover:bg-white rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
-                Kembali
             </a>
-        </div>
-        <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-3 rounded-lg shadow-lg">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-3 rounded-lg shadow-lg">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </div>
+                    Edit Data Keluarga Karyawan
+                </h1>
+                <p class="text-gray-600 mt-1 ml-1">Perbarui informasi data keluarga karyawan</p>
             </div>
-            Edit Data Keluarga Karyawan
-        </h1>
-        <p class="text-gray-600 mt-2 ml-1">Perbarui informasi data keluarga</p>
+        </div>
     </div>
 
-    <!-- Form Card -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden max-w-3xl">
-        <div class="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-purple-600 to-pink-600">
-            <h2 class="text-xl font-semibold text-white">Form Edit Data Keluarga</h2>
-        </div>
+    <form method="POST" action="{{ route('keluarga.update', $keluarga->id_keluarga) }}" id="keluargaForm">
+        @csrf
+        @method('PUT')
 
-        <form method="POST" action="{{ route('keluarga.update', $keluarga->id_keluarga) }}" class="p-6 space-y-6" id="keluargaForm">
-            @csrf
-            @method('PUT')
-
-            <!-- NIK Karyawan dengan Search -->
-            <div>
-                <label for="nik_search" class="block text-sm font-semibold text-gray-700 mb-2">
-                    NIK Karyawan <span class="text-red-600">*</span>
-                </label>
-                <div class="relative">
-                    <input type="text" id="nik_search" autocomplete="off"
-                           class="w-full px-4 py-2.5 border @error('id_karyawan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                           placeholder="Ketik NIK (hanya angka) atau nama karyawan...">
-                    <div id="search_results" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-64 overflow-y-auto">
-                        <!-- Search results will be displayed here -->
-                    </div>
-                </div>
-                <input type="hidden" name="id_karyawan" id="id_karyawan" value="{{ old('id_karyawan', $keluarga->id_karyawan) }}">
-                <div id="selected_karyawan" class="mt-2">
-                    <div class="flex items-center gap-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        <div class="flex-1">
-                            <p class="text-sm font-semibold text-gray-900" id="selected_nama">{{ optional($keluarga->karyawan)->nama_karyawan }}</p>
-                            <p class="text-xs text-gray-600" id="selected_nik">NIK: {{ optional($keluarga->karyawan)->nik_karyawan }}</p>
-                        </div>
-                        <button type="button" onclick="enableSearch()" class="text-purple-600 hover:text-purple-700">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                @error('id_karyawan')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Hubungan -->
-            <div>
-                <label for="kode_hubungan" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Hubungan dengan Karyawan <span class="text-red-600">*</span>
-                </label>
-                <select name="kode_hubungan" id="kode_hubungan" required onchange="handleHubunganChange()"
-                        class="w-full px-4 py-2.5 border @error('kode_hubungan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
-                    <option value="">-- Pilih Hubungan --</option>
-                    <option value="A" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'A' ? 'selected' : '' }}>Diri Sendiri</option>
-                    <option value="B" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'B' ? 'selected' : '' }}>Suami/Istri</option>
-                    <option value="C" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'C' ? 'selected' : '' }}>Anak Ke-1</option>
-                    <option value="D" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'D' ? 'selected' : '' }}>Anak Ke-2</option>
-                    <option value="E" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'E' ? 'selected' : '' }}>Anak Ke-3</option>
-                </select>
-                @error('kode_hubungan')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Nama Keluarga -->
-            <div>
-                <label for="nama_keluarga" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Nama Keluarga <span class="text-red-600">*</span>
-                </label>
-                <input type="text" name="nama_keluarga" id="nama_keluarga" value="{{ old('nama_keluarga', $keluarga->nama_keluarga) }}" required
-                       class="w-full px-4 py-2.5 border @error('nama_keluarga') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                       placeholder="Masukkan nama lengkap keluarga">
-                @error('nama_keluarga')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- BPJS ID -->
-            <div>
-                <label for="bpjs_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                    BPJS ID
-                </label>
-                <input type="text" name="bpjs_id" id="bpjs_id" value="{{ old('bpjs_id', $keluarga->bpjs_id) }}"
-                       class="w-full px-4 py-2.5 border @error('bpjs_id') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                       placeholder="Masukkan BPJS ID (hanya angka)" maxlength="50">
-                <p class="mt-1 text-xs text-gray-500">Hanya angka, maksimal 50 karakter</p>
-                @error('bpjs_id')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Jenis Kelamin -->
-            <div>
-                <label for="jenis_kelamin" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Jenis Kelamin <span class="text-red-600">*</span>
-                </label>
-                <select name="jenis_kelamin" id="jenis_kelamin" required
-                        class="w-full px-4 py-2.5 border @error('jenis_kelamin') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
-                    <option value="">-- Pilih Jenis Kelamin --</option>
-                    <option value="L" {{ old('jenis_kelamin', $keluarga->jenis_kelamin) == 'L' || old('jenis_kelamin', $keluarga->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                    <option value="P" {{ old('jenis_kelamin', $keluarga->jenis_kelamin) == 'P' || old('jenis_kelamin', $keluarga->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
-                </select>
-                <input type="hidden" id="jenis_kelamin_hidden" name="jenis_kelamin_backup" value="">
-                @error('jenis_kelamin')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Tanggal Lahir -->
-            <div>
-                <label for="tanggal_lahir" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Tanggal Lahir <span class="text-red-600">*</span>
-                </label>
-                <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', optional($keluarga->tanggal_lahir)->format('Y-m-d')) }}" required
-                       class="w-full px-4 py-2.5 border @error('tanggal_lahir') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
-                @error('tanggal_lahir')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Alamat -->
-            <div>
-                <label for="alamat" class="block text-sm font-semibold text-gray-700 mb-2">
-                    Alamat <span class="text-red-600">*</span>
-                </label>
-                <textarea name="alamat" id="alamat" rows="3" required
-                          class="w-full px-4 py-2.5 border @error('alamat') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm resize-none"
-                          placeholder="Masukkan alamat lengkap">{{ old('alamat', $keluarga->alamat) }}</textarea>
-                @error('alamat')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center gap-3 pt-6 border-t border-gray-200">
-                <button type="button" onclick="confirmUpdate()"
-                        class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                     </svg>
-                    Perbarui Data
-                </button>
-                <a href="{{ route('keluarga.index') }}"
-                   class="flex-1 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    Informasi Data Keluarga
+                </h2>
+            </div>
+
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- NIK Karyawan dengan Search -->
+                    <div class="md:col-span-2">
+                        <label for="nik_search" class="block text-sm font-semibold text-gray-700 mb-2">
+                            NIK Karyawan <span class="text-red-600">*</span>
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="nik_search" autocomplete="off"
+                                   class="w-full px-4 py-2.5 border @error('id_karyawan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                                   placeholder="Ketik NIK (hanya angka) atau nama karyawan...">
+                            <div id="search_results" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-64 overflow-y-auto">
+                                <!-- Search results will be displayed here -->
+                            </div>
+                        </div>
+                        <input type="hidden" name="id_karyawan" id="id_karyawan" value="{{ old('id_karyawan', $keluarga->id_karyawan) }}">
+                        <div id="selected_karyawan" class="mt-2">
+                            <div class="flex items-center gap-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <div class="flex-1">
+                                    <p class="text-sm font-semibold text-gray-900" id="selected_nama">{{ optional($keluarga->karyawan)->nama_karyawan }}</p>
+                                    <p class="text-xs text-gray-600" id="selected_nik">NIK: {{ optional($keluarga->karyawan)->nik_karyawan }}</p>
+                                </div>
+                                <button type="button" onclick="enableSearch()" class="text-purple-600 hover:text-purple-700">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        @error('id_karyawan')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Hubungan -->
+                    <div>
+                        <label for="kode_hubungan" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Hubungan dengan Karyawan <span class="text-red-600">*</span>
+                        </label>
+                        <select name="kode_hubungan" id="kode_hubungan" required onchange="handleHubunganChange()"
+                                class="w-full px-4 py-2.5 border @error('kode_hubungan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                            <option value="">-- Pilih Hubungan --</option>
+                            <option value="A" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'A' ? 'selected' : '' }}>Diri Sendiri</option>
+                            <option value="B" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'B' ? 'selected' : '' }}>Suami/Istri</option>
+                            <option value="C" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'C' ? 'selected' : '' }}>Anak Ke-1</option>
+                            <option value="D" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'D' ? 'selected' : '' }}>Anak Ke-2</option>
+                            <option value="E" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'E' ? 'selected' : '' }}>Anak Ke-3</option>
+                        </select>
+                        @error('kode_hubungan')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Nama Keluarga -->
+                    <div>
+                        <label for="nama_keluarga" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Nama Keluarga <span class="text-red-600">*</span>
+                        </label>
+                        <input type="text" name="nama_keluarga" id="nama_keluarga" value="{{ old('nama_keluarga', $keluarga->nama_keluarga) }}" required
+                               class="w-full px-4 py-2.5 border @error('nama_keluarga') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                               placeholder="Masukkan nama lengkap keluarga">
+                        @error('nama_keluarga')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- BPJS ID -->
+                    <div>
+                        <label for="bpjs_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            BPJS ID
+                        </label>
+                        <input type="text" name="bpjs_id" id="bpjs_id" value="{{ old('bpjs_id', $keluarga->bpjs_id) }}"
+                               class="w-full px-4 py-2.5 border @error('bpjs_id') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                               placeholder="Masukkan BPJS ID (hanya angka)" maxlength="50">
+                        <p class="mt-1 text-xs text-gray-500">Hanya angka, maksimal 50 karakter</p>
+                        @error('bpjs_id')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Jenis Kelamin -->
+                    <div>
+                        <label for="jenis_kelamin" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Jenis Kelamin <span class="text-red-600">*</span>
+                        </label>
+                        <select name="jenis_kelamin" id="jenis_kelamin" required
+                                class="w-full px-4 py-2.5 border @error('jenis_kelamin') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                            <option value="">-- Pilih Jenis Kelamin --</option>
+                            <option value="L" {{ old('jenis_kelamin', $keluarga->jenis_kelamin) == 'L' || old('jenis_kelamin', $keluarga->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                            <option value="P" {{ old('jenis_kelamin', $keluarga->jenis_kelamin) == 'P' || old('jenis_kelamin', $keluarga->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                        </select>
+                        <input type="hidden" id="jenis_kelamin_hidden" name="jenis_kelamin_backup" value="">
+                        @error('jenis_kelamin')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Tanggal Lahir -->
+                    <div>
+                        <label for="tanggal_lahir" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Tanggal Lahir <span class="text-red-600">*</span>
+                        </label>
+                        <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', optional($keluarga->tanggal_lahir)->format('Y-m-d')) }}" required
+                               class="w-full px-4 py-2.5 border @error('tanggal_lahir') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        @error('tanggal_lahir')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Alamat (Full Width) -->
+                <div class="mt-6">
+                    <label for="alamat" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Alamat <span class="text-red-600">*</span>
+                    </label>
+                    <textarea name="alamat" id="alamat" rows="3" required
+                              class="w-full px-4 py-2.5 border @error('alamat') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm resize-none"
+                              placeholder="Masukkan alamat lengkap">{{ old('alamat', $keluarga->alamat) }}</textarea>
+                    @error('alamat')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                <button type="button" onclick="window.location.href='{{ route('keluarga.index') }}'" class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     Batal
-                </a>
+                </button>
+                <button type="button" onclick="confirmUpdate()" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Perbarui Data Keluarga
+                </button>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 
 @push('scripts')
@@ -241,6 +248,19 @@ function enableSearch() {
     document.getElementById('nik_search').focus();
 }
 
+function clearSelection() {
+    selectedKaryawanData = null;
+    document.getElementById('id_karyawan').value = '';
+    document.getElementById('selected_karyawan').classList.add('hidden');
+    document.getElementById('nik_search').value = '';
+
+    // Clear all fields when clearing selection
+    document.getElementById('nama_keluarga').value = '';
+    document.getElementById('jenis_kelamin').value = '';
+    document.getElementById('tanggal_lahir').value = '';
+    document.getElementById('alamat').value = '';
+}
+
 // Hide search results when clicking outside
 document.addEventListener('click', function(event) {
     const searchBox = document.getElementById('nik_search');
@@ -263,7 +283,6 @@ function handleHubunganChange() {
 
     // Auto-fill and disable fields if "Diri Sendiri"
     if (hubungan === 'A') {
-
         // Auto-fill from selected karyawan if "Diri Sendiri"
         if (selectedKaryawanData) {
             // Fill nama keluarga
@@ -438,6 +457,18 @@ function getFieldLabel(field) {
 
 // Initialize KTP field visibility on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize selectedKaryawanData with existing karyawan data
+    @if($keluarga->karyawan)
+        selectedKaryawanData = {
+            id_karyawan: {{ $keluarga->karyawan->id_karyawan }},
+            nama_karyawan: "{{ $keluarga->karyawan->nama_karyawan }}",
+            nik_karyawan: "{{ $keluarga->karyawan->nik_karyawan }}",
+            jenis_kelamin: "{{ $keluarga->karyawan->jenis_kelamin }}",
+            tanggal_lahir: "{{ optional($keluarga->karyawan->tanggal_lahir)->format('Y-m-d') }}",
+            alamat: "{{ $keluarga->karyawan->alamat }}"
+        };
+    @endif
+
     handleHubunganChange();
 
     // BPJS ID - Only allow numbers
