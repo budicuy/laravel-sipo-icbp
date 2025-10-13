@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
 
     // Obat Routes - Custom routes BEFORE resource routes
     Route::get('/obat/template', [ObatController::class, 'downloadTemplate'])->name('obat.template');
+    Route::get('/obat/export', [ObatController::class, 'export'])->name('obat.export');
     Route::post('/obat/import', [ObatController::class, 'import'])->name('obat.import');
     Route::post('/obat/bulk-delete', [ObatController::class, 'bulkDelete'])->name('obat.bulkDelete');
 

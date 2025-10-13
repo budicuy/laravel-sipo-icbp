@@ -29,9 +29,9 @@
                 </li>
 
                 <!-- Master Data (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('karyawan*') || request()->is('keluarga*') || request()->is('obat*') || request()->is('diagnosa*') || request()->is('user*') ? 'true' : 'false' }} }">
+                <li x-data="{ open: {{ request()->is('karyawan*') || request()->is('keluarga*') || request()->is('obat*') || request()->is('diagnosa*') || request()->is('user*') || request()->is('stok-bulanan*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                            class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('karyawan*') || request()->is('keluarga*') || request()->is('obat*') || request()->is('diagnosa*') || request()->is('user*') ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                            class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('karyawan*') || request()->is('keluarga*') || request()->is('obat*') || request()->is('diagnosa*') || request()->is('user*') || request()->is('stok-bulanan*') ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                             :title="!sidebarOpen ? 'Master Data' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110" :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,16 +174,11 @@
             </ul>
         </nav>
 
-        <!-- User Info Footer -->
+        <!-- Copyright Footer -->
         <div class="border-t border-gray-200 p-4 bg-white" x-show="sidebarOpen">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                    {{ substr(Auth::user()->nama_lengkap ?? 'A', 0, 1) }}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-gray-800 truncate">{{ Auth::user()->nama_lengkap ?? 'Admin' }}</p>
-                    <p class="text-xs text-gray-500 truncate">{{ Auth::user()->role ?? 'Administrator' }}</p>
-                </div>
+            <div class="text-center">
+                <p class="text-xs text-gray-500 font-medium">© {{ date('Y') }} SIPO ICBP</p>
+                <p class="text-xs text-gray-400 mt-1">Sistem Informasi Poliklinik</p>
             </div>
         </div>
     </div>

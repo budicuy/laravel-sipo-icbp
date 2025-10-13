@@ -334,6 +334,212 @@ class ObatController extends Controller
         exit;
     }
 
+    /**
+     * Export data obat to Excel
+     */
+    public function export(Request $request)
+    {
+        // Build query with same filters as index
+        $query = Obat::with([
+            'jenisObat:id_jenis_obat,nama_jenis_obat',
+            'satuanObat:id_satuan,nama_satuan'
+        ]);
+
+        // Apply search filter
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_obat', 'like', '%' . $search . '%')
+                    ->orWhere('keterangan', 'like', '%' . $search . '%')
+                    ->orWhereHas('jenisObat', function ($q) use ($search) {
+                        $q->where('nama_jenis_obat', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('satuanObat', function ($q) use ($search) {
+                        $q->where('nama_satuan', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        // Apply jenis obat filter
+        if ($request->has('jenis_obat') && $request->jenis_obat != '') {
+            $query->where('id_jenis_obat', $request->jenis_obat);
+        }
+
+        // Apply satuan obat filter
+        if ($request->has('satuan_obat') && $request->satuan_obat != '') {
+            $query->where('id_satuan', $request->satuan_obat);
+        }
+
+        // Apply sorting
+        $sortField = $request->get('sort', 'nama_obat');
+        $sortDirection = $request->get('direction', 'asc');
+
+        if (in_array($sortField, ['nama_obat', 'jenis_obat', 'satuan_obat', 'jumlah_per_kemasan', 'harga_per_kemasan', 'harga_per_satuan', 'keterangan', 'tanggal_update'])) {
+            if ($sortField === 'jenis_obat') {
+                $query->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
+                      ->orderBy('jenis_obat.nama_jenis_obat', $sortDirection)
+                      ->select('obat.*');
+            } elseif ($sortField === 'satuan_obat') {
+                $query->join('satuan_obat', 'obat.id_satuan', '=', 'satuan_obat.id_satuan')
+                      ->orderBy('satuan_obat.nama_satuan', $sortDirection)
+                      ->select('obat.*');
+            } else {
+                $query->orderBy($sortField, $sortDirection);
+            }
+        } else {
+            $query->orderBy('nama_obat', 'asc');
+        }
+
+        // Get data
+        $obats = $query->get();
+
+        // Create spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Data Obat');
+
+        // Set document properties
+        $spreadsheet->getProperties()
+            ->setCreator('SIPO ICBP')
+            ->setTitle('Data Obat')
+            ->setSubject('Data Obat')
+            ->setDescription('Data obat dan persediaan farmasi');
+
+        // Header columns
+        $headers = [
+            'No', 'Nama Obat', 'Jenis Obat', 'Satuan', 'Jumlah per Kemasan',
+            'Harga per Kemasan', 'Harga per Satuan', 'Keterangan', 'Tanggal Update'
+        ];
+
+        $column = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($column . '1', $header);
+            $column++;
+        }
+
+        // Style header
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 12,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '059669'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ];
+
+        $lastColumn = chr(ord('A') + count($headers) - 1);
+        $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray($headerStyle);
+
+        // Fill data
+        $row = 2;
+        $no = 1;
+
+        foreach ($obats as $obat) {
+            $sheet->setCellValue('A' . $row, $no);
+            $sheet->setCellValue('B' . $row, $obat->nama_obat);
+            $sheet->setCellValue('C' . $row, $obat->jenisObat->nama_jenis_obat ?? '-');
+            $sheet->setCellValue('D' . $row, $obat->satuanObat->nama_satuan ?? '-');
+            $sheet->setCellValue('E' . $row, $obat->jumlah_per_kemasan);
+            $sheet->setCellValue('F' . $row, $obat->harga_per_kemasan);
+            $sheet->setCellValue('G' . $row, $obat->harga_per_satuan);
+            $sheet->setCellValue('H' . $row, $obat->keterangan ?? '-');
+            $sheet->setCellValue('I' . $row, $obat->tanggal_update ? $obat->tanggal_update->format('d-m-Y') : '-');
+
+            // Style data rows
+            $dataStyle = [
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => 'CCCCCC'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A' . $row . ':' . $lastColumn . $row)->applyFromArray($dataStyle);
+
+            $row++;
+            $no++;
+        }
+
+        // Set column widths
+        $sheet->getColumnDimension('A')->setWidth(5);
+        $sheet->getColumnDimension('B')->setWidth(30);
+        $sheet->getColumnDimension('C')->setWidth(20);
+        $sheet->getColumnDimension('D')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(18);
+        $sheet->getColumnDimension('F')->setWidth(18);
+        $sheet->getColumnDimension('G')->setWidth(18);
+        $sheet->getColumnDimension('H')->setWidth(50);
+        $sheet->getColumnDimension('I')->setWidth(15);
+
+        // Set row heights
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        // Add summary sheet
+        $spreadsheet->createSheet();
+        $spreadsheet->setActiveSheetIndex(1);
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Ringkasan');
+
+        // Add summary data
+        $totalObat = $obats->count();
+        $totalJenis = $obats->pluck('id_jenis_obat')->unique()->count();
+        $totalSatuan = $obats->pluck('id_satuan')->unique()->count();
+        $avgHargaKemasan = $obats->avg('harga_per_kemasan');
+        $avgHargaSatuan = $obats->avg('harga_per_satuan');
+
+        $sheet->setCellValue('A1', 'RINGKASAN DATA OBAT');
+        $sheet->setCellValue('A3', 'Total Obat:');
+        $sheet->setCellValue('B3', $totalObat);
+        $sheet->setCellValue('A4', 'Total Jenis Obat:');
+        $sheet->setCellValue('B4', $totalJenis);
+        $sheet->setCellValue('A5', 'Total Satuan:');
+        $sheet->setCellValue('B5', $totalSatuan);
+        $sheet->setCellValue('A6', 'Rata-rata Harga per Kemasan:');
+        $sheet->setCellValue('B6', 'Rp ' . number_format($avgHargaKemasan, 0, ',', '.'));
+        $sheet->setCellValue('A7', 'Rata-rata Harga per Satuan:');
+        $sheet->setCellValue('B7', 'Rp ' . number_format($avgHargaSatuan, 0, ',', '.'));
+        $sheet->setCellValue('A9', 'Tanggal Export:');
+        $sheet->setCellValue('B9', now()->format('d-m-Y H:i:s'));
+
+        // Style summary
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
+        $sheet->getStyle('A3:A9')->getFont()->setBold(true);
+        $sheet->getColumnDimension('A')->setWidth(30);
+        $sheet->getColumnDimension('B')->setWidth(20);
+
+        // Set active sheet back to data
+        $spreadsheet->setActiveSheetIndex(0);
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Create Excel file
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'data_obat_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
+
     public function import(Request $request)
     {
         $request->validate([
