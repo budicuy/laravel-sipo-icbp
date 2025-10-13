@@ -86,11 +86,19 @@ class StokBulananController extends Controller
                       ->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
                       ->orderBy('jenis_obat.nama_jenis_obat', $sortDirection)
                       ->select('stok_bulanan.*');
+            } elseif ($sortField === 'periode') {
+                // Custom sorting for MM-YY format to sort by year then month
+                if ($sortDirection === 'asc') {
+                    $query->orderByRaw("SUBSTRING(periode, 4, 2) ASC, SUBSTRING(periode, 1, 2) ASC");
+                } else {
+                    $query->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC");
+                }
             } else {
                 $query->orderBy($sortField, $sortDirection);
             }
         } else {
-            $query->orderBy('periode', 'desc')
+            // Custom sorting for MM-YY format to sort by year then month (newest first)
+            $query->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC")
                   ->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
                   ->orderBy('obat.nama_obat', 'asc')
                   ->select('stok_bulanan.*');
@@ -166,15 +174,26 @@ class StokBulananController extends Controller
         // Get data
         $data = $query->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
                      ->orderBy('obat.nama_obat', 'asc')
-                     ->orderBy('stok_bulanan.periode', 'asc')
+                     ->orderByRaw("SUBSTRING(stok_bulanan.periode, 4, 2) ASC, SUBSTRING(stok_bulanan.periode, 1, 2) ASC")
                      ->select('stok_bulanan.*')
                      ->get();
 
         // Group data by obat
         $groupedData = $data->groupBy('id_obat');
 
-        // Get all unique periodes
-        $periodes = $data->pluck('periode')->unique()->sort()->values()->toArray();
+        // Get all unique periodes and sort them chronologically
+        $periodes = $data->pluck('periode')->unique()->sort(function($a, $b) {
+            // Custom sort for MM-YY format
+            $yearA = '20' . substr($a, 3, 2);
+            $monthA = substr($a, 0, 2);
+            $yearB = '20' . substr($b, 3, 2);
+            $monthB = substr($b, 0, 2);
+
+            if ($yearA != $yearB) {
+                return $yearA <=> $yearB;
+            }
+            return $monthA <=> $monthB;
+        })->values()->toArray();
 
         // Create spreadsheet
         $spreadsheet = new Spreadsheet();

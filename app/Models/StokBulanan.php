@@ -96,7 +96,7 @@ class StokBulanan extends Model
     {
         return self::select('periode')
             ->distinct()
-            ->orderBy('periode', 'desc')
+            ->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC")
             ->pluck('periode')
             ->map(function ($periode) {
                 return [

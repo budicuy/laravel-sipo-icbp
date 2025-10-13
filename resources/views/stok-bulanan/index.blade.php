@@ -243,6 +243,7 @@
                                     @endif
                                 </span>
                             </a>
+                            <div class="text-xs text-purple-200 mt-1">Terbaru dulu</div>
                         </th>
                         <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
                             <a href="{{ route('stok-bulanan.index', array_merge(request()->query(), ['sort' => 'stok_awal', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
