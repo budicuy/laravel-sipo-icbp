@@ -91,16 +91,6 @@
                     </select>
                 </div>
 
-                <div class="min-w-[150px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode Awal</label>
-                    <input type="month" name="periode_start" value="{{ request('periode_start') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
-                </div>
-
-                <div class="min-w-[150px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode Akhir</label>
-                    <input type="month" name="periode_end" value="{{ request('periode_end') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
-                </div>
-
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Nama Obat</label>
                     <div class="relative">
@@ -111,6 +101,30 @@
                         </div>
                         <input type="text" name="obat" value="{{ request('obat') }}" class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm" placeholder="Cari nama obat...">
                     </div>
+                </div>
+
+                <div class="min-w-[150px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode Awal</label>
+                    <select name="periode_start" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
+                        <option value="">Semua</option>
+                        @foreach($availablePeriodes as $periode)
+                            <option value="{{ $periode['value'] }}" {{ request('periode_start') == $periode['value'] ? 'selected' : '' }}>
+                                {{ $periode['label'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="min-w-[150px]">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode Akhir</label>
+                    <select name="periode_end" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
+                        <option value="">Semua</option>
+                        @foreach($availablePeriodes as $periode)
+                            <option value="{{ $periode['value'] }}" {{ request('periode_end') == $periode['value'] ? 'selected' : '' }}>
+                                {{ $periode['label'] }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="min-w-[150px]">

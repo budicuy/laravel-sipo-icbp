@@ -37,10 +37,26 @@ class StokBulananController extends Controller
 
         // Filter by range periode
         if ($request->has('periode_start') && $request->periode_start != '') {
-            $query->where('periode', '>=', $request->periode_start);
+            $query->where(function($q) use ($request) {
+                $startYear = '20' . substr($request->periode_start, 3, 2);
+                $startMonth = substr($request->periode_start, 0, 2);
+                $q->whereRaw("CONCAT('20', SUBSTRING(periode, 4, 2)) > '$startYear'")
+                  ->orWhere(function($subQ) use ($startYear, $startMonth) {
+                      $subQ->whereRaw("CONCAT('20', SUBSTRING(periode, 4, 2)) = '$startYear'")
+                           ->whereRaw("SUBSTRING(periode, 1, 2) >= '$startMonth'");
+                  });
+            });
         }
         if ($request->has('periode_end') && $request->periode_end != '') {
-            $query->where('periode', '<=', $request->periode_end);
+            $query->where(function($q) use ($request) {
+                $endYear = '20' . substr($request->periode_end, 3, 2);
+                $endMonth = substr($request->periode_end, 0, 2);
+                $q->whereRaw("CONCAT('20', SUBSTRING(periode, 4, 2)) < '$endYear'")
+                  ->orWhere(function($subQ) use ($endYear, $endMonth) {
+                      $subQ->whereRaw("CONCAT('20', SUBSTRING(periode, 4, 2)) = '$endYear'")
+                           ->whereRaw("SUBSTRING(periode, 1, 2) <= '$endMonth'");
+                  });
+            });
         }
 
         // Filter by obat
@@ -142,10 +158,26 @@ class StokBulananController extends Controller
             $query->where('periode', $request->periode);
         }
         if ($request->has('periode_start') && $request->periode_start != '') {
-            $query->where('periode', '>=', $request->periode_start);
+            $query->where(function($q) use ($request) {
+                $startYear = '20' . substr($request->periode_start, 3, 2);
+                $startMonth = substr($request->periode_start, 0, 2);
+                $q->whereRaw("CONCAT('20', SUBSTRING(periode, 4, 2)) > '$startYear'")
+                  ->orWhere(function($subQ) use ($startYear, $startMonth) {
+                      $subQ->whereRaw("CONCAT('20', SUBSTRING(periode, 4, 2)) = '$startYear'")
+                           ->whereRaw("SUBSTRING(periode, 1, 2) >= '$startMonth'");
+                  });
+            });
         }
         if ($request->has('periode_end') && $request->periode_end != '') {
-            $query->where('periode', '<=', $request->periode_end);
+            $query->where(function($q) use ($request) {
+                $endYear = '20' . substr($request->periode_end, 3, 2);
+                $endMonth = substr($request->periode_end, 0, 2);
+                $q->whereRaw("CONCAT('20', SUBSTRING(periode, 4, 2)) < '$endYear'")
+                  ->orWhere(function($subQ) use ($endYear, $endMonth) {
+                      $subQ->whereRaw("CONCAT('20', SUBSTRING(periode, 4, 2)) = '$endYear'")
+                           ->whereRaw("SUBSTRING(periode, 1, 2) <= '$endMonth'");
+                  });
+            });
         }
         if ($request->has('obat') && $request->obat != '') {
             $query->whereHas('obat', function ($q) use ($request) {
