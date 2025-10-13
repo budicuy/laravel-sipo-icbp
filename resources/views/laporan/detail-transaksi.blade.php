@@ -27,8 +27,8 @@
         <p class="text-gray-600 mt-2 ml-1">Informasi lengkap transaksi pemeriksaan pasien</p>
     </div>
 
-    <!-- Informasi Pasien & Kunjungan -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Informasi Pasien, Kunjungan & Karyawan -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <!-- Card Informasi Pasien -->
         <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
             <div class="flex items-center gap-2 mb-4">
@@ -92,31 +92,31 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Informasi Karyawan -->
-    <div class="bg-white rounded-xl shadow-md p-6 mb-6 border border-gray-100">
-        <div class="flex items-center gap-2 mb-4">
-            <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-lg">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+        <!-- Card Informasi Karyawan -->
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-2 rounded-lg">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800">Informasi Karyawan</h3>
             </div>
-            <h3 class="text-lg font-semibold text-gray-800">Informasi Karyawan yang Bertanggung Jawab</h3>
-        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                <span class="text-sm text-gray-600">NIK</span>
-                <span class="text-sm font-medium text-gray-900">{{ $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-' }}</span>
-            </div>
-            <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                <span class="text-sm text-gray-600">Nama Karyawan</span>
-                <span class="text-sm font-medium text-gray-900">{{ $rekamMedis->keluarga->karyawan->nama_karyawan ?? '-' }}</span>
-            </div>
-            <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                <span class="text-sm text-gray-600">Departemen</span>
-                <span class="text-sm font-medium text-gray-900">{{ $rekamMedis->keluarga->karyawan->departemen->nama_departemen ?? '-' }}</span>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">NIK</span>
+                    <span class="text-sm font-medium text-gray-900">{{ $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-sm text-gray-600">Nama Karyawan</span>
+                    <span class="text-sm font-medium text-gray-900">{{ $rekamMedis->keluarga->karyawan->nama_karyawan ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-sm text-gray-600">Departemen</span>
+                    <span class="text-sm font-medium text-gray-900">{{ $rekamMedis->keluarga->karyawan->departemen->nama_departemen ?? '-' }}</span>
+                </div>
             </div>
         </div>
     </div>
