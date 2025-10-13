@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Kunjungan;
 use App\Models\RekamMedis;
 use App\Models\Keluhan;
-use App\Models\Keluarga;
-use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -51,20 +49,17 @@ class LaporanController extends Controller
      */
     private function getChartPemeriksaan($tahun)
     {
-        // Using Laravel's whereMonth() for database compatibility
-        $data = [];
-
-        for ($i = 1; $i <= 12; $i++) {
-            $count = RekamMedis::whereMonth('tanggal_periksa', $i)
-                ->whereYear('tanggal_periksa', $tahun)
-                ->count();
-            $data[$i] = $count;
-        }
+        // Single query untuk semua bulan menggunakan raw expression
+        $monthlyData = RekamMedis::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
+            ->whereYear('tanggal_periksa', $tahun)
+            ->groupByRaw('MONTH(tanggal_periksa)')
+            ->pluck('count', 'month')
+            ->toArray();
 
         // Format data untuk chart (12 bulan)
         $chartData = [];
         for ($i = 1; $i <= 12; $i++) {
-            $chartData[] = $data[$i] ?? 0;
+            $chartData[] = $monthlyData[$i] ?? 0;
         }
 
         return $chartData;
@@ -75,28 +70,21 @@ class LaporanController extends Controller
      */
     private function getChartBiaya($tahun)
     {
-        // Using Eloquent relationships instead of raw joins for better compatibility
-        $data = Keluhan::with(['rekamMedis', 'obat'])
-            ->whereHas('rekamMedis', function($query) use ($tahun) {
-                $query->whereYear('tanggal_periksa', $tahun);
-            })
-            ->whereNotNull('id_obat')
-            ->get()
-            ->groupBy(function($keluhan) {
-                return $keluhan->rekamMedis->tanggal_periksa->format('m');
-            })
-            ->map(function($group) {
-                return $group->sum(function($keluhan) {
-                    return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
-                });
-            })
+        // Single query dengan JOIN untuk menghindari N+1 problems
+        $monthlyData = Keluhan::selectRaw('MONTH(rm.tanggal_periksa) as month, SUM(k.jumlah_obat * o.harga_per_satuan) as total')
+            ->from('keluhan as k')
+            ->join('rekam_medis as rm', 'k.id_rekam', '=', 'rm.id_rekam')
+            ->join('obat as o', 'k.id_obat', '=', 'o.id_obat')
+            ->whereYear('rm.tanggal_periksa', $tahun)
+            ->whereNotNull('k.id_obat')
+            ->groupByRaw('MONTH(rm.tanggal_periksa)')
+            ->pluck('total', 'month')
             ->toArray();
 
         // Format data untuk chart (12 bulan)
         $chartData = [];
         for ($i = 1; $i <= 12; $i++) {
-            $monthKey = str_pad($i, 2, '0', STR_PAD_LEFT);
-            $chartData[] = $data[$monthKey] ?? 0;
+            $chartData[] = $monthlyData[$i] ?? 0;
         }
 
         return $chartData;
@@ -126,54 +114,64 @@ class LaporanController extends Controller
             ->orderBy('tanggal_periksa', 'desc')
             ->get();
 
-        // Batch create kunjungan records to avoid multiple queries
-        $kunjunganData = [];
+        // Prepare bulk upsert data for kunjungan
+        $kunjunganUpsertData = [];
+        $kunjunganKeyMap = [];
+
         foreach ($rekamMedisData as $rekamMedis) {
-            $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
-            $bulan = $rekamMedis->tanggal_periksa->format('m');
-            $tahun = $rekamMedis->tanggal_periksa->format('Y');
-            $kodeTransaksi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
-
-            $kunjunganData[] = [
-                'id_keluarga' => $rekamMedis->id_keluarga,
-                'tanggal_kunjungan' => $rekamMedis->tanggal_periksa,
-                'kode_transaksi' => $kodeTransaksi,
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
-        }
-
-        // Bulk insert or update kunjungan records
-        foreach ($kunjunganData as $data) {
-            Kunjungan::updateOrCreate(
-                [
-                    'id_keluarga' => $data['id_keluarga'],
-                    'tanggal_kunjungan' => $data['tanggal_kunjungan']
-                ],
-                [
-                    'kode_transaksi' => $data['kode_transaksi']
-                ]
-            );
-        }
-
-        // Get existing kunjungan records in one query
-        $kunjunganRecords = Kunjungan::whereIn('id_keluarga', $rekamMedisData->pluck('id_keluarga'))
-            ->whereIn('tanggal_kunjungan', $rekamMedisData->pluck('tanggal_periksa'))
-            ->get(['id_keluarga', 'tanggal_kunjungan', 'id_kunjungan']);
-
-        // Create map manually
-        $kunjunganMap = [];
-        foreach ($kunjunganRecords as $record) {
-            $key = $record->id_keluarga . '_' . $record->tanggal_kunjungan->format('Y-m-d');
-            $kunjunganMap[$key] = $record->id_kunjungan;
-        }
-
-        return $rekamMedisData->map(function($rekamMedis) use ($kunjunganMap) {
+            $key = $rekamMedis->id_keluarga . '_' . $rekamMedis->tanggal_periksa->format('Y-m-d');
             // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
             $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
             $bulan = $rekamMedis->tanggal_periksa->format('m');
             $tahun = $rekamMedis->tanggal_periksa->format('Y');
             $kodeTransaksi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+
+            $kunjunganUpsertData[] = [
+                'id_keluarga' => $rekamMedis->id_keluarga,
+                'tanggal_kunjungan' => $rekamMedis->tanggal_periksa,
+                'kode_transaksi' => $kodeTransaksi,
+                'created_at' => now()
+            ];
+
+            $kunjunganKeyMap[$key] = $kodeTransaksi;
+        }
+
+        // Bulk upsert all kunjungan records at once
+        if (!empty($kunjunganUpsertData)) {
+            Kunjungan::upsert($kunjunganUpsertData, ['id_keluarga', 'tanggal_kunjungan'], ['kode_transaksi']);
+        }
+
+        // Get all kunjungan IDs in one query
+        $kunjunganKeys = array_keys($kunjunganKeyMap);
+        $kunjunganConditions = [];
+        foreach ($kunjunganKeys as $key) {
+            list($idKeluarga, $tanggal) = explode('_', $key);
+            $kunjunganConditions[] = "(id_keluarga = {$idKeluarga} AND DATE(tanggal_kunjungan) = '{$tanggal}')";
+        }
+
+        $kunjunganIdMap = [];
+        if (!empty($kunjunganConditions)) {
+            $kunjunganRecords = DB::select("
+                SELECT id_keluarga, DATE(tanggal_kunjungan) as tanggal, id_kunjungan
+                FROM kunjungan
+                WHERE " . implode(' OR ', $kunjunganConditions)
+            );
+
+            foreach ($kunjunganRecords as $record) {
+                $key = $record->id_keluarga . '_' . $record->tanggal;
+                $kunjunganIdMap[$key] = $record->id_kunjungan;
+            }
+        }
+
+        return $rekamMedisData->map(function($rekamMedis) use ($kunjunganIdMap, $kunjunganKeyMap) {
+            // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
+            $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
+            $bulan = $rekamMedis->tanggal_periksa->format('m');
+            $tahun = $rekamMedis->tanggal_periksa->format('Y');
+
+            // Get kode_transaksi from map
+            $kunjunganKey = $rekamMedis->id_keluarga . '_' . $rekamMedis->tanggal_periksa->format('Y-m-d');
+            $kodeTransaksi = $kunjunganKeyMap[$kunjunganKey] ?? "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
 
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedis->keluhans;
@@ -185,9 +183,8 @@ class LaporanController extends Controller
             $diagnosaList = $keluhans->pluck('diagnosa.nama_diagnosa')->filter()->unique()->implode(', ');
             $obatList = $keluhans->pluck('obat.nama_obat')->filter()->unique()->implode(', ');
 
-            // Get kunjungan ID from map
-            $kunjunganKey = $rekamMedis->id_keluarga . '_' . $rekamMedis->tanggal_periksa->format('Y-m-d');
-            $kunjunganId = $kunjunganMap[$kunjunganKey] ?? null;
+            // Get kunjungan ID from optimized map
+            $kunjunganId = $kunjunganIdMap[$kunjunganKey] ?? null;
 
             return [
                 'id_kunjungan' => $kunjunganId,
@@ -215,21 +212,19 @@ class LaporanController extends Controller
             ->whereYear('tanggal_periksa', $tahun)
             ->count();
 
-        // Using Eloquent relationships instead of raw joins for better compatibility
-        $totalBiaya = Keluhan::with(['rekamMedis', 'obat'])
-            ->whereHas('rekamMedis', function($query) use ($bulan, $tahun) {
-                $query->whereMonth('tanggal_periksa', $bulan)
-                      ->whereYear('tanggal_periksa', $tahun);
-            })
-            ->whereNotNull('id_obat')
-            ->get()
-            ->sum(function($keluhan) {
-                return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
-            });
+        // Single query dengan JOIN untuk menghindari N+1 problems
+        $totalBiaya = Keluhan::selectRaw('SUM(k.jumlah_obat * o.harga_per_satuan) as total')
+            ->from('keluhan as k')
+            ->join('rekam_medis as rm', 'k.id_rekam', '=', 'rm.id_rekam')
+            ->join('obat as o', 'k.id_obat', '=', 'o.id_obat')
+            ->whereMonth('rm.tanggal_periksa', $bulan)
+            ->whereYear('rm.tanggal_periksa', $tahun)
+            ->whereNotNull('k.id_obat')
+            ->value('total');
 
         return [
             'total_pemeriksaan' => $totalPemeriksaan,
-            'total_biaya' => $totalBiaya,
+            'total_biaya' => $totalBiaya ?? 0,
             'bulan_nama' => $this->getBulanNama($bulan),
             'tahun' => $tahun
         ];
@@ -241,11 +236,19 @@ class LaporanController extends Controller
     public function detailTransaksi($id)
     {
         $rekamMedis = RekamMedis::with([
-                'keluarga.karyawan',
-                'keluarga.hubungan',
-                'keluhans.diagnosa',
-                'keluhans.obat',
-                'user'
+                'keluarga' => function($query) {
+                    $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan', 'tanggal_lahir')
+                          ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen'])
+                          ->with(['karyawan.departemen:id_departemen,nama_departemen'])
+                          ->with(['hubungan:kode_hubungan,hubungan']);
+                },
+                'keluhans' => function($query) {
+                    $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
+                          ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
+                          ->with(['obat:id_obat,nama_obat,harga_per_satuan,id_satuan'])
+                          ->with(['obat.satuanObat:id_satuan,nama_satuan']);
+                },
+                'user:id_user,username,nama_lengkap'
             ])
             ->findOrFail($id);
 

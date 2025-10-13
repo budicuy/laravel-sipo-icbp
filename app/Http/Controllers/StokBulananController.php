@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\StokBulanan;
 use App\Models\Obat;
 use App\Models\JenisObat;
-use App\Models\SatuanObat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;

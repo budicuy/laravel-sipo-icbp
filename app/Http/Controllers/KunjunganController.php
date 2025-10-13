@@ -15,8 +15,9 @@ class KunjunganController extends Controller
         $query = RekamMedis::with([
             'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
             'keluarga.hubungan:kode_hubungan,hubungan',
-            'user:id_user,username,nama_lengkap'
-        ]);
+            'user:id_user,username,nama_lengkap',
+            'keluhans:id_keluhan,id_rekam,id_diagnosa,terapi,keterangan,id_obat,jumlah_obat,aturan_pakai,id_keluarga' // Eager loading dengan select specific columns untuk keluhans
+        ])->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'id_user', 'status'); // Select only needed columns
 
         // Filter pencarian
         if ($request->filled('q')) {
@@ -91,6 +92,7 @@ class KunjunganController extends Controller
             'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
             'keluarga.hubungan:kode_hubungan,hubungan',
             'user:id_user,username,nama_lengkap',
+            'keluhans:id_keluhan,id_rekam,id_diagnosa,terapi,keterangan,id_obat,jumlah_obat,aturan_pakai,id_keluarga',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
             'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
         ])->findOrFail($id);
@@ -118,6 +120,7 @@ class KunjunganController extends Controller
         // Ambil semua riwayat kunjungan pasien ini - OPTIMIZED
         $riwayatKunjungan = RekamMedis::with([
             'user:id_user,username,nama_lengkap',
+            'keluhans:id_keluhan,id_rekam,id_diagnosa,terapi,keterangan,id_obat,jumlah_obat,aturan_pakai,id_keluarga',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
             'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
         ])
