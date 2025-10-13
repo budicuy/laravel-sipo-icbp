@@ -292,6 +292,75 @@ class LaporanController extends Controller
     }
 
     /**
+     * Cetak detail transaksi ke PDF
+     */
+    public function cetakDetailTransaksi($id)
+    {
+        $rekamMedis = RekamMedis::with([
+                'keluarga' => function($query) {
+                    $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan', 'tanggal_lahir', 'alamat')
+                          ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen'])
+                          ->with(['karyawan.departemen:id_departemen,nama_departemen'])
+                          ->with(['hubungan:kode_hubungan,hubungan']);
+                },
+                'keluhans' => function($query) {
+                    $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
+                          ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
+                          ->with(['obat:id_obat,nama_obat,harga_per_satuan,id_satuan'])
+                          ->with(['obat.satuanObat:id_satuan,nama_satuan']);
+                },
+                'user:id_user,username,nama_lengkap'
+            ])
+            ->findOrFail($id);
+
+        // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
+        $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
+        $bulan = $rekamMedis->tanggal_periksa->format('m');
+        $tahun = $rekamMedis->tanggal_periksa->format('Y');
+        $kodeTransaksi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+
+        // Create or get kunjungan record for synchronization
+        $kunjungan = Kunjungan::firstOrCreate(
+            [
+                'id_keluarga' => $rekamMedis->id_keluarga,
+                'tanggal_kunjungan' => $rekamMedis->tanggal_periksa
+            ],
+            [
+                'kode_transaksi' => $kodeTransaksi
+            ]
+        );
+
+        // Calculate total biaya
+        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) {
+            return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
+        });
+
+        // Group keluhan by diagnosa, only include those with obat
+        $keluhanByDiagnosa = $rekamMedis->keluhans
+            ->filter(function($keluhan) {
+                return $keluhan->id_obat !== null && $keluhan->obat !== null;
+            })
+            ->groupBy(function($keluhan) {
+                return $keluhan->diagnosa->nama_diagnosa ?? 'Unknown';
+            });
+
+        // Load PDF view
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('laporan.cetak-detail-transaksi', compact(
+            'rekamMedis',
+            'kunjungan',
+            'totalBiaya',
+            'keluhanByDiagnosa'
+        ));
+
+        // Set paper size to A4 portrait
+        $pdf->setPaper('A4', 'portrait');
+
+        // Download PDF - replace "/" with "-" to avoid filename error
+        $safeFilename = str_replace('/', '-', $kodeTransaksi);
+        return $pdf->download('Detail_Transaksi_' . $safeFilename . '.pdf');
+    }
+
+    /**
      * Export laporan transaksi ke Excel
      */
     public function exportTransaksi(Request $request)
