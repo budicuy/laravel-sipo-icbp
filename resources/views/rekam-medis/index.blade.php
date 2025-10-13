@@ -246,17 +246,90 @@
             </table>
         </div>
 
-        <!-- Footer Pagination -->
-        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-            <div class="flex items-center justify-between">
+        <!-- Custom Pagination -->
+        @if($rekamMedis->hasPages())
+        <div class="px-6 py-5 border-t border-gray-200 bg-white">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-sm text-gray-600">
-                    Showing <span class="font-medium">{{ $rekamMedis->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $rekamMedis->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $rekamMedis->total() }}</span> entries
+                    Halaman <span class="font-semibold text-gray-900">{{ $rekamMedis->currentPage() }}</span>
+                    dari <span class="font-semibold text-gray-900">{{ $rekamMedis->lastPage() }}</span>
+                    <span class="mx-2 text-gray-400">•</span>
+                    Total <span class="font-semibold text-gray-900">{{ $rekamMedis->total() }}</span> data
                 </div>
-                <div class="flex items-center gap-2">
-                    {{ $rekamMedis->links() }}
-                </div>
+
+                <nav class="flex items-center gap-2" role="navigation">
+                    @if($rekamMedis->onFirstPage())
+                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </span>
+                    @else
+                        <a href="{{ $rekamMedis->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </a>
+                    @endif
+
+                    @if($rekamMedis->onFirstPage())
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
+                    @else
+                        <a href="{{ $rekamMedis->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">Previous</a>
+                    @endif
+
+                    <div class="flex items-center gap-1">
+                        @php
+                            $start = max($rekamMedis->currentPage() - 2, 1);
+                            $end = min($rekamMedis->currentPage() + 2, $rekamMedis->lastPage());
+                        @endphp
+
+                        @if($start > 1)
+                            <a href="{{ $rekamMedis->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">1</a>
+                            @if($start > 2)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                        @endif
+
+                        @for($i = $start; $i <= $end; $i++)
+                            @if($i == $rekamMedis->currentPage())
+                                <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg shadow-md">{{ $i }}</span>
+                            @else
+                                <a href="{{ $rekamMedis->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">{{ $i }}</a>
+                            @endif
+                        @endfor
+
+                        @if($end < $rekamMedis->lastPage())
+                            @if($end < $rekamMedis->lastPage() - 1)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                            <a href="{{ $rekamMedis->appends(request()->except('page'))->url($rekamMedis->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">{{ $rekamMedis->lastPage() }}</a>
+                        @endif
+                    </div>
+
+                    @if($rekamMedis->hasMorePages())
+                        <a href="{{ $rekamMedis->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">Next</a>
+                    @else
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
+                    @endif
+
+                    @if($rekamMedis->currentPage() == $rekamMedis->lastPage())
+                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    @else
+                        <a href="{{ $rekamMedis->appends(request()->except('page'))->url($rekamMedis->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    @endif
+                </nav>
             </div>
         </div>
+        @endif
     </div>
 </div>
 

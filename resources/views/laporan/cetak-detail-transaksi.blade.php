@@ -117,15 +117,15 @@
         <table class="info-table">
             <tr>
                 <td>No. RM</td>
-                <td>{{ $rekamMedis->keluarga->no_rm }}</td>
+                <td>{{ $kunjungan->no_rm }}</td>
             </tr>
             <tr>
                 <td>Nama Pasien</td>
-                <td>{{ $rekamMedis->keluarga->nama_keluarga }}</td>
+                <td>{{ $kunjungan->nama_pasien }}</td>
             </tr>
             <tr>
                 <td>Hubungan</td>
-                <td>{{ $rekamMedis->keluarga->hubungan->nama_hubungan ?? '-' }}</td>
+                <td>{{ $kunjungan->hubungan }}</td>
             </tr>
             <tr>
                 <td>Tanggal Lahir</td>

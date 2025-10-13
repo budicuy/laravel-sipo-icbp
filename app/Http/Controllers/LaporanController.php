@@ -189,7 +189,7 @@ class LaporanController extends Controller
             return [
                 'id_kunjungan' => $kunjunganId,
                 'kode_transaksi' => $kodeTransaksi,
-                'no_rm' => $rekamMedis->keluarga->no_rm,
+                'no_rm' => ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->kode_hubungan ?? ''),
                 'nama_pasien' => $rekamMedis->keluarga->nama_keluarga,
                 'hubungan' => $rekamMedis->keluarga->hubungan->hubungan ?? '-',
                 'nik_karyawan' => $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-',
@@ -269,6 +269,11 @@ class LaporanController extends Controller
             ]
         );
 
+        // Add custom attributes to kunjungan object to match format in kunjungan page
+        $kunjungan->no_rm = ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->kode_hubungan ?? '');
+        $kunjungan->nama_pasien = $rekamMedis->keluarga->nama_keluarga ?? '-';
+        $kunjungan->hubungan = $rekamMedis->keluarga->hubungan->hubungan ?? '-';
+
         // Calculate total biaya
         $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) {
             return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
@@ -329,6 +334,11 @@ class LaporanController extends Controller
                 'kode_transaksi' => $kodeTransaksi
             ]
         );
+
+        // Add custom attributes to kunjungan object to match format in kunjungan page
+        $kunjungan->no_rm = ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->kode_hubungan ?? '');
+        $kunjungan->nama_pasien = $rekamMedis->keluarga->nama_keluarga ?? '-';
+        $kunjungan->hubungan = $rekamMedis->keluarga->hubungan->hubungan ?? '-';
 
         // Calculate total biaya
         $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) {

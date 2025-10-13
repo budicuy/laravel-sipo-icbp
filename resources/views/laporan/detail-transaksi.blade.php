@@ -51,15 +51,15 @@
             <div class="space-y-3">
                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
                     <span class="text-sm text-gray-600">No. RM</span>
-                    <span class="text-sm font-medium text-gray-900">{{ $rekamMedis->keluarga->no_rm }}</span>
+                    <span class="text-sm font-medium text-gray-900">{{ $kunjungan->no_rm }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
                     <span class="text-sm text-gray-600">Nama Pasien</span>
-                    <span class="text-sm font-medium text-gray-900">{{ $rekamMedis->keluarga->nama_keluarga }}</span>
+                    <span class="text-sm font-medium text-gray-900">{{ $kunjungan->nama_pasien }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
                     <span class="text-sm text-gray-600">Hubungan</span>
-                    <span class="text-sm font-medium text-gray-900">{{ $rekamMedis->keluarga->hubungan->nama_hubungan ?? '-' }}</span>
+                    <span class="text-sm font-medium text-gray-900">{{ $kunjungan->hubungan }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2">
                     <span class="text-sm text-gray-600">Tanggal Lahir</span>

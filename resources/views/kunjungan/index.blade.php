@@ -178,17 +178,90 @@
             </table>
         </div>
 
-        <!-- Footer Pagination -->
-        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-            <div class="flex items-center justify-between">
+        <!-- Custom Pagination -->
+        @if($kunjunganCollection->hasPages())
+        <div class="px-6 py-5 border-t border-gray-200 bg-white">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="text-sm text-gray-600">
-                    Showing <span class="font-medium">{{ $kunjunganCollection->firstItem() ?? 0 }}</span> to <span class="font-medium">{{ $kunjunganCollection->lastItem() ?? 0 }}</span> of <span class="font-medium">{{ $kunjunganCollection->total() }}</span> entries
+                    Halaman <span class="font-semibold text-gray-900">{{ $kunjunganCollection->currentPage() }}</span>
+                    dari <span class="font-semibold text-gray-900">{{ $kunjunganCollection->lastPage() }}</span>
+                    <span class="mx-2 text-gray-400">•</span>
+                    Total <span class="font-semibold text-gray-900">{{ $kunjunganCollection->total() }}</span> data
                 </div>
-                <div class="flex items-center gap-2">
-                    {{ $kunjunganCollection->links() }}
-                </div>
+
+                <nav class="flex items-center gap-2" role="navigation">
+                    @if($kunjunganCollection->onFirstPage())
+                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </span>
+                    @else
+                        <a href="{{ $kunjunganCollection->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-orange-50 hover:border-orange-400 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                            </svg>
+                        </a>
+                    @endif
+
+                    @if($kunjunganCollection->onFirstPage())
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
+                    @else
+                        <a href="{{ $kunjunganCollection->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-orange-50 hover:border-orange-400 transition-all">Previous</a>
+                    @endif
+
+                    <div class="flex items-center gap-1">
+                        @php
+                            $start = max($kunjunganCollection->currentPage() - 2, 1);
+                            $end = min($kunjunganCollection->currentPage() + 2, $kunjunganCollection->lastPage());
+                        @endphp
+
+                        @if($start > 1)
+                            <a href="{{ $kunjunganCollection->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-orange-50 hover:border-orange-400 transition-all">1</a>
+                            @if($start > 2)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                        @endif
+
+                        @for($i = $start; $i <= $end; $i++)
+                            @if($i == $kunjunganCollection->currentPage())
+                                <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-red-600 rounded-lg shadow-md">{{ $i }}</span>
+                            @else
+                                <a href="{{ $kunjunganCollection->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-orange-50 hover:border-orange-400 transition-all">{{ $i }}</a>
+                            @endif
+                        @endfor
+
+                        @if($end < $kunjunganCollection->lastPage())
+                            @if($end < $kunjunganCollection->lastPage() - 1)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                            <a href="{{ $kunjunganCollection->appends(request()->except('page'))->url($kunjunganCollection->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-orange-50 hover:border-orange-400 transition-all">{{ $kunjunganCollection->lastPage() }}</a>
+                        @endif
+                    </div>
+
+                    @if($kunjunganCollection->hasMorePages())
+                        <a href="{{ $kunjunganCollection->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-orange-50 hover:border-orange-400 transition-all">Next</a>
+                    @else
+                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
+                    @endif
+
+                    @if($kunjunganCollection->currentPage() == $kunjunganCollection->lastPage())
+                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                    @else
+                        <a href="{{ $kunjunganCollection->appends(request()->except('page'))->url($kunjunganCollection->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-orange-50 hover:border-orange-400 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    @endif
+                </nav>
             </div>
         </div>
+        @endif
     </div>
 </div>
 @endsection
