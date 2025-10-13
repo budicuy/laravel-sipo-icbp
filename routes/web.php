@@ -55,9 +55,7 @@ Route::middleware('auth')->group(function () {
 
     // Obat Routes - Custom routes BEFORE resource routes
     Route::get('/obat/template', [ObatController::class, 'downloadTemplate'])->name('obat.template');
-    Route::get('/obat/template-stok-bulanan', [ObatController::class, 'downloadTemplateStokBulanan'])->name('obat.downloadTemplateStokBulanan');
     Route::post('/obat/import', [ObatController::class, 'import'])->name('obat.import');
-    Route::post('/obat/import-stok-bulanan', [ObatController::class, 'importStokBulanan'])->name('obat.importStokBulanan');
     Route::post('/obat/bulk-delete', [ObatController::class, 'bulkDelete'])->name('obat.bulkDelete');
 
     // Obat Resource Routes
@@ -68,6 +66,8 @@ Route::middleware('auth')->group(function () {
     // Stok Bulanan Routes
     Route::get('/stok-bulanan', [StokBulananController::class, 'index'])->name('stok-bulanan.index');
     Route::get('/stok-bulanan/export', [StokBulananController::class, 'export'])->name('stok-bulanan.export');
+    Route::get('/stok-bulanan/template', [StokBulananController::class, 'downloadTemplateStokBulanan'])->name('stok-bulanan.template');
+    Route::post('/stok-bulanan/import', [StokBulananController::class, 'importStokBulanan'])->name('stok-bulanan.import');
     Route::delete('/stok-bulanan/{id}', [StokBulananController::class, 'destroy'])->name('stok-bulanan.destroy');
     Route::post('/stok-bulanan/bulk-delete', [StokBulananController::class, 'bulkDelete'])->name('stok-bulanan.bulkDelete');
 

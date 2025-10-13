@@ -9,19 +9,12 @@
          jumlah_per_kemasan: {{ old('jumlah_per_kemasan', 1) }},
          harga_per_kemasan: {{ old('harga_per_kemasan', 0) }},
          harga_per_satuan: {{ old('harga_per_satuan', 0) }},
-         stok_awal: {{ old('stok_awal', 0) }},
-         stok_masuk: {{ old('stok_masuk', 0) }},
-         stok_keluar: {{ old('stok_keluar', 0) }},
-         stok_akhir: {{ old('stok_akhir', 0) }},
          satuanPerUnit: ['Ampul', 'Botol', 'Injek'],
 
          init() {
              this.$watch('id_satuan', value => this.updateJumlahKemasan());
              this.$watch('jumlah_per_kemasan', () => this.calculateHargaPerSatuan());
              this.$watch('harga_per_kemasan', () => this.calculateHargaPerSatuan());
-             this.$watch('stok_awal', () => this.calculateStokAkhir());
-             this.$watch('stok_masuk', () => this.calculateStokAkhir());
-             this.$watch('stok_keluar', () => this.calculateStokAkhir());
          },
 
          updateJumlahKemasan() {
@@ -43,9 +36,6 @@
              }
          },
 
-         calculateStokAkhir() {
-             this.stok_akhir = (parseInt(this.stok_awal) || 0) + (parseInt(this.stok_masuk) || 0) - (parseInt(this.stok_keluar) || 0);
-         },
 
          isSatuanPerUnit() {
              const satuanSelect = document.getElementById('id_satuan');
@@ -162,56 +152,6 @@
                         @error('jumlah_per_kemasan')
                             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
-                    </div>
-
-                    <!-- Stok Awal -->
-                    <div>
-                        <label for="stok_awal" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Stok Awal <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" id="stok_awal" name="stok_awal" value="{{ old('stok_awal', 0) }}" required min="0" x-model="stok_awal"
-                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('stok_awal') border-red-500 @enderror"
-                               placeholder="0">
-                        @error('stok_awal')
-                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Stok Masuk -->
-                    <div>
-                        <label for="stok_masuk" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Stok Masuk <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" id="stok_masuk" name="stok_masuk" value="{{ old('stok_masuk', 0) }}" required min="0" x-model="stok_masuk"
-                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('stok_masuk') border-red-500 @enderror"
-                               placeholder="0">
-                        @error('stok_masuk')
-                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Stok Keluar -->
-                    <div>
-                        <label for="stok_keluar" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Stok Keluar <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" id="stok_keluar" name="stok_keluar" value="{{ old('stok_keluar', 0) }}" required min="0" x-model="stok_keluar"
-                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('stok_keluar') border-red-500 @enderror"
-                               placeholder="0">
-                        @error('stok_keluar')
-                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Stok Akhir (Read Only) -->
-                    <div>
-                        <label for="stok_akhir" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Stok Akhir <span class="text-blue-500">(Otomatis)</span>
-                        </label>
-                        <input type="text" id="stok_akhir" x-model="stok_akhir" readonly
-                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-                               placeholder="0">
-                        <p class="mt-1 text-xs text-gray-500">Formula: Stok Awal + Stok Masuk - Stok Keluar</p>
                     </div>
 
                     <!-- Harga Per Kemasan -->

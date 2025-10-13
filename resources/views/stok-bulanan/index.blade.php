@@ -39,7 +39,7 @@
         <!-- Action Buttons Section -->
         <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-purple-50">
             <div class="flex flex-wrap gap-3 items-center">
-                <a href="{{ route('obat.downloadTemplateStokBulanan') }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <a href="{{ route('stok-bulanan.template') }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -619,12 +619,12 @@ function openImportModal() {
                         <li>• Format file: Excel (.xlsx atau .xls)</li>
                         <li>• Maksimal ukuran file: 5MB</li>
                         <li>• Download template terlebih dahulu</li>
-                        <li>• Format: Nama Obat | Periode | Stok Awal | Stok Pakai | Stok Masuk | Stok Akhir</li>
+                        <li>• Format: No | Nama Obat | Satuan | Periode | Stok Awal | Stok Pakai | Stok Masuk | Stok Akhir</li>
                     </ul>
                 </div>
 
                 <div class="mb-4">
-                    <a href="{{ route('obat.downloadTemplateStokBulanan') }}"
+                    <a href="{{ route('stok-bulanan.template') }}"
                        class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-all w-full justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -633,7 +633,7 @@ function openImportModal() {
                     </a>
                 </div>
 
-                <form id="importForm" action="{{ route('obat.importStokBulanan') }}" method="POST" enctype="multipart/form-data">
+                <form id="importForm" action="{{ route('stok-bulanan.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File Excel Stok Bulanan</label>
@@ -704,7 +704,7 @@ function openImportModal() {
             });
 
             // Submit via AJAX
-            fetch('{{ route("obat.importStokBulanan") }}', {
+            fetch('{{ route("stok-bulanan.import") }}', {
                 method: 'POST',
                 body: formData,
                 headers: {
