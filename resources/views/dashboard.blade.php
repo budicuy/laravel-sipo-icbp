@@ -211,7 +211,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
-                        <input type="number" id="yearFilter" value="2025" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="number" id="yearFilter" value="{{date('Y')}}" min="2000" max="2100" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
 
                     <div class="flex items-end">
