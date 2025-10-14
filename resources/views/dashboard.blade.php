@@ -24,17 +24,6 @@
         <p class="text-gray-600 mt-2 ml-1">Sistem Informasi Klinik Indofood - Monitoring Real-time</p>
     </div>
 
-    <!-- Alert Messages -->
-    @if (session('success'))
-        <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg shadow-sm">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p class="text-sm text-green-700 font-medium">{{ session('success') }}</p>
-            </div>
-        </div>
-    @endif
 
     @if (session('error'))
         <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-sm">

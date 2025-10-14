@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <form action="{{ route('karyawan.update', $karyawan->id_karyawan) }}" method="POST" enctype="multipart/form-data" id="formKaryawan" onsubmit="return confirmUpdate(event)">
+    <form action="{{ route('karyawan.update', $karyawan->id_karyawan) }}" method="POST" enctype="multipart/form-data" id="formKaryawan">
         @csrf
         @method('PUT')
 
@@ -286,71 +286,6 @@
 @push('scripts')
 <script>
 const originalPreview = document.getElementById('preview-container').innerHTML;
-
-function confirmUpdate(event) {
-    // Validasi form sebelum submit
-    const form = document.getElementById('formKaryawan');
-
-    // Cek semua required field
-    const requiredFields = form.querySelectorAll('[required]');
-    let isValid = true;
-    let firstInvalidField = null;
-
-    requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            isValid = false;
-            if (!firstInvalidField) {
-                firstInvalidField = field;
-            }
-            // Tambahkan class error
-            field.classList.add('border-red-500');
-            // Buat pesan error jika belum ada
-            const errorMsg = field.parentNode.querySelector('.field-error');
-            if (!errorMsg) {
-                const errorDiv = document.createElement('p');
-                errorDiv.className = 'field-error mt-2 text-sm text-red-600';
-                errorDiv.textContent = getFieldLabel(field) + ' wajib diisi';
-                field.parentNode.appendChild(errorDiv);
-            }
-        } else {
-            // Hapus class error jika sudah valid
-            field.classList.remove('border-red-500');
-            // Hapus pesan error jika ada
-            const errorMsg = field.parentNode.querySelector('.field-error');
-            if (errorMsg) {
-                errorMsg.remove();
-            }
-        }
-    });
-
-    if (!isValid) {
-        // Fokus ke field pertama yang error
-        if (firstInvalidField) {
-            firstInvalidField.focus();
-            // Scroll ke field error
-            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        event.preventDefault();
-        return false;
-    }
-
-    // Jika semua valid, tampilkan konfirmasi sederhana
-    if (confirm('Apakah Anda yakin ingin memperbarui data karyawan ini?')) {
-        return true; // Lanjutkan submit
-    } else {
-        event.preventDefault();
-        return false;
-    }
-}
-
-// Fungsi untuk mendapatkan label field
-function getFieldLabel(field) {
-    const label = form.querySelector(`label[for="${field.id}"]`);
-    if (label) {
-        return label.textContent.replace('*', '').trim();
-    }
-    return 'Field ini';
-}
 
 function previewImage(event) {
     const file = event.target.files[0];

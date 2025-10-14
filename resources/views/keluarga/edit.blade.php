@@ -175,7 +175,7 @@
                     </svg>
                     Batal
                 </button>
-                <button type="button" onclick="confirmUpdate()" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
@@ -365,95 +365,6 @@ function handleHubunganChange() {
     }
 }
 
-// Confirm update with validation
-function confirmUpdate() {
-    const form = document.getElementById('keluargaForm');
-
-    // Cek semua required field
-    const requiredFields = form.querySelectorAll('[required]');
-    let isValid = true;
-    let firstInvalidField = null;
-
-    requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            isValid = false;
-            if (!firstInvalidField) {
-                firstInvalidField = field;
-            }
-            // Tambahkan class error
-            field.classList.add('border-red-500');
-            // Buat pesan error jika belum ada
-            const errorMsg = field.parentNode.querySelector('.field-error');
-            if (!errorMsg) {
-                const errorDiv = document.createElement('p');
-                errorDiv.className = 'field-error mt-2 text-sm text-red-600';
-                errorDiv.textContent = getFieldLabel(field) + ' wajib diisi';
-                field.parentNode.appendChild(errorDiv);
-            }
-        } else {
-            // Hapus class error jika sudah valid
-            field.classList.remove('border-red-500');
-            // Hapus pesan error jika ada
-            const errorMsg = field.parentNode.querySelector('.field-error');
-            if (errorMsg) {
-                errorMsg.remove();
-            }
-        }
-    });
-
-    // Validasi khusus untuk id_karyawan (hidden field)
-    const idKaryawanField = document.getElementById('id_karyawan');
-    if (!idKaryawanField.value.trim()) {
-        isValid = false;
-        const nikSearchField = document.getElementById('nik_search');
-        nikSearchField.classList.add('border-red-500');
-
-        // Buat pesan error jika belum ada
-        const errorMsg = nikSearchField.parentNode.parentNode.querySelector('.field-error');
-        if (!errorMsg) {
-            const errorDiv = document.createElement('p');
-            errorDiv.className = 'field-error mt-2 text-sm text-red-600';
-            errorDiv.textContent = 'Karyawan wajib dipilih';
-            nikSearchField.parentNode.parentNode.appendChild(errorDiv);
-        }
-
-        if (!firstInvalidField) {
-            firstInvalidField = nikSearchField;
-        }
-    } else {
-        const nikSearchField = document.getElementById('nik_search');
-        nikSearchField.classList.remove('border-red-500');
-        // Hapus pesan error jika ada
-        const errorMsg = nikSearchField.parentNode.parentNode.querySelector('.field-error');
-        if (errorMsg) {
-            errorMsg.remove();
-        }
-    }
-
-    if (!isValid) {
-        // Fokus ke field pertama yang error
-        if (firstInvalidField) {
-            firstInvalidField.focus();
-            // Scroll ke field error
-            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        return;
-    }
-
-    // Jika semua valid, tampilkan konfirmasi sederhana
-    if (confirm('Apakah Anda yakin ingin memperbarui data keluarga ini?')) {
-        form.submit();
-    }
-}
-
-// Fungsi untuk mendapatkan label field
-function getFieldLabel(field) {
-    const label = form.querySelector(`label[for="${field.id}"]`);
-    if (label) {
-        return label.textContent.replace('*', '').trim();
-    }
-    return 'Field ini';
-}
 
 // Initialize KTP field visibility on page load
 document.addEventListener('DOMContentLoaded', function() {
