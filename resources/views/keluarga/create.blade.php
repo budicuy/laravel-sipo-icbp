@@ -335,17 +335,7 @@ function handleHubunganChange() {
             alamatField.setAttribute('readonly', 'readonly');
             alamatField.classList.add('bg-gray-100', 'cursor-not-allowed');
 
-            // Show notification
-            Swal.fire({
-                icon: 'success',
-                title: 'Data Terisi Otomatis',
-                text: 'Data keluarga telah diisi dengan data karyawan',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true
-            });
+            // Tidak menampilkan notifikasi data terisi otomatis
         }
     } else {
         // Enable all fields for other relationships

@@ -24,17 +24,6 @@
         <p class="text-gray-600 mt-2 ml-1">Sistem Informasi Klinik Indofood - Monitoring Real-time</p>
     </div>
 
-    <!-- Alert Messages -->
-    @if (session('success'))
-        <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg shadow-sm">
-            <div class="flex items-center gap-3">
-                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p class="text-sm text-green-700 font-medium">{{ session('success') }}</p>
-            </div>
-        </div>
-    @endif
 
     @if (session('error'))
         <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-sm">
@@ -211,7 +200,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
-                        <input type="number" id="yearFilter" value="2025" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="number" id="yearFilter" value="{{date('Y')}}" min="2000" max="2100" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     </div>
 
                     <div class="flex items-end">
