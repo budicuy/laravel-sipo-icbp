@@ -161,28 +161,50 @@
                             {{ $rm->keluarga->nama_keluarga ?? '-' }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @foreach($rm->keluhans as $keluhan)
-                                {{ $keluhan->diagnosa->nama_diagnosa ?? '-' }}@if(!$loop->last), @endif
-                            @endforeach
+                            @php
+                                $uniqueDiagnosa = [];
+                                foreach($rm->keluhans as $keluhan) {
+                                    $diagnosaName = $keluhan->diagnosa->nama_diagnosa ?? '-';
+                                    if (!in_array($diagnosaName, $uniqueDiagnosa)) {
+                                        $uniqueDiagnosa[] = $diagnosaName;
+                                    }
+                                }
+                            @endphp
+                            {{ implode(', ', $uniqueDiagnosa) }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @foreach($rm->keluhans as $keluhan)
+                            @php
+                                $uniqueTerapi = [];
+                                foreach($rm->keluhans as $keluhan) {
+                                    if (!in_array($keluhan->terapi, $uniqueTerapi)) {
+                                        $uniqueTerapi[] = $keluhan->terapi;
+                                    }
+                                }
+                            @endphp
+                            @foreach($uniqueTerapi as $terapi)
                                 <span class="px-2 py-1
-                                    @if($keluhan->terapi == 'Obat') bg-purple-100 text-purple-800
-                                    @elseif($keluhan->terapi == 'Lab') bg-orange-100 text-orange-800
+                                    @if($terapi == 'Obat') bg-purple-100 text-purple-800
+                                    @elseif($terapi == 'Lab') bg-orange-100 text-orange-800
                                     @else bg-green-100 text-green-800
                                     @endif
                                     rounded-full text-xs font-medium mr-1">
-                                    {{ $keluhan->terapi }}
+                                    {{ $terapi }}
                                 </span>
                             @endforeach
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @foreach($rm->keluhans as $keluhan)
-                                @if($keluhan->obat)
-                                    {{ $keluhan->obat->nama_obat }}@if(!$loop->last), @endif
-                                @endif
-                            @endforeach
+                            @php
+                                $uniqueObat = [];
+                                foreach($rm->keluhans as $keluhan) {
+                                    if($keluhan->obat) {
+                                        $obatName = $keluhan->obat->nama_obat;
+                                        if (!in_array($obatName, $uniqueObat)) {
+                                            $uniqueObat[] = $obatName;
+                                        }
+                                    }
+                                }
+                            @endphp
+                            {{ implode(', ', $uniqueObat) }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
                             @foreach($rm->keluhans as $keluhan)
