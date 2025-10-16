@@ -54,6 +54,11 @@ class RekamMedisController extends Controller
             $query->where('tanggal_periksa', '<=', $request->sampai_tanggal);
         }
 
+        // Filter status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         // Pagination
         $perPage = $request->input('per_page', 50);
         if (!in_array($perPage, [50, 100, 200])) {
