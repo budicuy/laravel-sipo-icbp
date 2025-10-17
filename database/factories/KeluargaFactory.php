@@ -30,9 +30,9 @@ class KeluargaFactory extends Factory
     }
 
     /**
-     * Indicate that the keluarga is "Diri Sendiri".
+     * Indicate that the keluarga is "Karyawan".
      */
-    public function diriSendiri()
+    public function karyawan()
     {
         return $this->state(function (array $attributes) {
             return [

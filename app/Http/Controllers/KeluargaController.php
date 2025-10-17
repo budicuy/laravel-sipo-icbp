@@ -247,7 +247,7 @@ class KeluargaController extends Controller
         $sheet->setCellValue('A' . ($sheet->getHighestRow() + 1), '6. Alamat: Alamat lengkap (wajib diisi)');
         $sheet->setCellValue('A' . ($sheet->getHighestRow() + 1), '7. JK: L (Laki-laki) atau P (Perempuan) (wajib diisi)');
         $sheet->setCellValue('A' . ($sheet->getHighestRow() + 1), '8. BPJS ID: Hanya angka, maksimal 50 karakter (opsional, kolom sudah diformat sebagai TEXT untuk mempertahankan leading zeros)');
-        $sheet->setCellValue('A' . ($sheet->getHighestRow() + 1), '9. Kode Hubungan menggunakan format: A=Diri Sendiri, B=Suami/Istri, C=Anak Ke-1, D=Anak Ke-2, E=Anak Ke-3');
+        $sheet->setCellValue('A' . ($sheet->getHighestRow() + 1), '9. Kode Hubungan menggunakan format: A=Karyawan, B=Suami/Istri, C=Anak Ke-1, D=Anak Ke-2, E=Anak Ke-3');
 
         $writer = new Xlsx($spreadsheet);
         $filename = 'template_import_keluarga_' . date('Y-m-d_His') . '.xlsx';

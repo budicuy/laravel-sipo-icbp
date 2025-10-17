@@ -17,7 +17,7 @@ class HubunganSeeder extends Seeder
         Hubungan::query()->delete();
 
         $hubungans = [
-            ['kode_hubungan' => 'A', 'hubungan' => 'Diri Sendiri'],
+            ['kode_hubungan' => 'A', 'hubungan' => 'Karyawan'],
             ['kode_hubungan' => 'B', 'hubungan' => 'Spouse'],
             ['kode_hubungan' => 'C', 'hubungan' => 'Anak 1'],
             ['kode_hubungan' => 'D', 'hubungan' => 'Anak 2'],
