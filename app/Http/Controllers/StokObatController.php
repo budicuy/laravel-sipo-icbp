@@ -349,7 +349,7 @@ class StokObatController extends Controller
             'Petunjuk Import Data Stok Obat:',
             '',
             '1. Format File:',
-            '   - Gunakan file CSV atau Excel (.csv, .xlsx, .xls)',
+            '   - Gunakan file Excel (.xlsx, .xls)',
             '   - Pastikan format kolom sesuai dengan template',
             '',
             '2. Struktur Kolom:',
@@ -528,7 +528,7 @@ class StokObatController extends Controller
             'Petunjuk Import Data Stok Obat:',
             '',
             '1. Format File:',
-            '   - Gunakan file CSV atau Excel (.csv, .xlsx, .xls)',
+            '   - Gunakan file Excel (.xlsx, .xls)',
             '   - Pastikan format kolom sesuai dengan template',
             '',
             '2. Struktur Kolom:',
@@ -582,10 +582,10 @@ class StokObatController extends Controller
     public function importStokObat(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+            'file' => ['required', 'file', 'mimes:xlsx,xls'],
         ], [
             'file.required' => 'File harus dipilih',
-            'file.mimes' => 'File harus berformat Excel (.xlsx, .xls, atau .csv)',
+            'file.mimes' => 'File harus berformat Excel (.xlsx, .xls)',
         ]);
 
         try {
