@@ -10,7 +10,7 @@ use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ObatController;
-use App\Http\Controllers\StokBulananController;
+use App\Http\Controllers\StokObatController;
 use App\Http\Controllers\DashboardController;
 
 // Redirect root ke login
@@ -64,13 +64,13 @@ Route::middleware('auth')->group(function () {
         'obat' => 'id_obat'
     ]);
 
-    // Stok Bulanan Routes
-    Route::get('/stok-bulanan', [StokBulananController::class, 'index'])->name('stok-bulanan.index');
-    Route::get('/stok-bulanan/export', [StokBulananController::class, 'export'])->name('stok-bulanan.export');
-    Route::get('/stok-bulanan/template', [StokBulananController::class, 'downloadTemplateStokBulanan'])->name('stok-bulanan.template');
-    Route::post('/stok-bulanan/import', [StokBulananController::class, 'importStokBulanan'])->name('stok-bulanan.import');
-    Route::delete('/stok-bulanan/{id}', [StokBulananController::class, 'destroy'])->name('stok-bulanan.destroy');
-    Route::post('/stok-bulanan/bulk-delete', [StokBulananController::class, 'bulkDelete'])->name('stok-bulanan.bulkDelete');
+    // Stok Obat Routes
+    Route::get('/stok-obat', [StokObatController::class, 'index'])->name('stok-obat.index');
+    Route::get('/stok-obat/export', [StokObatController::class, 'export'])->name('stok-obat.export');
+    Route::get('/stok-obat/template', [StokObatController::class, 'downloadTemplateStokObat'])->name('stok-obat.template');
+    Route::post('/stok-obat/import', [StokObatController::class, 'importStokObat'])->name('stok-obat.import');
+    Route::delete('/stok-obat/{id}', [StokObatController::class, 'destroy'])->name('stok-obat.destroy');
+    Route::post('/stok-obat/bulk-delete', [StokObatController::class, 'bulkDelete'])->name('stok-obat.bulkDelete');
 
     // Diagnosa Routes - Custom routes BEFORE resource routes
     Route::get('/diagnosa/template', [DiagnosaController::class, 'downloadTemplate'])->name('diagnosa.template');

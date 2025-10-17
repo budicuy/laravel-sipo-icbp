@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Obat;
 use App\Models\JenisObat;
 use App\Models\SatuanObat;
-use App\Models\StokBulanan;
+use App\Models\StokObat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -129,7 +129,7 @@ class ObatController extends Controller
 
             // Create initial stok bulanan entry for current month
             $currentPeriode = now()->format('m-y');
-            StokBulanan::create([
+            StokObat::create([
                 'id_obat' => $obat->id_obat,
                 'periode' => $currentPeriode,
                 'stok_awal' => 0,
@@ -669,7 +669,7 @@ class ObatController extends Controller
                     // If this is a new obat, create initial stok bulanan entry
                     if (!$exists) {
                         $currentPeriode = now()->format('m-y');
-                        StokBulanan::create([
+                        StokObat::create([
                             'id_obat' => $obat->id_obat,
                             'periode' => $currentPeriode,
                             'stok_awal' => 0,

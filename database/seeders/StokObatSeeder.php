@@ -4,11 +4,11 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Obat;
-use App\Models\StokBulanan;
+use App\Models\StokObat;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class StokBulananSeeder extends Seeder
+class StokObatSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -80,8 +80,8 @@ class StokBulananSeeder extends Seeder
                                 $stokAkhir = $this->parseStokValue($rowData[$colIndex + 2] ?? 0);
                                 $stokMasuk = $this->parseStokValue($rowData[$colIndex + 3] ?? 0);
 
-                                // Insert or update stok bulanan
-                                StokBulanan::updateOrCreate(
+                                // Insert or update stok obat
+                                StokObat::updateOrCreate(
                                     [
                                         'id_obat' => $idObat,
                                         'periode' => $periode,
@@ -192,8 +192,8 @@ class StokBulananSeeder extends Seeder
             if (isset($initialStokData[$namaObat])) {
                 $stokData = $initialStokData[$namaObat];
 
-                // Create stok bulanan record
-                StokBulanan::updateOrCreate(
+                // Create stok obat record
+                StokObat::updateOrCreate(
                     [
                         'id_obat' => $idObat,
                         'periode' => $currentPeriod,

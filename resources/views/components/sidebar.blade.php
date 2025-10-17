@@ -29,9 +29,9 @@
                 </li>
 
                 <!-- Master Data (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('karyawan*') || request()->is('keluarga*') || request()->is('obat*') || request()->is('diagnosa*') || request()->is('user*') || request()->is('stok-bulanan*') ? 'true' : 'false' }} }">
+                <li x-data="{ open: {{ request()->is('karyawan*') || request()->is('keluarga*') || request()->is('obat*') || request()->is('diagnosa*') || request()->is('user*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                            class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('karyawan*') || request()->is('keluarga*') || request()->is('obat*') || request()->is('diagnosa*') || request()->is('user*') || request()->is('stok-bulanan*') ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                            class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('karyawan*') || request()->is('keluarga*') || request()->is('obat*') || request()->is('diagnosa*') || request()->is('user*') ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                             :title="!sidebarOpen ? 'Master Data' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110" :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,14 +65,8 @@
                         </li>
                         <li>
                             <a href="{{ route('obat.index') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('obat*') && !request()->is('stok-bulanan*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
+                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('obat*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
                                 Data Obat
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('stok-bulanan.index') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('stok-bulanan*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
-                                Stok Bulanan
                             </a>
                         </li>
                         <li>
@@ -88,6 +82,23 @@
                             </a>
                         </li>
                     </ul>
+                </li>
+
+                <!-- Stok Obat (Main Menu) -->
+                <li>
+                    <a href="{{ route('stok-obat.index') }}"
+                       class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('stok-obat*') ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                       :title="!sidebarOpen ? 'Stok Obat' : ''"
+                       @click="activeMenu = 'stok-obat'">
+                        <div class="relative">
+                            <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110" :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                            @if(request()->is('stok-obat*'))
+                            @endif
+                        </div>
+                        <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">Stok Obat</span>
+                    </a>
                 </li>
 
                 <!-- Rekam Medis (Dropdown) -->

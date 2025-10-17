@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\StokBulanan;
+use App\Models\StokObat;
 use App\Models\Obat;
 use App\Models\JenisObat;
 use Illuminate\Http\Request;
@@ -16,14 +16,14 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
-class StokBulananController extends Controller
+class StokObatController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $query = StokBulanan::with([
+        $query = StokObat::with([
             'obat:id_obat,nama_obat,keterangan,id_jenis_obat,id_satuan',
             'obat.jenisObat:id_jenis_obat,nama_jenis_obat',
             'obat.satuanObat:id_satuan,nama_satuan'
@@ -93,14 +93,14 @@ class StokBulananController extends Controller
 
         if (in_array($sortField, ['periode', 'nama_obat', 'jenis_obat', 'stok_awal', 'stok_pakai', 'stok_akhir', 'stok_masuk'])) {
             if ($sortField === 'nama_obat') {
-                $query->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
+                $query->join('obat', 'stok_obat.id_obat', '=', 'obat.id_obat')
                       ->orderBy('obat.nama_obat', $sortDirection)
-                      ->select('stok_bulanan.*');
+                      ->select('stok_obat.*');
             } elseif ($sortField === 'jenis_obat') {
-                $query->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
+                $query->join('obat', 'stok_obat.id_obat', '=', 'obat.id_obat')
                       ->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
                       ->orderBy('jenis_obat.nama_jenis_obat', $sortDirection)
-                      ->select('stok_bulanan.*');
+                      ->select('stok_obat.*');
             } elseif ($sortField === 'periode') {
                 // Custom sorting for MM-YY format to sort by year then month
                 if ($sortDirection === 'asc') {
@@ -114,27 +114,27 @@ class StokBulananController extends Controller
         } else {
             // Custom sorting for MM-YY format to sort by year then month (newest first)
             $query->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC")
-                  ->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
+                  ->join('obat', 'stok_obat.id_obat', '=', 'obat.id_obat')
                   ->orderBy('obat.nama_obat', 'asc')
-                  ->select('stok_bulanan.*');
+                  ->select('stok_obat.*');
         }
 
         // Pagination
         $perPage = $request->get('per_page', 50);
         $perPage = in_array($perPage, [50, 100, 150, 200]) ? $perPage : 50;
 
-        $stokBulanans = $query->paginate($perPage);
+        $stokObats = $query->paginate($perPage);
 
         // Get available periodes for filter
-        $availablePeriodes = StokBulanan::getAvailablePeriodes();
+        $availablePeriodes = StokObat::getAvailablePeriodes();
 
         // Get reference data
         $jenisObats = Cache::remember('jenis_obats_all', 60, function () {
             return JenisObat::get();
         });
 
-        return view('stok-bulanan.index', compact(
-            'stokBulanans',
+        return view('stok-obat.index', compact(
+            'stokObats',
             'availablePeriodes',
             'jenisObats',
             'request'
@@ -142,11 +142,11 @@ class StokBulananController extends Controller
     }
 
     /**
-     * Export data stok bulanan to Excel dengan format periode horizontal
+     * Export data stok obat to Excel dengan format periode horizontal
      */
     public function export(Request $request)
     {
-        $query = StokBulanan::with([
+        $query = StokObat::with([
             'obat:id_obat,nama_obat,keterangan,id_jenis_obat,id_satuan',
             'obat.jenisObat:id_jenis_obat,nama_jenis_obat',
             'obat.satuanObat:id_satuan,nama_satuan'
@@ -203,10 +203,10 @@ class StokBulananController extends Controller
         }
 
         // Get data
-        $data = $query->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
+        $data = $query->join('obat', 'stok_obat.id_obat', '=', 'obat.id_obat')
                      ->orderBy('obat.nama_obat', 'asc')
-                     ->orderByRaw("SUBSTRING(stok_bulanan.periode, 4, 2) ASC, SUBSTRING(stok_bulanan.periode, 1, 2) ASC")
-                     ->select('stok_bulanan.*')
+                     ->orderByRaw("SUBSTRING(stok_obat.periode, 4, 2) ASC, SUBSTRING(stok_obat.periode, 1, 2) ASC")
+                     ->select('stok_obat.*')
                      ->get();
 
         // Group data by obat
@@ -229,13 +229,13 @@ class StokBulananController extends Controller
         // Create spreadsheet
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Data Stok Bulanan');
+        $sheet->setTitle('Data Stok Obat');
 
         // Set document properties
         $spreadsheet->getProperties()
             ->setCreator('SIPO ICBP')
-            ->setTitle('Data Stok Bulanan')
-            ->setSubject('Data Stok Bulanan')
+            ->setTitle('Data Stok Obat')
+            ->setSubject('Data Stok Obat')
             ->setDescription('Data stok obat perbulan');
 
         // Header columns - Format dengan periode horizontal
@@ -346,7 +346,7 @@ class StokBulananController extends Controller
 
         // Add instructions
         $instructions = [
-            'Petunjuk Import Data Stok Bulanan:',
+            'Petunjuk Import Data Stok Obat:',
             '',
             '1. Format File:',
             '   - Gunakan file CSV atau Excel (.csv, .xlsx, .xls)',
@@ -387,7 +387,7 @@ class StokBulananController extends Controller
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'data_stok_bulanan_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $filename = 'data_stok_obat_' . date('Y-m_d_H-i-s') . '.xlsx';
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
@@ -402,14 +402,14 @@ class StokBulananController extends Controller
      */
     public function destroy($id)
     {
-        $stokBulanan = StokBulanan::findOrFail($id);
-        $stokBulanan->delete();
+        $stokObat = StokObat::findOrFail($id);
+        $stokObat->delete();
 
-        return response()->json(['success' => true, 'message' => 'Data stok bulanan berhasil dihapus']);
+        return response()->json(['success' => true, 'message' => 'Data stok obat berhasil dihapus']);
     }
 
     /**
-     * Bulk delete stok bulanan
+     * Bulk delete stok obat
      */
     public function bulkDelete(Request $request)
     {
@@ -419,26 +419,26 @@ class StokBulananController extends Controller
             return response()->json(['success' => false, 'message' => 'Tidak ada data yang dipilih'], 400);
         }
 
-        StokBulanan::whereIn('id_stok_bulanan', $ids)->delete();
+        StokObat::whereIn('id_stok_obat', $ids)->delete();
 
-        return response()->json(['success' => true, 'message' => count($ids) . ' data stok bulanan berhasil dihapus']);
+        return response()->json(['success' => true, 'message' => count($ids) . ' data stok obat berhasil dihapus']);
     }
 
     /**
-     * Download template untuk import stok bulanan dengan format horizontal
+     * Download template untuk import stok obat dengan format horizontal
      */
-    public function downloadTemplateStokBulanan()
+    public function downloadTemplateStokObat()
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Template Import Stok Bulanan');
+        $sheet->setTitle('Template Import Stok Obat');
 
         // Set document properties
         $spreadsheet->getProperties()
             ->setCreator('SIPO ICBP')
-            ->setTitle('Template Import Stok Bulanan')
-            ->setSubject('Template Import Stok Bulanan')
-            ->setDescription('Template untuk import data stok bulanan');
+            ->setTitle('Template Import Stok Obat')
+            ->setSubject('Template Import Stok Obat')
+            ->setDescription('Template untuk import data stok obat');
 
         // Header columns - Format dengan periode horizontal
         $headers = [
@@ -525,7 +525,7 @@ class StokBulananController extends Controller
 
         // Add instructions
         $instructions = [
-            'Petunjuk Import Data Stok Bulanan:',
+            'Petunjuk Import Data Stok Obat:',
             '',
             '1. Format File:',
             '   - Gunakan file CSV atau Excel (.csv, .xlsx, .xls)',
@@ -566,7 +566,7 @@ class StokBulananController extends Controller
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'template_stok_bulanan_' . date('Y-m-d') . '.xlsx';
+        $filename = 'template_stok_obat_' . date('Y-m-d') . '.xlsx';
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');
@@ -577,9 +577,9 @@ class StokBulananController extends Controller
     }
 
     /**
-     * Import data stok bulanan dari Excel dengan format horizontal
+     * Import data stok obat dari Excel dengan format horizontal
      */
-    public function importStokBulanan(Request $request)
+    public function importStokObat(Request $request)
     {
         $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
@@ -623,7 +623,7 @@ class StokBulananController extends Controller
 
                 DB::commit();
 
-                $message = "Import stok bulanan selesai: $successCount data berhasil diproses";
+                $message = "Import stok obat selesai: $successCount data berhasil diproses";
                 if ($errorCount > 0) {
                     $message .= ", $errorCount data gagal";
                     if (!empty($errors)) {
@@ -660,16 +660,16 @@ class StokBulananController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal import data stok bulanan: ' . $e->getMessage()
+                    'message' => 'Gagal import data stok obat: ' . $e->getMessage()
                 ], 500);
             }
 
-            return back()->with('error', 'Gagal import data stok bulanan: ' . $e->getMessage());
+            return back()->with('error', 'Gagal import data stok obat: ' . $e->getMessage());
         }
     }
 
     /**
-     * Process horizontal format for stok bulanan import
+     * Process horizontal format for stok obat import
      */
     private function processHorizontalFormat($sheet, $highestRow, $highestColumnIndex, $obats, &$successCount, &$errorCount, &$errors)
     {
@@ -727,8 +727,8 @@ class StokBulananController extends Controller
                     $stokMasuk = $this->parseStokValue($stokMasuk);
                     $stokAkhir = $this->parseStokValue($stokAkhir);
 
-                    // Insert or update stok bulanan
-                    StokBulanan::updateOrCreate(
+                    // Insert or update stok obat
+                    StokObat::updateOrCreate(
                         [
                             'id_obat' => $idObat,
                             'periode' => $periode,
@@ -749,7 +749,7 @@ class StokBulananController extends Controller
     }
 
     /**
-     * Process vertical format for stok bulanan import (old format)
+     * Process vertical format for stok obat import (old format)
      */
     private function processVerticalFormat($sheet, $highestRow, $obats, &$successCount, &$errorCount, &$errors)
     {
@@ -803,8 +803,8 @@ class StokBulananController extends Controller
             $stokMasuk = $this->parseStokValue($stokMasuk);
             $stokAkhir = $this->parseStokValue($stokAkhir);
 
-            // Insert or update stok bulanan
-            StokBulanan::updateOrCreate(
+            // Insert or update stok obat
+            StokObat::updateOrCreate(
                 [
                     'id_obat' => $idObat,
                     'periode' => $periode,

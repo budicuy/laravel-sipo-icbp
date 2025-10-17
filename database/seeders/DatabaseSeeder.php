@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             SatuanObatSeeder::class,
             JenisObatSeeder::class,
             ObatSeeder::class,
-            StokBulananSeeder::class, // Import data stok bulanan dari CSV
+            StokObatSeeder::class, // Import data stok obat dari CSV
             HubunganSeeder::class,
             UserSeeder::class,
             KaryawanSeeder::class, // Seed 200 karyawan

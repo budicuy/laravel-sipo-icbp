@@ -58,7 +58,7 @@ class Obat extends Model
     // Relasi ke Stok Bulanan
     public function stokBulanans()
     {
-        return $this->hasMany(StokBulanan::class, 'id_obat', 'id_obat');
+        return $this->hasMany(StokObat::class, 'id_obat', 'id_obat');
     }
 
     // Auto-update tanggal_update before saving

@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class StokBulanan extends Model
+class StokObat extends Model
 {
-    protected $table = 'stok_bulanan';
-    protected $primaryKey = 'id_stok_bulanan';
+    protected $table = 'stok_obat';
+    protected $primaryKey = 'id_stok_obat';
 
     // Disable timestamps if not using default created_at/updated_at
     public $timestamps = true;
