@@ -116,7 +116,7 @@ return new class extends Migration
             $table->unsignedInteger('id_kunjungan')->autoIncrement();
             $table->unsignedInteger('id_keluarga');
             $table->string('kode_transaksi', 50);
-            $table->date('tanggal_kunjungan')->default(DB::raw('CURRENT_DATE'));
+            $table->date('tanggal_kunjungan')->useCurrent();
             $table->timestamp('created_at')->nullable()->useCurrent();
 
             // Foreign key
