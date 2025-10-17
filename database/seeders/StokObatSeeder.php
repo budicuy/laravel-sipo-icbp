@@ -80,6 +80,16 @@ class StokObatSeeder extends Seeder
                                 $stokAkhir = $this->parseStokValue($rowData[$colIndex + 2] ?? 0);
                                 $stokMasuk = $this->parseStokValue($rowData[$colIndex + 3] ?? 0);
 
+                                // Get stok awal from previous month if stok awal is 0
+                                $stokAwalFromPrevious = ($stokAwal == 0) ? StokObat::getStokAkhirBulanSebelumnya($idObat, $periode) : 0;
+                                $finalStokAwal = ($stokAwal == 0) ? $stokAwalFromPrevious : $stokAwal;
+
+                                // Calculate expected stok akhir based on formula
+                                $expectedStokAkhir = StokObat::hitungStokAkhir($finalStokAwal, $stokPakai, $stokMasuk);
+
+                                // Use provided stok akhir if it's not 0, otherwise use calculated value
+                                $finalStokAkhir = ($stokAkhir != 0) ? $stokAkhir : $expectedStokAkhir;
+
                                 // Insert or update stok obat
                                 StokObat::updateOrCreate(
                                     [
@@ -87,9 +97,9 @@ class StokObatSeeder extends Seeder
                                         'periode' => $periode,
                                     ],
                                     [
-                                        'stok_awal' => $stokAwal,
+                                        'stok_awal' => $finalStokAwal,
                                         'stok_pakai' => $stokPakai,
-                                        'stok_akhir' => $stokAkhir,
+                                        'stok_akhir' => $finalStokAkhir,
                                         'stok_masuk' => $stokMasuk,
                                     ]
                                 );
@@ -192,6 +202,18 @@ class StokObatSeeder extends Seeder
             if (isset($initialStokData[$namaObat])) {
                 $stokData = $initialStokData[$namaObat];
 
+                // Get stok awal from previous month
+                $stokAwalFromPrevious = StokObat::getStokAkhirBulanSebelumnya($idObat, $currentPeriod);
+
+                // Use stok awal from previous month if available, otherwise use provided data
+                $finalStokAwal = $stokAwalFromPrevious > 0 ? $stokAwalFromPrevious : $stokData['stok_awal'];
+
+                // Calculate expected stok akhir based on formula
+                $expectedStokAkhir = StokObat::hitungStokAkhir($finalStokAwal, $stokData['stok_pakai'], $stokData['stok_masuk']);
+
+                // Use provided stok akhir if it's not 0, otherwise use calculated value
+                $finalStokAkhir = $stokData['stok_akhir'] != 0 ? $stokData['stok_akhir'] : $expectedStokAkhir;
+
                 // Create stok obat record
                 StokObat::updateOrCreate(
                     [
@@ -199,9 +221,9 @@ class StokObatSeeder extends Seeder
                         'periode' => $currentPeriod,
                     ],
                     [
-                        'stok_awal' => $stokData['stok_awal'],
+                        'stok_awal' => $finalStokAwal,
                         'stok_pakai' => $stokData['stok_pakai'],
-                        'stok_akhir' => $stokData['stok_akhir'],
+                        'stok_akhir' => $finalStokAkhir,
                         'stok_masuk' => $stokData['stok_masuk'],
                     ]
                 );

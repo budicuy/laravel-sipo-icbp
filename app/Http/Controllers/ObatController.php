@@ -129,13 +129,17 @@ class ObatController extends Controller
 
             // Create initial stok bulanan entry for current month
             $currentPeriode = now()->format('m-y');
+
+            // Get stok awal from previous month (will be 0 for new obat)
+            $stokAwal = StokObat::getStokAkhirBulanSebelumnya($obat->id_obat, $currentPeriode);
+
             StokObat::create([
                 'id_obat' => $obat->id_obat,
                 'periode' => $currentPeriode,
-                'stok_awal' => 0,
+                'stok_awal' => $stokAwal,
                 'stok_pakai' => 0,
                 'stok_masuk' => 0,
-                'stok_akhir' => 0,
+                'stok_akhir' => $stokAwal, // Stok akhir = stok awal untuk bulan pertama
             ]);
 
             DB::commit();
@@ -669,13 +673,17 @@ class ObatController extends Controller
                     // If this is a new obat, create initial stok bulanan entry
                     if (!$exists) {
                         $currentPeriode = now()->format('m-y');
+
+                        // Get stok awal from previous month (will be 0 for new obat)
+                        $stokAwal = StokObat::getStokAkhirBulanSebelumnya($obat->id_obat, $currentPeriode);
+
                         StokObat::create([
                             'id_obat' => $obat->id_obat,
                             'periode' => $currentPeriode,
-                            'stok_awal' => 0,
+                            'stok_awal' => $stokAwal,
                             'stok_pakai' => 0,
                             'stok_masuk' => 0,
-                            'stok_akhir' => 0,
+                            'stok_akhir' => $stokAwal, // Stok akhir = stok awal untuk bulan pertama
                         ]);
 
                         Log::info('Stok bulanan created for new obat', [

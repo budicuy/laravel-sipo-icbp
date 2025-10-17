@@ -66,6 +66,20 @@
                     </svg>
                     Hapus Terpilih
                 </button>
+
+                <button type="button" onclick="fixStokConsistency()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Perbaiki Stok
+                </button>
+
+                <button type="button" onclick="updateStokAwalNewPeriod()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Update Stok Awal
+                </button>
             </div>
         </div>
 
@@ -304,10 +318,10 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('stok-obat.index', array_merge(request()->query(), ['sort' => 'stok_masuk', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
-                                <span>Stok Masuk</span>
+                            <a href="{{ route('stok-obat.index', array_merge(request()->query(), ['sort' => 'stok_akhir', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
+                                <span>Stok Akhir</span>
                                 <span class="ml-2">
-                                    @if(request('sort') == 'stok_masuk')
+                                    @if(request('sort') == 'stok_akhir')
                                         @if(request('direction') == 'asc')
                                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
@@ -326,10 +340,10 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('stok-obat.index', array_merge(request()->query(), ['sort' => 'stok_akhir', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
-                                <span>Stok Akhir</span>
+                            <a href="{{ route('stok-obat.index', array_merge(request()->query(), ['sort' => 'stok_masuk', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
+                                <span>Stok Masuk</span>
                                 <span class="ml-2">
-                                    @if(request('sort') == 'stok_akhir')
+                                    @if(request('sort') == 'stok_masuk')
                                         @if(request('direction') == 'asc')
                                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
@@ -354,7 +368,7 @@
                     @forelse($stokObats as $index => $stok)
                         <tr class="hover:bg-purple-50 transition-colors {{ $stok->stok_akhir <= 0 ? 'bg-red-50' : ($stok->stok_akhir <= 10 ? 'bg-yellow-50' : '') }}">
                             <td class="px-4 py-3">
-                                <input type="checkbox" name="selected_ids[]" value="{{ $stok->id_stok_obat }}" class="row-checkbox rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500">
+                                <input type="checkbox" name="selected_ids[]" value="{{ $stok->id_stok_bulanan }}" class="row-checkbox rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500">
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900">{{ ($stokObats->currentPage() - 1) * $stokObats->perPage() + $index + 1 }}</td>
                             <td class="px-4 py-3">
@@ -373,12 +387,12 @@
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900 text-center">{{ number_format($stok->stok_awal) }}</td>
                             <td class="px-4 py-3 text-sm {{ $stok->stok_pakai > 0 ? 'text-red-600' : 'text-gray-900' }} text-center">{{ number_format($stok->stok_pakai) }}</td>
-                            <td class="px-4 py-3 text-sm {{ $stok->stok_masuk > 0 ? 'text-green-600' : 'text-gray-900' }} text-center">{{ number_format($stok->stok_masuk) }}</td>
                             <td class="px-4 py-3 text-sm font-semibold text-center {{ $stok->stok_akhir <= 0 ? 'text-red-600' : ($stok->stok_akhir <= 10 ? 'text-yellow-600' : 'text-green-600') }}">
                                 {{ number_format($stok->stok_akhir) }}
                             </td>
+                            <td class="px-4 py-3 text-sm {{ $stok->stok_masuk > 0 ? 'text-green-600' : 'text-gray-900' }} text-center">{{ number_format($stok->stok_masuk) }}</td>
                             <td class="px-4 py-3 text-sm font-medium text-center">
-                                <button onclick="deleteStok({{ $stok->id_stok_obat }}, '{{ $stok->obat->nama_obat }} - {{ $stok->periode }}')" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
+                                <button onclick="deleteStok({{ $stok->id_stok_bulanan }}, '{{ $stok->obat->nama_obat }} - {{ $stok->periode }}')" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
@@ -403,8 +417,8 @@
                             <th colspan="6" class="px-4 py-3 text-right text-sm font-medium text-gray-700">Total</th>
                             <th class="px-4 py-3 text-center text-sm font-bold text-gray-900">{{ number_format($stokObats->sum('stok_awal')) }}</th>
                             <th class="px-4 py-3 text-center text-sm font-bold text-red-600">{{ number_format($stokObats->sum('stok_pakai')) }}</th>
-                            <th class="px-4 py-3 text-center text-sm font-bold text-green-600">{{ number_format($stokObats->sum('stok_masuk')) }}</th>
                             <th class="px-4 py-3 text-center text-sm font-bold text-gray-900">{{ number_format($stokObats->sum('stok_akhir')) }}</th>
+                            <th class="px-4 py-3 text-center text-sm font-bold text-green-600">{{ number_format($stokObats->sum('stok_masuk')) }}</th>
                             <th class="px-4 py-3"></th>
                         </tr>
                     </tfoot>
@@ -768,5 +782,109 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function fixStokConsistency() {
+    Swal.fire({
+        title: 'Perbaiki Data Stok?',
+        html: `Apakah Anda yakin ingin memperbaiki data stok yang tidak konsisten?<br><br>
+               <small>Sistem akan memperbaiki stok awal dan stok akhir yang tidak sesuai dengan rumus perhitungan.</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ea580c',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Ya, Perbaiki!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("stok-obat.fix-consistency") }}';
+
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+
+            // Add current filters
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.forEach((value, key) => {
+                if (key !== 'page') {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    form.appendChild(input);
+                }
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+function updateStokAwalNewPeriod() {
+    Swal.fire({
+        title: 'Update Stok Awal Periode Baru',
+        html: `
+            <div class="text-left">
+                <p class="mb-4">Masukkan periode baru (format MM-YY) untuk mengupdate stok awal semua obat:</p>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode Baru</label>
+                    <input id="newPeriode" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Contoh: 10-25" maxlength="5">
+                    <p class="text-xs text-gray-500 mt-1">Format: MM-YY (contoh: 10-25 untuk Oktober 2025)</p>
+                </div>
+            </div>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#0d9488',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Update Stok Awal',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+        preConfirm: () => {
+            const periode = document.getElementById('newPeriode').value;
+
+            if (!periode) {
+                Swal.showValidationMessage('Periode wajib diisi');
+                return false;
+            }
+
+            if (!/^\d{2}-\d{2}$/.test(periode)) {
+                Swal.showValidationMessage('Format periode harus MM-YY (contoh: 10-25)');
+                return false;
+            }
+
+            return periode;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("stok-obat.update-stok-awal") }}';
+
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+
+            // Add periode
+            const periodeInput = document.createElement('input');
+            periodeInput.type = 'hidden';
+            periodeInput.name = 'periode';
+            periodeInput.value = result.value;
+            form.appendChild(periodeInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
 </script>
 @endsection

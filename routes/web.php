@@ -71,6 +71,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/stok-obat/import', [StokObatController::class, 'importStokObat'])->name('stok-obat.import');
     Route::delete('/stok-obat/{id}', [StokObatController::class, 'destroy'])->name('stok-obat.destroy');
     Route::post('/stok-obat/bulk-delete', [StokObatController::class, 'bulkDelete'])->name('stok-obat.bulkDelete');
+    Route::post('/stok-obat/fix-consistency', [StokObatController::class, 'fixStokConsistency'])->name('stok-obat.fix-consistency');
+    Route::post('/stok-obat/update-stok-awal', [StokObatController::class, 'updateStokAwalForNewPeriod'])->name('stok-obat.update-stok-awal');
 
     // Diagnosa Routes - Custom routes BEFORE resource routes
     Route::get('/diagnosa/template', [DiagnosaController::class, 'downloadTemplate'])->name('diagnosa.template');

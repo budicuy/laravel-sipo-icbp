@@ -93,14 +93,14 @@ class StokObatController extends Controller
 
         if (in_array($sortField, ['periode', 'nama_obat', 'jenis_obat', 'stok_awal', 'stok_pakai', 'stok_akhir', 'stok_masuk'])) {
             if ($sortField === 'nama_obat') {
-                $query->join('obat', 'stok_obat.id_obat', '=', 'obat.id_obat')
+                $query->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
                       ->orderBy('obat.nama_obat', $sortDirection)
-                      ->select('stok_obat.*');
+                      ->select('stok_bulanan.*');
             } elseif ($sortField === 'jenis_obat') {
-                $query->join('obat', 'stok_obat.id_obat', '=', 'obat.id_obat')
+                $query->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
                       ->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
                       ->orderBy('jenis_obat.nama_jenis_obat', $sortDirection)
-                      ->select('stok_obat.*');
+                      ->select('stok_bulanan.*');
             } elseif ($sortField === 'periode') {
                 // Custom sorting for MM-YY format to sort by year then month
                 if ($sortDirection === 'asc') {
@@ -114,9 +114,9 @@ class StokObatController extends Controller
         } else {
             // Custom sorting for MM-YY format to sort by year then month (newest first)
             $query->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC")
-                  ->join('obat', 'stok_obat.id_obat', '=', 'obat.id_obat')
+                  ->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
                   ->orderBy('obat.nama_obat', 'asc')
-                  ->select('stok_obat.*');
+                  ->select('stok_bulanan.*');
         }
 
         // Pagination
@@ -203,10 +203,10 @@ class StokObatController extends Controller
         }
 
         // Get data
-        $data = $query->join('obat', 'stok_obat.id_obat', '=', 'obat.id_obat')
+        $data = $query->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
                      ->orderBy('obat.nama_obat', 'asc')
-                     ->orderByRaw("SUBSTRING(stok_obat.periode, 4, 2) ASC, SUBSTRING(stok_obat.periode, 1, 2) ASC")
-                     ->select('stok_obat.*')
+                     ->orderByRaw("SUBSTRING(stok_bulanan.periode, 4, 2) ASC, SUBSTRING(stok_bulanan.periode, 1, 2) ASC")
+                     ->select('stok_bulanan.*')
                      ->get();
 
         // Group data by obat
@@ -419,7 +419,7 @@ class StokObatController extends Controller
             return response()->json(['success' => false, 'message' => 'Tidak ada data yang dipilih'], 400);
         }
 
-        StokObat::whereIn('id_stok_obat', $ids)->delete();
+        StokObat::whereIn('id_stok_bulanan', $ids)->delete();
 
         return response()->json(['success' => true, 'message' => count($ids) . ' data stok obat berhasil dihapus']);
     }
@@ -727,6 +727,20 @@ class StokObatController extends Controller
                     $stokMasuk = $this->parseStokValue($stokMasuk);
                     $stokAkhir = $this->parseStokValue($stokAkhir);
 
+                    // Dapatkan stok awal dari stok akhir bulan sebelumnya
+                    $stokAwalFromPrevious = StokObat::getStokAkhirBulanSebelumnya($idObat, $periode);
+
+                    // Jika stok awal dari input adalah 0, gunakan stok akhir bulan sebelumnya
+                    if ($stokAwal == 0) {
+                        $stokAwal = $stokAwalFromPrevious;
+                    }
+
+                    // Hitung stok akhir yang seharusnya berdasarkan rumus
+                    $expectedStokAkhir = StokObat::hitungStokAkhir($stokAwal, $stokPakai, $stokMasuk);
+
+                    // Gunakan stok akhir dari input jika ada, jika tidak gunakan perhitungan
+                    $finalStokAkhir = $stokAkhir != 0 ? $stokAkhir : $expectedStokAkhir;
+
                     // Insert or update stok obat
                     StokObat::updateOrCreate(
                         [
@@ -736,7 +750,7 @@ class StokObatController extends Controller
                         [
                             'stok_awal' => $stokAwal,
                             'stok_pakai' => $stokPakai,
-                            'stok_akhir' => $stokAkhir,
+                            'stok_akhir' => $finalStokAkhir,
                             'stok_masuk' => $stokMasuk,
                         ]
                     );
@@ -760,8 +774,8 @@ class StokObatController extends Controller
             $periode = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
             $stokAwal = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? '');
             $stokPakai = trim($sheet->getCell('D' . $rowNumber)->getValue() ?? '');
-            $stokMasuk = trim($sheet->getCell('E' . $rowNumber)->getValue() ?? '');
-            $stokAkhir = trim($sheet->getCell('F' . $rowNumber)->getValue() ?? '');
+            $stokAkhir = trim($sheet->getCell('E' . $rowNumber)->getValue() ?? '');
+            $stokMasuk = trim($sheet->getCell('F' . $rowNumber)->getValue() ?? '');
 
             // Skip empty rows
             if (empty($namaObat)) {
@@ -803,6 +817,20 @@ class StokObatController extends Controller
             $stokMasuk = $this->parseStokValue($stokMasuk);
             $stokAkhir = $this->parseStokValue($stokAkhir);
 
+            // Dapatkan stok awal dari stok akhir bulan sebelumnya
+            $stokAwalFromPrevious = StokObat::getStokAkhirBulanSebelumnya($idObat, $periode);
+
+            // Jika stok awal dari input adalah 0, gunakan stok akhir bulan sebelumnya
+            if ($stokAwal == 0) {
+                $stokAwal = $stokAwalFromPrevious;
+            }
+
+            // Hitung stok akhir yang seharusnya berdasarkan rumus
+            $expectedStokAkhir = StokObat::hitungStokAkhir($stokAwal, $stokPakai, $stokMasuk);
+
+            // Gunakan stok akhir dari input jika ada, jika tidak gunakan perhitungan
+            $finalStokAkhir = $stokAkhir != 0 ? $stokAkhir : $expectedStokAkhir;
+
             // Insert or update stok obat
             StokObat::updateOrCreate(
                 [
@@ -812,7 +840,7 @@ class StokObatController extends Controller
                 [
                     'stok_awal' => $stokAwal,
                     'stok_pakai' => $stokPakai,
-                    'stok_akhir' => $stokAkhir,
+                    'stok_akhir' => $finalStokAkhir,
                     'stok_masuk' => $stokMasuk,
                 ]
             );
@@ -840,5 +868,152 @@ class StokObatController extends Controller
         }
 
         return (int)$value;
+    }
+
+    /**
+     * Memperbaiki data stok yang tidak konsisten di database
+     */
+    public function fixStokConsistency(Request $request)
+    {
+        $query = StokObat::with('obat');
+
+        // Filter by periode if provided
+        if ($request->has('periode') && $request->periode != '') {
+            $query->where('periode', $request->periode);
+        }
+
+        // Filter by obat if provided
+        if ($request->has('obat') && $request->obat != '') {
+            $query->whereHas('obat', function ($q) use ($request) {
+                $q->where('nama_obat', 'like', '%' . $request->obat . '%');
+            });
+        }
+
+        $stokObats = $query->get();
+        $fixedCount = 0;
+        $errors = [];
+
+        foreach ($stokObats as $stok) {
+            // Validasi konsistensi stok
+            $validation = $stok->validateStokConsistency();
+
+            if (!$validation['is_valid']) {
+                try {
+                    // Update stok awal dari bulan sebelumnya
+                    $correctStokAwal = StokObat::getStokAkhirBulanSebelumnya($stok->id_obat, $stok->periode);
+
+                    // Hitung stok akhir yang benar
+                    $correctStokAkhir = StokObat::hitungStokAkhir($correctStokAwal, $stok->stok_pakai, $stok->stok_masuk);
+
+                    // Update data stok
+                    $stok->update([
+                        'stok_awal' => $correctStokAwal,
+                        'stok_akhir' => $correctStokAkhir
+                    ]);
+
+                    $fixedCount++;
+
+                    // Log perbaikan
+                    Log::info('Stok consistency fixed', [
+                        'id_obat' => $stok->id_obat,
+                        'nama_obat' => $stok->obat->nama_obat,
+                        'periode' => $stok->periode,
+                        'old_stok_awal' => $stok->getOriginal('stok_awal'),
+                        'new_stok_awal' => $correctStokAwal,
+                        'old_stok_akhir' => $stok->getOriginal('stok_akhir'),
+                        'new_stok_akhir' => $correctStokAkhir,
+                        'difference' => $validation['difference']
+                    ]);
+
+                } catch (\Exception $e) {
+                    $errors[] = "Gagal memperbaiki stok untuk {$stok->obat->nama_obat} periode {$stok->periode}: " . $e->getMessage();
+                    Log::error('Error fixing stok consistency', [
+                        'id_stok_bulanan' => $stok->id_stok_bulanan,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
+
+        $message = "Perbaikan data stok selesai: $fixedCount data diperbaiki";
+        if (!empty($errors)) {
+            $message .= ". Error: " . implode(', ', array_slice($errors, 0, 3));
+            if (count($errors) > 3) {
+                $message .= ' ... dan ' . (count($errors) - 3) . ' error lainnya';
+            }
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Update stok awal untuk periode baru berdasarkan stok akhir bulan sebelumnya
+     */
+    public function updateStokAwalForNewPeriod(Request $request)
+    {
+        $request->validate([
+            'periode' => 'required|string|regex:/^\d{2}-\d{2}$/',
+        ], [
+            'periode.required' => 'Periode wajib diisi',
+            'periode.regex' => 'Format periode harus MM-YY (contoh: 10-25)',
+        ]);
+
+        $periode = $request->periode;
+        $updatedCount = 0;
+        $errors = [];
+
+        try {
+            // Get all obat
+            $obats = Obat::all();
+
+            foreach ($obats as $obat) {
+                try {
+                    // Update stok awal untuk periode baru
+                    $stokAwal = StokObat::updateStokAwalFromPreviousMonth($obat->id_obat, $periode);
+
+                    // Get the stok record to update stok akhir if needed
+                    $stok = StokObat::where('id_obat', $obat->id_obat)
+                                   ->where('periode', $periode)
+                                   ->first();
+
+                    if ($stok && $stok->stok_akhir == 0) {
+                        // If stok akhir is 0, calculate it based on formula
+                        $stok->update([
+                            'stok_akhir' => StokObat::hitungStokAkhir($stokAwal, $stok->stok_pakai, $stok->stok_masuk)
+                        ]);
+                    }
+
+                    $updatedCount++;
+
+                    Log::info('Stok awal updated for new period', [
+                        'id_obat' => $obat->id_obat,
+                        'nama_obat' => $obat->nama_obat,
+                        'periode' => $periode,
+                        'stok_awal' => $stokAwal
+                    ]);
+
+                } catch (\Exception $e) {
+                    $errors[] = "Gagal update stok awal untuk {$obat->nama_obat}: " . $e->getMessage();
+                    Log::error('Error updating stok awal for new period', [
+                        'id_obat' => $obat->id_obat,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            $message = "Update stok awal untuk periode $periode selesai: $updatedCount obat diperbarui";
+            if (!empty($errors)) {
+                $message .= ". Error: " . implode(', ', array_slice($errors, 0, 3));
+                if (count($errors) > 3) {
+                    $message .= ' ... dan ' . (count($errors) - 3) . ' error lainnya';
+                }
+            }
+
+            return back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            Log::error('Error updating stok awal for new period: ' . $e->getMessage());
+            return back()->with('error', 'Gagal update stok awal: ' . $e->getMessage());
+        }
     }
 }
