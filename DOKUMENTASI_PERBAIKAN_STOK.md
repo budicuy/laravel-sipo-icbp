@@ -167,6 +167,13 @@ Untuk memastikan integritas data saat migrasi dari rumus lama ke rumus baru:
 
 ## Update Template Import
 
-Template import telah diperbarui dengan urutan kolom baru:
+Template import telah diperbarui dengan fitur-fitur baru:
+- **Menampilkan semua obat**: Template akan menampilkan semua obat yang terdaftar di sistem
+- **Periode dinamis**: Template akan menghasilkan kolom untuk semua periode yang ada di database
+- **Data awal = 0**: Semua nilai stok diinisialisasi dengan 0 pada template
+- **Urutan kolom**: Stok Awal | Stok Pakai | Stok Akhir | Stok Masuk
+
+Cara penggunaan:
 - Unduh template baru melalui tombol "Template Import"
-- Pastikan mengisi data sesuai dengan urutan kolom yang baru
+- Template akan menampilkan semua obat dan semua periode yang ada
+- Isi nilai stok yang sesuai untuk setiap obat dan periode

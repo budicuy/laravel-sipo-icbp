@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Obat extends Model
 {
@@ -75,7 +76,7 @@ class Obat extends Model
 
         // Add logging for debugging
         static::created(function ($obat) {
-            \Log::info('Obat created successfully', [
+            Log::info('Obat created successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
                 'id_jenis_obat' => $obat->id_jenis_obat,
@@ -84,7 +85,7 @@ class Obat extends Model
         });
 
         static::updated(function ($obat) {
-            \Log::info('Obat updated successfully', [
+            Log::info('Obat updated successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
                 'id_jenis_obat' => $obat->id_jenis_obat,

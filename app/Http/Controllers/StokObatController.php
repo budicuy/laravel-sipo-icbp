@@ -445,8 +445,19 @@ class StokObatController extends Controller
             'No', 'Nama Obat', 'Satuan'
         ];
 
-        // Add periode headers (sample 3 months)
-        $periodes = ['08-24', '09-24', '10-24'];
+        // Get all available periodes from stok_bulanan
+        $periodes = StokObat::select('periode')
+                    ->distinct()
+                    ->orderByRaw("SUBSTRING(periode, 4, 2) ASC, SUBSTRING(periode, 1, 2) ASC")
+                    ->pluck('periode')
+                    ->toArray();
+
+        // If no periodes found, use current month
+        if (empty($periodes)) {
+            $periodes = [now()->format('m-y')];
+        }
+
+        // Add periode headers from actual data
         foreach ($periodes as $periode) {
             $headers[] = $periode . ' Awal';
             $headers[] = $periode . ' Pakai';
@@ -468,11 +479,11 @@ class StokObatController extends Controller
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
         ];
 
-        $lastColumn = chr(ord('A') + count($headers) - 1);
+        $lastColumn = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($headers));
         $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray($headerStyle);
 
-        // Get sample data
-        $obats = Obat::with(['jenisObat', 'satuanObat'])->limit(5)->get();
+        // Get all obat data
+        $obats = Obat::with(['jenisObat', 'satuanObat'])->get();
 
         $row = 2;
         $no = 1;
@@ -482,13 +493,18 @@ class StokObatController extends Controller
             $sheet->setCellValue('B' . $row, $obat->nama_obat);
             $sheet->setCellValue('C' . $row, $obat->satuanObat->nama_satuan ?? '');
 
-            // Fill stok data for each periode
+            // Fill stok data for each periode with 0 values
             $colIndex = 3; // Start from column D (index 3)
             foreach ($periodes as $periode) {
-                $sheet->setCellValue(chr(ord('A') + $colIndex) . $row, 100); // Sample stok awal
-                $sheet->setCellValue(chr(ord('A') + $colIndex + 1) . $row, 20); // Sample stok pakai
-                $sheet->setCellValue(chr(ord('A') + $colIndex + 2) . $row, 80); // Sample stok akhir
-                $sheet->setCellValue(chr(ord('A') + $colIndex + 3) . $row, 50); // Sample stok masuk
+                $colLetter1 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 1);
+                $colLetter2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 2);
+                $colLetter3 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 3);
+                $colLetter4 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + 4);
+
+                $sheet->setCellValue($colLetter1 . $row, 0); // Stok awal
+                $sheet->setCellValue($colLetter2 . $row, 0); // Stok pakai
+                $sheet->setCellValue($colLetter3 . $row, 0); // Stok akhir
+                $sheet->setCellValue($colLetter4 . $row, 0); // Stok masuk
                 $colIndex += 4;
             }
 
@@ -511,7 +527,8 @@ class StokObatController extends Controller
 
         // Set width for periode columns
         for ($i = 3; $i < count($headers); $i++) {
-            $sheet->getColumnDimension(chr(ord('A') + $i))->setWidth(12);
+            $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i + 1);
+            $sheet->getColumnDimension($columnLetter)->setWidth(12);
         }
 
         // Set row heights for headers
@@ -537,6 +554,8 @@ class StokObatController extends Controller
             '   - Satuan: Satuan obat',
             '   - Periode: Format MM-YY (contoh: 01-25 untuk Januari 2025)',
             '   - Setiap periode memiliki 4 kolom: Awal, Pakai, Akhir, Masuk',
+            '   - Template menampilkan semua obat yang terdaftar di sistem',
+            '   - Semua nilai stok diinisialisasi dengan 0',
             '',
             '3. Ketentuan:',
             '   - Pastikan nama obat sudah terdaftar di sistem',
