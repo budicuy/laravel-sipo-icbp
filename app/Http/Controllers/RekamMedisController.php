@@ -54,6 +54,11 @@ class RekamMedisController extends Controller
             $query->where('tanggal_periksa', '<=', $request->sampai_tanggal);
         }
 
+        // Filter status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         // Pagination
         $perPage = $request->input('per_page', 50);
         if (!in_array($perPage, [50, 100, 200])) {
@@ -173,12 +178,17 @@ class RekamMedisController extends Controller
 
     public function edit($id)
     {
-        $rekamMedis = RekamMedis::with(['keluhans'])->findOrFail($id);
+        $rekamMedis = RekamMedis::with([
+            'keluhans.diagnosa',   // relasi diagnosa di tabel keluhans
+            'keluhans.obat'        // relasi obat (pivot diagnosa_obat)
+        ])->findOrFail($id);
+
         $diagnosas = Diagnosa::orderBy('nama_diagnosa')->get();
         $obats = Obat::orderBy('nama_obat')->get();
 
         return view('rekam-medis.edit', compact('rekamMedis', 'diagnosas', 'obats'));
     }
+
 
     public function update(Request $request, $id)
     {
@@ -294,16 +304,16 @@ class RekamMedisController extends Controller
         $karyawanId = $request->input('karyawan_id');
 
         $familyMembers = Keluarga::with(['hubungan:kode_hubungan,hubungan'])
-            ->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'jenis_kelamin', 'kode_hubungan')
             ->where('id_karyawan', $karyawanId)
+            ->select('id_keluarga', 'nama_keluarga', 'jenis_kelamin', 'kode_hubungan')
             ->get()
-            ->map(function($keluarga) {
+            ->map(function ($keluarga) {
                 return [
-                    'id_keluarga' => $keluarga->id_keluarga,
-                    'nama_keluarga' => $keluarga->nama_keluarga,
-                    'no_rm' => $keluarga->no_rm,
-                    'jenis_kelamin' => $keluarga->jenis_kelamin,
-                    'hubungan' => $keluarga->hubungan->hubungan ?? '',
+                    'id_keluarga'    => $keluarga->id_keluarga,
+                    'nama_keluarga'  => $keluarga->nama_keluarga,
+                    'kode_hubungan'  => $keluarga->kode_hubungan, // <- INI jadi sumber nilai NO RM
+                    'hubungan'       => $keluarga->hubungan->hubungan ?? '-',
+                    'jenis_kelamin'  => $keluarga->jenis_kelamin,
                 ];
             });
 

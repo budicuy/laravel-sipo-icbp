@@ -481,7 +481,8 @@ function loadFamilyMembers(karyawanId) {
                     const option = document.createElement('option');
                     option.value = member.id_keluarga;
                     option.textContent = `${member.nama_keluarga} (${member.hubungan})`;
-                    option.setAttribute('data-no-rm', member.no_rm || '');
+                    // 🔹 Ganti dari member.no_rm ke member.kode_hubungan
+                    option.setAttribute('data-no-rm', member.kode_hubungan || '');
                     option.setAttribute('data-jenis-kelamin', member.jenis_kelamin || '');
                     option.setAttribute('data-hubungan', member.hubungan || '');
                     selectElement.appendChild(option);
@@ -504,18 +505,29 @@ function selectKeluarga() {
     const selectElement = document.getElementById('id_keluarga');
     const selectedOption = selectElement.options[selectElement.selectedIndex];
 
-    if (selectedOption.value) {
-        // Update patient information
-        document.getElementById('nama_pasien').value = selectedOption.textContent.split(' (')[0];
-        document.getElementById('no_rm').value = selectedOption.getAttribute('data-no-rm') || '';
-        document.getElementById('jenis_kelamin').value = selectedOption.getAttribute('data-jenis-kelamin') || '';
-        document.getElementById('hubungan').value = selectedOption.getAttribute('data-hubungan') || '';
+    if (selectedOption && selectedOption.value) {
+        // Ambil data dari pilihan keluarga
+        const namaPasien = selectedOption.textContent.split(' (')[0];
+        const kodeHubungan = selectedOption.getAttribute('data-no-rm') || ''; // ini kode_hubungan (A/B/C/D/E)
+        const hubungan = selectedOption.getAttribute('data-hubungan') || '';
+        const jenisKelamin = selectedOption.getAttribute('data-jenis-kelamin') || '';
+
+        // Ambil NIK karyawan dari info di atas form
+        const nikKaryawan = document.getElementById('info_nik').textContent.trim();
+
+        // Gabungkan NIK + KodeHubungan
+        const noRM = nikKaryawan && kodeHubungan ? `${nikKaryawan}-${kodeHubungan.replace('#','').trim()}` : '';
+
+        // Isi otomatis field
+        document.getElementById('nama_pasien').value = namaPasien;
+        document.getElementById('no_rm').value = noRM;
+        document.getElementById('hubungan').value = hubungan;
+        document.getElementById('jenis_kelamin').value = jenisKelamin;
     } else {
-        // Clear patient information
         document.getElementById('nama_pasien').value = '';
         document.getElementById('no_rm').value = '';
-        document.getElementById('jenis_kelamin').value = '';
         document.getElementById('hubungan').value = '';
+        document.getElementById('jenis_kelamin').value = '';
     }
 }
 

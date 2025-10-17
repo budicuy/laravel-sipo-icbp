@@ -177,7 +177,11 @@
                             <select id="id_keluarga" name="id_keluarga" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white" required>
                                 <option value="">-- Pilih karyawan terlebih dahulu --</option>
                                 @if($rekamMedis->keluarga)
-                                    <option value="{{ $rekamMedis->keluarga->id_keluarga }}" selected>
+                                    <option value="{{ $rekamMedis->keluarga->id_keluarga }}" selected
+                                            data-no-rm="{{ $rekamMedis->keluarga->no_rm ?? '' }}"
+                                            data-jenis-kelamin="{{ $rekamMedis->keluarga->jenis_kelamin ?? '' }}"
+                                            data-hubungan="{{ $rekamMedis->keluarga->hubungan->hubungan ?? '' }}"
+                                            data-kode-hubungan="{{ $rekamMedis->keluarga->kode_hubungan ?? '' }}">
                                         {{ $rekamMedis->keluarga->nama_keluarga }} ({{ $rekamMedis->keluarga->hubungan->hubungan ?? '' }})
                                     </option>
                                 @endif
@@ -383,6 +387,12 @@ function selectKaryawan(karyawan) {
     document.getElementById('info_nama').textContent = karyawan.nama_karyawan;
     document.getElementById('info_departemen').textContent = karyawan.nama_departemen;
 
+    // Reset patient info fields when karyawan changes
+    document.getElementById('nama_pasien').value = '';
+    document.getElementById('no_rm').value = '';
+    document.getElementById('jenis_kelamin').value = '';
+    document.getElementById('hubungan').value = '';
+
     // Load family members for this employee
     loadFamilyMembers(karyawan.id_karyawan);
 
@@ -406,6 +416,8 @@ function loadFamilyMembers(karyawanId) {
                     option.setAttribute('data-no-rm', member.no_rm || '');
                     option.setAttribute('data-jenis-kelamin', member.jenis_kelamin || '');
                     option.setAttribute('data-hubungan', member.hubungan || '');
+                    // Tambahkan atribut untuk kode hubungan yang akan digunakan generate NO RM
+                    option.setAttribute('data-kode-hubungan', member.kode_hubungan || '');
 
                     // Keep current selection if it matches
                     if (member.id_keluarga == currentValue) {
@@ -433,16 +445,29 @@ function loadFamilyMembers(karyawanId) {
         });
 }
 
+// Fungsi untuk menghasilkan NO RM dari NIK dan Kode Hubungan
+function generateNoRM(nik, kodeHubungan) {
+    if (nik && kodeHubungan) {
+        return `${nik}-${kodeHubungan}`;
+    }
+    return '';
+}
+
 function selectKeluarga() {
     const selectElement = document.getElementById('id_keluarga');
     const selectedOption = selectElement.options[selectElement.selectedIndex];
+    const nikKaryawan = document.getElementById('info_nik').textContent;
 
     if (selectedOption.value) {
         // Update patient information
         document.getElementById('nama_pasien').value = selectedOption.textContent.split(' (')[0];
-        document.getElementById('no_rm').value = selectedOption.getAttribute('data-no-rm') || '';
         document.getElementById('jenis_kelamin').value = selectedOption.getAttribute('data-jenis-kelamin') || '';
         document.getElementById('hubungan').value = selectedOption.getAttribute('data-hubungan') || '';
+        
+        // Generate NO RM otomatis dari NIK-Kode Hubungan
+        const kodeHubungan = selectedOption.getAttribute('data-kode-hubungan') || '';
+        const noRM = generateNoRM(nikKaryawan, kodeHubungan);
+        document.getElementById('no_rm').value = noRM;
     } else {
         // Clear patient information
         document.getElementById('nama_pasien').value = '';
@@ -657,80 +682,75 @@ function createKeluhanTemplate() {
 }
 
 function fillKeluhanWithData(section, keluhanData, index) {
-    // Fill diagnosa
     const diagnosaSelect = section.querySelector(`select[name="keluhan[${index}][id_diagnosa]"]`);
-    if (diagnosaSelect && keluhanData.id_diagnosa) {
-        diagnosaSelect.value = keluhanData.id_diagnosa;
-    }
-
-    // Fill terapi
     const terapiSelect = section.querySelector(`select[name="keluhan[${index}][terapi]"]`);
-    if (terapiSelect && keluhanData.terapi) {
-        terapiSelect.value = keluhanData.terapi;
-    }
+    const keteranganInput = section.querySelector(`textarea[name="keluhan[${index}][keterangan]"]`);
 
-    // Fill keterangan
-    const kTextarea = section.querySelector(`textarea[name="keluhan[${index}][keterangan]"]`);
-    if (kTextarea && keluhanData.keterangan) {
-        kTextarea.value = keluhanData.keterangan;
-    }
+    if (diagnosaSelect) diagnosaSelect.value = keluhanData.id_diagnosa || '';
+    if (terapiSelect) terapiSelect.value = keluhanData.terapi || '';
+    if (keteranganInput && keluhanData.keterangan) keteranganInput.value = keluhanData.keterangan;
 
-    // Trigger obat loading if diagnosa is selected
+    // Jika diagnosa ada, tampilkan obat
     if (keluhanData.id_diagnosa) {
-        const event = new Event('change');
-        diagnosaSelect.dispatchEvent(event);
+        handleDiagnosaChange({ target: diagnosaSelect });
 
-        // After obat list is loaded, select the existing obat
+        // Tahap 1: tandai checkbox dulu setelah daftar obat termuat
         setTimeout(() => {
-            // Group existing keluhans by diagnosa to handle multiple obat per diagnosa
-            const existingKeluhansByDiagnosa = {};
+            const keluhansUntukDiagnosaIni = existingKeluhans.filter(
+                k => k.id_diagnosa === keluhanData.id_diagnosa
+            );
 
-            // Group all existing keluhans by diagnosa
-            existingKeluhans.forEach(k => {
-                if (k.id_diagnosa === keluhanData.id_diagnosa) {
-                    if (!existingKeluhansByDiagnosa[k.id_diagnosa]) {
-                        existingKeluhansByDiagnosa[k.id_diagnosa] = [];
-                    }
-                    existingKeluhansByDiagnosa[k.id_diagnosa].push(k);
+            keluhansUntukDiagnosaIni.forEach(keluhanObat => {
+                const checkbox = section.querySelector(
+                    `input[type="checkbox"][value="${keluhanObat.id_obat}"]`
+                );
+                if (checkbox) {
+                    checkbox.checked = true;
                 }
             });
 
-            // Check if there are obat for this diagnosa
-            if (existingKeluhansByDiagnosa[keluhanData.id_diagnosa]) {
-                const obatsForDiagnosa = existingKeluhansByDiagnosa[keluhanData.id_diagnosa];
+            // Tahap 2: tampilkan form detail obat
+            updateObatDetails(index);
+
+            // Tahap 3: isi ulang jumlah_obat & aturan_pakai
+            setTimeout(() => {
+                const checkedBoxes = section.querySelectorAll(`.obat-checkbox[data-keluhan-index="${index}"]:checked`);
                 let obatIndex = 0;
-
-                obatsForDiagnosa.forEach(keluhanWithObat => {
-                    if (keluhanWithObat.id_obat) {
-                        const obatCheckbox = section.querySelector(`input[type="checkbox"][value="${keluhanWithObat.id_obat}"]`);
-                        if (obatCheckbox) {
-                            obatCheckbox.checked = true;
-                            updateObatDetails(index);
-
-                            // Fill obat details
-                            const obatDetailsDiv = section.querySelector('.selected-obat-details');
-                            if (obatDetailsDiv && obatDetailsDiv.style.display !== 'none') {
-                                // Fill jumlah obat
-                                const jumlahInput = obatDetailsDiv.querySelector(`input[name="keluhan[${index}][obat_list][${obatIndex}][jumlah_obat]"]`);
-                                if (jumlahInput && keluhanWithObat.jumlah_obat) {
-                                    jumlahInput.value = keluhanWithObat.jumlah_obat;
-                                }
-
-                                // Fill aturan pakai
-                                const aturanInput = obatDetailsDiv.querySelector(`input[name="keluhan[${index}][obat_list][${obatIndex}][aturan_pakai]"]`);
-                                if (aturanInput && keluhanWithObat.aturan_pakai) {
-                                    aturanInput.value = keluhanWithObat.aturan_pakai;
-                                }
-                            }
-
-                            obatIndex++;
-                        }
+                
+                // Urutkan keluhansUntukDiagnosaIni agar sesuai dengan urutan checkbox yang dicentang
+                const sortedKeluhans = [];
+                checkedBoxes.forEach(checkbox => {
+                    const obatId = checkbox.value;
+                    const matchingKeluhan = keluhansUntukDiagnosaIni.find(k => k.id_obat == obatId);
+                    if (matchingKeluhan) {
+                        sortedKeluhans.push(matchingKeluhan);
                     }
                 });
-            }
-        }, 500);
+                
+                sortedKeluhans.forEach(keluhanObat => {
+                    const jumlahInput = section.querySelector(
+                        `input[name="keluhan[${index}][obat_list][${obatIndex}][jumlah_obat]"]`
+                    );
+                    const aturanInput = section.querySelector(
+                        `input[name="keluhan[${index}][obat_list][${obatIndex}][aturan_pakai]"]`
+                    );
+
+                    if (jumlahInput && keluhanObat.jumlah_obat) {
+                        jumlahInput.value = keluhanObat.jumlah_obat;
+                    }
+                    if (aturanInput && keluhanObat.aturan_pakai) {
+                        aturanInput.value = keluhanObat.aturan_pakai;
+                    }
+                    
+                    obatIndex++;
+                });
+            }, 500); // tunggu hingga detail obat muncul
+        }, 600); // tunggu daftar obat muncul dulu
     }
 }
+
+
+
 
 // Function to handle diagnosa change and show obat checkboxes
 function handleDiagnosaChange(event) {
@@ -910,6 +930,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize keluhan sections with existing data
     updateKeluhanSections({{ $rekamMedis->jumlah_keluhan }});
 
+    // Initialize NO RM on page load
+    initializeNoRM();
+
     // Form validation
     const form = document.getElementById('rekamMedisForm');
     form.addEventListener('submit', validateForm);
@@ -929,6 +952,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 5000);
 });
+
+// Fungsi untuk menginisialisasi NO RM saat halaman dimuat
+function initializeNoRM() {
+    const nikKaryawan = document.getElementById('info_nik').textContent;
+    const selectedKeluarga = document.getElementById('id_keluarga');
+    
+    if (selectedKeluarga.value && nikKaryawan) {
+        const selectedOption = selectedKeluarga.options[selectedKeluarga.selectedIndex];
+        const kodeHubungan = selectedOption.getAttribute('data-kode-hubungan') || '';
+        
+        // Generate NO RM otomatis dari NIK-Kode Hubungan
+        const noRM = generateNoRM(nikKaryawan, kodeHubungan);
+        document.getElementById('no_rm').value = noRM;
+    }
+}
 
 function validateForm(e) {
     const form = document.getElementById('rekamMedisForm');

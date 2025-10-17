@@ -36,58 +36,46 @@
     </div>
 
     <!-- Filter Section -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 p-4 mb-6">
         <form action="{{ route('rekam-medis.index') }}" method="GET">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="flex flex-wrap items-center gap-3">
                 <!-- Dari Tanggal -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Dari Tanggal</label>
-                    <div class="relative">
-                        <input type="date" name="dari_tanggal" value="{{ request('dari_tanggal') }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                    </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Dari:</label>
+                    <input type="date" name="dari_tanggal" value="{{ request('dari_tanggal') }}" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
 
                 <!-- Sampai Tanggal -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Sampai Tanggal</label>
-                    <div class="relative">
-                        <input type="date" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                    </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Sampai:</label>
+                    <input type="date" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
 
                 <!-- Search -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Cari Data</label>
-                    <div class="relative">
-                        <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, NIK, atau No RM..." class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                    </div>
+                <div class="flex items-center gap-2 flex-1 min-w-[200px]">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, NIK, atau No RM..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+
+                <!-- Status Filter -->
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Status:</label>
+                    <select name="status" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">Semua</option>
+                        <option value="On Progress" {{ request('status') == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                        <option value="Close" {{ request('status') == 'Close' ? 'selected' : '' }}>Close</option>
+                    </select>
                 </div>
 
                 <!-- Buttons -->
-                <div class="flex items-end gap-3">
-                    <button type="submit" class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all">
-                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                         </svg>
                         Filter
                     </button>
-                    <a href="{{ route('rekam-medis.index') }}" class="flex-1 bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium px-6 py-2.5 rounded-lg transition-all text-center">
-                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('rekam-medis.index') }}" class="bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         Reset
@@ -161,28 +149,50 @@
                             {{ $rm->keluarga->nama_keluarga ?? '-' }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @foreach($rm->keluhans as $keluhan)
-                                {{ $keluhan->diagnosa->nama_diagnosa ?? '-' }}@if(!$loop->last), @endif
-                            @endforeach
+                            @php
+                                $uniqueDiagnosa = [];
+                                foreach($rm->keluhans as $keluhan) {
+                                    $diagnosaName = $keluhan->diagnosa->nama_diagnosa ?? '-';
+                                    if (!in_array($diagnosaName, $uniqueDiagnosa)) {
+                                        $uniqueDiagnosa[] = $diagnosaName;
+                                    }
+                                }
+                            @endphp
+                            {{ implode(', ', $uniqueDiagnosa) }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @foreach($rm->keluhans as $keluhan)
+                            @php
+                                $uniqueTerapi = [];
+                                foreach($rm->keluhans as $keluhan) {
+                                    if (!in_array($keluhan->terapi, $uniqueTerapi)) {
+                                        $uniqueTerapi[] = $keluhan->terapi;
+                                    }
+                                }
+                            @endphp
+                            @foreach($uniqueTerapi as $terapi)
                                 <span class="px-2 py-1
-                                    @if($keluhan->terapi == 'Obat') bg-purple-100 text-purple-800
-                                    @elseif($keluhan->terapi == 'Lab') bg-orange-100 text-orange-800
+                                    @if($terapi == 'Obat') bg-purple-100 text-purple-800
+                                    @elseif($terapi == 'Lab') bg-orange-100 text-orange-800
                                     @else bg-green-100 text-green-800
                                     @endif
                                     rounded-full text-xs font-medium mr-1">
-                                    {{ $keluhan->terapi }}
+                                    {{ $terapi }}
                                 </span>
                             @endforeach
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @foreach($rm->keluhans as $keluhan)
-                                @if($keluhan->obat)
-                                    {{ $keluhan->obat->nama_obat }}@if(!$loop->last), @endif
-                                @endif
-                            @endforeach
+                            @php
+                                $uniqueObat = [];
+                                foreach($rm->keluhans as $keluhan) {
+                                    if($keluhan->obat) {
+                                        $obatName = $keluhan->obat->nama_obat;
+                                        if (!in_array($obatName, $uniqueObat)) {
+                                            $uniqueObat[] = $obatName;
+                                        }
+                                    }
+                                }
+                            @endphp
+                            {{ implode(', ', $uniqueObat) }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
                             @foreach($rm->keluhans as $keluhan)

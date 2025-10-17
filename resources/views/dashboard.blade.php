@@ -38,8 +38,8 @@
 
     <!-- Dashboard Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-        <!-- Card 1 - Total Pasien -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300">
+        <!-- Card 1 - Total Karyawan -->
+        <div onclick="navigateToKaryawan()" class="relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full"></div>
             <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
 
@@ -60,7 +60,7 @@
         </div>
 
         <!-- Card 2 - Total Rekam Medis -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300">
+        <div onclick="navigateToRekamMedis()" class="relative overflow-hidden bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full"></div>
             <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
 
@@ -81,7 +81,7 @@
         </div>
 
         <!-- Card 3 - Kunjungan Hari Ini -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300">
+        <div onclick="navigateToKunjunganHariIni()" class="relative overflow-hidden bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full"></div>
             <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
 
@@ -102,7 +102,7 @@
         </div>
 
         <!-- Card 4 - On Progress -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300">
+        <div onclick="navigateToOnProgress()" class="relative overflow-hidden bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full"></div>
             <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
 
@@ -123,7 +123,7 @@
         </div>
 
         <!-- Card 5 - Close -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300">
+        <div onclick="navigateToClose()" class="relative overflow-hidden bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full"></div>
             <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full"></div>
 
@@ -594,6 +594,39 @@
         const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         return months[parseInt(month) - 1];
+    }
+
+    // Function to navigate to karyawan page
+    function navigateToKaryawan() {
+        window.location.href = '{{ route("karyawan.index") }}';
+    }
+
+    // Function to navigate to rekam medis page
+    function navigateToRekamMedis() {
+        window.location.href = '{{ route("rekam-medis.index") }}';
+    }
+
+    // Function to navigate to rekam medis with today's date filter
+    function navigateToKunjunganHariIni() {
+        const today = new Date().toISOString().split('T')[0];
+        const url = '{{ route("rekam-medis.index") }}?dari_tanggal=' + today + '&sampai_tanggal=' + today;
+        window.location.href = url;
+    }
+
+    // Function to navigate to rekam medis with On Progress status filter
+    function navigateToOnProgress() {
+        // Since there's no status filter in the current form, we'll navigate to rekam medis page
+        // and add a custom parameter that can be handled in the controller
+        const url = '{{ route("rekam-medis.index") }}?status=On Progress';
+        window.location.href = url;
+    }
+
+    // Function to navigate to rekam medis with Close status filter
+    function navigateToClose() {
+        // Since there's no status filter in the current form, we'll navigate to rekam medis page
+        // and add a custom parameter that can be handled in the controller
+        const url = '{{ route("rekam-medis.index") }}?status=Close';
+        window.location.href = url;
     }
 </script>
 @endpush
