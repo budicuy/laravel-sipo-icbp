@@ -522,7 +522,7 @@ function openImportModal() {
                         <li>• Format file: Excel (.xlsx atau .xls)</li>
                         <li>• Maksimal ukuran file: 5MB</li>
                         <li>• Download template terlebih dahulu</li>
-                        <li>• Kode Hubungan: A=Diri Sendiri, B=Suami/Istri, C=Anak Ke-1, D=Anak Ke-2, E=Anak Ke-3</li>
+                        <li>• Kode Hubungan: A=Karyawan, B=Suami/Istri, C=Anak Ke-1, D=Anak Ke-2, E=Anak Ke-3</li>
                         <li>• Format Kode Hubungan: NIK-Kode (contoh: 200032-A)</li>
                     </ul>
                 </div>

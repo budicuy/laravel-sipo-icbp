@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class StokObat extends Model
 {
-    protected $table = 'stok_obat';
-    protected $primaryKey = 'id_stok_obat';
+    protected $table = 'stok_bulanan';
+    protected $primaryKey = 'id_stok_bulanan';
 
     // Disable timestamps if not using default created_at/updated_at
     public $timestamps = true;
@@ -104,5 +104,86 @@ class StokObat extends Model
                     'label' => (new self(['periode' => $periode]))->periode_format
                 ];
             });
+    }
+
+    /**
+     * Mendapatkan stok akhir dari bulan sebelumnya untuk obat tertentu
+     */
+    public static function getStokAkhirBulanSebelumnya($idObat, $periode)
+    {
+        // Parse periode saat ini (format MM-YY)
+        if (preg_match('/^(\d{2})-(\d{2})$/', $periode, $matches)) {
+            $month = (int)$matches[1];
+            $year = (int)$matches[2] + 2000; // Convert YY to YYYY
+
+            // Hitung bulan sebelumnya
+            if ($month == 1) {
+                $prevMonth = 12;
+                $prevYear = $year - 1;
+            } else {
+                $prevMonth = $month - 1;
+                $prevYear = $year;
+            }
+
+            // Format kembali ke MM-YY
+            $prevPeriode = sprintf('%02d-%02d', $prevMonth, $prevYear % 100);
+
+            // Cari stok obat di periode sebelumnya
+            $stokSebelumnya = self::where('id_obat', $idObat)
+                                ->where('periode', $prevPeriode)
+                                ->first();
+
+            // Jika ada data stok di bulan sebelumnya, kembalikan stok akhirnya
+            if ($stokSebelumnya) {
+                return $stokSebelumnya->stok_akhir;
+            }
+        }
+
+        // Jika tidak ada data bulan sebelumnya, kembalikan 0
+        return 0;
+    }
+
+    /**
+     * Menghitung stok akhir berdasarkan rumus: Stok Awal + Stok Masuk - Stok Pakai
+     */
+    public static function hitungStokAkhir($stokAwal, $stokPakai, $stokMasuk)
+    {
+        return $stokAwal + $stokMasuk - $stokPakai;
+    }
+
+    /**
+     * Validasi konsistensi data stok
+     */
+    public function validateStokConsistency()
+    {
+        $expectedStokAkhir = self::hitungStokAkhir($this->stok_awal, $this->stok_pakai, $this->stok_masuk);
+
+        return [
+            'is_valid' => $this->stok_akhir == $expectedStokAkhir,
+            'expected_stok_akhir' => $expectedStokAkhir,
+            'actual_stok_akhir' => $this->stok_akhir,
+            'difference' => $this->stok_akhir - $expectedStokAkhir
+        ];
+    }
+
+    /**
+     * Update stok awal otomatis dari stok akhir bulan sebelumnya
+     */
+    public static function updateStokAwalFromPreviousMonth($idObat, $periode)
+    {
+        $stokAwal = self::getStokAkhirBulanSebelumnya($idObat, $periode);
+
+        // Update atau create stok obat dengan stok awal yang benar
+        self::updateOrCreate(
+            [
+                'id_obat' => $idObat,
+                'periode' => $periode,
+            ],
+            [
+                'stok_awal' => $stokAwal,
+            ]
+        );
+
+        return $stokAwal;
     }
 }

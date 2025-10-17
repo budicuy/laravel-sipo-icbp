@@ -85,7 +85,7 @@
                         <select name="kode_hubungan" id="kode_hubungan" required onchange="handleHubunganChange()"
                                 class="w-full px-4 py-2.5 border @error('kode_hubungan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
                             <option value="">-- Pilih Hubungan --</option>
-                            <option value="A" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'A' ? 'selected' : '' }}>Diri Sendiri</option>
+                            <option value="A" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'A' ? 'selected' : '' }}>Karyawan</option>
                             <option value="B" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'B' ? 'selected' : '' }}>Suami/Istri</option>
                             <option value="C" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'C' ? 'selected' : '' }}>Anak Ke-1</option>
                             <option value="D" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'D' ? 'selected' : '' }}>Anak Ke-2</option>
@@ -241,7 +241,7 @@ function selectKaryawan(karyawan) {
     document.getElementById('nik_search').value = '';
     document.getElementById('search_results').classList.add('hidden');
 
-    // Check if "Diri Sendiri" is selected and auto-fill
+    // Check if "Karyawan" is selected and auto-fill
     handleHubunganChange();
 }
 
@@ -273,7 +273,7 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// Handle hubungan change - Auto-fill if "Diri Sendiri"
+// Handle hubungan change - Auto-fill if "Karyawan"
 function handleHubunganChange() {
     const hubungan = document.getElementById('kode_hubungan').value;
 
@@ -283,9 +283,9 @@ function handleHubunganChange() {
     const tanggalLahirField = document.getElementById('tanggal_lahir');
     const alamatField = document.getElementById('alamat');
 
-    // Auto-fill and disable fields if "Diri Sendiri"
+    // Auto-fill and disable fields if "Karyawan"
     if (hubungan === 'A') {
-        // Auto-fill from selected karyawan if "Diri Sendiri"
+        // Auto-fill from selected karyawan if "Karyawan"
         if (selectedKaryawanData) {
             // Fill nama keluarga
             namaField.value = selectedKaryawanData.nama_karyawan || '';
@@ -331,7 +331,7 @@ function handleHubunganChange() {
             // Set alamat
             alamatField.value = selectedKaryawanData.alamat || '';
 
-            // Disable fields for "Diri Sendiri"
+            // Disable fields for "Karyawan"
             namaField.setAttribute('readonly', 'readonly');
             namaField.classList.add('bg-gray-100', 'cursor-not-allowed');
 
