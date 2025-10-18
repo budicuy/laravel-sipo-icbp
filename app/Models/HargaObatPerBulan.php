@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class HargaObatPerBulan extends Model
@@ -217,7 +218,7 @@ class HargaObatPerBulan extends Model
         // Check if we already have the data in static cache
         if (!isset($staticCache[$cacheKey])) {
             // Get data from Laravel cache (returns null if not found)
-            $cachedData = \Cache::get($cacheKey);
+            $cachedData = Cache::get($cacheKey);
 
             // If not in cache, fetch from database
             if ($cachedData === null) {
@@ -252,7 +253,7 @@ class HargaObatPerBulan extends Model
                 ];
 
                 // Store in Laravel cache for 1 hour
-                \Cache::put($cacheKey, $cachedData, now()->addHour());
+                Cache::put($cacheKey, $cachedData, now()->addHour());
             }
 
             // Store in static cache
