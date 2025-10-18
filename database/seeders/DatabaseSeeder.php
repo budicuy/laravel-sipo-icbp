@@ -15,16 +15,16 @@ class DatabaseSeeder extends Seeder
     {
         // Seeder untuk master data
         $this->call([
-            DepartemenSeeder::class,
-            SatuanObatSeeder::class,
-            JenisObatSeeder::class,
-            ObatSeeder::class,
-            StokObatSeeder::class, // Import data stok obat dari CSV
+            // DepartemenSeeder::class,
+            // SatuanObatSeeder::class,
+            // JenisObatSeeder::class,
+            // ObatSeeder::class,
+            // StokObatSeeder::class, // Import data stok obat dari CSV
             HubunganSeeder::class,
             UserSeeder::class,
-            KaryawanSeeder::class, // Seed 200 karyawan
-            KeluargaSeeder::class, // Seed 200 keluarga
-            DiagnosaSeeder::class, // Seed 200 diagnosa dengan relasi obat
+            // KaryawanSeeder::class, // Seed 200 karyawan
+            // KeluargaSeeder::class, // Seed 200 keluarga
+            // DiagnosaSeeder::class, // Seed 200 diagnosa dengan relasi obat
         ]);
 
 
