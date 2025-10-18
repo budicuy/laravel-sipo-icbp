@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kunjungan;
 use App\Models\RekamMedis;
 use App\Models\Keluhan;
+use App\Models\HargaObatPerBulan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -71,10 +72,14 @@ class LaporanController extends Controller
     private function getChartBiaya($tahun)
     {
         // Single query dengan JOIN untuk menghindari N+1 problems
-        $monthlyData = Keluhan::selectRaw('MONTH(rm.tanggal_periksa) as month, SUM(k.jumlah_obat * o.harga_per_satuan) as total')
+        // Menggunakan harga obat per bulan
+        $monthlyData = Keluhan::selectRaw('MONTH(rm.tanggal_periksa) as month, SUM(k.jumlah_obat * h.harga_per_satuan) as total')
             ->from('keluhan as k')
             ->join('rekam_medis as rm', 'k.id_rekam', '=', 'rm.id_rekam')
-            ->join('obat as o', 'k.id_obat', '=', 'o.id_obat')
+            ->join('harga_obat_per_bulan as h', function($join) {
+                $join->on('k.id_obat', '=', 'h.id_obat')
+                     ->on(DB::raw("DATE_FORMAT(rm.tanggal_periksa, '%m-%y')"), '=', 'h.periode');
+            })
             ->whereYear('rm.tanggal_periksa', $tahun)
             ->whereNotNull('k.id_obat')
             ->groupByRaw('MONTH(rm.tanggal_periksa)')
@@ -105,7 +110,7 @@ class LaporanController extends Controller
                 'keluhans' => function($query) {
                     $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat')
                           ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
-                          ->with(['obat:id_obat,nama_obat,harga_per_satuan']);
+                          ->with(['obat:id_obat,nama_obat']);
                 },
                 'user:id_user,username,nama_lengkap'
             ])
@@ -176,8 +181,21 @@ class LaporanController extends Controller
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedis->keluhans;
 
-            $totalBiaya = $keluhans->sum(function($keluhan) {
-                return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
+            $totalBiaya = $keluhans->sum(function($keluhan) use ($rekamMedis) {
+                // Get harga obat per bulan untuk periode ini
+                $periode = $rekamMedis->tanggal_periksa->format('m-y');
+                $hargaObat = HargaObatPerBulan::where('id_obat', $keluhan->id_obat)
+                                           ->where('periode', $periode)
+                                           ->first();
+
+                // Jika tidak ada harga untuk periode ini, coba periode sebelumnya
+                if (!$hargaObat) {
+                    $hargaObat = HargaObatPerBulan::where('id_obat', $keluhan->id_obat)
+                                               ->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC")
+                                               ->first();
+                }
+
+                return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
             });
 
             $diagnosaList = $keluhans->pluck('diagnosa.nama_diagnosa')->filter()->unique()->implode(', ');
@@ -213,10 +231,14 @@ class LaporanController extends Controller
             ->count();
 
         // Single query dengan JOIN untuk menghindari N+1 problems
-        $totalBiaya = Keluhan::selectRaw('SUM(k.jumlah_obat * o.harga_per_satuan) as total')
+        // Menggunakan harga obat per bulan
+        $totalBiaya = Keluhan::selectRaw('SUM(k.jumlah_obat * h.harga_per_satuan) as total')
             ->from('keluhan as k')
             ->join('rekam_medis as rm', 'k.id_rekam', '=', 'rm.id_rekam')
-            ->join('obat as o', 'k.id_obat', '=', 'o.id_obat')
+            ->join('harga_obat_per_bulan as h', function($join) {
+                $join->on('k.id_obat', '=', 'h.id_obat')
+                     ->on(DB::raw("DATE_FORMAT(rm.tanggal_periksa, '%m-%y')"), '=', 'h.periode');
+            })
             ->whereMonth('rm.tanggal_periksa', $bulan)
             ->whereYear('rm.tanggal_periksa', $tahun)
             ->whereNotNull('k.id_obat')
@@ -245,7 +267,7 @@ class LaporanController extends Controller
                 'keluhans' => function($query) {
                     $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
                           ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
-                          ->with(['obat:id_obat,nama_obat,harga_per_satuan,id_satuan'])
+                          ->with(['obat:id_obat,nama_obat,id_satuan'])
                           ->with(['obat.satuanObat:id_satuan,nama_satuan']);
                 },
                 'user:id_user,username,nama_lengkap'
@@ -275,8 +297,21 @@ class LaporanController extends Controller
         $kunjungan->hubungan = $rekamMedis->keluarga->hubungan->hubungan ?? '-';
 
         // Calculate total biaya
-        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) {
-            return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
+        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) use ($rekamMedis) {
+            // Get harga obat per bulan untuk periode ini
+            $periode = $rekamMedis->tanggal_periksa->format('m-y');
+            $hargaObat = HargaObatPerBulan::where('id_obat', $keluhan->id_obat)
+                                       ->where('periode', $periode)
+                                       ->first();
+
+            // Jika tidak ada harga untuk periode ini, coba periode sebelumnya
+            if (!$hargaObat) {
+                $hargaObat = HargaObatPerBulan::where('id_obat', $keluhan->id_obat)
+                                           ->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC")
+                                           ->first();
+            }
+
+            return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
         });
 
         // Group keluhan by diagnosa, only include those with obat
@@ -311,7 +346,7 @@ class LaporanController extends Controller
                 'keluhans' => function($query) {
                     $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
                           ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
-                          ->with(['obat:id_obat,nama_obat,harga_per_satuan,id_satuan'])
+                          ->with(['obat:id_obat,nama_obat,id_satuan'])
                           ->with(['obat.satuanObat:id_satuan,nama_satuan']);
                 },
                 'user:id_user,username,nama_lengkap'
@@ -341,8 +376,21 @@ class LaporanController extends Controller
         $kunjungan->hubungan = $rekamMedis->keluarga->hubungan->hubungan ?? '-';
 
         // Calculate total biaya
-        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) {
-            return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
+        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) use ($rekamMedis) {
+            // Get harga obat per bulan untuk periode ini
+            $periode = $rekamMedis->tanggal_periksa->format('m-y');
+            $hargaObat = HargaObatPerBulan::where('id_obat', $keluhan->id_obat)
+                                       ->where('periode', $periode)
+                                       ->first();
+
+            // Jika tidak ada harga untuk periode ini, coba periode sebelumnya
+            if (!$hargaObat) {
+                $hargaObat = HargaObatPerBulan::where('id_obat', $keluhan->id_obat)
+                                           ->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC")
+                                           ->first();
+            }
+
+            return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
         });
 
         // Group keluhan by diagnosa, only include those with obat

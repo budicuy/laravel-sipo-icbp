@@ -11,6 +11,7 @@ use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ObatController;
 use App\Http\Controllers\StokObatController;
+use App\Http\Controllers\HargaObatController;
 use App\Http\Controllers\DashboardController;
 
 // Redirect root ke login
@@ -73,6 +74,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/stok-obat/bulk-delete', [StokObatController::class, 'bulkDelete'])->name('stok-obat.bulkDelete');
     Route::post('/stok-obat/fix-consistency', [StokObatController::class, 'fixStokConsistency'])->name('stok-obat.fix-consistency');
     Route::post('/stok-obat/update-stok-awal', [StokObatController::class, 'updateStokAwalForNewPeriod'])->name('stok-obat.update-stok-awal');
+
+    // Harga Obat Routes
+    Route::get('/harga-obat', [HargaObatController::class, 'index'])->name('harga-obat.index');
+    Route::get('/harga-obat/create', [HargaObatController::class, 'create'])->name('harga-obat.create');
+    Route::post('/harga-obat', [HargaObatController::class, 'store'])->name('harga-obat.store');
+    Route::get('/harga-obat/{id}/edit', [HargaObatController::class, 'edit'])->name('harga-obat.edit');
+    Route::put('/harga-obat/{id}', [HargaObatController::class, 'update'])->name('harga-obat.update');
+    Route::delete('/harga-obat/{id}', [HargaObatController::class, 'destroy'])->name('harga-obat.destroy');
+    Route::post('/harga-obat/bulk-delete', [HargaObatController::class, 'bulkDelete'])->name('harga-obat.bulkDelete');
+    Route::post('/harga-obat/generate-for-periode', [HargaObatController::class, 'generateForPeriode'])->name('harga-obat.generate-for-periode');
+    Route::get('/harga-obat/export', [HargaObatController::class, 'export'])->name('harga-obat.export');
 
     // Diagnosa Routes - Custom routes BEFORE resource routes
     Route::get('/diagnosa/template', [DiagnosaController::class, 'downloadTemplate'])->name('diagnosa.template');

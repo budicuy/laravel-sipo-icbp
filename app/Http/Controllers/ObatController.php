@@ -56,7 +56,7 @@ class ObatController extends Controller
         $sortField = $request->get('sort', 'id_obat');
         $sortDirection = $request->get('direction', 'desc');
 
-        if (in_array($sortField, ['nama_obat', 'jenis_obat', 'satuan_obat', 'jumlah_per_kemasan', 'harga_per_kemasan', 'harga_per_satuan', 'keterangan', 'tanggal_update'])) {
+        if (in_array($sortField, ['nama_obat', 'jenis_obat', 'satuan_obat', 'keterangan', 'tanggal_update'])) {
             // Handle sorting for related fields
             if ($sortField === 'jenis_obat') {
                 $query->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
@@ -107,17 +107,11 @@ class ObatController extends Controller
             'keterangan' => 'nullable|string',
             'id_jenis_obat' => 'required|exists:jenis_obat,id_jenis_obat',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
-            'jumlah_per_kemasan' => 'required|integer|min:1',
-            'harga_per_kemasan' => 'required|numeric|min:0',
-            'harga_per_satuan' => 'required|numeric|min:0',
         ], [
             'nama_obat.required' => 'Nama obat wajib diisi',
             'nama_obat.unique' => 'Nama obat sudah terdaftar',
             'id_jenis_obat.required' => 'Jenis obat wajib dipilih',
             'id_satuan.required' => 'Satuan obat wajib dipilih',
-            'jumlah_per_kemasan.required' => 'Jumlah per kemasan wajib diisi',
-            'harga_per_kemasan.required' => 'Harga per kemasan wajib diisi',
-            'harga_per_satuan.required' => 'Harga per satuan wajib diisi',
         ]);
 
         // Start transaction
@@ -178,17 +172,11 @@ class ObatController extends Controller
             'keterangan' => 'nullable|string',
             'id_jenis_obat' => 'required|exists:jenis_obat,id_jenis_obat',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
-            'jumlah_per_kemasan' => 'required|integer|min:1',
-            'harga_per_kemasan' => 'required|numeric|min:0',
-            'harga_per_satuan' => 'required|numeric|min:0',
         ], [
             'nama_obat.required' => 'Nama obat wajib diisi',
             'nama_obat.unique' => 'Nama obat sudah terdaftar',
             'id_jenis_obat.required' => 'Jenis obat wajib dipilih',
             'id_satuan.required' => 'Satuan obat wajib dipilih',
-            'jumlah_per_kemasan.required' => 'Jumlah per kemasan wajib diisi',
-            'harga_per_kemasan.required' => 'Harga per kemasan wajib diisi',
-            'harga_per_satuan.required' => 'Harga per satuan wajib diisi',
         ]);
 
         $obat->update($validated);
@@ -378,7 +366,7 @@ class ObatController extends Controller
         $sortField = $request->get('sort', 'nama_obat');
         $sortDirection = $request->get('direction', 'asc');
 
-        if (in_array($sortField, ['nama_obat', 'jenis_obat', 'satuan_obat', 'jumlah_per_kemasan', 'harga_per_kemasan', 'harga_per_satuan', 'keterangan', 'tanggal_update'])) {
+        if (in_array($sortField, ['nama_obat', 'jenis_obat', 'satuan_obat', 'keterangan', 'tanggal_update'])) {
             if ($sortField === 'jenis_obat') {
                 $query->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
                       ->orderBy('jenis_obat.nama_jenis_obat', $sortDirection)
@@ -646,9 +634,6 @@ class ObatController extends Controller
                     'keterangan' => !empty($keterangan) ? $keterangan : null,
                     'id_jenis_obat' => $jenisObatNames[$jenisObat],
                     'id_satuan' => $satuanObatNames[$satuan],
-                    'harga_per_satuan' => $hargaSatuan,
-                    'harga_per_kemasan' => $hargaPerkemasan,
-                    'jumlah_per_kemasan' => 1, // Default value
                     'tanggal_update' => now(),
                 ];
 

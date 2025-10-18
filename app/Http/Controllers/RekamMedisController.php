@@ -27,7 +27,7 @@ class RekamMedisController extends Controller
             'keluarga.hubungan:kode_hubungan,hubungan',
             'user:id_user,username,nama_lengkap',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
-            'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
+            'keluhans.obat:id_obat,nama_obat'
         ]);
 
         // Filter pencarian
@@ -159,14 +159,14 @@ class RekamMedisController extends Controller
             'keluarga.hubungan:kode_hubungan,hubungan',
             'user:id_user,username,nama_lengkap',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
-            'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
+            'keluhans.obat:id_obat,nama_obat'
         ])->findOrFail($id);
 
         // Optimized query for riwayat kunjungan - select only needed columns
         $riwayatKunjungan = RekamMedis::with([
             'user:id_user,username,nama_lengkap',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
-            'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
+            'keluhans.obat:id_obat,nama_obat'
         ])
         ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
         ->where('id_keluarga', $rekamMedis->id_keluarga)
