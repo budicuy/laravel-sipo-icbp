@@ -1,0 +1,3 @@
+tambahkan fitur untuk kelola harga obat per bulan untuk data obat untuk bulan awal cek di stok obat kapan bulan awal pertama kali data obat ada ambil dari periode dari bulan awal stok obat sampai sekarang. terus buatkan tabel harga obatnya yang berelasi ke obat. kemudian menu navigasi sidebar harga obat di pisah halamannya setara dengan stok obat.  jadi bisa edit harga obat perbulan.  kemudian di laporan transaksi harga obat saat bulan itu x jumlah lah obat.
+
+untuk di data obat harga per kemasan dan harga satuan hapus saja pindah ke kelola harga perbulan

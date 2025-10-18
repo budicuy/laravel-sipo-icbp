@@ -196,8 +196,8 @@
                             <td>{{ $keluhan->obat->nama_obat ?? '-' }}</td>
                             <td>{{ $keluhan->jumlah_obat ?? 0 }} {{ $keluhan->obat->satuanObat->nama_satuan ?? '' }}</td>
                             <td>{{ $keluhan->aturan_pakai ?: '-' }}</td>
-                            <td>Rp{{ number_format($keluhan->obat->harga_per_satuan ?? 0, 0, ',', '.') }}</td>
-                            <td>Rp{{ number_format(($keluhan->jumlah_obat ?? 0) * ($keluhan->obat->harga_per_satuan ?? 0), 0, ',', '.') }}</td>
+                            <td>Rp{{ number_format($keluhan->harga_satuan ?? 0, 0, ',', '.') }}</td>
+                            <td>Rp{{ number_format(($keluhan->jumlah_obat ?? 0) * ($keluhan->harga_satuan ?? 0), 0, ',', '.') }}</td>
                         </tr>
                         @endforeach
                     </tbody>

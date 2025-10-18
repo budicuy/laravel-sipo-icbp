@@ -11,8 +11,8 @@ use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ObatController;
 use App\Http\Controllers\StokObatController;
+use App\Http\Controllers\HargaObatController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\RekamMedisEmergencyController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -75,6 +75,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/stok-obat/fix-consistency', [StokObatController::class, 'fixStokConsistency'])->name('stok-obat.fix-consistency');
     Route::post('/stok-obat/update-stok-awal', [StokObatController::class, 'updateStokAwalForNewPeriod'])->name('stok-obat.update-stok-awal');
 
+    // Harga Obat Routes
+    Route::get('/harga-obat', [HargaObatController::class, 'index'])->name('harga-obat.index');
+    Route::get('/harga-obat/create', [HargaObatController::class, 'create'])->name('harga-obat.create');
+    Route::post('/harga-obat', [HargaObatController::class, 'store'])->name('harga-obat.store');
+    Route::get('/harga-obat/{id}/edit', [HargaObatController::class, 'edit'])->name('harga-obat.edit');
+    Route::put('/harga-obat/{id}', [HargaObatController::class, 'update'])->name('harga-obat.update');
+    Route::delete('/harga-obat/{id}', [HargaObatController::class, 'destroy'])->name('harga-obat.destroy');
+    Route::post('/harga-obat/bulk-delete', [HargaObatController::class, 'bulkDelete'])->name('harga-obat.bulkDelete');
+    Route::post('/harga-obat/generate-for-periode', [HargaObatController::class, 'generateForPeriode'])->name('harga-obat.generate-for-periode');
+    Route::get('/harga-obat/export', [HargaObatController::class, 'export'])->name('harga-obat.export');
+
     // Diagnosa Routes - Custom routes BEFORE resource routes
     Route::get('/diagnosa/template', [DiagnosaController::class, 'downloadTemplate'])->name('diagnosa.template');
     Route::post('/diagnosa/import', [DiagnosaController::class, 'import'])->name('diagnosa.import');
@@ -133,6 +144,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/transaksi/{id}/detail', [LaporanController::class, 'detailTransaksi'])->name('laporan.detail');
     Route::get('/laporan/transaksi/{id}/cetak', [LaporanController::class, 'cetakDetailTransaksi'])->name('laporan.cetak.detail');
     Route::post('/laporan/transaksi/export', [LaporanController::class, 'exportTransaksi'])->name('laporan.export');
+
+    // Monitoring Harga Routes
+    Route::get('/monitoring/harga', [MonitoringHargaController::class, 'index'])->name('monitoring.harga.index');
+    Route::get('/monitoring/harga/export', [MonitoringHargaController::class, 'exportMonitoring'])->name('monitoring.harga.export');
+    Route::post('/monitoring/harga/validate-continuity', [MonitoringHargaController::class, 'validateHargaContinuity'])->name('monitoring.harga.validate-continuity');
+    Route::get('/monitoring/harga/recommendations', [MonitoringHargaController::class, 'generateRecommendations'])->name('monitoring.harga.recommendations');
+    Route::post('/monitoring/harga/bulk-create', [MonitoringHargaController::class, 'bulkCreateHarga'])->name('monitoring.harga.bulk-create');
+    Route::get('/monitoring/harga/history/{idObat}', [MonitoringHargaController::class, 'getHargaHistory'])->name('monitoring.harga.history');
 
     // Routes untuk Super Admin
     Route::middleware('role:Super Admin')->group(function () {

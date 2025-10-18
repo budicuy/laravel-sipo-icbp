@@ -16,16 +16,10 @@ class Obat extends Model
         'keterangan',
         'id_jenis_obat',
         'id_satuan',
-        'jumlah_per_kemasan',
-        'harga_per_satuan',
-        'harga_per_kemasan',
         'tanggal_update',
     ];
 
     protected $casts = [
-        'jumlah_per_kemasan' => 'integer',
-        'harga_per_satuan' => 'decimal:2',
-        'harga_per_kemasan' => 'decimal:2',
         'tanggal_update' => 'datetime',
     ];
 
@@ -60,6 +54,28 @@ class Obat extends Model
     public function stokBulanans()
     {
         return $this->hasMany(StokObat::class, 'id_obat', 'id_obat');
+    }
+
+    // Relasi ke Harga Obat Per Bulan
+    public function hargaObatPerBulans()
+    {
+        return $this->hasMany(HargaObatPerBulan::class, 'id_obat', 'id_obat');
+    }
+
+    /**
+     * Mendapatkan harga obat untuk periode tertentu
+     */
+    public function getHargaPerPeriode($periode = null)
+    {
+        return HargaObatPerBulan::getHargaObat($this->id_obat, $periode);
+    }
+
+    /**
+     * Mendapatkan harga obat saat ini (periode terbaru)
+     */
+    public function getHargaSaatIni()
+    {
+        return $this->getHargaPerPeriode();
     }
 
     // Auto-update tanggal_update before saving

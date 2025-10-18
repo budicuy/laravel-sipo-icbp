@@ -6,6 +6,9 @@
 
 @section('content')
 <div class="p-6 bg-gray-50 min-h-screen">
+    <!-- Fallback Notification -->
+    @include('components.fallback-notification')
+
     <!-- Header Section -->
     <div class="mb-6">
         <div class="flex items-center justify-between w-full">
@@ -166,8 +169,8 @@
                                 <td class="px-4 py-2 text-sm text-gray-900">{{ $keluhan->obat->nama_obat ?? '-' }}</td>
                                 <td class="px-4 py-2 text-sm text-gray-900">{{ $keluhan->jumlah_obat ?? 0 }} {{ $keluhan->obat->satuanObat->nama_satuan ?? '' }}</td>
                                 <td class="px-4 py-2 text-sm text-gray-600">{{ $keluhan->aturan_pakai ?: '-' }}</td>
-                                <td class="px-4 py-2 text-sm text-gray-900">Rp{{ number_format($keluhan->obat->harga_per_satuan ?? 0, 0, ',', '.') }}</td>
-                                <td class="px-4 py-2 text-sm font-medium text-gray-900">Rp{{ number_format(($keluhan->jumlah_obat ?? 0) * ($keluhan->obat->harga_per_satuan ?? 0), 0, ',', '.') }}</td>
+                                <td class="px-4 py-2 text-sm text-gray-900">Rp{{ number_format($keluhan->harga_satuan ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-4 py-2 text-sm font-medium text-gray-900">Rp{{ number_format(($keluhan->jumlah_obat ?? 0) * ($keluhan->harga_satuan ?? 0), 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
                         </tbody>

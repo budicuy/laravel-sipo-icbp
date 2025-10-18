@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kunjungan;
 use App\Models\RekamMedis;
 use App\Models\Keluhan;
+use App\Models\HargaObatPerBulan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -27,7 +28,9 @@ class LaporanController extends Controller
         $chartBiaya = $this->getChartBiaya($tahun);
 
         // Get data untuk tabel transaksi
-        $transaksi = $this->getTransaksiData($tanggal_dari, $tanggal_sampai);
+        $transaksiData = $this->getTransaksiData($tanggal_dari, $tanggal_sampai);
+        $transaksi = $transaksiData['data'];
+        $fallbackNotifications = $transaksiData['fallbackNotifications'] ?? [];
 
         // Get statistics
         $stats = $this->getTransaksiStats($bulan, $tahun);
@@ -40,7 +43,8 @@ class LaporanController extends Controller
             'tahun',
             'bulan',
             'tanggal_dari',
-            'tanggal_sampai'
+            'tanggal_sampai',
+            'fallbackNotifications'
         ));
     }
 
@@ -70,16 +74,58 @@ class LaporanController extends Controller
      */
     private function getChartBiaya($tahun)
     {
-        // Single query dengan JOIN untuk menghindari N+1 problems
-        $monthlyData = Keluhan::selectRaw('MONTH(rm.tanggal_periksa) as month, SUM(k.jumlah_obat * o.harga_per_satuan) as total')
-            ->from('keluhan as k')
-            ->join('rekam_medis as rm', 'k.id_rekam', '=', 'rm.id_rekam')
-            ->join('obat as o', 'k.id_obat', '=', 'o.id_obat')
-            ->whereYear('rm.tanggal_periksa', $tahun)
-            ->whereNotNull('k.id_obat')
-            ->groupByRaw('MONTH(rm.tanggal_periksa)')
-            ->pluck('total', 'month')
-            ->toArray();
+        // Get all keluhan with rekamMedis for the specified year
+        $keluhanData = Keluhan::with(['rekamMedis:id_rekam,tanggal_periksa'])
+            ->whereHas('rekamMedis', function($query) use ($tahun) {
+                $query->whereYear('tanggal_periksa', $tahun);
+            })
+            ->whereNotNull('id_obat')
+            ->get();
+
+        // Collect all unique obat IDs and periods to prevent duplicate queries
+        $obatPeriods = [];
+        foreach ($keluhanData as $keluhan) {
+            $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
+            $obatPeriods[] = [
+                'id_obat' => $keluhan->id_obat,
+                'periode' => $periode
+            ];
+        }
+
+        // Get unique combinations to avoid duplicates
+        $uniqueObatPeriods = collect($obatPeriods)->unique(function ($item) {
+            return $item['id_obat'] . '_' . $item['periode'];
+        })->values()->toArray();
+
+        // Use the bulk fallback method for optimized performance
+        $hargaObatResults = HargaObatPerBulan::getBulkHargaObatWithFallback($uniqueObatPeriods);
+
+        // Create a lookup map
+        $hargaObatMap = [];
+        foreach ($hargaObatResults as $key => $result) {
+            if ($result && $result['harga']) {
+                $hargaObatMap[$key] = $result['harga'];
+            }
+        }
+
+        // Group by month and calculate total using pre-fetched harga
+        $monthlyData = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthlyData[$i] = 0;
+        }
+
+        foreach ($keluhanData as $keluhan) {
+            $month = $keluhan->rekamMedis->tanggal_periksa->format('n');
+            $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
+            $key = $keluhan->id_obat . '_' . $periode;
+
+            // Get harga obat from our pre-fetched map
+            $hargaObat = $hargaObatMap[$key] ?? null;
+
+            if ($hargaObat) {
+                $monthlyData[$month] += $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
+            }
+        }
 
         // Format data untuk chart (12 bulan)
         $chartData = [];
@@ -105,7 +151,7 @@ class LaporanController extends Controller
                 'keluhans' => function($query) {
                     $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat')
                           ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
-                          ->with(['obat:id_obat,nama_obat,harga_per_satuan']);
+                          ->with(['obat:id_obat,nama_obat']);
                 },
                 'user:id_user,username,nama_lengkap'
             ])
@@ -113,6 +159,52 @@ class LaporanController extends Controller
             ->whereBetween('tanggal_periksa', [$tanggal_dari, $tanggal_sampai])
             ->orderBy('tanggal_periksa', 'desc')
             ->get();
+
+        // Collect all unique obat IDs and periods to prevent duplicate queries
+        $obatPeriods = [];
+        foreach ($rekamMedisData as $rekamMedis) {
+            $periode = $rekamMedis->tanggal_periksa->format('m-y');
+            foreach ($rekamMedis->keluhans as $keluhan) {
+                if ($keluhan->id_obat) {
+                    $obatPeriods[] = [
+                        'id_obat' => $keluhan->id_obat,
+                        'periode' => $periode
+                    ];
+                }
+            }
+        }
+
+        // Fetch all harga obat data with fallback mechanism
+        $hargaObatMap = [];
+        $fallbackNotifications = [];
+
+        if (!empty($obatPeriods)) {
+            // Get unique combinations to avoid duplicates
+            $uniqueObatPeriods = collect($obatPeriods)->unique(function ($item) {
+                return $item['id_obat'] . '_' . $item['periode'];
+            })->values()->toArray();
+
+            // Use the new bulk fallback method for optimized performance
+            $hargaObatResults = HargaObatPerBulan::getBulkHargaObatWithFallback($uniqueObatPeriods);
+
+            // Create a lookup map and collect fallback notifications
+            foreach ($hargaObatResults as $key => $result) {
+                if ($result && $result['harga']) {
+                    $hargaObatMap[$key] = $result['harga'];
+
+                    // Collect notifications for fallback prices
+                    if ($result['is_fallback']) {
+                        $fallbackNotifications[] = [
+                            'id_obat' => $result['harga']->id_obat,
+                            'nama_obat' => $result['harga']->obat->nama_obat ?? 'Unknown',
+                            'target_periode' => explode('_', $key)[1],
+                            'source_periode' => $result['sumber_periode'],
+                            'fallback_depth' => $result['fallback_depth']
+                        ];
+                    }
+                }
+            }
+        }
 
         // Prepare bulk upsert data for kunjungan
         $kunjunganUpsertData = [];
@@ -163,7 +255,7 @@ class LaporanController extends Controller
             }
         }
 
-        return $rekamMedisData->map(function($rekamMedis) use ($kunjunganIdMap, $kunjunganKeyMap) {
+        $result = $rekamMedisData->map(function($rekamMedis) use ($kunjunganIdMap, $kunjunganKeyMap, $hargaObatMap) {
             // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
             $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
             $bulan = $rekamMedis->tanggal_periksa->format('m');
@@ -175,9 +267,16 @@ class LaporanController extends Controller
 
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedis->keluhans;
+            $periode = $rekamMedis->tanggal_periksa->format('m-y');
 
-            $totalBiaya = $keluhans->sum(function($keluhan) {
-                return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
+            $totalBiaya = $keluhans->sum(function($keluhan) use ($periode, $hargaObatMap) {
+                if (!$keluhan->id_obat) return 0;
+
+                // Get harga obat from our pre-fetched map
+                $key = $keluhan->id_obat . '_' . $periode;
+                $hargaObat = $hargaObatMap[$key] ?? null;
+
+                return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
             });
 
             $diagnosaList = $keluhans->pluck('diagnosa.nama_diagnosa')->filter()->unique()->implode(', ');
@@ -201,6 +300,11 @@ class LaporanController extends Controller
                 'id_rekam' => $rekamMedis->id_rekam
             ];
         })->filter();
+
+        return [
+            'data' => $result,
+            'fallbackNotifications' => $fallbackNotifications
+        ];
     }
 
     /**
@@ -212,15 +316,54 @@ class LaporanController extends Controller
             ->whereYear('tanggal_periksa', $tahun)
             ->count();
 
-        // Single query dengan JOIN untuk menghindari N+1 problems
-        $totalBiaya = Keluhan::selectRaw('SUM(k.jumlah_obat * o.harga_per_satuan) as total')
-            ->from('keluhan as k')
-            ->join('rekam_medis as rm', 'k.id_rekam', '=', 'rm.id_rekam')
-            ->join('obat as o', 'k.id_obat', '=', 'o.id_obat')
-            ->whereMonth('rm.tanggal_periksa', $bulan)
-            ->whereYear('rm.tanggal_periksa', $tahun)
-            ->whereNotNull('k.id_obat')
-            ->value('total');
+        // Get all keluhan with rekamMedis for the specified month and year
+        $keluhanData = Keluhan::with(['rekamMedis:id_rekam,tanggal_periksa'])
+            ->whereHas('rekamMedis', function($query) use ($bulan, $tahun) {
+                $query->whereMonth('tanggal_periksa', $bulan)
+                      ->whereYear('tanggal_periksa', $tahun);
+            })
+            ->whereNotNull('id_obat')
+            ->get();
+
+        // Collect all unique obat IDs and periods to prevent duplicate queries
+        $obatPeriods = [];
+        foreach ($keluhanData as $keluhan) {
+            $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
+            $obatPeriods[] = [
+                'id_obat' => $keluhan->id_obat,
+                'periode' => $periode
+            ];
+        }
+
+        // Get unique combinations to avoid duplicates
+        $uniqueObatPeriods = collect($obatPeriods)->unique(function ($item) {
+            return $item['id_obat'] . '_' . $item['periode'];
+        })->values()->toArray();
+
+        // Use the bulk fallback method for optimized performance
+        $hargaObatResults = HargaObatPerBulan::getBulkHargaObatWithFallback($uniqueObatPeriods);
+
+        // Create a lookup map
+        $hargaObatMap = [];
+        foreach ($hargaObatResults as $key => $result) {
+            if ($result && $result['harga']) {
+                $hargaObatMap[$key] = $result['harga'];
+            }
+        }
+
+        // Calculate total biaya using pre-fetched harga
+        $totalBiaya = 0;
+        foreach ($keluhanData as $keluhan) {
+            $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
+            $key = $keluhan->id_obat . '_' . $periode;
+
+            // Get harga obat from our pre-fetched map
+            $hargaObat = $hargaObatMap[$key] ?? null;
+
+            if ($hargaObat) {
+                $totalBiaya += $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
+            }
+        }
 
         return [
             'total_pemeriksaan' => $totalPemeriksaan,
@@ -245,7 +388,7 @@ class LaporanController extends Controller
                 'keluhans' => function($query) {
                     $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
                           ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
-                          ->with(['obat:id_obat,nama_obat,harga_per_satuan,id_satuan'])
+                          ->with(['obat:id_obat,nama_obat,id_satuan'])
                           ->with(['obat.satuanObat:id_satuan,nama_satuan']);
                 },
                 'user:id_user,username,nama_lengkap'
@@ -274,9 +417,53 @@ class LaporanController extends Controller
         $kunjungan->nama_pasien = $rekamMedis->keluarga->nama_keluarga ?? '-';
         $kunjungan->hubungan = $rekamMedis->keluarga->hubungan->hubungan ?? '-';
 
-        // Calculate total biaya
-        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) {
-            return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
+        // Optimized harga obat fetching - collect all unique obat IDs first
+        $periode = $rekamMedis->tanggal_periksa->format('m-y');
+        $obatIds = $rekamMedis->keluhans->pluck('id_obat')->filter()->unique()->toArray();
+
+        // Fetch all harga obat data with fallback mechanism
+        $hargaObatMap = [];
+        $fallbackNotifications = [];
+
+        if (!empty($obatIds)) {
+            // Prepare obat periods for bulk processing
+            $obatPeriods = [];
+            foreach ($obatIds as $idObat) {
+                $obatPeriods[] = [
+                    'id_obat' => $idObat,
+                    'periode' => $periode
+                ];
+            }
+
+            // Use the new bulk fallback method for optimized performance
+            $hargaObatResults = HargaObatPerBulan::getBulkHargaObatWithFallback($obatPeriods);
+
+            // Create a lookup map by id_obat and collect fallback notifications
+            foreach ($hargaObatResults as $key => $result) {
+                if ($result && $result['harga']) {
+                    $idObat = explode('_', $key)[0];
+                    $hargaObatMap[$idObat] = $result['harga'];
+
+                    // Collect notifications for fallback prices
+                    if ($result['is_fallback']) {
+                        $fallbackNotifications[] = [
+                            'id_obat' => $result['harga']->id_obat,
+                            'nama_obat' => $result['harga']->obat->nama_obat ?? 'Unknown',
+                            'target_periode' => $periode,
+                            'source_periode' => $result['sumber_periode'],
+                            'fallback_depth' => $result['fallback_depth']
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Calculate total biaya using pre-fetched harga data
+        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) use ($hargaObatMap) {
+            if (!$keluhan->id_obat) return 0;
+
+            $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
+            return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
         });
 
         // Group keluhan by diagnosa, only include those with obat
@@ -286,13 +473,24 @@ class LaporanController extends Controller
             })
             ->groupBy(function($keluhan) {
                 return $keluhan->diagnosa->nama_diagnosa ?? 'Unknown';
+            })
+            ->map(function($keluhans) use ($hargaObatMap) {
+                // Attach harga information to each keluhan using pre-fetched data
+                return $keluhans->map(function($keluhan) use ($hargaObatMap) {
+                    $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
+
+                    // Add harga_satuan attribute to keluhan object
+                    $keluhan->harga_satuan = $hargaObat->harga_per_satuan ?? 0;
+                    return $keluhan;
+                });
             });
 
         return view('laporan.detail-transaksi', compact(
             'rekamMedis',
             'kunjungan',
             'totalBiaya',
-            'keluhanByDiagnosa'
+            'keluhanByDiagnosa',
+            'fallbackNotifications'
         ));
     }
 
@@ -311,7 +509,7 @@ class LaporanController extends Controller
                 'keluhans' => function($query) {
                     $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
                           ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
-                          ->with(['obat:id_obat,nama_obat,harga_per_satuan,id_satuan'])
+                          ->with(['obat:id_obat,nama_obat,id_satuan'])
                           ->with(['obat.satuanObat:id_satuan,nama_satuan']);
                 },
                 'user:id_user,username,nama_lengkap'
@@ -340,9 +538,53 @@ class LaporanController extends Controller
         $kunjungan->nama_pasien = $rekamMedis->keluarga->nama_keluarga ?? '-';
         $kunjungan->hubungan = $rekamMedis->keluarga->hubungan->hubungan ?? '-';
 
-        // Calculate total biaya
-        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) {
-            return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
+        // Optimized harga obat fetching - collect all unique obat IDs first
+        $periode = $rekamMedis->tanggal_periksa->format('m-y');
+        $obatIds = $rekamMedis->keluhans->pluck('id_obat')->filter()->unique()->toArray();
+
+        // Fetch all harga obat data with fallback mechanism
+        $hargaObatMap = [];
+        $fallbackNotifications = [];
+
+        if (!empty($obatIds)) {
+            // Prepare obat periods for bulk processing
+            $obatPeriods = [];
+            foreach ($obatIds as $idObat) {
+                $obatPeriods[] = [
+                    'id_obat' => $idObat,
+                    'periode' => $periode
+                ];
+            }
+
+            // Use the new bulk fallback method for optimized performance
+            $hargaObatResults = HargaObatPerBulan::getBulkHargaObatWithFallback($obatPeriods);
+
+            // Create a lookup map by id_obat and collect fallback notifications
+            foreach ($hargaObatResults as $key => $result) {
+                if ($result && $result['harga']) {
+                    $idObat = explode('_', $key)[0];
+                    $hargaObatMap[$idObat] = $result['harga'];
+
+                    // Collect notifications for fallback prices
+                    if ($result['is_fallback']) {
+                        $fallbackNotifications[] = [
+                            'id_obat' => $result['harga']->id_obat,
+                            'nama_obat' => $result['harga']->obat->nama_obat ?? 'Unknown',
+                            'target_periode' => $periode,
+                            'source_periode' => $result['sumber_periode'],
+                            'fallback_depth' => $result['fallback_depth']
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Calculate total biaya using pre-fetched harga data
+        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) use ($hargaObatMap) {
+            if (!$keluhan->id_obat) return 0;
+
+            $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
+            return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
         });
 
         // Group keluhan by diagnosa, only include those with obat
@@ -352,6 +594,16 @@ class LaporanController extends Controller
             })
             ->groupBy(function($keluhan) {
                 return $keluhan->diagnosa->nama_diagnosa ?? 'Unknown';
+            })
+            ->map(function($keluhans) use ($hargaObatMap) {
+                // Attach harga information to each keluhan using pre-fetched data
+                return $keluhans->map(function($keluhan) use ($hargaObatMap) {
+                    $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
+
+                    // Add harga_satuan attribute to keluhan object
+                    $keluhan->harga_satuan = $hargaObat->harga_per_satuan ?? 0;
+                    return $keluhan;
+                });
             });
 
         // Load PDF view
@@ -359,7 +611,8 @@ class LaporanController extends Controller
             'rekamMedis',
             'kunjungan',
             'totalBiaya',
-            'keluhanByDiagnosa'
+            'keluhanByDiagnosa',
+            'fallbackNotifications'
         ));
 
         // Set paper size to A4 portrait
