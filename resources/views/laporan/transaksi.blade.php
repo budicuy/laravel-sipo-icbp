@@ -12,7 +12,6 @@
 @section('content')
 <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Fallback Notification -->
-    @include('components.fallback-notification')
 
     <!-- Header Section -->
     <div class="mb-6">

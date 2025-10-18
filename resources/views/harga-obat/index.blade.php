@@ -63,18 +63,25 @@
                     Tambah Harga Obat
                 </a>
 
-                <button type="button" onclick="openGenerateModal()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Generate Periode
-                </button>
-
                 <a href="{{ route('harga-obat.export', request()->query()) }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Export Excel
+                </a>
+
+                <a href="{{ route('harga-obat.import') }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Import Excel
+                </a>
+
+                <a href="{{ route('harga-obat.template') }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Download Template
                 </a>
 
                 <button type="button" onclick="submitBulkDelete()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
@@ -118,15 +125,6 @@
                     </select>
                 </div>
 
-                <div class="min-w-[150px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Obat</label>
-                    <select name="jenis_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white shadow-sm">
-                        <option value="">Semua Jenis</option>
-                        @foreach($jenisObats as $jenis)
-                            <option value="{{ $jenis->id_jenis_obat }}" {{ request('jenis_obat') == $jenis->id_jenis_obat ? 'selected' : '' }}>{{ $jenis->nama_jenis_obat }}</option>
-                        @endforeach
-                    </select>
-                </div>
 
                 <div class="flex gap-2">
                     <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
@@ -150,9 +148,6 @@
                     @endif
                     @if(request('periode'))
                         <input type="hidden" name="periode" value="{{ request('periode') }}">
-                    @endif
-                    @if(request('jenis_obat'))
-                        <input type="hidden" name="jenis_obat" value="{{ request('jenis_obat') }}">
                     @endif
                     <select name="per_page" onchange="document.getElementById('perPageForm').submit()" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white shadow-sm">
                         <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
@@ -183,29 +178,6 @@
                                 <span>Nama Obat</span>
                                 <span class="ml-2">
                                     @if(request('sort') == 'nama_obat')
-                                        @if(request('direction') == 'asc')
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                                            </svg>
-                                        @else
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                            </svg>
-                                        @endif
-                                    @else
-                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-                                        </svg>
-                                    @endif
-                                </span>
-                            </a>
-                        </th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('harga-obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'jenis_obat', 'direction' => (request('sort') == 'jenis_obat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-indigo-300 transition-colors">
-                                <span>Jenis Obat</span>
-                                <span class="ml-2">
-                                    @if(request('sort') == 'jenis_obat')
                                         @if(request('direction') == 'asc')
                                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
@@ -328,7 +300,6 @@
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900">{{ $hargaObats->firstItem() + $index }}</td>
                             <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $hargaObat->obat->nama_obat }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $hargaObat->obat->jenisObat->nama_jenis_obat ?? '-' }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600">{{ $hargaObat->obat->satuanObat->nama_satuan ?? '-' }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
@@ -363,7 +334,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="9" class="px-4 py-8 text-center text-gray-500">
                                 <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -568,147 +539,6 @@ function submitBulkDelete() {
             })
             .catch(error => {
                 Swal.fire('Error!', 'Terjadi kesalahan saat menghapus data', 'error');
-            });
-        }
-    });
-}
-
-function openGenerateModal() {
-    Swal.fire({
-        title: 'Generate Harga Obat Per Periode',
-        html: `
-            <div class="text-left">
-                <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <h4 class="font-semibold text-green-900 mb-2 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Informasi Penting
-                    </h4>
-                    <ul class="text-sm text-green-800 space-y-1 ml-7">
-                        <li>• Generate harga obat untuk semua obat yang ada</li>
-                        <li>• Harga akan di-copy dari periode sebelumnya jika ada</li>
-                        <li>• Jika tidak ada, akan dibuat dengan harga default (0)</li>
-                        <li>• Format periode: MM-YY (contoh: 10-25)</li>
-                    </ul>
-                </div>
-
-                <form id="generateForm" action="{{ route('harga-obat.generate-for-periode') }}" method="POST">
-                    @csrf
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Periode</label>
-                        <input type="text"
-                                name="periode"
-                                id="periode"
-                                placeholder="MM-YY (contoh: 10-25)"
-                                pattern="^(0[1-9]|1[0-2])-(0[1-9]|[1-9][0-9])$"
-                                title="Format: MM-YY (contoh: 10-25). Bulan: 01-12, Tahun: 01-99"
-                                required
-                                class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
-                        <p class="mt-1 text-xs text-gray-500">Format periode: MM-YY (contoh: 10-25 untuk Oktober 2025)</p>
-                    </div>
-                </form>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Generate',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#16a34a',
-        cancelButtonColor: '#6b7280',
-        width: '600px',
-        customClass: {
-            confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
-            cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
-        },
-        preConfirm: () => {
-            const periodeInput = document.getElementById('periode');
-            if (!periodeInput.value) {
-                Swal.showValidationMessage('Silakan isi periode terlebih dahulu');
-                return false;
-            }
-
-            const periode = periodeInput.value;
-            const periodeRegex = /^(0[1-9]|1[0-2])-(0[1-9]|[1-9][0-9])$/;
-
-            if (!periodeRegex.test(periode)) {
-                Swal.showValidationMessage('Format periode harus MM-YY (contoh: 10-25). Bulan: 01-12, Tahun: 01-99');
-                return false;
-            }
-
-            // Additional validation for month and year
-            const month = parseInt(periode.substring(0, 2));
-            const year = parseInt(periode.substring(3, 5));
-
-            if (month < 1 || month > 12) {
-                Swal.showValidationMessage('Bulan harus antara 01-12');
-                return false;
-            }
-
-            if (year < 1 || year > 99) {
-                Swal.showValidationMessage('Tahun harus antara 01-99');
-                return false;
-            }
-
-            return true;
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const periodeInput = document.getElementById('periode');
-            const periode = periodeInput.value;
-
-            // Create FormData
-            const formData = new FormData();
-            formData.append('periode', periode);
-            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-
-            // Show loading
-            Swal.fire({
-                title: 'Sedang Generate...',
-                html: 'Mohon tunggu, harga obat sedang digenerate',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Submit via AJAX
-            fetch('{{ route("harga-obat.generate-for-periode") }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        html: data.message,
-                        confirmButtonColor: '#16a34a'
-                    }).then(() => {
-                        // Reload page to show new data
-                        window.location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal Generate',
-                        html: data.message,
-                        confirmButtonColor: '#16a34a'
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Generate error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal Generate',
-                    html: 'Terjadi kesalahan saat generate harga obat',
-                    confirmButtonColor: '#16a34a'
-                });
             });
         }
     });

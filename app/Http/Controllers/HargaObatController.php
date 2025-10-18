@@ -24,8 +24,7 @@ class HargaObatController extends Controller
     public function index(Request $request)
     {
         $query = HargaObatPerBulan::with([
-            'obat:id_obat,nama_obat,keterangan,id_jenis_obat,id_satuan',
-            'obat.jenisObat:id_jenis_obat,nama_jenis_obat',
+            'obat:id_obat,nama_obat,keterangan,id_satuan',
             'obat.satuanObat:id_satuan,nama_satuan'
         ]);
 
@@ -65,26 +64,15 @@ class HargaObatController extends Controller
             });
         }
 
-        // Filter by jenis obat
-        if ($request->has('jenis_obat') && $request->jenis_obat != '') {
-            $query->whereHas('obat', function ($q) use ($request) {
-                $q->where('id_jenis_obat', $request->jenis_obat);
-            });
-        }
 
         // Sorting
         $sortField = $request->get('sort', 'id_harga_obat');
         $sortDirection = $request->get('direction', 'desc');
 
-        if (in_array($sortField, ['periode', 'nama_obat', 'jenis_obat', 'jumlah_per_kemasan', 'harga_per_kemasan', 'harga_per_satuan'])) {
+        if (in_array($sortField, ['periode', 'nama_obat', 'jumlah_per_kemasan', 'harga_per_kemasan', 'harga_per_satuan'])) {
             if ($sortField === 'nama_obat') {
                 $query->join('obat', 'harga_obat_per_bulan.id_obat', '=', 'obat.id_obat')
                       ->orderBy('obat.nama_obat', $sortDirection)
-                      ->select('harga_obat_per_bulan.*');
-            } elseif ($sortField === 'jenis_obat') {
-                $query->join('obat', 'harga_obat_per_bulan.id_obat', '=', 'obat.id_obat')
-                      ->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
-                      ->orderBy('jenis_obat.nama_jenis_obat', $sortDirection)
                       ->select('harga_obat_per_bulan.*');
             } elseif ($sortField === 'periode') {
                 // Custom sorting for MM-YY format to sort by year then month
@@ -113,15 +101,9 @@ class HargaObatController extends Controller
         // Get available periodes for filter
         $availablePeriodes = HargaObatPerBulan::getAvailablePeriodes();
 
-        // Get reference data
-        $jenisObats = Cache::remember('jenis_obats_all', 60, function () {
-            return \App\Models\JenisObat::get();
-        });
-
         return view('harga-obat.index', compact(
             'hargaObats',
             'availablePeriodes',
-            'jenisObats',
             'request'
         ));
     }
@@ -131,13 +113,10 @@ class HargaObatController extends Controller
      */
     public function create()
     {
-        $obats = Obat::with(['jenisObat', 'satuanObat'])->get();
-        $jenisObats = Cache::remember('jenis_obats_all', 60, function () {
-            return \App\Models\JenisObat::get();
-        });
+        $obats = Obat::with(['satuanObat'])->get();
         $availablePeriodes = StokObat::getAvailablePeriodes();
 
-        return view('harga-obat.create', compact('obats', 'jenisObats', 'availablePeriodes'));
+        return view('harga-obat.create', compact('obats', 'availablePeriodes'));
     }
 
     /**
@@ -229,13 +208,10 @@ class HargaObatController extends Controller
     public function edit($id)
     {
         $hargaObat = HargaObatPerBulan::findOrFail($id);
-        $obats = Obat::with(['jenisObat', 'satuanObat'])->get();
-        $jenisObats = Cache::remember('jenis_obats_all', 60, function () {
-            return \App\Models\JenisObat::get();
-        });
+        $obats = Obat::with(['satuanObat'])->get();
         $availablePeriodes = StokObat::getAvailablePeriodes();
 
-        return view('harga-obat.edit', compact('hargaObat', 'obats', 'jenisObats', 'availablePeriodes'));
+        return view('harga-obat.edit', compact('hargaObat', 'obats', 'availablePeriodes'));
     }
 
     /**
@@ -568,8 +544,7 @@ class HargaObatController extends Controller
     {
         // Build query with same filters as index
         $query = HargaObatPerBulan::with([
-            'obat:id_obat,nama_obat,keterangan,id_jenis_obat,id_satuan',
-            'obat.jenisObat:id_jenis_obat,nama_jenis_obat',
+            'obat:id_obat,nama_obat,keterangan,id_satuan',
             'obat.satuanObat:id_satuan,nama_satuan'
         ]);
 
@@ -604,25 +579,15 @@ class HargaObatController extends Controller
                 $q->where('nama_obat', 'like', '%' . $request->obat . '%');
             });
         }
-        if ($request->has('jenis_obat') && $request->jenis_obat != '') {
-            $query->whereHas('obat', function ($q) use ($request) {
-                $q->where('id_jenis_obat', $request->jenis_obat);
-            });
-        }
 
         // Apply sorting
         $sortField = $request->get('sort', 'periode');
         $sortDirection = $request->get('direction', 'desc');
 
-        if (in_array($sortField, ['periode', 'nama_obat', 'jenis_obat', 'jumlah_per_kemasan', 'harga_per_kemasan', 'harga_per_satuan'])) {
+        if (in_array($sortField, ['periode', 'nama_obat', 'jumlah_per_kemasan', 'harga_per_kemasan', 'harga_per_satuan'])) {
             if ($sortField === 'nama_obat') {
                 $query->join('obat', 'harga_obat_per_bulan.id_obat', '=', 'obat.id_obat')
                       ->orderBy('obat.nama_obat', $sortDirection)
-                      ->select('harga_obat_per_bulan.*');
-            } elseif ($sortField === 'jenis_obat') {
-                $query->join('obat', 'harga_obat_per_bulan.id_obat', '=', 'obat.id_obat')
-                      ->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
-                      ->orderBy('jenis_obat.nama_jenis_obat', $sortDirection)
                       ->select('harga_obat_per_bulan.*');
             } elseif ($sortField === 'periode') {
                 if ($sortDirection === 'asc') {
@@ -657,7 +622,7 @@ class HargaObatController extends Controller
 
         // Header columns
         $headers = [
-            'No', 'Nama Obat', 'Jenis Obat', 'Satuan', 'Periode',
+            'No', 'Nama Obat', 'Satuan', 'Periode',
             'Jumlah per Kemasan', 'Harga per Kemasan', 'Harga per Satuan', 'Tanggal Update'
         ];
 
@@ -700,13 +665,12 @@ class HargaObatController extends Controller
         foreach ($hargaObats as $hargaObat) {
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $hargaObat->obat->nama_obat);
-            $sheet->setCellValue('C' . $row, $hargaObat->obat->jenisObat->nama_jenis_obat ?? '-');
-            $sheet->setCellValue('D' . $row, $hargaObat->obat->satuanObat->nama_satuan ?? '-');
-            $sheet->setCellValue('E' . $row, $hargaObat->periode);
-            $sheet->setCellValue('F' . $row, $hargaObat->jumlah_per_kemasan);
-            $sheet->setCellValue('G' . $row, $hargaObat->harga_per_kemasan);
-            $sheet->setCellValue('H' . $row, $hargaObat->harga_per_satuan);
-            $sheet->setCellValue('I' . $row, $hargaObat->updated_at ? $hargaObat->updated_at->format('d-m-Y') : '-');
+            $sheet->setCellValue('C' . $row, $hargaObat->obat->satuanObat->nama_satuan ?? '-');
+            $sheet->setCellValue('D' . $row, $hargaObat->periode);
+            $sheet->setCellValue('E' . $row, $hargaObat->jumlah_per_kemasan);
+            $sheet->setCellValue('F' . $row, $hargaObat->harga_per_kemasan);
+            $sheet->setCellValue('G' . $row, $hargaObat->harga_per_satuan);
+            $sheet->setCellValue('H' . $row, $hargaObat->updated_at ? $hargaObat->updated_at->format('d-m-Y') : '-');
 
             // Style data rows
             $dataStyle = [
@@ -730,13 +694,12 @@ class HargaObatController extends Controller
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(5);
         $sheet->getColumnDimension('B')->setWidth(30);
-        $sheet->getColumnDimension('C')->setWidth(20);
-        $sheet->getColumnDimension('D')->setWidth(15);
-        $sheet->getColumnDimension('E')->setWidth(12);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(12);
+        $sheet->getColumnDimension('E')->setWidth(18);
         $sheet->getColumnDimension('F')->setWidth(18);
         $sheet->getColumnDimension('G')->setWidth(18);
-        $sheet->getColumnDimension('H')->setWidth(18);
-        $sheet->getColumnDimension('I')->setWidth(15);
+        $sheet->getColumnDimension('H')->setWidth(15);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -744,6 +707,286 @@ class HargaObatController extends Controller
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
         $filename = 'data_harga_obat_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
+     * Show import form
+     */
+    public function import()
+    {
+        return view('harga-obat.import');
+    }
+
+    /**
+     * Process import
+     */
+    public function processImport(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:10240', // Max 10MB
+        ], [
+            'file.required' => 'File wajib diupload',
+            'file.mimes' => 'Format file harus Excel (.xlsx, .xls) atau CSV',
+            'file.max' => 'Ukuran file maksimal 10MB',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $spreadsheet = IOFactory::load($file);
+            $worksheet = $spreadsheet->getActiveSheet();
+            $highestRow = $worksheet->getHighestRow();
+
+            // Start transaction
+            DB::beginTransaction();
+
+            $importedCount = 0;
+            $errors = [];
+            $skippedCount = 0;
+
+            // Process each row starting from row 2 (skip header)
+            for ($row = 2; $row <= $highestRow; $row++) {
+                try {
+                    $namaObat = trim($worksheet->getCell('A' . $row)->getValue());
+                    $hargaObat = trim($worksheet->getCell('B' . $row)->getValue());
+                    $periode = trim($worksheet->getCell('C' . $row)->getValue());
+
+                    // Skip empty rows
+                    if (empty($namaObat) && empty($hargaObat) && empty($periode)) {
+                        continue;
+                    }
+
+                    // Validate required fields
+                    if (empty($namaObat)) {
+                        $errors[] = "Baris {$row}: Nama Obat wajib diisi";
+                        continue;
+                    }
+
+                    if (empty($periode)) {
+                        $errors[] = "Baris {$row}: Periode wajib diisi";
+                        continue;
+                    }
+
+                    // Validate periode format
+                    if (!preg_match('/^\d{2}-\d{2}$/', $periode)) {
+                        $errors[] = "Baris {$row}: Format periode harus MM-YY (contoh: 08-25)";
+                        continue;
+                    }
+
+                    // Parse harga - handle various formats
+                    $hargaPerKemasan = 0;
+                    if (!empty($hargaObat) && $hargaObat !== '-' && $hargaObat !== ' -   ') {
+                        // Remove quotes and spaces first
+                        $hargaObat = str_replace(['"', ' '], ['', ''], $hargaObat);
+
+                        // Handle Indonesian format: " 1.030.000 " or " 1.030,000 "
+                        // Check if there are both comma and dot (Indonesian format with thousands)
+                        $hasComma = strpos($hargaObat, ',') !== false;
+                        $hasDot = strpos($hargaObat, '.') !== false;
+
+                        if ($hasComma && $hasDot) {
+                            // Format Indonesia: 1.030.000,50
+                            // Remove all dots (thousand separators) first
+                            $hargaObat = str_replace('.', '', $hargaObat);
+                            // Then replace comma with dot for decimal separator
+                            $hargaObat = str_replace(',', '.', $hargaObat);
+                        } elseif ($hasComma) {
+                            // Format Indonesia without thousands: 1030000,50
+                            // Replace comma with dot for decimal separator
+                            $hargaObat = str_replace(',', '.', $hargaObat);
+                        }
+                        // If only dots, biarkan sebagai desimal (format Inggris) atau hapus jika ribuan
+
+                        // Convert to float and ensure it's within reasonable range
+                        $hargaPerKemasan = floatval($hargaObat);
+
+                        // Validate range - harga obat shouldn't be more than 99,999,999,999,999,999.99
+                        if ($hargaPerKemasan > 99999999999999999.99) {
+                            $errors[] = "Baris {$row}: Harga obat terlalu besar (maksimal 99,999,999,999,999,999.99)";
+                            continue;
+                        }
+                    }
+
+                    // Find obat by name
+                    $obat = Obat::where('nama_obat', 'like', '%' . $namaObat . '%')->first();
+                    if (!$obat) {
+                        $errors[] = "Baris {$row}: Obat '{$namaObat}' tidak ditemukan";
+                        continue;
+                    }
+
+                    // Check if harga obat already exists for this obat and periode
+                    $existingHarga = HargaObatPerBulan::where('id_obat', $obat->id_obat)
+                                                   ->where('periode', $periode)
+                                                   ->first();
+
+                    if ($existingHarga) {
+                        $skippedCount++;
+                        continue;
+                    }
+
+                    // Create harga obat
+                    HargaObatPerBulan::create([
+                        'id_obat' => $obat->id_obat,
+                        'periode' => $periode,
+                        'jumlah_per_kemasan' => 1,
+                        'harga_per_satuan' => $hargaPerKemasan,
+                        'harga_per_kemasan' => $hargaPerKemasan,
+                    ]);
+
+                    $importedCount++;
+
+                } catch (\Exception $e) {
+                    $errors[] = "Baris {$row}: " . $e->getMessage();
+                    Log::error('Import harga obat error', [
+                        'row' => $row,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            // Prepare response message
+            $message = "Import selesai: {$importedCount} data berhasil diimport";
+            if ($skippedCount > 0) {
+                $message .= ", {$skippedCount} data dilewati (sudah ada)";
+            }
+            if (!empty($errors)) {
+                $message .= ". " . count($errors) . " error ditemukan";
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'imported_count' => $importedCount,
+                'skipped_count' => $skippedCount,
+                'errors' => $errors,
+                'total_errors' => count($errors)
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Import harga obat failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Import gagal: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Download template for import
+     */
+    public function downloadTemplate()
+    {
+        // Create spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Template Import Harga Obat');
+
+        // Set document properties
+        $spreadsheet->getProperties()
+            ->setCreator('SIPO ICBP')
+            ->setTitle('Template Import Harga Obat')
+            ->setSubject('Template Import Harga Obat')
+            ->setDescription('Template untuk import data harga obat');
+
+        // Header columns
+        $headers = [
+            'Nama Obat', 'Harga Obat', 'Periode'
+        ];
+
+        // Sample data
+        $sampleData = [
+            ['Allopurinol', '410000', '08-25'],
+            ['Ambeven', '2130000', '08-25'],
+            ['Ambroxol', '334290', '08-25'],
+            ['Amlodipin 10Mg', '1030000', '08-25'],
+            ['Amlodipin 5Mg', '628420', '08-25'],
+        ];
+
+        $column = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($column . '1', $header);
+            $column++;
+        }
+
+        // Style header
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 12,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '059669'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ];
+
+        $lastColumn = chr(ord('A') + count($headers) - 1);
+        $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray($headerStyle);
+
+        // Fill sample data
+        $row = 2;
+        foreach ($sampleData as $data) {
+            $col = 'A';
+            foreach ($data as $value) {
+                $sheet->setCellValue($col . $row, $value);
+                $col++;
+            }
+            $row++;
+        }
+
+        // Add instructions
+        $instructionRow = $row + 2;
+        $sheet->setCellValue('A' . $instructionRow, 'PETUNJUK:');
+        $sheet->setCellValue('A' . ($instructionRow + 1), '1. Nama Obat: Nama obat yang sudah terdaftar di sistem');
+        $sheet->setCellValue('A' . ($instructionRow + 2), '2. Harga Obat: Harga dalam format angka tanpa format (contoh: 410000)');
+        $sheet->setCellValue('A' . ($instructionRow + 3), '3. Periode: Format MM-YY (contoh: 08-25 untuk Agustus 2025)');
+        $sheet->setCellValue('A' . ($instructionRow + 4), '4. Hapus baris sample data sebelum import data asli');
+        $sheet->setCellValue('A' . ($instructionRow + 5), '5. Jangan mengubah header kolom');
+
+        // Style instructions
+        $sheet->getStyle('A' . $instructionRow . ':A' . ($instructionRow + 5))->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'DC2626'],
+            ],
+        ]);
+
+        // Set column widths
+        $sheet->getColumnDimension('A')->setWidth(30);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(15);
+
+        // Set row heights
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        // Create Excel file
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'template_import_harga_obat.xlsx';
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="' . $filename . '"');

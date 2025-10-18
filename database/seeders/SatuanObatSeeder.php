@@ -21,7 +21,7 @@ class SatuanObatSeeder extends Seeder
         $satuanObats = [
             ['id_satuan' => 1, 'nama_satuan' => '(2L x 60 menit)'],
             ['id_satuan' => 2, 'nama_satuan' => 'Ampul'],
-            ['id_satuan' => 3, 'nama_satuan' => 'PCS'],
+            ['id_satuan' => 3, 'nama_satuan' => 'Pcs'],
             ['id_satuan' => 4, 'nama_satuan' => 'Roll'],
             ['id_satuan' => 5, 'nama_satuan' => 'Tablet'],
             ['id_satuan' => 6, 'nama_satuan' => 'Tube'],
