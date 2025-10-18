@@ -336,8 +336,8 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ $hargaObat->jumlah_per_kemasan }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-900 text-right">Rp {{ number_format($hargaObat->harga_per_kemasan, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-900 text-right">Rp {{ number_format($hargaObat->harga_per_satuan, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-900 text-center">Rp {{ number_format($hargaObat->harga_per_kemasan, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-900 text-center">Rp {{ number_format($hargaObat->harga_per_satuan, 0, ',', '.') }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600">
                                 <div class="flex items-center gap-1">
                                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
