@@ -8,6 +8,7 @@ use App\Models\Karyawan;
 use App\Models\Keluhan;
 use App\Models\Diagnosa;
 use App\Models\Obat;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -807,23 +808,32 @@ class RekamMedisController extends Controller
                     $tanggalPeriksa = trim($cellA->getValue() ?? '');
                 }
 
-                $nikKaryawan = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
-                $namaKaryawan = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? '');
-                $kodeRM = trim($sheet->getCell('D' . $rowNumber)->getValue() ?? '');
-                $namaPasien = trim($sheet->getCell('E' . $rowNumber)->getValue() ?? '');
-                $keluhan = trim($sheet->getCell('F' . $rowNumber)->getValue() ?? '');
-                $diagnosa = trim($sheet->getCell('G' . $rowNumber)->getValue() ?? '');
-                $obat1 = trim($sheet->getCell('H' . $rowNumber)->getValue() ?? '');
-                $jumlahObat1 = trim($sheet->getCell('I' . $rowNumber)->getValue() ?? '');
-                $obat2 = trim($sheet->getCell('J' . $rowNumber)->getValue() ?? '');
-                $jumlahObat2 = trim($sheet->getCell('K' . $rowNumber)->getValue() ?? '');
-                $obat3 = trim($sheet->getCell('L' . $rowNumber)->getValue() ?? '');
-                $jumlahObat3 = trim($sheet->getCell('M' . $rowNumber)->getValue() ?? '');
-                $obat4 = trim($sheet->getCell('N' . $rowNumber)->getValue() ?? '');
-                $jumlahObat4 = trim($sheet->getCell('O' . $rowNumber)->getValue() ?? '');
-                $obat5 = trim($sheet->getCell('P' . $rowNumber)->getValue() ?? '');
-                $jumlahObat5 = trim($sheet->getCell('Q' . $rowNumber)->getValue() ?? '');
-                $status = trim($sheet->getCell('R' . $rowNumber)->getValue() ?? '');
+                // Read time from column B
+                $cellB = $sheet->getCell('B' . $rowNumber);
+                if (\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cellB)) {
+                    $waktuPeriksa = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($cellB->getValue())->format('H:i:s');
+                } else {
+                    $waktuPeriksa = trim($cellB->getValue() ?? '');
+                }
+
+                $nikKaryawan = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? '');
+                $namaKaryawan = trim($sheet->getCell('D' . $rowNumber)->getValue() ?? '');
+                $kodeRM = trim($sheet->getCell('E' . $rowNumber)->getValue() ?? '');
+                $namaPasien = trim($sheet->getCell('F' . $rowNumber)->getValue() ?? '');
+                $keluhan = trim($sheet->getCell('G' . $rowNumber)->getValue() ?? '');
+                $diagnosa = trim($sheet->getCell('H' . $rowNumber)->getValue() ?? '');
+                $obat1 = trim($sheet->getCell('I' . $rowNumber)->getValue() ?? '');
+                $jumlahObat1 = trim($sheet->getCell('J' . $rowNumber)->getValue() ?? '');
+                $obat2 = trim($sheet->getCell('K' . $rowNumber)->getValue() ?? '');
+                $jumlahObat2 = trim($sheet->getCell('L' . $rowNumber)->getValue() ?? '');
+                $obat3 = trim($sheet->getCell('M' . $rowNumber)->getValue() ?? '');
+                $jumlahObat3 = trim($sheet->getCell('N' . $rowNumber)->getValue() ?? '');
+                $obat4 = trim($sheet->getCell('O' . $rowNumber)->getValue() ?? '');
+                $jumlahObat4 = trim($sheet->getCell('P' . $rowNumber)->getValue() ?? '');
+                $obat5 = trim($sheet->getCell('Q' . $rowNumber)->getValue() ?? '');
+                $jumlahObat5 = trim($sheet->getCell('R' . $rowNumber)->getValue() ?? '');
+                $status = trim($sheet->getCell('S' . $rowNumber)->getValue() ?? '');
+                $petugasKlinik = trim($sheet->getCell('T' . $rowNumber)->getValue() ?? '');
 
                 // Skip empty rows
                 if (empty($tanggalPeriksa) && empty($nikKaryawan)) {
@@ -843,6 +853,11 @@ class RekamMedisController extends Controller
 
                 if (empty($namaPasien)) {
                     $errors[] = "Baris $rowNumber: Nama pasien tidak boleh kosong";
+                    continue;
+                }
+
+                if (empty($petugasKlinik)) {
+                    $errors[] = "Baris $rowNumber: Petugas klinik tidak boleh kosong";
                     continue;
                 }
 
@@ -921,6 +936,13 @@ class RekamMedisController extends Controller
                     continue;
                 }
 
+                // Find user based on petugas klinik name
+                $user = User::where('nama_lengkap', $petugasKlinik)->first();
+                if (!$user) {
+                    $errors[] = "Baris $rowNumber: User dengan nama '$petugasKlinik' tidak ditemukan";
+                    continue;
+                }
+
                 // Find keluarga
                 $keluarga = Keluarga::where('id_karyawan', $karyawan->id_karyawan)
                                     ->where('nama_keluarga', $namaPasien)
@@ -941,7 +963,8 @@ class RekamMedisController extends Controller
                 $rekamMedis = RekamMedis::create([
                     'id_keluarga' => $keluarga->id_keluarga,
                     'tanggal_periksa' => $tanggalPeriksa,
-                    'id_user' => Auth::id(),
+                    'waktu_periksa' => $waktuPeriksa,
+                    'id_user' => $user->id_user, // Use the user found from petugas klinik
                     'jumlah_keluhan' => 1, // Default
                     'status' => $status,
                 ]);

@@ -123,7 +123,9 @@
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Obat</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Catatan</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tanggal</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Waktu</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Petugas Medis</th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Detail</th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
@@ -207,6 +209,9 @@
                             {{ $rm->tanggal_periksa->format('d-m-Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            {{ $rm->waktu_periksa ? $rm->waktu_periksa->format('H:i') : '-' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             <div class="status-dropdown" data-id="{{ $rm->id_rekam }}">
                                 <select class="status-select px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500
                                     @if($rm->status == 'On Progress') bg-yellow-100 text-yellow-800
@@ -218,6 +223,9 @@
                                     <option value="Close" {{ ($rm->status ?? 'On Progress') == 'Close' ? 'selected' : '' }}>Close</option>
                                 </select>
                             </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            {{ $rm->user->nama_lengkap ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
                             <a href="{{ route('rekam-medis.show', $rm->id_rekam) }}" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
@@ -247,7 +255,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="13" class="px-6 py-8 text-center text-gray-500">
+                        <td colspan="15" class="px-6 py-8 text-center text-gray-500">
                             <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
