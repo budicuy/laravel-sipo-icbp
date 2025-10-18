@@ -321,6 +321,28 @@ class LaporanController extends Controller
             })
             ->groupBy(function($keluhan) {
                 return $keluhan->diagnosa->nama_diagnosa ?? 'Unknown';
+            })
+            ->map(function($keluhans) use ($rekamMedis) {
+                // Attach harga information to each keluhan
+                return $keluhans->map(function($keluhan) use ($rekamMedis) {
+                    // Get harga obat per bulan untuk periode ini
+                    $periode = $rekamMedis->tanggal_periksa->format('m-y');
+                    $hargaObat = HargaObatPerBulan::where('id_obat', $keluhan->id_obat)
+                                               ->where('periode', $periode)
+                                               ->first();
+
+                    // Jika tidak ada harga untuk periode ini, coba periode sebelumnya
+                    if (!$hargaObat) {
+                        $hargaObat = HargaObatPerBulan::where('id_obat', $keluhan->id_obat)
+                                                   ->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC")
+                                                   ->first();
+                    }
+
+                    // Add harga_satuan attribute to keluhan object
+                    $keluhan->harga_satuan = $hargaObat->harga_per_satuan ?? 0;
+
+                    return $keluhan;
+                });
             });
 
         return view('laporan.detail-transaksi', compact(
@@ -400,6 +422,28 @@ class LaporanController extends Controller
             })
             ->groupBy(function($keluhan) {
                 return $keluhan->diagnosa->nama_diagnosa ?? 'Unknown';
+            })
+            ->map(function($keluhans) use ($rekamMedis) {
+                // Attach harga information to each keluhan
+                return $keluhans->map(function($keluhan) use ($rekamMedis) {
+                    // Get harga obat per bulan untuk periode ini
+                    $periode = $rekamMedis->tanggal_periksa->format('m-y');
+                    $hargaObat = HargaObatPerBulan::where('id_obat', $keluhan->id_obat)
+                                               ->where('periode', $periode)
+                                               ->first();
+
+                    // Jika tidak ada harga untuk periode ini, coba periode sebelumnya
+                    if (!$hargaObat) {
+                        $hargaObat = HargaObatPerBulan::where('id_obat', $keluhan->id_obat)
+                                                   ->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC")
+                                                   ->first();
+                    }
+
+                    // Add harga_satuan attribute to keluhan object
+                    $keluhan->harga_satuan = $hargaObat->harga_per_satuan ?? 0;
+
+                    return $keluhan;
+                });
             });
 
         // Load PDF view
