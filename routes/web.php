@@ -13,6 +13,7 @@ use App\Http\Controllers\ObatController;
 use App\Http\Controllers\StokObatController;
 use App\Http\Controllers\HargaObatController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MonitoringHargaController;
 
 // Redirect root ke login
 Route::get('/', function () {
