@@ -16,8 +16,8 @@ class DatabaseSeeder extends Seeder
         // Seeder untuk master data
         $this->call([
             // DepartemenSeeder::class,
-            // SatuanObatSeeder::class,
-            // JenisObatSeeder::class,
+            SatuanObatSeeder::class,
+            JenisObatSeeder::class,
             // ObatSeeder::class,
             // StokObatSeeder::class, // Import data stok obat dari CSV
             HubunganSeeder::class,

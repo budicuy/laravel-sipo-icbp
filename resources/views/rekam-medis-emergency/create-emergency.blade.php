@@ -108,6 +108,18 @@
                     @enderror
                 </div>
 
+                <!-- Waktu Periksa -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Waktu Periksa
+                    </label>
+                    <input type="time" name="waktu_periksa" value="{{ old('waktu_periksa') }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    @error('waktu_periksa')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Status Rekam Medis -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
