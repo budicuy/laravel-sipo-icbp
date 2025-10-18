@@ -141,22 +141,13 @@ class LaporanController extends Controller
                 return $item['id_obat'] . '_' . $item['periode'];
             })->values()->toArray();
 
-            // Fetch harga obat for all combinations at once
-            $hargaObatData = HargaObatPerBulan::whereIn(function($query) use ($uniqueObatPeriods) {
-                foreach ($uniqueObatPeriods as $index => $item) {
-                    if ($index === 0) {
-                        $query->where(function($q) use ($item) {
-                            $q->where('id_obat', $item['id_obat'])
-                              ->where('periode', $item['periode']);
-                        });
-                    } else {
-                        $query->orWhere(function($q) use ($item) {
-                            $q->where('id_obat', $item['id_obat'])
-                              ->where('periode', $item['periode']);
-                        });
-                    }
-                }
-            })->get();
+            // Fetch harga obat for all combinations at once using raw query
+            $conditions = [];
+            foreach ($uniqueObatPeriods as $item) {
+                $conditions[] = "(id_obat = {$item['id_obat']} AND periode = '{$item['periode']}')";
+            }
+
+            $hargaObatData = HargaObatPerBulan::whereRaw(implode(' OR ', $conditions))->get();
 
             // Create a lookup map for easy access
             foreach ($hargaObatData as $harga) {
