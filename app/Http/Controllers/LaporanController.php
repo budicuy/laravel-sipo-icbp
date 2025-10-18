@@ -20,8 +20,7 @@ class LaporanController extends Controller
         // Get filter parameters
         $tahun = $request->get('tahun', date('Y'));
         $bulan = $request->get('bulan', date('m'));
-        $tanggal_dari = $request->get('tanggal_dari', Carbon::now()->startOfMonth()->format('Y-m-d'));
-        $tanggal_sampai = $request->get('tanggal_sampai', Carbon::now()->endOfMonth()->format('Y-m-d'));
+        $periode = $request->get('periode', Carbon::now()->format('m-y'));
         $perPage = $request->get('per_page', 50);
         $perPage = in_array($perPage, [50, 100, 200]) ? $perPage : 50;
 
@@ -30,7 +29,7 @@ class LaporanController extends Controller
         $chartBiaya = $this->getChartBiaya($tahun);
 
         // Get data untuk tabel transaksi dengan pagination
-        $transaksiData = $this->getTransaksiData($tanggal_dari, $tanggal_sampai, $perPage);
+        $transaksiData = $this->getTransaksiData($periode, $perPage);
         $transaksi = $transaksiData['data'];
         $fallbackNotifications = $transaksiData['fallbackNotifications'] ?? [];
 
@@ -44,8 +43,7 @@ class LaporanController extends Controller
             'stats',
             'tahun',
             'bulan',
-            'tanggal_dari',
-            'tanggal_sampai',
+            'periode',
             'perPage',
             'fallbackNotifications'
         ));
@@ -142,8 +140,18 @@ class LaporanController extends Controller
     /**
      * Get data transaksi untuk tabel
      */
-    private function getTransaksiData($tanggal_dari, $tanggal_sampai, $perPage = 50)
+    private function getTransaksiData($periode, $perPage = 50)
     {
+        // Parse periode format MM-YY to get month and year
+        if (preg_match('/^(\d{2})-(\d{2})$/', $periode, $matches)) {
+            $month = (int)$matches[1];
+            $year = (int)$matches[2] + 2000; // Convert YY to YYYY
+        } else {
+            // Default to current month if format is invalid
+            $month = Carbon::now()->month;
+            $year = Carbon::now()->year;
+        }
+
         // Optimized query with specific columns and eager loading
         $rekamMedisQuery = RekamMedis::with([
                 'keluarga' => function($query) {
@@ -159,7 +167,8 @@ class LaporanController extends Controller
                 'user:id_user,username,nama_lengkap'
             ])
             ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
-            ->whereBetween('tanggal_periksa', [$tanggal_dari, $tanggal_sampai])
+            ->whereMonth('tanggal_periksa', $month)
+            ->whereYear('tanggal_periksa', $year)
             ->orderBy('tanggal_periksa', 'desc');
 
         // Apply pagination
