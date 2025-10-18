@@ -86,6 +86,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/harga-obat/bulk-delete', [HargaObatController::class, 'bulkDelete'])->name('harga-obat.bulkDelete');
     Route::post('/harga-obat/generate-for-periode', [HargaObatController::class, 'generateForPeriode'])->name('harga-obat.generate-for-periode');
     Route::get('/harga-obat/export', [HargaObatController::class, 'export'])->name('harga-obat.export');
+    Route::get('/harga-obat/import', [HargaObatController::class, 'import'])->name('harga-obat.import');
+    Route::post('/harga-obat/process-import', [HargaObatController::class, 'processImport'])->name('harga-obat.process-import');
+    Route::get('/harga-obat/template', [HargaObatController::class, 'downloadTemplate'])->name('harga-obat.template');
 
     // Diagnosa Routes - Custom routes BEFORE resource routes
     Route::get('/diagnosa/template', [DiagnosaController::class, 'downloadTemplate'])->name('diagnosa.template');

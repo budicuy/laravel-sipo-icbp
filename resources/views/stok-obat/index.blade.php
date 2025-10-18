@@ -141,17 +141,6 @@
                     </select>
                 </div>
 
-                <div class="min-w-[150px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Obat</label>
-                    <select name="jenis_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-white shadow-sm">
-                        <option value="">Semua Jenis</option>
-                        @foreach($jenisObats as $jenis)
-                            <option value="{{ $jenis->id_jenis_obat }}" {{ request('jenis_obat') == $jenis->id_jenis_obat ? 'selected' : '' }}>
-                                {{ $jenis->nama_jenis_obat }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
 
                 <div class="min-w-[150px]">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Status Stok</label>
@@ -228,28 +217,6 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Satuan</th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('stok-obat.index', array_merge(request()->query(), ['sort' => 'jenis_obat', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-between group hover:text-purple-300 transition-colors">
-                                <span>Jenis Obat</span>
-                                <span class="ml-2">
-                                    @if(request('sort') == 'jenis_obat')
-                                        @if(request('direction') == 'asc')
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                                            </svg>
-                                        @else
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                            </svg>
-                                        @endif
-                                    @else
-                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-                                        </svg>
-                                    @endif
-                                </span>
-                            </a>
-                        </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                             <a href="{{ route('stok-obat.index', array_merge(request()->query(), ['sort' => 'periode', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-between group hover:text-purple-300 transition-colors">
                                 <span>Periode</span>
@@ -378,7 +345,6 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-600">{{ $stok->obat->satuanObat->nama_satuan ?? '-' }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $stok->obat->jenisObat->nama_jenis_obat ?? '-' }}</td>
                             <td class="px-4 py-3">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                     {{ $stok->periode }}
@@ -401,7 +367,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="10" class="px-4 py-8 text-center text-gray-500">
                                 <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                 </svg>
@@ -414,7 +380,7 @@
                 @if($stokObats->count() > 0)
                     <tfoot class="bg-gray-50">
                         <tr>
-                            <th colspan="6" class="px-4 py-3 text-right text-sm font-medium text-gray-700">Total</th>
+                            <th colspan="5" class="px-4 py-3 text-right text-sm font-medium text-gray-700">Total</th>
                             <th class="px-4 py-3 text-center text-sm font-bold text-gray-900">{{ number_format($stokObats->sum('stok_awal')) }}</th>
                             <th class="px-4 py-3 text-center text-sm font-bold text-red-600">{{ number_format($stokObats->sum('stok_pakai')) }}</th>
                             <th class="px-4 py-3 text-center text-sm font-bold text-gray-900">{{ number_format($stokObats->sum('stok_akhir')) }}</th>

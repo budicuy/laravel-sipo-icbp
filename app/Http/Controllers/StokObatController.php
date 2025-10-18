@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\StokObat;
 use App\Models\Obat;
-use App\Models\JenisObat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -24,8 +23,7 @@ class StokObatController extends Controller
     public function index(Request $request)
     {
         $query = StokObat::with([
-            'obat:id_obat,nama_obat,keterangan,id_jenis_obat,id_satuan',
-            'obat.jenisObat:id_jenis_obat,nama_jenis_obat',
+            'obat:id_obat,nama_obat,keterangan,id_satuan',
             'obat.satuanObat:id_satuan,nama_satuan'
         ]);
 
@@ -65,12 +63,6 @@ class StokObatController extends Controller
             });
         }
 
-        // Filter by jenis obat
-        if ($request->has('jenis_obat') && $request->jenis_obat != '') {
-            $query->whereHas('obat', function ($q) use ($request) {
-                $q->where('id_jenis_obat', $request->jenis_obat);
-            });
-        }
 
         // Filter by stok status
         if ($request->has('stok_status') && $request->stok_status != '') {
@@ -91,15 +83,10 @@ class StokObatController extends Controller
         $sortField = $request->get('sort', 'id_stok_bulanan');
         $sortDirection = $request->get('direction', 'desc');
 
-        if (in_array($sortField, ['periode', 'nama_obat', 'jenis_obat', 'stok_awal', 'stok_pakai', 'stok_akhir', 'stok_masuk'])) {
+        if (in_array($sortField, ['periode', 'nama_obat', 'stok_awal', 'stok_pakai', 'stok_akhir', 'stok_masuk'])) {
             if ($sortField === 'nama_obat') {
                 $query->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
                       ->orderBy('obat.nama_obat', $sortDirection)
-                      ->select('stok_bulanan.*');
-            } elseif ($sortField === 'jenis_obat') {
-                $query->join('obat', 'stok_bulanan.id_obat', '=', 'obat.id_obat')
-                      ->join('jenis_obat', 'obat.id_jenis_obat', '=', 'jenis_obat.id_jenis_obat')
-                      ->orderBy('jenis_obat.nama_jenis_obat', $sortDirection)
                       ->select('stok_bulanan.*');
             } elseif ($sortField === 'periode') {
                 // Custom sorting for MM-YY format to sort by year then month
@@ -128,15 +115,9 @@ class StokObatController extends Controller
         // Get available periodes for filter
         $availablePeriodes = StokObat::getAvailablePeriodes();
 
-        // Get reference data
-        $jenisObats = Cache::remember('jenis_obats_all', 60, function () {
-            return JenisObat::get();
-        });
-
         return view('stok-obat.index', compact(
             'stokObats',
             'availablePeriodes',
-            'jenisObats',
             'request'
         ));
     }
@@ -147,8 +128,7 @@ class StokObatController extends Controller
     public function export(Request $request)
     {
         $query = StokObat::with([
-            'obat:id_obat,nama_obat,keterangan,id_jenis_obat,id_satuan',
-            'obat.jenisObat:id_jenis_obat,nama_jenis_obat',
+            'obat:id_obat,nama_obat,keterangan,id_satuan',
             'obat.satuanObat:id_satuan,nama_satuan'
         ]);
 
@@ -181,11 +161,6 @@ class StokObatController extends Controller
         if ($request->has('obat') && $request->obat != '') {
             $query->whereHas('obat', function ($q) use ($request) {
                 $q->where('nama_obat', 'like', '%' . $request->obat . '%');
-            });
-        }
-        if ($request->has('jenis_obat') && $request->jenis_obat != '') {
-            $query->whereHas('obat', function ($q) use ($request) {
-                $q->where('id_jenis_obat', $request->jenis_obat);
             });
         }
         if ($request->has('stok_status') && $request->stok_status != '') {
@@ -483,7 +458,7 @@ class StokObatController extends Controller
         $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray($headerStyle);
 
         // Get all obat data
-        $obats = Obat::with(['jenisObat', 'satuanObat'])->get();
+        $obats = Obat::with(['satuanObat'])->get();
 
         $row = 2;
         $no = 1;

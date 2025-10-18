@@ -143,11 +143,7 @@
                 <!-- Info Obat -->
                 <div id="infoObat" class="hidden md:col-span-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h3 class="text-sm font-semibold text-blue-900 mb-2">Informasi Obat</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div>
-                            <span class="font-medium text-blue-800">Jenis Obat:</span>
-                            <span id="infoJenisObat" class="text-blue-700 ml-1">-</span>
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
                             <span class="font-medium text-blue-800">Satuan:</span>
                             <span id="infoSatuanObat" class="text-blue-700 ml-1">-</span>
@@ -195,7 +191,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const obatSelect = document.getElementById('id_obat');
     const infoObat = document.getElementById('infoObat');
-    const infoJenisObat = document.getElementById('infoJenisObat');
     const infoSatuanObat = document.getElementById('infoSatuanObat');
     const infoKeterangan = document.getElementById('infoKeterangan');
 
@@ -203,7 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const obatData = {
         @foreach($obats as $obat)
         '{{ $obat->id_obat }}': {
-            'jenis_obat': '{{ $obat->jenisObat->nama_jenis_obat ?? '-' }}',
             'satuan': '{{ $obat->satuanObat->nama_satuan ?? '-' }}',
             'keterangan': '{{ $obat->keterangan ?? '-' }}'
         },
@@ -217,7 +211,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Tampilkan info obat
         infoObat.classList.remove('hidden');
-        infoJenisObat.textContent = obat.jenis_obat;
         infoSatuanObat.textContent = obat.satuan;
         infoKeterangan.textContent = obat.keterangan;
     }
@@ -231,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Tampilkan info obat
             infoObat.classList.remove('hidden');
-            infoJenisObat.textContent = obat.jenis_obat;
             infoSatuanObat.textContent = obat.satuan;
             infoKeterangan.textContent = obat.keterangan;
         } else {
