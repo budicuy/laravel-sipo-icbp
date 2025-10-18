@@ -5,45 +5,7 @@
 @section('content')
 <div class="p-6 bg-gray-50 min-h-screen"
      x-data="{
-         id_satuan: '{{ old('id_satuan') }}',
-         jumlah_per_kemasan: {{ old('jumlah_per_kemasan', 1) }},
-         harga_per_kemasan: {{ old('harga_per_kemasan', 0) }},
-         harga_per_satuan: {{ old('harga_per_satuan', 0) }},
-         satuanPerUnit: ['Ampul', 'Botol', 'Injek'],
-
-         init() {
-             this.$watch('id_satuan', value => this.updateJumlahKemasan());
-             this.$watch('jumlah_per_kemasan', () => this.calculateHargaPerSatuan());
-             this.$watch('harga_per_kemasan', () => this.calculateHargaPerSatuan());
-         },
-
-         updateJumlahKemasan() {
-             const satuanSelect = document.getElementById('id_satuan');
-             if (!satuanSelect || !satuanSelect.selectedIndex) return;
-             const selectedOption = satuanSelect.options[satuanSelect.selectedIndex];
-             const namaSatuan = selectedOption.text;
-
-             if (this.satuanPerUnit.includes(namaSatuan)) {
-                 this.jumlah_per_kemasan = 1;
-             }
-         },
-
-         calculateHargaPerSatuan() {
-             if (this.jumlah_per_kemasan > 0) {
-                 this.harga_per_satuan = (this.harga_per_kemasan / this.jumlah_per_kemasan).toFixed(2);
-             } else {
-                 this.harga_per_satuan = 0;
-             }
-         },
-
-
-         isSatuanPerUnit() {
-             const satuanSelect = document.getElementById('id_satuan');
-             if (!satuanSelect || !satuanSelect.selectedIndex) return false;
-             const selectedOption = satuanSelect.options[satuanSelect.selectedIndex];
-             const namaSatuan = selectedOption.text;
-             return this.satuanPerUnit.includes(namaSatuan);
-         }
+         id_satuan: '{{ old('id_satuan') }}'
      }">
 
     <div class="mb-6">
@@ -95,25 +57,6 @@
                         @enderror
                     </div>
 
-                    <!-- Jenis Obat -->
-                    <div>
-                        <label for="id_jenis_obat" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Jenis Obat <span class="text-red-500">*</span>
-                        </label>
-                        <select id="id_jenis_obat" name="id_jenis_obat" required
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white @error('id_jenis_obat') border-red-500 @enderror">
-                            <option value="">Pilih Jenis Obat</option>
-                            @foreach($jenisObats as $jenis)
-                                <option value="{{ $jenis->id_jenis_obat }}" {{ old('id_jenis_obat') == $jenis->id_jenis_obat ? 'selected' : '' }}>
-                                    {{ $jenis->nama_jenis_obat }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('id_jenis_obat')
-                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
-
                     <!-- Satuan Obat -->
                     <div>
                         <label for="id_satuan" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -131,57 +74,6 @@
                         @error('id_satuan')
                             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
-                    </div>
-
-                    <!-- Jumlah Per Kemasan -->
-                    <div>
-                        <label for="jumlah_per_kemasan" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Jumlah Per Kemasan <span class="text-red-500">*</span>
-                        </label>
-                        <select id="jumlah_per_kemasan" name="jumlah_per_kemasan" x-model="jumlah_per_kemasan" required
-                                :disabled="isSatuanPerUnit()"
-                                :class="isSatuanPerUnit() ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('jumlah_per_kemasan') border-red-500 @enderror">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="4">4</option>
-                            <option value="6">6</option>
-                            <option value="10">10</option>
-                        </select>
-                        <p class="mt-1 text-xs text-gray-500">Untuk satuan per unit (Ampul, Botol, Injek) otomatis = 1</p>
-                        @error('jumlah_per_kemasan')
-                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Harga Per Kemasan -->
-                    <div>
-                        <label for="harga_per_kemasan" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Harga Per Kemasan <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">Rp</span>
-                            <input type="number" id="harga_per_kemasan" name="harga_per_kemasan" value="{{ old('harga_per_kemasan', 0) }}" required min="0" step="0.01" x-model="harga_per_kemasan"
-                                   class="w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('harga_per_kemasan') border-red-500 @enderror"
-                                   placeholder="0">
-                        </div>
-                        @error('harga_per_kemasan')
-                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Harga Per Satuan (Read Only) -->
-                    <div>
-                        <label for="harga_per_satuan" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Harga Per Satuan <span class="text-blue-500">(Otomatis)</span>
-                        </label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">Rp</span>
-                            <input type="text" id="harga_per_satuan" name="harga_per_satuan" x-model="harga_per_satuan" readonly
-                                   class="w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
-                                   placeholder="0">
-                        </div>
-                        <p class="mt-1 text-xs text-gray-500">Formula: Harga Per Kemasan / Jumlah Per Kemasan</p>
                     </div>
 
                     <!-- Keterangan (Full Width) -->

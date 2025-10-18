@@ -125,15 +125,6 @@
                     </div>
                 </div>
 
-                <div class="min-w-[150px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Obat</label>
-                    <select name="jenis_obat" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
-                        <option value="">Semua Jenis</option>
-                        @foreach($jenisObats as $jenis)
-                            <option value="{{ $jenis->id_jenis_obat }}" {{ request('jenis_obat') == $jenis->id_jenis_obat ? 'selected' : '' }}>{{ $jenis->nama_jenis_obat }}</option>
-                        @endforeach
-                    </select>
-                </div>
 
                 <div class="min-w-[150px]">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Satuan Obat</label>
@@ -164,9 +155,6 @@
                 <form method="GET" id="perPageForm" class="inline">
                     @if(request('search'))
                         <input type="hidden" name="search" value="{{ request('search') }}">
-                    @endif
-                    @if(request('jenis_obat'))
-                        <input type="hidden" name="jenis_obat" value="{{ request('jenis_obat') }}">
                     @endif
                     @if(request('satuan_obat'))
                         <input type="hidden" name="satuan_obat" value="{{ request('satuan_obat') }}">
@@ -218,29 +206,6 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'jenis_obat', 'direction' => (request('sort') == 'jenis_obat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
-                               class="flex items-center justify-between group hover:text-green-300 transition-colors">
-                                <span>Jenis Obat</span>
-                                <span class="ml-2">
-                                    @if(request('sort') == 'jenis_obat')
-                                        @if(request('direction') == 'asc')
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                                            </svg>
-                                        @else
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                            </svg>
-                                        @endif
-                                    @else
-                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-                                        </svg>
-                                    @endif
-                                </span>
-                            </a>
-                        </th>
-                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                             <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'satuan_obat', 'direction' => (request('sort') == 'satuan_obat' && request('direction') == 'asc') ? 'desc' : 'asc'])) }}"
                                class="flex items-center justify-between group hover:text-green-300 transition-colors">
                                 <span>Satuan</span>
@@ -261,14 +226,6 @@
                                         </svg>
                                     @endif
                                 </span>
-                            </a>
-                        </th>
-                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('obat.index') }}" class="inline-flex items-center px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-full transition-all">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Kelola Harga
                             </a>
                         </th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
@@ -328,16 +285,7 @@
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900">{{ $obats->firstItem() + $index }}</td>
                             <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $obat->nama_obat }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->jenisObat->nama_jenis_obat ?? '-' }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->satuanObat->nama_satuan ?? '-' }}</td>
-                            <td class="px-4 py-3 text-sm text-center">
-                                <a href="{{ route('harga-obat.index') }}" class="inline-flex items-center px-3 py-1.5 bg-green-100 hover:bg-green-200 text-green-800 text-xs font-medium rounded-full transition-all">
-                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Kelola Harga
-                                </a>
-                            </td>
                             <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate" title="{{ $obat->keterangan }}">{{ $obat->keterangan ?? '-' }}</td>
                             <td class="px-4 py-3 text-sm text-gray-600">
                                 <div class="flex items-center gap-1">
@@ -364,7 +312,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="6" class="px-4 py-8 text-center text-gray-500">
                                 <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                 </svg>
@@ -598,7 +546,7 @@ function openImportModal() {
                         <li>• Format file: Excel (.xlsx atau .xls)</li>
                         <li>• Maksimal ukuran file: 5MB</li>
                         <li>• Download template terlebih dahulu</li>
-                        <li>• Format: Nama Obat | Satuan | Keterangan | Harga Satuan | Harga Perkemasan | Jenis Obat</li>
+                        <li>• Format: Nama Obat | Satuan | Keterangan</li>
                     </ul>
                 </div>
 

@@ -17,11 +17,11 @@ class MonitoringHargaController extends Controller
     {
         $months = $request->get('months', 3); // Default 3 bulan
 
-        // Get obat dengan harga yang belum diperbarui
+        // Get obat dengan harga yang belum diperbarui (hanya sekali)
         $obatStaleHarga = HargaObatPerBulan::getObatWithStaleHarga($months);
 
-        // Get statistik monitoring
-        $stats = $this->getMonitoringStats($months);
+        // Get statistik monitoring (menggunakan data yang sudah diambil)
+        $stats = $this->getMonitoringStats($months, $obatStaleHarga);
 
         // Get obat dengan gap harga
         $obatWithGaps = $this->getObatWithHargaGaps();
@@ -37,7 +37,7 @@ class MonitoringHargaController extends Controller
     /**
      * Get monitoring statistics
      */
-    private function getMonitoringStats($months)
+    private function getMonitoringStats($months, $obatStaleHarga = null)
     {
         $currentPeriode = now()->format('m-y');
         $thresholdPeriode = HargaObatPerBulan::getPeriodeMonthsAgo($months);
@@ -50,8 +50,12 @@ class MonitoringHargaController extends Controller
             ->distinct('id_obat')
             ->count('id_obat');
 
-        // Obat dengan harga kadaluarsa
-        $obatWithStaleHarga = HargaObatPerBulan::getObatWithStaleHarga($months)->count();
+        // Obat dengan harga kadaluarsa (gunakan data yang sudah diambil jika tersedia)
+        if ($obatStaleHarga !== null) {
+            $obatWithStaleHarga = $obatStaleHarga->count();
+        } else {
+            $obatWithStaleHarga = HargaObatPerBulan::getObatWithStaleHarga($months)->count();
+        }
 
         // Persentase obat dengan harga terkini
         $percentageCurrent = $totalObat > 0 ? ($obatWithCurrentHarga / $totalObat) * 100 : 0;
@@ -226,7 +230,7 @@ class MonitoringHargaController extends Controller
 
         // Get data for export
         $obatStaleHarga = HargaObatPerBulan::getObatWithStaleHarga($months);
-        $stats = $this->getMonitoringStats($months);
+        $stats = $this->getMonitoringStats($months, $obatStaleHarga);
 
         // This would require a package like maatwebsite/excel
         // For now, return a simple CSV download

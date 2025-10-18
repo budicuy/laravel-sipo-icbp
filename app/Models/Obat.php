@@ -14,7 +14,6 @@ class Obat extends Model
     protected $fillable = [
         'nama_obat',
         'keterangan',
-        'id_jenis_obat',
         'id_satuan',
         'tanggal_update',
     ];
@@ -24,11 +23,6 @@ class Obat extends Model
     ];
 
     // Relationships
-    public function jenisObat()
-    {
-        return $this->belongsTo(JenisObat::class, 'id_jenis_obat', 'id_jenis_obat');
-    }
-
     public function satuanObat()
     {
         return $this->belongsTo(SatuanObat::class, 'id_satuan', 'id_satuan');
@@ -62,21 +56,7 @@ class Obat extends Model
         return $this->hasMany(HargaObatPerBulan::class, 'id_obat', 'id_obat');
     }
 
-    /**
-     * Mendapatkan harga obat untuk periode tertentu
-     */
-    public function getHargaPerPeriode($periode = null)
-    {
-        return HargaObatPerBulan::getHargaObat($this->id_obat, $periode);
-    }
-
-    /**
-     * Mendapatkan harga obat saat ini (periode terbaru)
-     */
-    public function getHargaSaatIni()
-    {
-        return $this->getHargaPerPeriode();
-    }
+    // Hapus fungsi harga karena tidak lagi relevan dengan struktur baru
 
     // Auto-update tanggal_update before saving
     protected static function boot()
@@ -95,7 +75,6 @@ class Obat extends Model
             Log::info('Obat created successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
-                'id_jenis_obat' => $obat->id_jenis_obat,
                 'id_satuan' => $obat->id_satuan
             ]);
         });
@@ -104,7 +83,6 @@ class Obat extends Model
             Log::info('Obat updated successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
-                'id_jenis_obat' => $obat->id_jenis_obat,
                 'id_satuan' => $obat->id_satuan
             ]);
         });

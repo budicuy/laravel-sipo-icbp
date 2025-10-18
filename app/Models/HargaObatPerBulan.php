@@ -331,21 +331,26 @@ class HargaObatPerBulan extends Model
         $currentPeriode = now()->format('m-y');
         $thresholdPeriode = self::getPeriodeMonthsAgo($months);
 
-        // Subquery untuk mendapatkan harga terakhir per obat
-        $latestHargaSubquery = self::selectRaw('id_obat, MAX(periode) as latest_periode')
-                                  ->groupBy('id_obat');
+        // Gunakan cache untuk menghindari query berulang
+        $cacheKey = "stale_harga_obat_{$months}_{$thresholdPeriode}";
 
-        // Main query untuk mendapatkan obat dengan harga yang sudah kadaluarsa
-        return DB::table('harga_obat_per_bulan as h1')
-                  ->joinSub($latestHargaSubquery, 'h2', function($join) {
-                      $join->on('h1.id_obat', '=', 'h2.id_obat')
-                           ->on('h1.periode', '=', 'h2.latest_periode');
-                  })
-                  ->join('obat', 'h1.id_obat', '=', 'obat.id_obat')
-                  ->where('h1.periode', '<', $thresholdPeriode)
-                  ->select('obat.id_obat', 'obat.nama_obat', 'h1.periode as last_harga_periode')
-                  ->orderBy('h1.periode', 'asc')
-                  ->get();
+        return Cache::remember($cacheKey, now()->addMinutes(30), function() use ($thresholdPeriode) {
+            // Subquery untuk mendapatkan harga terakhir per obat
+            $latestHargaSubquery = self::selectRaw('id_obat, MAX(periode) as latest_periode')
+                                      ->groupBy('id_obat');
+
+            // Main query untuk mendapatkan obat dengan harga yang sudah kadaluarsa
+            return DB::table('harga_obat_per_bulan as h1')
+                      ->joinSub($latestHargaSubquery, 'h2', function($join) {
+                          $join->on('h1.id_obat', '=', 'h2.id_obat')
+                               ->on('h1.periode', '=', 'h2.latest_periode');
+                      })
+                      ->join('obat', 'h1.id_obat', '=', 'obat.id_obat')
+                      ->where('h1.periode', '<', $thresholdPeriode)
+                      ->select('obat.id_obat', 'obat.nama_obat', 'h1.periode as last_harga_periode')
+                      ->orderBy('h1.periode', 'asc')
+                      ->get();
+        });
     }
 
     /**
@@ -525,5 +530,42 @@ class HargaObatPerBulan extends Model
         }
 
         return null;
+    }
+
+    /**
+     * Clear cache untuk stale harga ketika ada perubahan data
+     */
+    public static function clearStaleHargaCache()
+    {
+        // Clear semua cache yang mungkin terkait dengan stale harga
+        $cacheKeys = [];
+
+        // Generate cache keys untuk berbagai kemungkinan bulan (1-12)
+        for ($months = 1; $months <= 12; $months++) {
+            $thresholdPeriode = self::getPeriodeMonthsAgo($months);
+            $cacheKeys[] = "stale_harga_obat_{$months}_{$thresholdPeriode}";
+        }
+
+        // Hapus cache satu per satu
+        foreach ($cacheKeys as $key) {
+            Cache::forget($key);
+        }
+    }
+
+    /**
+     * Model events untuk otomatis membersihkan cache
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Clear cache ketika ada perubahan pada harga obat
+        static::saved(function() {
+            self::clearStaleHargaCache();
+        });
+
+        static::deleted(function() {
+            self::clearStaleHargaCache();
+        });
     }
 }
