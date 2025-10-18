@@ -141,7 +141,11 @@
                             {{ $rm->keluarga->karyawan->nik_karyawan ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                            <span class="px-3 py-1
+                                @if(($rm->keluarga->hubungan->hubungan ?? '') == 'Emergency') bg-red-100 text-red-800
+                                @else bg-blue-100 text-blue-800
+                                @endif
+                                rounded-full text-xs font-medium">
                                 {{ $rm->keluarga->hubungan->hubungan ?? '-' }}
                             </span>
                         </td>

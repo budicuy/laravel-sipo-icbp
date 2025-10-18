@@ -79,6 +79,92 @@ class RekamMedisController extends Controller
         return view('rekam-medis.create', compact('diagnosas', 'obats'));
     }
 
+    public function indexEmergency(Request $request)
+    {
+        // Query untuk mendapatkan data dari tabel rekam_medis_emergency
+        $query = \App\Models\RekamMedisEmergency::with(['user:id_user,username,nama_lengkap']);
+
+        // Filter pencarian
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nama_pasien', 'like', "%$q%")
+                    ->orWhere('nik_pasien', 'like', "%$q%")
+                    ->orWhere('no_rm', 'like', "%$q%");
+            });
+        }
+
+        // Filter tanggal
+        if ($request->filled('dari_tanggal')) {
+            $query->where('tanggal_periksa', '>=', $request->dari_tanggal);
+        }
+
+        if ($request->filled('sampai_tanggal')) {
+            $query->where('tanggal_periksa', '<=', $request->sampai_tanggal);
+        }
+
+        // Filter status
+        if ($request->filled('status')) {
+            $query->where('status_rekam_medis', $request->status);
+        }
+
+        // Pagination
+        $perPage = $request->input('per_page', 50);
+        if (!in_array($perPage, [50, 100, 200])) {
+            $perPage = 50;
+        }
+
+        $rekamMedisEmergency = $query->orderBy('id_emergency', 'desc')->paginate($perPage)->appends($request->except('page'));
+
+        return view('rekam-medis-emergency.index', compact('rekamMedisEmergency'));
+    }
+
+    public function createEmergency()
+    {
+        return view('rekam-medis-emergency.create-emergency');
+    }
+
+    public function storeEmergency(Request $request)
+    {
+        $validated = $request->validate([
+            'nik_pasien' => 'required|digits_between:1,16|numeric',
+            'nama_pasien' => 'required|string|max:255',
+            'no_rm' => 'required|string|max:30',
+            'jenis_kelamin' => 'required|in:L,P',
+            'tanggal_periksa' => 'required|date',
+            'status_rekam_medis' => 'required|in:On Progress,Close',
+            'keluhan' => 'required|string',
+            'diagnosa' => 'nullable|string',
+            'catatan' => 'nullable|string',
+        ]);
+
+        try {
+            // Using Laravel 12's transaction method with automatic retry for better reliability
+            $rekamMedisEmergency = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request) {
+                // Simpan data rekam medis emergency langsung ke tabel rekam_medis_emergency
+                $rekamMedisEmergency = \App\Models\RekamMedisEmergency::create([
+                    'nik_pasien' => $validated['nik_pasien'],
+                    'nama_pasien' => $validated['nama_pasien'],
+                    'no_rm' => $validated['no_rm'],
+                    'jenis_kelamin' => $validated['jenis_kelamin'],
+                    'tanggal_periksa' => $validated['tanggal_periksa'],
+                    'status_rekam_medis' => $validated['status_rekam_medis'],
+                    'keluhan' => $validated['keluhan'],
+                    'diagnosa' => $validated['diagnosa'],
+                    'catatan' => $validated['catatan'],
+                    'id_user' => Auth::id(),
+                    'hubungan' => 'Emergency',
+                ]);
+
+                return $rekamMedisEmergency;
+            }, 3); // Retry up to 3 times on deadlock
+
+            return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
+        }
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

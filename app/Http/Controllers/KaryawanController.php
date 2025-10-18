@@ -676,6 +676,27 @@ class KaryawanController extends Controller
         return back()->with('success', "$deleted karyawan berhasil dihapus");
     }
 
+    /**
+     * Remove photo from karyawan
+     */
+    public function removePhoto(Request $request, Karyawan $karyawan)
+    {
+        if ($karyawan->foto) {
+            Storage::disk('public')->delete($karyawan->foto);
+            $karyawan->update(['foto' => null]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto berhasil dihapus'
+            ]);
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Tidak ada foto untuk dihapus'
+        ], 404);
+    }
+
 
 }
 

@@ -195,6 +195,14 @@
                                                              onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($karyawan->nama_karyawan) }}&background=0D8ABC&color=fff&size=256';"
                                                              class="w-full h-full object-contain rounded-lg"
                                                              alt="Foto saat ini">
+                                                        <button type="button"
+                                                                onclick="deletePhoto()"
+                                                                class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 shadow-lg transition-colors"
+                                                                title="Hapus foto">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
                                                     </div>
                                                 @else
                                                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -216,7 +224,7 @@
                                 <!-- Info -->
                                 <div class="bg-yellow-50 border border-yellow-100 rounded-lg p-3">
                                     <p class="text-xs text-yellow-800">
-                                        <span class="font-semibold">Info:</span> Abaikan jika tidak ingin mengubah foto. Klik pada area foto untuk memilih file baru. Ukuran maksimal 30KB.
+                                        <span class="font-semibold">Info:</span> Abaikan jika tidak ingin mengubah foto. Klik pada area foto untuk memilih file baru. Ukuran maksimal 30KB. Klik tombol X untuk menghapus foto.
                                     </p>
                                 </div>
                             </div>
@@ -314,6 +322,64 @@ function previewImage(event) {
 function clearImage() {
     document.getElementById('foto').value = '';
     document.getElementById('preview-container').innerHTML = originalPreview;
+}
+
+function deletePhoto() {
+    if (confirm('Apakah Anda yakin ingin menghapus foto ini?')) {
+        fetch(`/karyawan/{{ $karyawan->id_karyawan }}/photo`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+            },
+            body: '_method=DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                notification.textContent = data.message;
+                document.body.appendChild(notification);
+                
+                // Remove notification after 3 seconds
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+                
+                // Refresh the page to show updated photo
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                // Show error notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                notification.textContent = data.message;
+                document.body.appendChild(notification);
+                
+                // Remove notification after 3 seconds
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Show error notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+            notification.textContent = 'Terjadi kesalahan saat menghapus foto';
+            document.body.appendChild(notification);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        });
+    }
 }
 
 // Validasi NIK dan BPJS ID hanya angka

@@ -131,9 +131,21 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('rekam-medis-emergency.create') }}"
+                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('rekam-medis-emergency.create') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
+                                Tambah Rekam Medis Emergency
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('rekam-medis.index') }}"
                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('rekam-medis.index') || request()->routeIs('rekam-medis.detail') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
                                 Daftar Rekam Medis
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('rekam-medis-emergency.index') }}"
+                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('rekam-medis-emergency.index') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
+                                Daftar Rekam Medis Emergency
                             </a>
                         </li>
                         <li>
