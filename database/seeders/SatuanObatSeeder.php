@@ -19,12 +19,14 @@ class SatuanObatSeeder extends Seeder
         SatuanObat::query()->delete();
 
         $satuanObats = [
-            ['id_satuan' => 1, 'nama_satuan' => 'Satuan Std'],
+            ['id_satuan' => 1, 'nama_satuan' => '(2L x 60 menit)'],
             ['id_satuan' => 2, 'nama_satuan' => 'Ampul'],
-            ['id_satuan' => 3, 'nama_satuan' => 'Botol'],
-            ['id_satuan' => 4, 'nama_satuan' => 'Tablet'],
-            ['id_satuan' => 5, 'nama_satuan' => 'Pcs'],
+            ['id_satuan' => 3, 'nama_satuan' => 'PCS'],
+            ['id_satuan' => 4, 'nama_satuan' => 'Roll'],
+            ['id_satuan' => 5, 'nama_satuan' => 'Tablet'],
             ['id_satuan' => 6, 'nama_satuan' => 'Tube'],
+             ['id_satuan' => 7, 'nama_satuan' => 'Botol'],
+
         ];
 
         // Using Eloquent insert method for better compatibility
