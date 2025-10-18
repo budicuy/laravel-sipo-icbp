@@ -214,7 +214,9 @@
                 <form method="GET" action="{{ route('laporan.transaksi') }}">
                     <input type="hidden" name="bulan" value="{{ $bulan }}">
                     <input type="hidden" name="tahun" value="{{ $tahun }}">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="hidden" name="tanggal_dari" value="{{ $tanggal_dari }}">
+                    <input type="hidden" name="tanggal_sampai" value="{{ $tanggal_sampai }}">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
                                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -232,6 +234,19 @@
                                 Sampai Tanggal
                             </label>
                             <input type="date" name="tanggal_sampai" value="{{ $tanggal_sampai }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                        </div>
+                        <div>
+                            <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                </svg>
+                                Data per Halaman
+                            </label>
+                            <select name="per_page" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50 Data</option>
+                                <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100 Data</option>
+                                <option value="200" {{ $perPage == 200 ? 'selected' : '' }}>200 Data</option>
+                            </select>
                         </div>
                         <div class="flex items-end">
                             <button type="submit" class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
@@ -264,7 +279,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($transaksi as $item)
+                            @forelse($transaksi->items() as $item)
                             <tr class="hover:bg-blue-50 transition-colors">
                                 <td class="px-4 py-4 whitespace-nowrap">
                                     <span class="text-sm font-semibold text-blue-600">{{ $item['kode_transaksi'] }}</span>
@@ -337,6 +352,73 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="mt-6 flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        Menampilkan {{ $transaksi->firstItem() }} hingga {{ $transaksi->lastItem() }} dari {{ $transaksi->total() }} data
+                    </div>
+                    <div class="flex items-center gap-2">
+                        @if ($transaksi->hasPages())
+                            <div class="flex items-center gap-1">
+                                {{-- Previous --}}
+                                @if ($transaksi->currentPage() > 1)
+                                    <a href="{{ $transaksi->previousPageUrl() }}" class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                    </a>
+                                @else
+                                    <span class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-300 bg-white border border-gray-300 rounded-md cursor-not-allowed">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                    </span>
+                                @endif
+
+                                {{-- Page Numbers --}}
+                                @foreach ($elements = $transaksi->links()->elements as $element)
+                                    {{-- "Three Dots" Separator --}}
+                                    @if (is_string($element))
+                                        <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300">
+                                            {{ $element }}
+                                        </span>
+                                    @endif
+
+                                    {{-- Array Of Links --}}
+                                    @if (is_array($element))
+                                        @foreach ($element as $page => $url)
+                                            @if ($page == $transaksi->currentPage())
+                                                <span aria-current="page" class="relative z-10 inline-flex items-center px-4 py-2 text-sm font-medium bg-blue-600 text-white border border-blue-600 rounded-md">
+                                                    {{ $page }}
+                                                </span>
+                                            @else
+                                                <a href="{{ $url }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                                                    {{ $page }}
+                                                </a>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @endforeach
+
+                                {{-- Next --}}
+                                @if ($transaksi->hasMorePages())
+                                    <a href="{{ $transaksi->nextPageUrl() }}" class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </a>
+                                @else
+                                    <span class="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-300 bg-white border border-gray-300 rounded-md cursor-not-allowed">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </span>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
