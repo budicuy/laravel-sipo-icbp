@@ -523,11 +523,12 @@ class RekamMedisController extends Controller
             ->setSubject('Template Import Rekam Medis')
             ->setDescription('Template untuk import data rekam medis');
 
-        // Header columns
+        // Header columns - Updated for multiple diagnoses format
         $headers = [
-            'Hari / Tgl', 'Time', 'NIK', 'Nama Karyawan', 'Kode RM', 'Nama Pasien',
-            'Anamnesa', 'Diagnosa', 'Obat 1', 'Qyt', 'Obat 2', 'Qyt',
-            'Obat 3', 'Qyt', 'Obat 4', 'Qyt', 'Obat 5', 'Qyt', 'Petugas Klinik', 'Status'
+            'Hari / Tgl', 'Time', 'Shift', 'No', 'NIK', 'Nama Karyawan', 'Kode RM', 'Nama Pasien',
+            'Diagnosa 1', 'Keluhan 1', 'Obat 1-1', 'Qyt', 'Obat 1-2', 'Qyt', 'Obat 1-3', 'Qyt',
+            'Diagnosa 2', 'Keluhan 2', 'Obat 2-1', 'Qyt', 'Obat 2-2', 'Qyt',
+            'Diagnosa 3', 'Keluhan 3', 'Obat 3-1', 'Qyt', 'Obat 3-2', 'Qyt', 'Petugas', 'Status'
         ];
 
         $column = 'A';
@@ -559,71 +560,101 @@ class RekamMedisController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A1:T1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:AD1')->applyFromArray($headerStyle);
 
-        // Add sample data
+        // Add sample data - Updated for multiple diagnoses format
         $sheet->setCellValue('A2', '01/08/2025');
         $sheet->setCellValue('B2', '09:22');
-        $sheet->setCellValue('C2', '1200929');
-        $sheet->setCellValue('D2', 'Purnomo');
-        $sheet->setCellValue('E2', '1200929-A');
+        $sheet->setCellValue('C2', 'Pagi');
+        $sheet->setCellValue('D2', '1');
+        $sheet->setCellValue('E2', '1200929');
         $sheet->setCellValue('F2', 'Purnomo');
-        $sheet->setCellValue('G2', 'S.Gigi');
-        $sheet->setCellValue('H2', 'PPJP');
-        $sheet->setCellValue('I2', 'Natrium Diklofenak');
-        $sheet->setCellValue('J2', '10');
-        $sheet->setCellValue('K2', 'Amoxicilin');
+        $sheet->setCellValue('G2', '1200929-A');
+        $sheet->setCellValue('H2', 'Purnomo');
+        $sheet->setCellValue('I2', 'PPJP');
+        $sheet->setCellValue('J2', 'Sakit Gigi');
+        $sheet->setCellValue('K2', 'Natrium Diklofenak');
         $sheet->setCellValue('L2', '10');
-        $sheet->setCellValue('M2', '-');
-        $sheet->setCellValue('N2', '-');
+        $sheet->setCellValue('M2', 'Amoxicilin');
+        $sheet->setCellValue('N2', '10');
         $sheet->setCellValue('O2', '-');
         $sheet->setCellValue('P2', '-');
         $sheet->setCellValue('Q2', '-');
         $sheet->setCellValue('R2', '-');
-        $sheet->setCellValue('S2', 'Farid Wajidi');
-        $sheet->setCellValue('T2', 'Reguler');
+        $sheet->setCellValue('S2', '-');
+        $sheet->setCellValue('T2', '-');
+        $sheet->setCellValue('U2', '-');
+        $sheet->setCellValue('V2', '-');
+        $sheet->setCellValue('W2', '-');
+        $sheet->setCellValue('X2', '-');
+        $sheet->setCellValue('Y2', '-');
+        $sheet->setCellValue('Z2', '-');
+        $sheet->setCellValue('AA2', '-');
+        $sheet->setCellValue('AB2', '-');
+        $sheet->setCellValue('AC2', 'Farid Wajidi');
+        $sheet->setCellValue('AD2', 'Reguler');
 
         $sheet->setCellValue('A3', '01/08/2025');
         $sheet->setCellValue('B3', '10:30');
-        $sheet->setCellValue('C3', '50172104');
-        $sheet->setCellValue('D3', 'Adam Azhari');
-        $sheet->setCellValue('E3', '50172104-A');
+        $sheet->setCellValue('C3', 'Pagi');
+        $sheet->setCellValue('D3', '2');
+        $sheet->setCellValue('E3', '50172104');
         $sheet->setCellValue('F3', 'Adam Azhari');
-        $sheet->setCellValue('G3', 'Batuk,Pilek,S.Tenggorakan');
-        $sheet->setCellValue('H3', 'ISPA');
-        $sheet->setCellValue('I3', '-');
-        $sheet->setCellValue('J3', '-');
-        $sheet->setCellValue('K3', 'Methylprednisolone');
+        $sheet->setCellValue('G3', '50172104-A');
+        $sheet->setCellValue('H3', 'Adam Azhari');
+        $sheet->setCellValue('I3', 'ISPA');
+        $sheet->setCellValue('J3', 'Batuk,Pilek,S.Tenggorakan');
+        $sheet->setCellValue('K3', '-');
         $sheet->setCellValue('L3', '-');
-        $sheet->setCellValue('M3', 'Paracetamol');
-        $sheet->setCellValue('N3', '1');
-        $sheet->setCellValue('O3', 'Bodrex');
-        $sheet->setCellValue('P3', '5');
-        $sheet->setCellValue('Q3', '-');
-        $sheet->setCellValue('R3', '-');
-        $sheet->setCellValue('S3', 'Admin');
-        $sheet->setCellValue('T3', 'Close');
+        $sheet->setCellValue('M3', 'Methylprednisolone');
+        $sheet->setCellValue('N3', '-');
+        $sheet->setCellValue('O3', 'Paracetamol');
+        $sheet->setCellValue('P3', '1');
+        $sheet->setCellValue('Q3', 'Demam Berdarah');
+        $sheet->setCellValue('R3', 'Pusing,Mual');
+        $sheet->setCellValue('S3', 'Paracetamol');
+        $sheet->setCellValue('T3', '2');
+        $sheet->setCellValue('U3', '-');
+        $sheet->setCellValue('V3', '-');
+        $sheet->setCellValue('W3', '-');
+        $sheet->setCellValue('X3', '-');
+        $sheet->setCellValue('Y3', '-');
+        $sheet->setCellValue('Z3', '-');
+        $sheet->setCellValue('AA3', '-');
+        $sheet->setCellValue('AB3', '-');
+        $sheet->setCellValue('AC3', 'Admin');
+        $sheet->setCellValue('AD3', 'Close');
 
         $sheet->setCellValue('A4', '01/08/2025');
         $sheet->setCellValue('B4', '14:15');
-        $sheet->setCellValue('C4', '1200337');
-        $sheet->setCellValue('D4', 'Suparjo');
-        $sheet->setCellValue('E4', '1200337-A');
+        $sheet->setCellValue('C4', 'Siang');
+        $sheet->setCellValue('D4', '3');
+        $sheet->setCellValue('E4', '1200337');
         $sheet->setCellValue('F4', 'Suparjo');
-        $sheet->setCellValue('G4', 'Pusing');
-        $sheet->setCellValue('H4', '-');
-        $sheet->setCellValue('I4', 'Amlodipin 5Mg');
-        $sheet->setCellValue('J4', '-');
-        $sheet->setCellValue('K4', '-');
+        $sheet->setCellValue('G4', '1200337-A');
+        $sheet->setCellValue('H4', 'Suparjo');
+        $sheet->setCellValue('I4', 'Hipertensi');
+        $sheet->setCellValue('J4', 'Pusing');
+        $sheet->setCellValue('K4', 'Amlodipin 5Mg');
         $sheet->setCellValue('L4', '-');
         $sheet->setCellValue('M4', '-');
         $sheet->setCellValue('N4', '-');
         $sheet->setCellValue('O4', '-');
         $sheet->setCellValue('P4', '-');
-        $sheet->setCellValue('Q4', '-');
-        $sheet->setCellValue('R4', '-');
-        $sheet->setCellValue('S4', 'Admin');
-        $sheet->setCellValue('T4', 'On Progress');
+        $sheet->setCellValue('Q4', 'Diabetes');
+        $sheet->setCellValue('R4', 'Lemas');
+        $sheet->setCellValue('S4', 'Metformin');
+        $sheet->setCellValue('T4', '-');
+        $sheet->setCellValue('U4', '-');
+        $sheet->setCellValue('V4', '-');
+        $sheet->setCellValue('W4', 'Asam Urat');
+        $sheet->setCellValue('X4', 'Nyeri Sendi');
+        $sheet->setCellValue('Y4', 'Allopurinol');
+        $sheet->setCellValue('Z4', '-');
+        $sheet->setCellValue('AA4', '-');
+        $sheet->setCellValue('AB4', '-');
+        $sheet->setCellValue('AC4', 'Admin');
+        $sheet->setCellValue('AD4', 'On Progress');
 
         // Style sample data
         $dataStyle = [
@@ -638,29 +669,39 @@ class RekamMedisController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A2:T4')->applyFromArray($dataStyle);
+        $sheet->getStyle('A2:AD4')->applyFromArray($dataStyle);
 
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(15);
         $sheet->getColumnDimension('B')->setWidth(15);
-        $sheet->getColumnDimension('C')->setWidth(20);
-        $sheet->getColumnDimension('D')->setWidth(15);
+        $sheet->getColumnDimension('C')->setWidth(10);
+        $sheet->getColumnDimension('D')->setWidth(10);
         $sheet->getColumnDimension('E')->setWidth(20);
-        $sheet->getColumnDimension('F')->setWidth(25);
+        $sheet->getColumnDimension('F')->setWidth(15);
         $sheet->getColumnDimension('G')->setWidth(20);
-        $sheet->getColumnDimension('H')->setWidth(20);
+        $sheet->getColumnDimension('H')->setWidth(25);
         $sheet->getColumnDimension('I')->setWidth(15);
         $sheet->getColumnDimension('J')->setWidth(20);
         $sheet->getColumnDimension('K')->setWidth(15);
-        $sheet->getColumnDimension('L')->setWidth(20);
+        $sheet->getColumnDimension('L')->setWidth(10);
         $sheet->getColumnDimension('M')->setWidth(15);
-        $sheet->getColumnDimension('N')->setWidth(20);
+        $sheet->getColumnDimension('N')->setWidth(10);
         $sheet->getColumnDimension('O')->setWidth(15);
-        $sheet->getColumnDimension('P')->setWidth(20);
+        $sheet->getColumnDimension('P')->setWidth(10);
         $sheet->getColumnDimension('Q')->setWidth(15);
-        $sheet->getColumnDimension('R')->setWidth(15);
-        $sheet->getColumnDimension('S')->setWidth(20);
-        $sheet->getColumnDimension('T')->setWidth(15);
+        $sheet->getColumnDimension('R')->setWidth(20);
+        $sheet->getColumnDimension('S')->setWidth(15);
+        $sheet->getColumnDimension('T')->setWidth(10);
+        $sheet->getColumnDimension('U')->setWidth(15);
+        $sheet->getColumnDimension('V')->setWidth(10);
+        $sheet->getColumnDimension('W')->setWidth(15);
+        $sheet->getColumnDimension('X')->setWidth(20);
+        $sheet->getColumnDimension('Y')->setWidth(15);
+        $sheet->getColumnDimension('Z')->setWidth(10);
+        $sheet->getColumnDimension('AA')->setWidth(15);
+        $sheet->getColumnDimension('AB')->setWidth(10);
+        $sheet->getColumnDimension('AC')->setWidth(20);
+        $sheet->getColumnDimension('AD')->setWidth(15);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -672,16 +713,18 @@ class RekamMedisController extends Controller
         $sheet->setCellValue('A6', 'CATATAN:');
         $sheet->setCellValue('A7', '• Format Tanggal: DD/MM/YYYY (contoh: 01/08/2025)');
         $sheet->setCellValue('A8', '• Format Waktu: HH:MM atau HH:MM:SS (contoh: 09:22 atau 09:22:00)');
-        $sheet->setCellValue('A9', '• NIK Karyawan harus ada di tabel karyawan');
-        $sheet->setCellValue('A10', '• Kode RM format: NIK-KodeHubungan (contoh: 1200929-A)');
-        $sheet->setCellValue('A11', '• Nama Pasien sesuai dengan data di tabel keluarga');
-        $sheet->setCellValue('A12', '• Anamnesa: keluhan pasien');
-        $sheet->setCellValue('A13', '• Diagnosa: diagnosa penyakit');
-        $sheet->setCellValue('A14', '• Obat 1-5: isi dengan nama obat yang ada di tabel obat, jika tidak ada isi dengan "-"');
-        $sheet->setCellValue('A15', '• Qyt: jumlah obat, jika tidak ada isi dengan "-"');
-        $sheet->setCellValue('A16', '• Petugas Klinik: nama petugas yang melakukan pemeriksaan');
-        $sheet->setCellValue('A17', '• Status: "Close", "On Progress", atau "Reguler"');
-        $sheet->setCellValue('A18', '• Lihat daftar karyawan, diagnosa, dan obat di sheet referensi');
+        $sheet->setCellValue('A9', '• Shift: Pagi, Siang, atau Malam');
+        $sheet->setCellValue('A10', '• NIK Karyawan harus ada di tabel karyawan');
+        $sheet->setCellValue('A11', '• Kode RM format: NIK-KodeHubungan (contoh: 1200929-A)');
+        $sheet->setCellValue('A12', '• Nama Pasien sesuai dengan data di tabel keluarga');
+        $sheet->setCellValue('A13', '• Diagnosa 1-3: diagnosa penyakit (opsional, isi dengan "-" jika tidak ada)');
+        $sheet->setCellValue('A14', '• Keluhan 1-3: keluhan pasien (opsional, isi dengan "-" jika tidak ada)');
+        $sheet->setCellValue('A15', '• Obat 1-1 hingga Obat 3-2: isi dengan nama obat yang ada di tabel obat, jika tidak ada isi dengan "-"');
+        $sheet->setCellValue('A16', '• Qyt: jumlah obat, jika tidak ada isi dengan "-"');
+        $sheet->setCellValue('A17', '• Petugas: nama petugas yang melakukan pemeriksaan');
+        $sheet->setCellValue('A18', '• Status: "Close", "On Progress", atau "Reguler"');
+        $sheet->setCellValue('A19', '• Setiap diagnosa dapat memiliki hingga 3 obat');
+        $sheet->setCellValue('A20', '• Lihat daftar karyawan, diagnosa, dan obat di sheet referensi');
 
         $sheet->getStyle('A6')->getFont()->setBold(true);
         $sheet->getStyle('A7:A17')->getFont()->setItalic(true)->setSize(10);
@@ -912,53 +955,151 @@ class RekamMedisController extends Controller
             $created = 0;
             $errors = [];
 
+            // Detect Excel format by checking the headers
+            $highestColumn = $sheet->getHighestColumn();
+            $isMultiDiagnosaFormat = false;
+            
+            // Check if the file has the multi-diagnosa format (up to column AD)
+            if ($highestColumn >= 'AD') {
+                // Check if the headers match the multi-diagnosa format
+                $headerI = $this->getCellValue($sheet, 'I', 1, 'string');
+                $headerQ = $this->getCellValue($sheet, 'Q', 1, 'string');
+                $headerW = $this->getCellValue($sheet, 'W', 1, 'string');
+                
+                // If headers contain "Diagnosa 1", "Diagnosa 2", "Diagnosa 3", it's multi-diagnosa format
+                if (stripos($headerI, 'diagnosa') !== false &&
+                    stripos($headerQ, 'diagnosa') !== false &&
+                    stripos($headerW, 'diagnosa') !== false) {
+                    $isMultiDiagnosaFormat = true;
+                }
+            }
+            
+            // Debug: Log the detected format
+            \Log::info("Detected Excel format: " . ($isMultiDiagnosaFormat ? "Multiple Diagnoses" : "Single Diagnosa"));
+            
             for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
-                // Based on the new format:
-                // A: Hari / Tgl (date)
-                // B: Time (time)
-                // C: NIK (string)
-                // D: Nama Karyawan (string)
-                // E: Kode RM (string)
-                // F: Nama Pasien (string)
-                // G: Anamnesa (string)
-                // H: Diagnosa (string)
-                // I: Obat 1 (string)
-                // J: Qyt (number)
-                // K: Obat 2 (string)
-                // L: Qyt (number)
-                // M: Obat 3 (string)
-                // N: Qyt (number)
-                // O: Obat 4 (string)
-                // P: Qyt (number)
-                // Q: Obat 5 (string)
-                // R: Qyt (number)
-                // S: Petugas Klinik (string)
-                // T: Status (string)
-                
-                // Read all columns using the helper function
-                $tanggalPeriksa = $this->getCellValue($sheet, 'A', $rowNumber, 'date');
-                $waktuPeriksa = $this->getCellValue($sheet, 'B', $rowNumber, 'time');
-                $nikKaryawan = $this->getCellValue($sheet, 'C', $rowNumber, 'string');
-                $namaKaryawan = $this->getCellValue($sheet, 'D', $rowNumber, 'string');
-                $kodeRM = $this->getCellValue($sheet, 'E', $rowNumber, 'string');
-                $namaPasien = $this->getCellValue($sheet, 'F', $rowNumber, 'string');
-                $anamnesa = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
-                $diagnosa = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
-                $obat1 = $this->getCellValue($sheet, 'I', $rowNumber, 'string');
-                $jumlahObat1 = $this->getCellValue($sheet, 'J', $rowNumber, 'number');
-                $obat2 = $this->getCellValue($sheet, 'K', $rowNumber, 'string');
-                $jumlahObat2 = $this->getCellValue($sheet, 'L', $rowNumber, 'number');
-                $obat3 = $this->getCellValue($sheet, 'M', $rowNumber, 'string');
-                $jumlahObat3 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
-                $obat4 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
-                $jumlahObat4 = $this->getCellValue($sheet, 'P', $rowNumber, 'number');
-                $obat5 = $this->getCellValue($sheet, 'Q', $rowNumber, 'string');
-                $jumlahObat5 = $this->getCellValue($sheet, 'R', $rowNumber, 'number');
-                $petugasKlinik = $this->getCellValue($sheet, 'S', $rowNumber, 'string');
-                $status = $this->getCellValue($sheet, 'T', $rowNumber, 'string');
-                
-                // Debug: Log the values
-                \Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
+                if ($isMultiDiagnosaFormat) {
+                    // Process multi-diagnosa format
+                    // A: Hari / Tgl
+                    // B: Time
+                    // C: Shift
+                    // D: No
+                    // E: NIK
+                    // F: Nama Karyawan
+                    // G: Kode RM
+                    // H: Nama Pasien
+                    // I: Diagnosa 1
+                    // J: Keluhan 1
+                    // K: Obat 1-1
+                    // L: Qyt
+                    // M: Obat 1-2
+                    // N: Qyt
+                    // O: Obat 1-3
+                    // P: Qyt
+                    // Q: Diagnosa 2
+                    // R: Keluhan 2
+                    // S: Obat 2-1
+                    // T: Qyt
+                    // U: Obat 2-2
+                    // V: Qyt
+                    // W: Diagnosa 3
+                    // X: Keluhan 3
+                    // Y: Obat 3-1
+                    // Z: Qyt
+                    // AA: Obat 3-2
+                    // AB: Qyt
+                    // AC: Petugas
+                    // AD: Status
+                    
+                    // Read all columns using the helper function
+                    $tanggalPeriksa = $this->getCellValue($sheet, 'A', $rowNumber, 'date');
+                    $waktuPeriksa = $this->getCellValue($sheet, 'B', $rowNumber, 'time');
+                    $shift = $this->getCellValue($sheet, 'C', $rowNumber, 'string');
+                    $no = $this->getCellValue($sheet, 'D', $rowNumber, 'string');
+                    $nikKaryawan = $this->getCellValue($sheet, 'E', $rowNumber, 'string');
+                    $namaKaryawan = $this->getCellValue($sheet, 'F', $rowNumber, 'string');
+                    $kodeRM = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
+                    $namaPasien = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
+                    
+                    // Diagnosa 1 data
+                    $diagnosa1 = $this->getCellValue($sheet, 'I', $rowNumber, 'string');
+                    $keluhan1 = $this->getCellValue($sheet, 'J', $rowNumber, 'string');
+                    $obat1_1 = $this->getCellValue($sheet, 'K', $rowNumber, 'string');
+                    $jumlahObat1_1 = $this->getCellValue($sheet, 'L', $rowNumber, 'number');
+                    $obat1_2 = $this->getCellValue($sheet, 'M', $rowNumber, 'string');
+                    $jumlahObat1_2 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
+                    $obat1_3 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
+                    $jumlahObat1_3 = $this->getCellValue($sheet, 'P', $rowNumber, 'number');
+                    
+                    // Diagnosa 2 data
+                    $diagnosa2 = $this->getCellValue($sheet, 'Q', $rowNumber, 'string');
+                    $keluhan2 = $this->getCellValue($sheet, 'R', $rowNumber, 'string');
+                    $obat2_1 = $this->getCellValue($sheet, 'S', $rowNumber, 'string');
+                    $jumlahObat2_1 = $this->getCellValue($sheet, 'T', $rowNumber, 'number');
+                    $obat2_2 = $this->getCellValue($sheet, 'U', $rowNumber, 'string');
+                    $jumlahObat2_2 = $this->getCellValue($sheet, 'V', $rowNumber, 'number');
+                    
+                    // Diagnosa 3 data
+                    $diagnosa3 = $this->getCellValue($sheet, 'W', $rowNumber, 'string');
+                    $keluhan3 = $this->getCellValue($sheet, 'X', $rowNumber, 'string');
+                    $obat3_1 = $this->getCellValue($sheet, 'Y', $rowNumber, 'string');
+                    $jumlahObat3_1 = $this->getCellValue($sheet, 'Z', $rowNumber, 'number');
+                    $obat3_2 = $this->getCellValue($sheet, 'AA', $rowNumber, 'string');
+                    $jumlahObat3_2 = $this->getCellValue($sheet, 'AB', $rowNumber, 'number');
+                    
+                    $petugasKlinik = $this->getCellValue($sheet, 'AC', $rowNumber, 'string');
+                    $status = $this->getCellValue($sheet, 'AD', $rowNumber, 'string');
+                    
+                    // Debug: Log the values
+                    \Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
+                } else {
+                    // Process single-diagnosa format
+                    // A: Hari / Tgl
+                    // B: Time
+                    // C: NIK
+                    // D: Nama Karyawan
+                    // E: Kode RM
+                    // F: Nama Pasien
+                    // G: Anamnesa
+                    // H: Diagnosa
+                    // I: Obat 1
+                    // J: Qyt
+                    // K: Obat 2
+                    // L: Qyt
+                    // M: Obat 3
+                    // N: Qyt
+                    // O: Obat 4
+                    // P: Qyt
+                    // Q: Obat 5
+                    // R: Qyt
+                    // S: Petugas Klinik
+                    // T: Status
+                    
+                    // Read all columns using the helper function
+                    $tanggalPeriksa = $this->getCellValue($sheet, 'A', $rowNumber, 'date');
+                    $waktuPeriksa = $this->getCellValue($sheet, 'B', $rowNumber, 'time');
+                    $nikKaryawan = $this->getCellValue($sheet, 'C', $rowNumber, 'string');
+                    $namaKaryawan = $this->getCellValue($sheet, 'D', $rowNumber, 'string');
+                    $kodeRM = $this->getCellValue($sheet, 'E', $rowNumber, 'string');
+                    $namaPasien = $this->getCellValue($sheet, 'F', $rowNumber, 'string');
+                    $anamnesa = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
+                    $diagnosa = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
+                    $obat1 = $this->getCellValue($sheet, 'I', $rowNumber, 'string');
+                    $jumlahObat1 = $this->getCellValue($sheet, 'J', $rowNumber, 'number');
+                    $obat2 = $this->getCellValue($sheet, 'K', $rowNumber, 'string');
+                    $jumlahObat2 = $this->getCellValue($sheet, 'L', $rowNumber, 'number');
+                    $obat3 = $this->getCellValue($sheet, 'M', $rowNumber, 'string');
+                    $jumlahObat3 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
+                    $obat4 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
+                    $jumlahObat4 = $this->getCellValue($sheet, 'P', $rowNumber, 'number');
+                    $obat5 = $this->getCellValue($sheet, 'Q', $rowNumber, 'string');
+                    $jumlahObat5 = $this->getCellValue($sheet, 'R', $rowNumber, 'number');
+                    $petugasKlinik = $this->getCellValue($sheet, 'S', $rowNumber, 'string');
+                    $status = $this->getCellValue($sheet, 'T', $rowNumber, 'string');
+                    
+                    // Debug: Log the values
+                    \Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
+                }
 
                 // Skip empty rows
                 if (empty($tanggalPeriksa) && empty($nikKaryawan)) {
@@ -1082,70 +1223,229 @@ class RekamMedisController extends Controller
                     continue;
                 }
 
-                // Find or create diagnosa
-                $idDiagnosa = null;
-                if (!empty($diagnosa) && $diagnosa !== '-') {
-                    $diagnosaModel = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa]);
-                    $idDiagnosa = $diagnosaModel->id_diagnosa;
-                }
-
                 // Create rekam medis
                 $rekamMedis = RekamMedis::create([
                     'id_keluarga' => $keluarga->id_keluarga,
                     'tanggal_periksa' => $tanggalPeriksa,
                     'waktu_periksa' => $waktuPeriksa,
                     'id_user' => $user->id_user, // Use the user found from petugas klinik
-                    'jumlah_keluhan' => 1, // Default
+                    'jumlah_keluhan' => 0, // Will be updated later
                     'status' => $status,
                 ]);
                 
                 // Debug: Log the waktu_periksa value
                 \Log::info('Row ' . $rowNumber . ': waktu_periksa = ' . $waktuPeriksa);
 
-                // Create keluhan entries for each obat
-                $obatList = [
-                    ['nama' => $obat1, 'jumlah' => $jumlahObat1],
-                    ['nama' => $obat2, 'jumlah' => $jumlahObat2],
-                    ['nama' => $obat3, 'jumlah' => $jumlahObat3],
-                    ['nama' => $obat4, 'jumlah' => $jumlahObat4],
-                    ['nama' => $obat5, 'jumlah' => $jumlahObat5],
-                ];
-
+                // Process data based on format
                 $keluhanCount = 0;
-                foreach ($obatList as $obatData) {
-                    if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
-                        $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
-                        if ($obatModel) {
+                
+                if ($isMultiDiagnosaFormat) {
+                    // Process multiple diagnoses format
+                    
+                    // Process Diagnosa 1
+                    if (!empty($diagnosa1) && $diagnosa1 !== '-') {
+                        $diagnosa1Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa1]);
+                        $idDiagnosa1 = $diagnosa1Model->id_diagnosa;
+                        
+                        // Create keluhan entries for each obat in Diagnosa 1
+                        $obatList1 = [
+                            ['nama' => $obat1_1, 'jumlah' => $jumlahObat1_1],
+                            ['nama' => $obat1_2, 'jumlah' => $jumlahObat1_2],
+                            ['nama' => $obat1_3, 'jumlah' => $jumlahObat1_3],
+                        ];
+                        
+                        $hasObat = false;
+                        foreach ($obatList1 as $obatData) {
+                            if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
+                                $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
+                                if ($obatModel) {
+                                    Keluhan::create([
+                                        'id_rekam' => $rekamMedis->id_rekam,
+                                        'id_keluarga' => $keluarga->id_keluarga,
+                                        'id_diagnosa' => $idDiagnosa1,
+                                        'terapi' => 'Obat',
+                                        'keterangan' => $keluhan1,
+                                        'id_obat' => $obatModel->id_obat,
+                                        'jumlah_obat' => is_numeric($obatData['jumlah']) ? $obatData['jumlah'] : null,
+                                        'aturan_pakai' => null,
+                                    ]);
+                                    $keluhanCount++;
+                                    $hasObat = true;
+                                } else {
+                                    $errors[] = "Baris $rowNumber: Obat '{$obatData['nama']}' tidak ditemukan";
+                                }
+                            }
+                        }
+                        
+                        // If no obat found but there's diagnosa, create keluhan without obat
+                        if (!$hasObat) {
                             Keluhan::create([
                                 'id_rekam' => $rekamMedis->id_rekam,
                                 'id_keluarga' => $keluarga->id_keluarga,
-                                'id_diagnosa' => $idDiagnosa,
-                                'terapi' => 'Obat',
-                                'keterangan' => $anamnesa,
-                                'id_obat' => $obatModel->id_obat,
-                                'jumlah_obat' => is_numeric($obatData['jumlah']) ? $obatData['jumlah'] : null,
+                                'id_diagnosa' => $idDiagnosa1,
+                                'terapi' => 'Istirahat',
+                                'keterangan' => $keluhan1,
+                                'id_obat' => null,
+                                'jumlah_obat' => null,
                                 'aturan_pakai' => null,
                             ]);
                             $keluhanCount++;
-                        } else {
-                            $errors[] = "Baris $rowNumber: Obat '{$obatData['nama']}' tidak ditemukan";
                         }
                     }
-                }
+                    
+                    // Process Diagnosa 2
+                    if (!empty($diagnosa2) && $diagnosa2 !== '-') {
+                        $diagnosa2Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa2]);
+                        $idDiagnosa2 = $diagnosa2Model->id_diagnosa;
+                        
+                        // Create keluhan entries for each obat in Diagnosa 2
+                        $obatList2 = [
+                            ['nama' => $obat2_1, 'jumlah' => $jumlahObat2_1],
+                            ['nama' => $obat2_2, 'jumlah' => $jumlahObat2_2],
+                        ];
+                        
+                        $hasObat = false;
+                        foreach ($obatList2 as $obatData) {
+                            if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
+                                $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
+                                if ($obatModel) {
+                                    Keluhan::create([
+                                        'id_rekam' => $rekamMedis->id_rekam,
+                                        'id_keluarga' => $keluarga->id_keluarga,
+                                        'id_diagnosa' => $idDiagnosa2,
+                                        'terapi' => 'Obat',
+                                        'keterangan' => $keluhan2,
+                                        'id_obat' => $obatModel->id_obat,
+                                        'jumlah_obat' => is_numeric($obatData['jumlah']) ? $obatData['jumlah'] : null,
+                                        'aturan_pakai' => null,
+                                    ]);
+                                    $keluhanCount++;
+                                    $hasObat = true;
+                                } else {
+                                    $errors[] = "Baris $rowNumber: Obat '{$obatData['nama']}' tidak ditemukan";
+                                }
+                            }
+                        }
+                        
+                        // If no obat found but there's diagnosa, create keluhan without obat
+                        if (!$hasObat) {
+                            Keluhan::create([
+                                'id_rekam' => $rekamMedis->id_rekam,
+                                'id_keluarga' => $keluarga->id_keluarga,
+                                'id_diagnosa' => $idDiagnosa2,
+                                'terapi' => 'Istirahat',
+                                'keterangan' => $keluhan2,
+                                'id_obat' => null,
+                                'jumlah_obat' => null,
+                                'aturan_pakai' => null,
+                            ]);
+                            $keluhanCount++;
+                        }
+                    }
+                    
+                    // Process Diagnosa 3
+                    if (!empty($diagnosa3) && $diagnosa3 !== '-') {
+                        $diagnosa3Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa3]);
+                        $idDiagnosa3 = $diagnosa3Model->id_diagnosa;
+                        
+                        // Create keluhan entries for each obat in Diagnosa 3
+                        $obatList3 = [
+                            ['nama' => $obat3_1, 'jumlah' => $jumlahObat3_1],
+                            ['nama' => $obat3_2, 'jumlah' => $jumlahObat3_2],
+                        ];
+                        
+                        $hasObat = false;
+                        foreach ($obatList3 as $obatData) {
+                            if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
+                                $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
+                                if ($obatModel) {
+                                    Keluhan::create([
+                                        'id_rekam' => $rekamMedis->id_rekam,
+                                        'id_keluarga' => $keluarga->id_keluarga,
+                                        'id_diagnosa' => $idDiagnosa3,
+                                        'terapi' => 'Obat',
+                                        'keterangan' => $keluhan3,
+                                        'id_obat' => $obatModel->id_obat,
+                                        'jumlah_obat' => is_numeric($obatData['jumlah']) ? $obatData['jumlah'] : null,
+                                        'aturan_pakai' => null,
+                                    ]);
+                                    $keluhanCount++;
+                                    $hasObat = true;
+                                } else {
+                                    $errors[] = "Baris $rowNumber: Obat '{$obatData['nama']}' tidak ditemukan";
+                                }
+                            }
+                        }
+                        
+                        // If no obat found but there's diagnosa, create keluhan without obat
+                        if (!$hasObat) {
+                            Keluhan::create([
+                                'id_rekam' => $rekamMedis->id_rekam,
+                                'id_keluarga' => $keluarga->id_keluarga,
+                                'id_diagnosa' => $idDiagnosa3,
+                                'terapi' => 'Istirahat',
+                                'keterangan' => $keluhan3,
+                                'id_obat' => null,
+                                'jumlah_obat' => null,
+                                'aturan_pakai' => null,
+                            ]);
+                            $keluhanCount++;
+                        }
+                    }
+                } else {
+                    // Process single-diagnosa format
+                    
+                    // Find or create diagnosa
+                    $idDiagnosa = null;
+                    if (!empty($diagnosa) && $diagnosa !== '-') {
+                        $diagnosaModel = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa]);
+                        $idDiagnosa = $diagnosaModel->id_diagnosa;
+                    }
 
-                // If no obat found but there's diagnosa, create keluhan without obat
-                if ($keluhanCount === 0 && $idDiagnosa) {
-                    Keluhan::create([
-                        'id_rekam' => $rekamMedis->id_rekam,
-                        'id_keluarga' => $keluarga->id_keluarga,
-                        'id_diagnosa' => $idDiagnosa,
-                        'terapi' => 'Istirahat',
-                        'keterangan' => $anamnesa,
-                        'id_obat' => null,
-                        'jumlah_obat' => null,
-                        'aturan_pakai' => null,
-                    ]);
-                    $keluhanCount = 1;
+                    // Create keluhan entries for each obat
+                    $obatList = [
+                        ['nama' => $obat1, 'jumlah' => $jumlahObat1],
+                        ['nama' => $obat2, 'jumlah' => $jumlahObat2],
+                        ['nama' => $obat3, 'jumlah' => $jumlahObat3],
+                        ['nama' => $obat4, 'jumlah' => $jumlahObat4],
+                        ['nama' => $obat5, 'jumlah' => $jumlahObat5],
+                    ];
+
+                    foreach ($obatList as $obatData) {
+                        if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
+                            $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
+                            if ($obatModel) {
+                                Keluhan::create([
+                                    'id_rekam' => $rekamMedis->id_rekam,
+                                    'id_keluarga' => $keluarga->id_keluarga,
+                                    'id_diagnosa' => $idDiagnosa,
+                                    'terapi' => 'Obat',
+                                    'keterangan' => $anamnesa,
+                                    'id_obat' => $obatModel->id_obat,
+                                    'jumlah_obat' => is_numeric($obatData['jumlah']) ? $obatData['jumlah'] : null,
+                                    'aturan_pakai' => null,
+                                ]);
+                                $keluhanCount++;
+                            } else {
+                                $errors[] = "Baris $rowNumber: Obat '{$obatData['nama']}' tidak ditemukan";
+                            }
+                        }
+                    }
+
+                    // If no obat found but there's diagnosa, create keluhan without obat
+                    if ($keluhanCount === 0 && $idDiagnosa) {
+                        Keluhan::create([
+                            'id_rekam' => $rekamMedis->id_rekam,
+                            'id_keluarga' => $keluarga->id_keluarga,
+                            'id_diagnosa' => $idDiagnosa,
+                            'terapi' => 'Istirahat',
+                            'keterangan' => $anamnesa,
+                            'id_obat' => null,
+                            'jumlah_obat' => null,
+                            'aturan_pakai' => null,
+                        ]);
+                        $keluhanCount = 1;
+                    }
                 }
 
                 // Update jumlah_keluhan
