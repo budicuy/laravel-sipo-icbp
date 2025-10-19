@@ -20,15 +20,16 @@ class LaporanController extends Controller
         // Get filter parameters
         $tahun = $request->get('tahun', date('Y'));
         $bulan = $request->get('bulan', date('m'));
-        $tanggal_dari = $request->get('tanggal_dari', Carbon::now()->startOfMonth()->format('Y-m-d'));
-        $tanggal_sampai = $request->get('tanggal_sampai', Carbon::now()->endOfMonth()->format('Y-m-d'));
+        $periode = $request->get('periode', Carbon::now()->format('m-y'));
+        $perPage = $request->get('per_page', 50);
+        $perPage = in_array($perPage, [50, 100, 200]) ? $perPage : 50;
 
         // Get data untuk charts
         $chartPemeriksaan = $this->getChartPemeriksaan($tahun);
         $chartBiaya = $this->getChartBiaya($tahun);
 
-        // Get data untuk tabel transaksi
-        $transaksiData = $this->getTransaksiData($tanggal_dari, $tanggal_sampai);
+        // Get data untuk tabel transaksi dengan pagination
+        $transaksiData = $this->getTransaksiData($periode, $perPage);
         $transaksi = $transaksiData['data'];
         $fallbackNotifications = $transaksiData['fallbackNotifications'] ?? [];
 
@@ -42,8 +43,8 @@ class LaporanController extends Controller
             'stats',
             'tahun',
             'bulan',
-            'tanggal_dari',
-            'tanggal_sampai',
+            'periode',
+            'perPage',
             'fallbackNotifications'
         ));
     }
@@ -139,10 +140,20 @@ class LaporanController extends Controller
     /**
      * Get data transaksi untuk tabel
      */
-    private function getTransaksiData($tanggal_dari, $tanggal_sampai)
+    private function getTransaksiData($periode, $perPage = 50)
     {
+        // Parse periode format MM-YY to get month and year
+        if (preg_match('/^(\d{2})-(\d{2})$/', $periode, $matches)) {
+            $month = (int)$matches[1];
+            $year = (int)$matches[2] + 2000; // Convert YY to YYYY
+        } else {
+            // Default to current month if format is invalid
+            $month = Carbon::now()->month;
+            $year = Carbon::now()->year;
+        }
+
         // Optimized query with specific columns and eager loading
-        $rekamMedisData = RekamMedis::with([
+        $rekamMedisQuery = RekamMedis::with([
                 'keluarga' => function($query) {
                     $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan')
                           ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan'])
@@ -156,9 +167,12 @@ class LaporanController extends Controller
                 'user:id_user,username,nama_lengkap'
             ])
             ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
-            ->whereBetween('tanggal_periksa', [$tanggal_dari, $tanggal_sampai])
-            ->orderBy('tanggal_periksa', 'desc')
-            ->get();
+            ->whereMonth('tanggal_periksa', $month)
+            ->whereYear('tanggal_periksa', $year)
+            ->orderBy('tanggal_periksa', 'desc');
+
+        // Apply pagination
+        $rekamMedisData = $rekamMedisQuery->paginate($perPage);
 
         // Collect all unique obat IDs and periods to prevent duplicate queries
         $obatPeriods = [];
@@ -255,7 +269,7 @@ class LaporanController extends Controller
             }
         }
 
-        $result = $rekamMedisData->map(function($rekamMedis) use ($kunjunganIdMap, $kunjunganKeyMap, $hargaObatMap) {
+        $result = $rekamMedisData->getCollection()->map(function($rekamMedis) use ($kunjunganIdMap, $kunjunganKeyMap, $hargaObatMap) {
             // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
             $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
             $bulan = $rekamMedis->tanggal_periksa->format('m');
@@ -301,8 +315,11 @@ class LaporanController extends Controller
             ];
         })->filter();
 
+        // Update the paginated data with processed results
+        $rekamMedisData->setCollection($result);
+
         return [
-            'data' => $result,
+            'data' => $rekamMedisData,
             'fallbackNotifications' => $fallbackNotifications
         ];
     }

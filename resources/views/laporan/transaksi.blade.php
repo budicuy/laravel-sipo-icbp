@@ -2,7 +2,7 @@
 
 @section('title', 'Laporan Transaksi')
 
-@section('page-title', 'Laporan Transaksi')
+@section('page-title', 'Laporan Transaksi Per Periode')
 
 @push('styles')
 <!-- Chart.js -->
@@ -21,7 +21,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002 2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
             </div>
-            Dashboard Laporan Transaksi
+            Dashboard Laporan Transaksi Per Periode
         </h1>
         <p class="text-gray-600 mt-2 ml-1">Monitoring dan analisis data transaksi klinik</p>
     </div>
@@ -141,8 +141,7 @@
                 <!-- Filter Tahun untuk Chart -->
                 <form method="GET" action="{{ route('laporan.transaksi') }}" class="flex items-center gap-2">
                     <input type="hidden" name="bulan" value="{{ $bulan }}">
-                    <input type="hidden" name="tanggal_dari" value="{{ $tanggal_dari }}">
-                    <input type="hidden" name="tanggal_sampai" value="{{ $tanggal_sampai }}">
+                    <input type="hidden" name="periode" value="{{ $periode }}">
                     <div class="flex items-center gap-2">
                         <label class="text-sm font-medium text-gray-700">Tahun:</label>
                         <select name="tahun" class="px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
@@ -197,7 +196,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-800">Laporan Transaksi Harian</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">Laporan Transaksi Per Periode</h3>
                 </div>
 
                 <!-- Export Button -->
@@ -209,7 +208,7 @@
                 </button>
             </div>
 
-            <!-- Date Filter -->
+            <!-- Periode Filter -->
             <div class="mb-6 bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-100">
                 <form method="GET" action="{{ route('laporan.transaksi') }}">
                     <input type="hidden" name="bulan" value="{{ $bulan }}">
@@ -220,18 +219,27 @@
                                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                Dari Tanggal
+                                Periode
                             </label>
-                            <input type="date" name="tanggal_dari" value="{{ $tanggal_dari }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                            <select name="periode" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                <option value="">Semua Periode</option>
+                                @foreach($availablePeriodes = \App\Models\HargaObatPerBulan::getAvailablePeriodes() as $periodeOption)
+                                    <option value="{{ $periodeOption['value'] }}" {{ $periode == $periodeOption['value'] ? 'selected' : '' }}>{{ $periodeOption['label'] }}</option>
+                                @endforeach
+                            </select>
                         </div>
                         <div>
                             <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
                                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                                 </svg>
-                                Sampai Tanggal
+                                Data per Halaman
                             </label>
-                            <input type="date" name="tanggal_sampai" value="{{ $tanggal_sampai }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                            <select name="per_page" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50 Data</option>
+                                <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100 Data</option>
+                                <option value="200" {{ $perPage == 200 ? 'selected' : '' }}>200 Data</option>
+                            </select>
                         </div>
                         <div class="flex items-end">
                             <button type="submit" class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
@@ -264,7 +272,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($transaksi as $item)
+                            @forelse($transaksi->items() as $item)
                             <tr class="hover:bg-blue-50 transition-colors">
                                 <td class="px-4 py-4 whitespace-nowrap">
                                     <span class="text-sm font-semibold text-blue-600">{{ $item['kode_transaksi'] }}</span>
@@ -338,6 +346,91 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Custom Pagination -->
+                @if($transaksi->hasPages())
+                <div class="px-6 py-5 border-t border-gray-200 bg-white">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-sm text-gray-600">
+                            Halaman <span class="font-semibold text-gray-900">{{ $transaksi->currentPage() }}</span>
+                            dari <span class="font-semibold text-gray-900">{{ $transaksi->lastPage() }}</span>
+                            <span class="mx-2 text-gray-400">•</span>
+                            Total <span class="font-semibold text-gray-900">{{ $transaksi->total() }}</span> data
+                        </div>
+
+                        <nav class="flex items-center gap-2" role="navigation">
+                            @if($transaksi->onFirstPage())
+                                <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                                    </svg>
+                                </span>
+                            @else
+                                <a href="{{ $transaksi->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                                    </svg>
+                                </a>
+                            @endif
+
+                            @if($transaksi->onFirstPage())
+                                <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
+                            @else
+                                <a href="{{ $transaksi->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">Previous</a>
+                            @endif
+
+                            <div class="flex items-center gap-1">
+                                @php
+                                    $start = max($transaksi->currentPage() - 2, 1);
+                                    $end = min($transaksi->currentPage() + 2, $transaksi->lastPage());
+                                @endphp
+
+                                @if($start > 1)
+                                    <a href="{{ $transaksi->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">1</a>
+                                    @if($start > 2)
+                                        <span class="px-2 text-gray-500">...</span>
+                                    @endif
+                                @endif
+
+                                @for($i = $start; $i <= $end; $i++)
+                                    @if($i == $transaksi->currentPage())
+                                        <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-md">{{ $i }}</span>
+                                    @else
+                                        <a href="{{ $transaksi->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">{{ $i }}</a>
+                                    @endif
+                                @endfor
+
+                                @if($end < $transaksi->lastPage())
+                                    @if($end < $transaksi->lastPage() - 1)
+                                        <span class="px-2 text-gray-500">...</span>
+                                    @endif
+                                    <a href="{{ $transaksi->appends(request()->except('page'))->url($transaksi->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">{{ $transaksi->lastPage() }}</a>
+                                @endif
+                            </div>
+
+                            @if($transaksi->hasMorePages())
+                                <a href="{{ $transaksi->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">Next</a>
+                            @else
+                                <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
+                            @endif
+
+                            @if($transaksi->currentPage() == $transaksi->lastPage())
+                                <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                                    </svg>
+                                </span>
+                            @else
+                                <a href="{{ $transaksi->appends(request()->except('page'))->url($transaksi->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                            @endif
+                        </nav>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
