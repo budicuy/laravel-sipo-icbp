@@ -209,50 +209,6 @@
         </div>
     </div>
 
-    <!-- Obat dengan Gap Harga -->
-    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-        <div class="flex items-center gap-2 mb-6">
-            <div class="bg-gradient-to-r from-red-600 to-pink-600 p-2 rounded-lg">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-800">Validasi Kelengkapan Harga</h3>
-            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">
-                {{ $obatWithGaps->count() }} obat dengan gap
-            </span>
-        </div>
-
-        @forelse($obatWithGaps as $item)
-        <div class="border border-red-200 rounded-lg p-4 mb-4 bg-red-50">
-            <div class="flex items-center justify-between mb-2">
-                <h4 class="text-md font-semibold text-gray-800">{{ $item['obat']->nama_obat }}</h4>
-                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 border border-red-200">
-                    {{ $item['validation']['total_found'] }}/{{ $item['validation']['total_expected'] }} periode
-                </span>
-            </div>
-            <p class="text-sm text-gray-600 mb-2">
-                <strong>Periode Hilang:</strong> {{ implode(', ', $item['validation']['missing_periodes']) }}
-            </p>
-            <div class="flex items-center gap-2">
-                <button onclick="validateContinuity({{ $item['obat']->id_obat }})" class="inline-flex items-center px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition-all">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Detail Validasi
-                </button>
-            </div>
-        </div>
-        @empty
-        <div class="text-center py-8 text-gray-500">
-            <svg class="w-12 h-12 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span class="text-sm font-medium">Tidak ada gap harga</span>
-            <span class="text-xs text-gray-400 mt-1">Semua obat memiliki harga yang lengkap</span>
-        </div>
-        @endforelse
-    </div>
 </div>
 
 <!-- Modal for Recommendations -->
@@ -452,42 +408,6 @@ function closeHistoryModal() {
     document.getElementById('historyModal').classList.add('hidden');
 }
 
-function validateContinuity(idObat) {
-    const startPeriode = prompt('Masukkan periode awal (format MM-YY):', '{{ \App\Models\HargaObatPerBulan::getPeriodeMonthsAgo(6) }}');
-    const endPeriode = prompt('Masukkan periode akhir (format MM-YY):', '{{ now()->format("m-y") }}');
-
-    if (!startPeriode || !endPeriode) return;
-
-    fetch('/monitoring/harga/validate-continuity', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({
-            id_obat: idObat,
-            start_periode: startPeriode,
-            end_periode: endPeriode
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        let message = `Validasi Kelengkapan Harga:\n\n`;
-        message += `Total Periode Diharapkan: ${data.total_expected}\n`;
-        message += `Total Periode Ditemukan: ${data.total_found}\n`;
-        message += `Ada Gap: ${data.has_gap ? 'Ya' : 'Tidak'}\n\n`;
-
-        if (data.has_gap) {
-            message += `Periode Hilang:\n${data.missing_periodes.join(', ')}`;
-        }
-
-        alert(message);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan saat validasi kelengkapan harga.');
-    });
-}
 </script>
 @endpush
 @endsection
