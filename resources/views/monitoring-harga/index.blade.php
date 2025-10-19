@@ -69,7 +69,7 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Total Obat -->
         <div class="relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl p-6 text-white">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full"></div>
@@ -109,18 +109,6 @@
             </div>
         </div>
 
-        <!-- Persentase Kelengkapan -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-xl p-6 text-white">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full"></div>
-            <div class="relative">
-                <div class="flex items-center gap-2 mb-2">
-                    <div class="w-2 h-2 bg-purple-200 rounded-full animate-pulse"></div>
-                    <p class="text-purple-100 text-sm font-medium">Kelengkapan</p>
-                </div>
-                <h3 class="text-3xl font-bold mb-1">{{ $stats['percentage_current'] }}%</h3>
-                <p class="text-purple-200 text-xs">Data harga lengkap</p>
-            </div>
-        </div>
     </div>
 
     <!-- Obat dengan Harga Kadaluarsa -->
