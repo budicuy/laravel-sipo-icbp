@@ -18,6 +18,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Carbon\Carbon;
 
 class RekamMedisController extends Controller
 {
@@ -173,6 +174,7 @@ class RekamMedisController extends Controller
         $validated = $request->validate([
             'id_keluarga' => 'required|exists:keluarga,id_keluarga',
             'tanggal_periksa' => 'required|date',
+            'waktu_periksa' => 'nullable|date_format:H:i',
             'status' => 'required|in:On Progress,Close',
             'jumlah_keluhan' => 'required|integer|min:1|max:3',
 
@@ -193,6 +195,7 @@ class RekamMedisController extends Controller
                 $rekamMedis = RekamMedis::create([
                     'id_keluarga' => $validated['id_keluarga'],
                     'tanggal_periksa' => $validated['tanggal_periksa'],
+                    'waktu_periksa' => $validated['waktu_periksa'] ?? null,
                     'id_user' => Auth::id(),
                     'jumlah_keluhan' => $validated['jumlah_keluhan'],
                     'status' => $validated['status'],
@@ -286,6 +289,7 @@ class RekamMedisController extends Controller
         $validated = $request->validate([
             'id_keluarga' => 'required|exists:keluarga,id_keluarga',
             'tanggal_periksa' => 'required|date',
+            'waktu_periksa' => 'nullable|date_format:H:i',
             'status' => 'required|in:On Progress,Close',
             'jumlah_keluhan' => 'required|integer|min:1|max:3',
 
@@ -306,6 +310,7 @@ class RekamMedisController extends Controller
                 $rekamMedis->update([
                     'id_keluarga' => $validated['id_keluarga'],
                     'tanggal_periksa' => $validated['tanggal_periksa'],
+                    'waktu_periksa' => $validated['waktu_periksa'] ?? null,
                     'jumlah_keluhan' => $validated['jumlah_keluhan'],
                     'status' => $validated['status'],
                 ]);
@@ -520,9 +525,9 @@ class RekamMedisController extends Controller
 
         // Header columns
         $headers = [
-            'Hari / Tgl Periksa', 'NIK Karyawan', 'Nama Karyawan', 'Kode RM', 'Nama Pasien',
-            'Keluhan', 'Diagnosa', 'Obat 1', 'jumlah Obat 1', 'Obat 2', 'jumlah obat 2',
-            'Obat 3', 'jumlah Obat 3', 'Obat 4', 'jumlah Obat 4', 'Obat 5', 'jumlah Obat 5', 'Status'
+            'Hari / Tgl', 'Time', 'NIK', 'Nama Karyawan', 'Kode RM', 'Nama Pasien',
+            'Anamnesa', 'Diagnosa', 'Obat 1', 'Qyt', 'Obat 2', 'Qyt',
+            'Obat 3', 'Qyt', 'Obat 4', 'Qyt', 'Obat 5', 'Qyt', 'Petugas Klinik', 'Status'
         ];
 
         $column = 'A';
@@ -554,56 +559,60 @@ class RekamMedisController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A1:Q1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:T1')->applyFromArray($headerStyle);
 
         // Add sample data
         $sheet->setCellValue('A2', '01/08/2025');
-        $sheet->setCellValue('B2', '1200929');
-        $sheet->setCellValue('C2', 'Purnomo');
-        $sheet->setCellValue('D2', '1200929-A');
-        $sheet->setCellValue('E2', 'Purnomo');
-        $sheet->setCellValue('F2', 'S.Gigi PPJP');
-        $sheet->setCellValue('G2', 'Natrium Diklofenak');
-        $sheet->setCellValue('H2', 'Amoxicilin');
-        $sheet->setCellValue('I2', '1');
-        $sheet->setCellValue('J2', '-');
-        $sheet->setCellValue('K2', '-');
-        $sheet->setCellValue('L2', '-');
+        $sheet->setCellValue('B2', '09:22');
+        $sheet->setCellValue('C2', '1200929');
+        $sheet->setCellValue('D2', 'Purnomo');
+        $sheet->setCellValue('E2', '1200929-A');
+        $sheet->setCellValue('F2', 'Purnomo');
+        $sheet->setCellValue('G2', 'S.Gigi');
+        $sheet->setCellValue('H2', 'PPJP');
+        $sheet->setCellValue('I2', 'Natrium Diklofenak');
+        $sheet->setCellValue('J2', '10');
+        $sheet->setCellValue('K2', 'Amoxicilin');
+        $sheet->setCellValue('L2', '10');
         $sheet->setCellValue('M2', '-');
         $sheet->setCellValue('N2', '-');
         $sheet->setCellValue('O2', '-');
         $sheet->setCellValue('P2', '-');
         $sheet->setCellValue('Q2', '-');
-        $sheet->setCellValue('R2', 'Close');
+        $sheet->setCellValue('R2', '-');
+        $sheet->setCellValue('S2', 'Farid Wajidi');
+        $sheet->setCellValue('T2', 'Reguler');
 
         $sheet->setCellValue('A3', '01/08/2025');
-        $sheet->setCellValue('B3', '50172104');
-        $sheet->setCellValue('C3', 'Adam Azhari');
-        $sheet->setCellValue('D3', '50172104-A');
-        $sheet->setCellValue('E3', 'Adam Azhari');
-        $sheet->setCellValue('F3', 'Batuk,Pilek,S.Tenggorakan');
-        $sheet->setCellValue('G3', 'ISPA');
-        $sheet->setCellValue('H3', '-');
+        $sheet->setCellValue('B3', '10:30');
+        $sheet->setCellValue('C3', '50172104');
+        $sheet->setCellValue('D3', 'Adam Azhari');
+        $sheet->setCellValue('E3', '50172104-A');
+        $sheet->setCellValue('F3', 'Adam Azhari');
+        $sheet->setCellValue('G3', 'Batuk,Pilek,S.Tenggorakan');
+        $sheet->setCellValue('H3', 'ISPA');
         $sheet->setCellValue('I3', '-');
-        $sheet->setCellValue('J3', 'Methylprednisolone');
-        $sheet->setCellValue('K3', '-');
-        $sheet->setCellValue('L3', 'Paracetamol');
-        $sheet->setCellValue('M3', '1');
-        $sheet->setCellValue('N3', 'Bodrex');
-        $sheet->setCellValue('O3', '5');
-        $sheet->setCellValue('P3', '-');
+        $sheet->setCellValue('J3', '-');
+        $sheet->setCellValue('K3', 'Methylprednisolone');
+        $sheet->setCellValue('L3', '-');
+        $sheet->setCellValue('M3', 'Paracetamol');
+        $sheet->setCellValue('N3', '1');
+        $sheet->setCellValue('O3', 'Bodrex');
+        $sheet->setCellValue('P3', '5');
         $sheet->setCellValue('Q3', '-');
-        $sheet->setCellValue('R3', 'Close');
+        $sheet->setCellValue('R3', '-');
+        $sheet->setCellValue('S3', 'Admin');
+        $sheet->setCellValue('T3', 'Close');
 
         $sheet->setCellValue('A4', '01/08/2025');
-        $sheet->setCellValue('B4', '1200337');
-        $sheet->setCellValue('C4', 'Suparjo');
-        $sheet->setCellValue('D4', '1200337-A');
-        $sheet->setCellValue('E4', 'Suparjo');
-        $sheet->setCellValue('F4', 'Pusing');
-        $sheet->setCellValue('G4', '-');
-        $sheet->setCellValue('H4', 'Amlodipin 5Mg');
-        $sheet->setCellValue('I4', '-');
+        $sheet->setCellValue('B4', '14:15');
+        $sheet->setCellValue('C4', '1200337');
+        $sheet->setCellValue('D4', 'Suparjo');
+        $sheet->setCellValue('E4', '1200337-A');
+        $sheet->setCellValue('F4', 'Suparjo');
+        $sheet->setCellValue('G4', 'Pusing');
+        $sheet->setCellValue('H4', '-');
+        $sheet->setCellValue('I4', 'Amlodipin 5Mg');
         $sheet->setCellValue('J4', '-');
         $sheet->setCellValue('K4', '-');
         $sheet->setCellValue('L4', '-');
@@ -612,7 +621,9 @@ class RekamMedisController extends Controller
         $sheet->setCellValue('O4', '-');
         $sheet->setCellValue('P4', '-');
         $sheet->setCellValue('Q4', '-');
-        $sheet->setCellValue('R4', 'On Progress');
+        $sheet->setCellValue('R4', '-');
+        $sheet->setCellValue('S4', 'Admin');
+        $sheet->setCellValue('T4', 'On Progress');
 
         // Style sample data
         $dataStyle = [
@@ -627,7 +638,7 @@ class RekamMedisController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A2:R4')->applyFromArray($dataStyle);
+        $sheet->getStyle('A2:T4')->applyFromArray($dataStyle);
 
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(15);
@@ -648,6 +659,8 @@ class RekamMedisController extends Controller
         $sheet->getColumnDimension('P')->setWidth(20);
         $sheet->getColumnDimension('Q')->setWidth(15);
         $sheet->getColumnDimension('R')->setWidth(15);
+        $sheet->getColumnDimension('S')->setWidth(20);
+        $sheet->getColumnDimension('T')->setWidth(15);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -658,17 +671,20 @@ class RekamMedisController extends Controller
         // Add notes
         $sheet->setCellValue('A6', 'CATATAN:');
         $sheet->setCellValue('A7', '• Format Tanggal: DD/MM/YYYY (contoh: 01/08/2025)');
-        $sheet->setCellValue('A8', '• NIK Karyawan harus ada di tabel karyawan');
-        $sheet->setCellValue('A9', '• Kode RM format: NIK-KodeHubungan (contoh: 1200929-A)');
-        $sheet->setCellValue('A10', '• Nama Pasien sesuai dengan data di tabel keluarga');
-        $sheet->setCellValue('A11', '• Keluhan bisa multiple, pisahkan dengan koma (,)');
-        $sheet->setCellValue('A12', '• Obat 1-5: isi dengan nama obat yang ada di tabel obat, jika tidak ada isi dengan "-"');
-        $sheet->setCellValue('A13', '• jumlah Obat 1-5: isi dengan jumlah obat, jika tidak ada isi dengan "-"');
-        $sheet->setCellValue('A14', '• Status: "Close" atau "On Progress"');
-        $sheet->setCellValue('A15', '• Lihat daftar karyawan, diagnosa, dan obat di sheet referensi');
+        $sheet->setCellValue('A8', '• Format Waktu: HH:MM atau HH:MM:SS (contoh: 09:22 atau 09:22:00)');
+        $sheet->setCellValue('A9', '• NIK Karyawan harus ada di tabel karyawan');
+        $sheet->setCellValue('A10', '• Kode RM format: NIK-KodeHubungan (contoh: 1200929-A)');
+        $sheet->setCellValue('A11', '• Nama Pasien sesuai dengan data di tabel keluarga');
+        $sheet->setCellValue('A12', '• Anamnesa: keluhan pasien');
+        $sheet->setCellValue('A13', '• Diagnosa: diagnosa penyakit');
+        $sheet->setCellValue('A14', '• Obat 1-5: isi dengan nama obat yang ada di tabel obat, jika tidak ada isi dengan "-"');
+        $sheet->setCellValue('A15', '• Qyt: jumlah obat, jika tidak ada isi dengan "-"');
+        $sheet->setCellValue('A16', '• Petugas Klinik: nama petugas yang melakukan pemeriksaan');
+        $sheet->setCellValue('A17', '• Status: "Close", "On Progress", atau "Reguler"');
+        $sheet->setCellValue('A18', '• Lihat daftar karyawan, diagnosa, dan obat di sheet referensi');
 
         $sheet->getStyle('A6')->getFont()->setBold(true);
-        $sheet->getStyle('A7:A15')->getFont()->setItalic(true)->setSize(10);
+        $sheet->getStyle('A7:A17')->getFont()->setItalic(true)->setSize(10);
 
         // ===== CREATE SECOND SHEET FOR REFERENCE =====
         $referenceSheet = $spreadsheet->createSheet();
@@ -767,6 +783,103 @@ class RekamMedisController extends Controller
     }
 
     /**
+     * Helper function to read cell value with support for different Excel data types
+     */
+    private function getCellValue($sheet, $column, $row, $dataType = 'string')
+    {
+        $cell = $sheet->getCell($column . $row);
+        $value = null;
+        
+        try {
+            switch ($dataType) {
+                case 'date':
+                    if (\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)) {
+                        $value = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($cell->getValue())->format('Y-m-d');
+                    } else {
+                        $rawValue = trim($cell->getValue() ?? '');
+                        if (!empty($rawValue)) {
+                            // Handle DD/MM/YYYY or DD-MM-YYYY format
+                            if (preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/', $rawValue, $matches)) {
+                                $day = $matches[1];
+                                $month = $matches[2];
+                                $year = $matches[3];
+                                $value = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                            }
+                            // Handle Excel serial date format
+                            elseif (is_numeric($rawValue)) {
+                                $excelDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($rawValue);
+                                $value = $excelDate->format('Y-m-d');
+                            }
+                        }
+                    }
+                    break;
+                    
+                case 'time':
+                    $excelValue = $cell->getValue();
+                    $formattedValue = $cell->getFormattedValue();
+                    
+                    // Method 1: Check if it's a datetime object (for Excel time format)
+                    if (\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)) {
+                        // Excel stores time as a fraction of a day (e.g., 0.395833 for 09:30)
+                        $timeObject = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($excelValue);
+                        $value = $timeObject->format('H:i:s');
+                    }
+                    // Method 2: Check if it's a numeric value (for raw Excel time format)
+                    elseif (is_numeric($excelValue)) {
+                        // Excel menyimpan waktu sebagai pecahan hari (misal 0.572916 = 13:45)
+                        $seconds = (float)$excelValue * 24 * 60 * 60;
+                        $value = gmdate('H:i:s', $seconds);
+                    }
+                    // Method 3: Handle text format time (e.g., "09:15:00", "9.30", "09:30")
+                    else {
+                        // Try to get the formatted value first
+                        $rawTime = trim((string) $formattedValue ?? '');
+                        
+                        // If formatted value is empty, try the raw value
+                        if (empty($rawTime)) {
+                            $rawTime = trim((string) $excelValue ?? '');
+                        }
+                        
+                        // Replace various separators with colon
+                        $rawTime = str_replace(['.', ',', ' '], ':', $rawTime);
+                        
+                        if (!empty($rawTime)) {
+                            $timeObject = \Carbon\Carbon::parse($rawTime);
+                            $value = $timeObject->format('H:i:s');
+                        }
+                    }
+                    break;
+                    
+                case 'number':
+                    $rawValue = $cell->getValue();
+                    if (is_numeric($rawValue)) {
+                        $value = $rawValue;
+                    } else {
+                        $formattedValue = $cell->getFormattedValue();
+                        $value = is_numeric($formattedValue) ? $formattedValue : null;
+                    }
+                    break;
+                    
+                case 'string':
+                default:
+                    // Try to get the formatted value first
+                    $value = trim((string) $cell->getFormattedValue() ?? '');
+                    
+                    // If formatted value is empty, try the raw value
+                    if (empty($value)) {
+                        $value = trim((string) $cell->getValue() ?? '');
+                    }
+                    break;
+            }
+        } catch (\Exception $e) {
+            \Log::error("Error reading cell {$column}{$row}: " . $e->getMessage());
+            $value = null;
+        }
+        
+        return $value;
+    }
+
+    /**
      * Import data rekam medis dari Excel
      */
     public function import(Request $request)
@@ -800,40 +913,52 @@ class RekamMedisController extends Controller
             $errors = [];
 
             for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
-                // Read cell values with proper date handling
-                $cellA = $sheet->getCell('A' . $rowNumber);
-                if (\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cellA)) {
-                    $tanggalPeriksa = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($cellA->getValue())->format('Y-m-d');
-                } else {
-                    $tanggalPeriksa = trim($cellA->getValue() ?? '');
-                }
-
-                // Read time from column B
-                $cellB = $sheet->getCell('B' . $rowNumber);
-                if (\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cellB)) {
-                    $waktuPeriksa = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($cellB->getValue())->format('H:i:s');
-                } else {
-                    $waktuPeriksa = trim($cellB->getValue() ?? '');
-                }
-
-                $nikKaryawan = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? '');
-                $namaKaryawan = trim($sheet->getCell('D' . $rowNumber)->getValue() ?? '');
-                $kodeRM = trim($sheet->getCell('E' . $rowNumber)->getValue() ?? '');
-                $namaPasien = trim($sheet->getCell('F' . $rowNumber)->getValue() ?? '');
-                $keluhan = trim($sheet->getCell('G' . $rowNumber)->getValue() ?? '');
-                $diagnosa = trim($sheet->getCell('H' . $rowNumber)->getValue() ?? '');
-                $obat1 = trim($sheet->getCell('I' . $rowNumber)->getValue() ?? '');
-                $jumlahObat1 = trim($sheet->getCell('J' . $rowNumber)->getValue() ?? '');
-                $obat2 = trim($sheet->getCell('K' . $rowNumber)->getValue() ?? '');
-                $jumlahObat2 = trim($sheet->getCell('L' . $rowNumber)->getValue() ?? '');
-                $obat3 = trim($sheet->getCell('M' . $rowNumber)->getValue() ?? '');
-                $jumlahObat3 = trim($sheet->getCell('N' . $rowNumber)->getValue() ?? '');
-                $obat4 = trim($sheet->getCell('O' . $rowNumber)->getValue() ?? '');
-                $jumlahObat4 = trim($sheet->getCell('P' . $rowNumber)->getValue() ?? '');
-                $obat5 = trim($sheet->getCell('Q' . $rowNumber)->getValue() ?? '');
-                $jumlahObat5 = trim($sheet->getCell('R' . $rowNumber)->getValue() ?? '');
-                $status = trim($sheet->getCell('S' . $rowNumber)->getValue() ?? '');
-                $petugasKlinik = trim($sheet->getCell('T' . $rowNumber)->getValue() ?? '');
+                // Based on the new format:
+                // A: Hari / Tgl (date)
+                // B: Time (time)
+                // C: NIK (string)
+                // D: Nama Karyawan (string)
+                // E: Kode RM (string)
+                // F: Nama Pasien (string)
+                // G: Anamnesa (string)
+                // H: Diagnosa (string)
+                // I: Obat 1 (string)
+                // J: Qyt (number)
+                // K: Obat 2 (string)
+                // L: Qyt (number)
+                // M: Obat 3 (string)
+                // N: Qyt (number)
+                // O: Obat 4 (string)
+                // P: Qyt (number)
+                // Q: Obat 5 (string)
+                // R: Qyt (number)
+                // S: Petugas Klinik (string)
+                // T: Status (string)
+                
+                // Read all columns using the helper function
+                $tanggalPeriksa = $this->getCellValue($sheet, 'A', $rowNumber, 'date');
+                $waktuPeriksa = $this->getCellValue($sheet, 'B', $rowNumber, 'time');
+                $nikKaryawan = $this->getCellValue($sheet, 'C', $rowNumber, 'string');
+                $namaKaryawan = $this->getCellValue($sheet, 'D', $rowNumber, 'string');
+                $kodeRM = $this->getCellValue($sheet, 'E', $rowNumber, 'string');
+                $namaPasien = $this->getCellValue($sheet, 'F', $rowNumber, 'string');
+                $anamnesa = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
+                $diagnosa = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
+                $obat1 = $this->getCellValue($sheet, 'I', $rowNumber, 'string');
+                $jumlahObat1 = $this->getCellValue($sheet, 'J', $rowNumber, 'number');
+                $obat2 = $this->getCellValue($sheet, 'K', $rowNumber, 'string');
+                $jumlahObat2 = $this->getCellValue($sheet, 'L', $rowNumber, 'number');
+                $obat3 = $this->getCellValue($sheet, 'M', $rowNumber, 'string');
+                $jumlahObat3 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
+                $obat4 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
+                $jumlahObat4 = $this->getCellValue($sheet, 'P', $rowNumber, 'number');
+                $obat5 = $this->getCellValue($sheet, 'Q', $rowNumber, 'string');
+                $jumlahObat5 = $this->getCellValue($sheet, 'R', $rowNumber, 'number');
+                $petugasKlinik = $this->getCellValue($sheet, 'S', $rowNumber, 'string');
+                $status = $this->getCellValue($sheet, 'T', $rowNumber, 'string');
+                
+                // Debug: Log the values
+                \Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
 
                 // Skip empty rows
                 if (empty($tanggalPeriksa) && empty($nikKaryawan)) {
@@ -924,9 +1049,14 @@ class RekamMedisController extends Controller
                 }
 
                 // Validate status
-                if (!in_array($status, ['Close', 'On Progress'])) {
-                    $errors[] = "Baris $rowNumber: Status harus 'Close' atau 'On Progress'";
+                if (!in_array($status, ['Close', 'On Progress', 'Reguler'])) {
+                    $errors[] = "Baris $rowNumber: Status harus 'Close', 'On Progress', atau 'Reguler'";
                     continue;
+                }
+                
+                // Convert status to database format
+                if ($status === 'Reguler') {
+                    $status = 'Close'; // Convert 'Reguler' to 'Close' for database
                 }
 
                 // Find karyawan
@@ -968,6 +1098,9 @@ class RekamMedisController extends Controller
                     'jumlah_keluhan' => 1, // Default
                     'status' => $status,
                 ]);
+                
+                // Debug: Log the waktu_periksa value
+                \Log::info('Row ' . $rowNumber . ': waktu_periksa = ' . $waktuPeriksa);
 
                 // Create keluhan entries for each obat
                 $obatList = [
@@ -988,7 +1121,7 @@ class RekamMedisController extends Controller
                                 'id_keluarga' => $keluarga->id_keluarga,
                                 'id_diagnosa' => $idDiagnosa,
                                 'terapi' => 'Obat',
-                                'keterangan' => $keluhan,
+                                'keterangan' => $anamnesa,
                                 'id_obat' => $obatModel->id_obat,
                                 'jumlah_obat' => is_numeric($obatData['jumlah']) ? $obatData['jumlah'] : null,
                                 'aturan_pakai' => null,
@@ -1007,7 +1140,7 @@ class RekamMedisController extends Controller
                         'id_keluarga' => $keluarga->id_keluarga,
                         'id_diagnosa' => $idDiagnosa,
                         'terapi' => 'Istirahat',
-                        'keterangan' => $keluhan,
+                        'keterangan' => $anamnesa,
                         'id_obat' => null,
                         'jumlah_obat' => null,
                         'aturan_pakai' => null,
