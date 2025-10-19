@@ -115,8 +115,7 @@
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Kode RM</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Pasien</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Diagnosa</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Terapi</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Obat</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Keluhan</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Catatan</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Detail</th>
@@ -131,6 +130,14 @@
                             {{ $rekamMedisEmergency->firstItem() + $index }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            {{ $rm->tanggal_periksa ? $rm->tanggal_periksa->format('d-m-Y') : '-' }}
+                            <br>
+                            <small class="text-gray-500">{{ $rm->tanggal_periksa ? \Carbon\Carbon::parse($rm->tanggal_periksa)->locale('id')->translatedFormat('l') : '-' }}</small>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            {{ $rm->waktu_periksa ? $rm->waktu_periksa->format('H:i') : '-' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             {{ $rm->nik_pasien }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
@@ -140,15 +147,22 @@
                             {{ $rm->no_rm }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                                {{ $rm->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}
-                            </span>
+                            {{ $rm->nama_pasien }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $rm->tanggal_periksa->format('d-m-Y') }}
+                        <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
+                            <div class="truncate" title="{{ $rm->diagnosa }}">
+                                {{ $rm->diagnosa ?: '-' }}
+                            </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $rm->waktu_periksa ? $rm->waktu_periksa->format('H:i') : '-' }}
+                        <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
+                            <div class="truncate" title="{{ $rm->keluhan }}">
+                                {{ $rm->keluhan ?: '-' }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
+                            <div class="truncate" title="{{ $rm->catatan }}">
+                                {{ $rm->catatan ?: '-' }}
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             <div class="status-dropdown" data-id="{{ $rm->id_emergency }}">
@@ -163,9 +177,6 @@
                                 </select>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $rm->user->nama_lengkap ?? '-' }}
-                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
                             <a href="{{ route('rekam-medis-emergency.show', $rm->id_emergency) }}" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,6 +185,9 @@
                                 </svg>
                                 Detail
                             </a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            {{ $rm->user->nama_lengkap ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <div class="flex items-center justify-center space-x-2">

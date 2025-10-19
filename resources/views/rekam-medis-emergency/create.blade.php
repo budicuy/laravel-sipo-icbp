@@ -60,7 +60,7 @@
                         <input type="text" name="no_rm" value="{{ old('no_rm') }}" required
                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                                placeholder="Contoh: 123123-F">
-                        <button type="button" onclick="generateNoRM()" 
+                        <button type="button" onclick="generateNoRM()"
                                 class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
                                 title="Generate No RM">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -180,11 +180,11 @@
 
             <!-- Action Buttons -->
             <div class="flex items-center justify-end gap-3 mt-6">
-                <a href="{{ route('rekam-medis.index') }}" 
+                <a href="{{ route('rekam-medis-emergency.index') }}"
                    class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
                     Batal
                 </a>
-                <button type="submit" 
+                <button type="submit"
                         class="px-6 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />

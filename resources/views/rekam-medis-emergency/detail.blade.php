@@ -19,14 +19,14 @@
                 </div>
             </div>
             <div class="flex gap-3">
-                <a href="{{ route('rekam-medis-emergency.edit', $rekamMedisEmergency->id_emergency) }}" 
+                <a href="{{ route('rekam-medis-emergency.edit', $rekamMedisEmergency->id_emergency) }}"
                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     Edit
                 </a>
-                <a href="{{ route('rekam-medis-emergency.index') }}" 
+                <a href="{{ route('rekam-medis-emergency.index') }}"
                    class="bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -58,7 +58,7 @@
                 </select>
             </div>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
                 <label class="block text-sm font-medium text-gray-500 mb-1">NIK Pasien</label>
@@ -87,8 +87,12 @@
                 <p class="text-gray-900 font-medium">{{ $rekamMedisEmergency->tanggal_periksa->format('d-m-Y') }}</p>
             </div>
             <div>
+                <label class="block text-sm font-medium text-gray-500 mb-1">Waktu Periksa</label>
+                <p class="text-gray-900 font-medium">{{ $rekamMedisEmergency->waktu_periksa ? $rekamMedisEmergency->waktu_periksa->format('H:i') : '-' }}</p>
+            </div>
+            <div>
                 <label class="block text-sm font-medium text-gray-500 mb-1">Status Rekam Medis</label>
-                <span class="px-3 py-1 
+                <span class="px-3 py-1
                     @if($rekamMedisEmergency->status_rekam_medis == 'On Progress') bg-yellow-100 text-yellow-800
                     @elseif($rekamMedisEmergency->status_rekam_medis == 'Close') bg-green-100 text-green-800
                     @endif

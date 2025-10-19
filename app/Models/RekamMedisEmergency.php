@@ -21,6 +21,7 @@ class RekamMedisEmergency extends Model
         'hubungan',
         'jenis_kelamin',
         'tanggal_periksa',
+        'waktu_periksa',
         'status_rekam_medis',
         'diagnosa',
         'keluhan',
@@ -30,6 +31,7 @@ class RekamMedisEmergency extends Model
 
     protected $casts = [
         'tanggal_periksa' => 'date',
+        'waktu_periksa' => 'datetime:H:i:s',
         'status_rekam_medis' => 'string',
         'jenis_kelamin' => 'string',
     ];

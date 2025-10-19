@@ -14,6 +14,7 @@ use App\Http\Controllers\StokObatController;
 use App\Http\Controllers\HargaObatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MonitoringHargaController;
+use App\Http\Controllers\RekamMedisEmergencyController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -125,14 +126,14 @@ Route::middleware('auth')->group(function () {
     ]);
 
     // Rekam Medis Emergency Routes
-    Route::get('/rekam-medis-emergency', [RekamMedisController::class, 'indexEmergency'])->name('rekam-medis-emergency.index');
-    Route::get('/rekam-medis-emergency/create', [RekamMedisController::class, 'createEmergency'])->name('rekam-medis-emergency.create');
-    Route::post('/rekam-medis-emergency', [RekamMedisController::class, 'storeEmergency'])->name('rekam-medis-emergency.store');
-    Route::get('/rekam-medis-emergency/{id}', [RekamMedisController::class, 'show'])->name('rekam-medis-emergency.show');
-    Route::get('/rekam-medis-emergency/{id}/edit', [RekamMedisController::class, 'edit'])->name('rekam-medis-emergency.edit');
-    Route::patch('/rekam-medis-emergency/{id}/update-status', [RekamMedisController::class, 'updateStatus'])->name('rekam-medis-emergency.updateStatus');
-    Route::put('/rekam-medis-emergency/{id}', [RekamMedisController::class, 'update'])->name('rekam-medis-emergency.update');
-    Route::delete('/rekam-medis-emergency/{id}', [RekamMedisController::class, 'destroy'])->name('rekam-medis-emergency.destroy');
+    Route::get('/rekam-medis-emergency', [RekamMedisEmergencyController::class, 'index'])->name('rekam-medis-emergency.index');
+    Route::get('/rekam-medis-emergency/create', [RekamMedisEmergencyController::class, 'create'])->name('rekam-medis-emergency.create');
+    Route::post('/rekam-medis-emergency', [RekamMedisEmergencyController::class, 'store'])->name('rekam-medis-emergency.store');
+    Route::get('/rekam-medis-emergency/{id}', [RekamMedisEmergencyController::class, 'show'])->name('rekam-medis-emergency.show');
+    Route::get('/rekam-medis-emergency/{id}/edit', [RekamMedisEmergencyController::class, 'edit'])->name('rekam-medis-emergency.edit');
+    Route::patch('/rekam-medis-emergency/{id}/update-status', [RekamMedisEmergencyController::class, 'updateStatus'])->name('rekam-medis-emergency.updateStatus');
+    Route::put('/rekam-medis-emergency/{id}', [RekamMedisEmergencyController::class, 'update'])->name('rekam-medis-emergency.update');
+    Route::delete('/rekam-medis-emergency/{id}', [RekamMedisEmergencyController::class, 'destroy'])->name('rekam-medis-emergency.destroy');
 
     // Surat Sakit Routes
     Route::get('/surat-sakit', function () {
