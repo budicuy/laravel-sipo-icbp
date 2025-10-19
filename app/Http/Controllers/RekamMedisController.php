@@ -373,7 +373,7 @@ class RekamMedisController extends Controller
         $search = $request->input('q');
 
         $karyawans = Karyawan::with(['departemen:id_departemen,nama_departemen'])
-            ->select('id_karyawan', 'nik_karyawan', 'nama_karyawan', 'id_departemen')
+            ->select('id_karyawan', 'nik_karyawan', 'nama_karyawan', 'id_departemen', 'foto')
             ->where(function($query) use ($search) {
                 $query->where('nik_karyawan', 'like', "%{$search}%")
                       ->orWhere('nama_karyawan', 'like', "%{$search}%");
@@ -386,6 +386,7 @@ class RekamMedisController extends Controller
                     'nik_karyawan' => $karyawan->nik_karyawan,
                     'nama_karyawan' => $karyawan->nama_karyawan,
                     'nama_departemen' => $karyawan->departemen->nama_departemen ?? '',
+                    'foto' => $karyawan->foto,
                 ];
             });
 
@@ -832,7 +833,7 @@ class RekamMedisController extends Controller
     {
         $cell = $sheet->getCell($column . $row);
         $value = null;
-        
+
         try {
             switch ($dataType) {
                 case 'date':
@@ -856,11 +857,11 @@ class RekamMedisController extends Controller
                         }
                     }
                     break;
-                    
+
                 case 'time':
                     $excelValue = $cell->getValue();
                     $formattedValue = $cell->getFormattedValue();
-                    
+
                     // Method 1: Check if it's a datetime object (for Excel time format)
                     if (\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)) {
                         // Excel stores time as a fraction of a day (e.g., 0.395833 for 09:30)
@@ -877,22 +878,22 @@ class RekamMedisController extends Controller
                     else {
                         // Try to get the formatted value first
                         $rawTime = trim((string) $formattedValue ?? '');
-                        
+
                         // If formatted value is empty, try the raw value
                         if (empty($rawTime)) {
                             $rawTime = trim((string) $excelValue ?? '');
                         }
-                        
+
                         // Replace various separators with colon
                         $rawTime = str_replace(['.', ',', ' '], ':', $rawTime);
-                        
+
                         if (!empty($rawTime)) {
                             $timeObject = \Carbon\Carbon::parse($rawTime);
                             $value = $timeObject->format('H:i:s');
                         }
                     }
                     break;
-                    
+
                 case 'number':
                     $rawValue = $cell->getValue();
                     if (is_numeric($rawValue)) {
@@ -902,12 +903,12 @@ class RekamMedisController extends Controller
                         $value = is_numeric($formattedValue) ? $formattedValue : null;
                     }
                     break;
-                    
+
                 case 'string':
                 default:
                     // Try to get the formatted value first
                     $value = trim((string) $cell->getFormattedValue() ?? '');
-                    
+
                     // If formatted value is empty, try the raw value
                     if (empty($value)) {
                         $value = trim((string) $cell->getValue() ?? '');
@@ -918,7 +919,7 @@ class RekamMedisController extends Controller
             \Log::error("Error reading cell {$column}{$row}: " . $e->getMessage());
             $value = null;
         }
-        
+
         return $value;
     }
 
@@ -958,14 +959,14 @@ class RekamMedisController extends Controller
             // Detect Excel format by checking the headers
             $highestColumn = $sheet->getHighestColumn();
             $isMultiDiagnosaFormat = false;
-            
+
             // Check if the file has the multi-diagnosa format (up to column AD)
             if ($highestColumn >= 'AD') {
                 // Check if the headers match the multi-diagnosa format
                 $headerI = $this->getCellValue($sheet, 'I', 1, 'string');
                 $headerQ = $this->getCellValue($sheet, 'Q', 1, 'string');
                 $headerW = $this->getCellValue($sheet, 'W', 1, 'string');
-                
+
                 // If headers contain "Diagnosa 1", "Diagnosa 2", "Diagnosa 3", it's multi-diagnosa format
                 if (stripos($headerI, 'diagnosa') !== false &&
                     stripos($headerQ, 'diagnosa') !== false &&
@@ -973,10 +974,10 @@ class RekamMedisController extends Controller
                     $isMultiDiagnosaFormat = true;
                 }
             }
-            
+
             // Debug: Log the detected format
             \Log::info("Detected Excel format: " . ($isMultiDiagnosaFormat ? "Multiple Diagnoses" : "Single Diagnosa"));
-            
+
             for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
                 if ($isMultiDiagnosaFormat) {
                     // Process multi-diagnosa format
@@ -1010,7 +1011,7 @@ class RekamMedisController extends Controller
                     // AB: Qyt
                     // AC: Petugas
                     // AD: Status
-                    
+
                     // Read all columns using the helper function
                     $tanggalPeriksa = $this->getCellValue($sheet, 'A', $rowNumber, 'date');
                     $waktuPeriksa = $this->getCellValue($sheet, 'B', $rowNumber, 'time');
@@ -1020,7 +1021,7 @@ class RekamMedisController extends Controller
                     $namaKaryawan = $this->getCellValue($sheet, 'F', $rowNumber, 'string');
                     $kodeRM = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
                     $namaPasien = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
-                    
+
                     // Diagnosa 1 data
                     $diagnosa1 = $this->getCellValue($sheet, 'I', $rowNumber, 'string');
                     $keluhan1 = $this->getCellValue($sheet, 'J', $rowNumber, 'string');
@@ -1030,7 +1031,7 @@ class RekamMedisController extends Controller
                     $jumlahObat1_2 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
                     $obat1_3 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
                     $jumlahObat1_3 = $this->getCellValue($sheet, 'P', $rowNumber, 'number');
-                    
+
                     // Diagnosa 2 data
                     $diagnosa2 = $this->getCellValue($sheet, 'Q', $rowNumber, 'string');
                     $keluhan2 = $this->getCellValue($sheet, 'R', $rowNumber, 'string');
@@ -1038,7 +1039,7 @@ class RekamMedisController extends Controller
                     $jumlahObat2_1 = $this->getCellValue($sheet, 'T', $rowNumber, 'number');
                     $obat2_2 = $this->getCellValue($sheet, 'U', $rowNumber, 'string');
                     $jumlahObat2_2 = $this->getCellValue($sheet, 'V', $rowNumber, 'number');
-                    
+
                     // Diagnosa 3 data
                     $diagnosa3 = $this->getCellValue($sheet, 'W', $rowNumber, 'string');
                     $keluhan3 = $this->getCellValue($sheet, 'X', $rowNumber, 'string');
@@ -1046,10 +1047,10 @@ class RekamMedisController extends Controller
                     $jumlahObat3_1 = $this->getCellValue($sheet, 'Z', $rowNumber, 'number');
                     $obat3_2 = $this->getCellValue($sheet, 'AA', $rowNumber, 'string');
                     $jumlahObat3_2 = $this->getCellValue($sheet, 'AB', $rowNumber, 'number');
-                    
+
                     $petugasKlinik = $this->getCellValue($sheet, 'AC', $rowNumber, 'string');
                     $status = $this->getCellValue($sheet, 'AD', $rowNumber, 'string');
-                    
+
                     // Debug: Log the values
                     \Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
                 } else {
@@ -1074,7 +1075,7 @@ class RekamMedisController extends Controller
                     // R: Qyt
                     // S: Petugas Klinik
                     // T: Status
-                    
+
                     // Read all columns using the helper function
                     $tanggalPeriksa = $this->getCellValue($sheet, 'A', $rowNumber, 'date');
                     $waktuPeriksa = $this->getCellValue($sheet, 'B', $rowNumber, 'time');
@@ -1096,7 +1097,7 @@ class RekamMedisController extends Controller
                     $jumlahObat5 = $this->getCellValue($sheet, 'R', $rowNumber, 'number');
                     $petugasKlinik = $this->getCellValue($sheet, 'S', $rowNumber, 'string');
                     $status = $this->getCellValue($sheet, 'T', $rowNumber, 'string');
-                    
+
                     // Debug: Log the values
                     \Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
                 }
@@ -1194,7 +1195,7 @@ class RekamMedisController extends Controller
                     $errors[] = "Baris $rowNumber: Status harus 'Close', 'On Progress', atau 'Reguler'";
                     continue;
                 }
-                
+
                 // Convert status to database format
                 if ($status === 'Reguler') {
                     $status = 'Close'; // Convert 'Reguler' to 'Close' for database
@@ -1232,28 +1233,28 @@ class RekamMedisController extends Controller
                     'jumlah_keluhan' => 0, // Will be updated later
                     'status' => $status,
                 ]);
-                
+
                 // Debug: Log the waktu_periksa value
                 \Log::info('Row ' . $rowNumber . ': waktu_periksa = ' . $waktuPeriksa);
 
                 // Process data based on format
                 $keluhanCount = 0;
-                
+
                 if ($isMultiDiagnosaFormat) {
                     // Process multiple diagnoses format
-                    
+
                     // Process Diagnosa 1
                     if (!empty($diagnosa1) && $diagnosa1 !== '-') {
                         $diagnosa1Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa1]);
                         $idDiagnosa1 = $diagnosa1Model->id_diagnosa;
-                        
+
                         // Create keluhan entries for each obat in Diagnosa 1
                         $obatList1 = [
                             ['nama' => $obat1_1, 'jumlah' => $jumlahObat1_1],
                             ['nama' => $obat1_2, 'jumlah' => $jumlahObat1_2],
                             ['nama' => $obat1_3, 'jumlah' => $jumlahObat1_3],
                         ];
-                        
+
                         $hasObat = false;
                         foreach ($obatList1 as $obatData) {
                             if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
@@ -1276,7 +1277,7 @@ class RekamMedisController extends Controller
                                 }
                             }
                         }
-                        
+
                         // If no obat found but there's diagnosa, create keluhan without obat
                         if (!$hasObat) {
                             Keluhan::create([
@@ -1292,18 +1293,18 @@ class RekamMedisController extends Controller
                             $keluhanCount++;
                         }
                     }
-                    
+
                     // Process Diagnosa 2
                     if (!empty($diagnosa2) && $diagnosa2 !== '-') {
                         $diagnosa2Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa2]);
                         $idDiagnosa2 = $diagnosa2Model->id_diagnosa;
-                        
+
                         // Create keluhan entries for each obat in Diagnosa 2
                         $obatList2 = [
                             ['nama' => $obat2_1, 'jumlah' => $jumlahObat2_1],
                             ['nama' => $obat2_2, 'jumlah' => $jumlahObat2_2],
                         ];
-                        
+
                         $hasObat = false;
                         foreach ($obatList2 as $obatData) {
                             if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
@@ -1326,7 +1327,7 @@ class RekamMedisController extends Controller
                                 }
                             }
                         }
-                        
+
                         // If no obat found but there's diagnosa, create keluhan without obat
                         if (!$hasObat) {
                             Keluhan::create([
@@ -1342,18 +1343,18 @@ class RekamMedisController extends Controller
                             $keluhanCount++;
                         }
                     }
-                    
+
                     // Process Diagnosa 3
                     if (!empty($diagnosa3) && $diagnosa3 !== '-') {
                         $diagnosa3Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa3]);
                         $idDiagnosa3 = $diagnosa3Model->id_diagnosa;
-                        
+
                         // Create keluhan entries for each obat in Diagnosa 3
                         $obatList3 = [
                             ['nama' => $obat3_1, 'jumlah' => $jumlahObat3_1],
                             ['nama' => $obat3_2, 'jumlah' => $jumlahObat3_2],
                         ];
-                        
+
                         $hasObat = false;
                         foreach ($obatList3 as $obatData) {
                             if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
@@ -1376,7 +1377,7 @@ class RekamMedisController extends Controller
                                 }
                             }
                         }
-                        
+
                         // If no obat found but there's diagnosa, create keluhan without obat
                         if (!$hasObat) {
                             Keluhan::create([
@@ -1394,7 +1395,7 @@ class RekamMedisController extends Controller
                     }
                 } else {
                     // Process single-diagnosa format
-                    
+
                     // Find or create diagnosa
                     $idDiagnosa = null;
                     if (!empty($diagnosa) && $diagnosa !== '-') {

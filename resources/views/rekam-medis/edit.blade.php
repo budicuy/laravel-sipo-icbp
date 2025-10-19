@@ -152,7 +152,7 @@
                     <!-- Info Karyawan (Auto-filled) -->
                     <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg">
                         <h3 class="text-sm font-semibold text-gray-700 mb-2">Informasi Karyawan</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
                                 <span class="text-xs text-gray-500">NIK Karyawan</span>
                                 <p id="info_nik" class="font-medium text-gray-900">{{ $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-' }}</p>
@@ -164,6 +164,20 @@
                             <div>
                                 <span class="text-xs text-gray-500">Departemen</span>
                                 <p id="info_departemen" class="font-medium text-gray-900">{{ $rekamMedis->keluarga->karyawan->departemen->nama_departemen ?? '-' }}</p>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500">Foto Karyawan</span>
+                                <div id="info_foto" class="mt-1">
+                                    @if($rekamMedis->keluarga->karyawan->foto)
+                                        <img id="foto_karyawan" src="/storage/{{ $rekamMedis->keluarga->karyawan->foto }}" alt="Foto Karyawan" class="w-20 h-24 object-cover rounded-lg border border-gray-300" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($rekamMedis->keluarga->karyawan->nama_karyawan ?? 'Unknown') }}&background=6b7280&color=fff&size=80'">
+                                    @else
+                                        <div id="no_foto" class="w-20 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                                            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -387,6 +401,19 @@ function selectKaryawan(karyawan) {
     document.getElementById('info_nama').textContent = karyawan.nama_karyawan;
     document.getElementById('info_departemen').textContent = karyawan.nama_departemen;
 
+    // Update foto karyawan
+    const fotoElement = document.getElementById('foto_karyawan');
+    const noFotoElement = document.getElementById('no_foto');
+
+    if (karyawan.foto) {
+        fotoElement.src = `/storage/${karyawan.foto}`;
+        fotoElement.classList.remove('hidden');
+        noFotoElement.classList.add('hidden');
+    } else {
+        fotoElement.classList.add('hidden');
+        noFotoElement.classList.remove('hidden');
+    }
+
     // Reset patient info fields when karyawan changes
     document.getElementById('nama_pasien').value = '';
     document.getElementById('no_rm').value = '';
@@ -463,7 +490,7 @@ function selectKeluarga() {
         document.getElementById('nama_pasien').value = selectedOption.textContent.split(' (')[0];
         document.getElementById('jenis_kelamin').value = selectedOption.getAttribute('data-jenis-kelamin') || '';
         document.getElementById('hubungan').value = selectedOption.getAttribute('data-hubungan') || '';
-        
+
         // Generate NO RM otomatis dari NIK-Kode Hubungan
         const kodeHubungan = selectedOption.getAttribute('data-kode-hubungan') || '';
         const noRM = generateNoRM(nikKaryawan, kodeHubungan);
@@ -716,7 +743,7 @@ function fillKeluhanWithData(section, keluhanData, index) {
             setTimeout(() => {
                 const checkedBoxes = section.querySelectorAll(`.obat-checkbox[data-keluhan-index="${index}"]:checked`);
                 let obatIndex = 0;
-                
+
                 // Urutkan keluhansUntukDiagnosaIni agar sesuai dengan urutan checkbox yang dicentang
                 const sortedKeluhans = [];
                 checkedBoxes.forEach(checkbox => {
@@ -726,7 +753,7 @@ function fillKeluhanWithData(section, keluhanData, index) {
                         sortedKeluhans.push(matchingKeluhan);
                     }
                 });
-                
+
                 sortedKeluhans.forEach(keluhanObat => {
                     const jumlahInput = section.querySelector(
                         `input[name="keluhan[${index}][obat_list][${obatIndex}][jumlah_obat]"]`
@@ -741,7 +768,7 @@ function fillKeluhanWithData(section, keluhanData, index) {
                     if (aturanInput && keluhanObat.aturan_pakai) {
                         aturanInput.value = keluhanObat.aturan_pakai;
                     }
-                    
+
                     obatIndex++;
                 });
             }, 500); // tunggu hingga detail obat muncul
@@ -866,10 +893,17 @@ function updateObatDetails(keluhanIndex) {
                             </svg>
                             Aturan Pakai
                         </label>
-                        <input type="text"
-                               name="keluhan[${keluhanIndex}][obat_list][${index}][aturan_pakai]"
-                               class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                               placeholder="Contoh: 3x sehari setelah makan">
+                        <select name="keluhan[${keluhanIndex}][obat_list][${index}][aturan_pakai]"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                            <option value="">-- Pilih Aturan Pakai --</option>
+                            <option value="1 x sehari sebelum makan">1 x sehari sebelum makan</option>
+                            <option value="1 x sehari sesudah makan">1 x sehari sesudah makan</option>
+                            <option value="2 x sehari sebelum makan">2 x sehari sebelum makan</option>
+                            <option value="2 x sehari setelah makan">2 x sehari setelah makan</option>
+                            <option value="3 x sehari sebelum makan">3 x sehari sebelum makan</option>
+                            <option value="3 x sehari sesudah makan">3 x sehari sesudah makan</option>
+                            <option value="1 x pakai">1 x pakai</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -957,11 +991,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeNoRM() {
     const nikKaryawan = document.getElementById('info_nik').textContent;
     const selectedKeluarga = document.getElementById('id_keluarga');
-    
+
     if (selectedKeluarga.value && nikKaryawan) {
         const selectedOption = selectedKeluarga.options[selectedKeluarga.selectedIndex];
         const kodeHubungan = selectedOption.getAttribute('data-kode-hubungan') || '';
-        
+
         // Generate NO RM otomatis dari NIK-Kode Hubungan
         const noRM = generateNoRM(nikKaryawan, kodeHubungan);
         document.getElementById('no_rm').value = noRM;
