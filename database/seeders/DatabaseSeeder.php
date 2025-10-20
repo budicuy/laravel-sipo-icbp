@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             DiagnosaSeeder::class,
             KaryawanSeeder::class,
             KeluargaSeeder::class,
+            HargaObatSeeder::class,
         ]);
 
         // Tabel users belum ada, komentari dulu

@@ -359,6 +359,46 @@ class HargaObatPerBulan extends Model
     }
 
     /**
+     * Validasi untuk memastikan tidak ada gap harga dalam rentang waktu tertentu untuk multiple obat sekaligus
+     * Optimized untuk menghindari N+1 query problems
+     *
+     * @param array $obatIds Array of ID obat yang akan divalidasi
+     * @param string $startPeriode Periode awal (format: MM-YY)
+     * @param string $endPeriode Periode akhir (format: MM-YY)
+     * @return array Array dengan key id_obat dan value hasil validasi
+     */
+    public static function validateBulkHargaContinuity($obatIds, $startPeriode, $endPeriode)
+    {
+        $expectedPeriodes = self::generatePeriodeRange($startPeriode, $endPeriode);
+
+        // Bulk fetch all harga data for all obat in one query
+        $allHargaData = self::whereIn('id_obat', $obatIds)
+                           ->whereBetween('periode', [$startPeriode, $endPeriode])
+                           ->orderBy('periode', 'asc')
+                           ->get()
+                           ->groupBy('id_obat');
+
+        $results = [];
+
+        foreach ($obatIds as $idObat) {
+            $periodes = isset($allHargaData[$idObat])
+                ? $allHargaData[$idObat]->pluck('periode')->toArray()
+                : [];
+
+            $missingPeriodes = array_diff($expectedPeriodes, $periodes);
+
+            $results[$idObat] = [
+                'has_gap' => !empty($missingPeriodes),
+                'missing_periodes' => $missingPeriodes,
+                'total_expected' => count($expectedPeriodes),
+                'total_found' => count($periodes)
+            ];
+        }
+
+        return $results;
+    }
+
+    /**
      * Mengenerate array periode dari rentang tertentu
      *
      * @param string $startPeriode Periode awal (format: MM-YY)

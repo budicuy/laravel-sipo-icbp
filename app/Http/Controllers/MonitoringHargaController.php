@@ -78,24 +78,34 @@ class MonitoringHargaController extends Controller
         $endPeriode = now()->format('m-y');
         $startPeriode = HargaObatPerBulan::getPeriodeMonthsAgo(6); // Check 6 months back
 
+        // Get all obat IDs first
+        $allObatIds = Obat::pluck('id_obat')->toArray();
+
+        // Bulk validate all obat at once to avoid N+1 queries
+        $bulkValidation = HargaObatPerBulan::validateBulkHargaContinuity(
+            $allObatIds,
+            $startPeriode,
+            $endPeriode
+        );
+
+        // Get obat data only for those with gaps
+        $obatIdsWithGaps = array_keys(array_filter($bulkValidation, function($validation) {
+            return $validation['has_gap'];
+        }));
+
+        if (empty($obatIdsWithGaps)) {
+            return collect([]);
+        }
+
+        // Get obat details only for those with gaps
+        $obatWithGapsData = Obat::whereIn('id_obat', $obatIdsWithGaps)->get();
+
         $obatWithGaps = [];
-
-        // Get all obat
-        $allObat = Obat::all();
-
-        foreach ($allObat as $obat) {
-            $validation = HargaObatPerBulan::validateHargaContinuity(
-                $obat->id_obat,
-                $startPeriode,
-                $endPeriode
-            );
-
-            if ($validation['has_gap']) {
-                $obatWithGaps[] = [
-                    'obat' => $obat,
-                    'validation' => $validation
-                ];
-            }
+        foreach ($obatWithGapsData as $obat) {
+            $obatWithGaps[] = [
+                'obat' => $obat,
+                'validation' => $bulkValidation[$obat->id_obat]
+            ];
         }
 
         return collect($obatWithGaps);
