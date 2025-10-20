@@ -36,7 +36,7 @@
                     </svg>
                 </div>
                 <div class="ml-3 flex-1">
-                    <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
+                    <h3 class="text-sm text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
                     <div class="mt-2">
                         @foreach($errors->all() as $error)
                             <div class="flex items-center py-1">
@@ -280,6 +280,21 @@
                                 </svg>
                             </div>
                             <input type="date" id="tanggal_periksa" name="tanggal_periksa" value="{{ old('tanggal_periksa', $rekamMedis->tanggal_periksa->format('Y-m-d')) }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                        </div>
+                    </div>
+
+                    <!-- Waktu Periksa -->
+                    <div>
+                        <label for="waktu_periksa" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Waktu Periksa <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <input type="time" id="waktu_periksa" name="waktu_periksa" value="{{ old('waktu_periksa', $rekamMedis->waktu_periksa) }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
                         </div>
                     </div>
 
@@ -1083,6 +1098,13 @@ function performValidation() {
     const tanggalInput = form.querySelector('#tanggal_periksa');
     if (!tanggalInput.value) {
         showFieldError(tanggalInput);
+        isValid = false;
+    }
+
+    // Validate waktu periksa
+    const waktuInput = form.querySelector('#waktu_periksa');
+    if (!waktuInput.value) {
+        showFieldError(waktuInput);
         isValid = false;
     }
 

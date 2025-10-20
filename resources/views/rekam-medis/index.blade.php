@@ -198,10 +198,19 @@
                                     }
                                 }
                             @endphp
-                            {{ implode(', ', $uniqueObat) }}
+                            {{ !empty($uniqueObat) ? implode(', ', $uniqueObat) : '-' }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                                {{ Str::limit($keluhan->keterangan ?? '', 50) }}
+                            @php
+                                $keteranganText = '';
+                                foreach($rm->keluhans as $keluhan) {
+                                    if(!empty($keluhan->keterangan)) {
+                                        $keteranganText = $keluhan->keterangan;
+                                        break;
+                                    }
+                                }
+                            @endphp
+                            {{ !empty($keteranganText) ? Str::limit($keteranganText, 50) : '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             <div class="status-dropdown" data-id="{{ $rm->id_rekam }}">
