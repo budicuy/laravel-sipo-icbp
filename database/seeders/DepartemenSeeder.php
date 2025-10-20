@@ -25,7 +25,7 @@ class DepartemenSeeder extends Seeder
             ['nama_departemen' => 'R&D QC/QA'],
             ['nama_departemen' => 'MKT Sales&Distr'],
             ['nama_departemen' => 'MFG Technical'],
-            ['nama_departemen' => 'ADM Fin. & Acct.'],
+            ['nama_departemen' => 'ADM Fin.& Acct.'],
             ['nama_departemen' => 'MFG PPIC'],
             ['nama_departemen' => 'Outsouching'],
         ];

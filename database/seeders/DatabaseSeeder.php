@@ -15,12 +15,15 @@ class DatabaseSeeder extends Seeder
     {
         // Seeder untuk master data
         $this->call([
-            // DepartemenSeeder::class,
+            DepartemenSeeder::class,
             SatuanObatSeeder::class,
             HubunganSeeder::class,
             UserSeeder::class,
+            ObatSeeder::class,
+            DiagnosaSeeder::class,
+            KaryawanSeeder::class,
+            KeluargaSeeder::class,
         ]);
-
 
         // Tabel users belum ada, komentari dulu
         // User::factory()->create([
