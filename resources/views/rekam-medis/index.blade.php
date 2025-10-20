@@ -201,9 +201,7 @@
                             {{ implode(', ', $uniqueObat) }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @foreach($rm->keluhans as $keluhan)
-                                {{ Str::limit($keluhan->keterangan ?? '', 50) }}@if(!$loop->last)<br>@endif
-                            @endforeach
+                                {{ Str::limit($keluhan->keterangan ?? '', 50) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             <div class="status-dropdown" data-id="{{ $rm->id_rekam }}">
