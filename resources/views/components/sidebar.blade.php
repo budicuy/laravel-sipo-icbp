@@ -1,15 +1,20 @@
-<aside class="bg-gradient-to-b from-white to-gray-50 flex-shrink-0 transition-all duration-300 border-r border-gray-200" :class="sidebarOpen ? 'w-64' : 'w-20'">
+<aside class="bg-gradient-to-b from-white to-gray-50 flex-shrink-0 transition-all duration-300 border-r border-gray-200"
+       :class="sidebarOpen ? 'w-64' : 'w-20'"
+       x-data="{
+           activeMenu: '{{ request()->segment(1) ?? 'dashboard' }}',
+           hasValidToken: {{ session('valid_emergency_token') ? 'true' : 'false' }}
+       }">
     <div class="h-full flex flex-col">
         <!-- Logo & Toggle -->
         <div class="flex items-center justify-between h-20 border-b border-gray-200 px-4 bg-white">
-            <div class="flex items-center gap-3" x-show="sidebarOpen">
+            <div class="flex items-center gap-3" x-show="sidebarOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
                 <img src="{{ asset('logo.png') }}" alt="ICBP Logo" class="h-10 w-auto transition-all duration-300">
             </div>
-            <img src="{{ asset('logo.png') }}" alt="ICBP Logo" class="h-8 w-auto mx-auto" x-show="!sidebarOpen">
+            <img src="{{ asset('logo.png') }}" alt="ICBP Logo" class="h-8 w-auto mx-auto" x-show="!sidebarOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
         </div>
 
         <!-- Navigation Menu -->
-        <nav class="flex-1 overflow-y-auto py-6 px-3" x-data="{ activeMenu: '{{ request()->segment(1) ?? 'dashboard' }}' }">
+        <nav class="flex-1 overflow-y-auto py-6 px-3">
             <ul class="space-y-2">
                 <!-- Dashboard -->
                 <li>
@@ -108,17 +113,12 @@
                         x-transition:leave-end="opacity-0 -translate-y-2"
                         class="mt-2 ml-12 space-y-1 border-l-2 border-green-200 pl-4">
                         <li>
-                            <a href="{{ route('rekam-medis.create') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('rekam-medis.create') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
+                            <a href="{{ route('rekam-medis.chooseType') }}"
+                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('rekam-medis.chooseType') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
                                 Tambah Rekam Medis
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('rekam-medis-emergency.create') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('rekam-medis-emergency.create') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                Tambah Rekam Medis Emergency
-                            </a>
-                        </li>
+
                         <li>
                             <a href="{{ route('rekam-medis.index') }}"
                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('rekam-medis.index') || request()->routeIs('rekam-medis.detail') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
@@ -131,6 +131,14 @@
                                 Daftar Rekam Medis Emergency
                             </a>
                         </li>
+                        @if(auth()->user()->role === 'Super Admin')
+                        <li>
+                            <a href="{{ route('token-emergency.index') }}"
+                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
+                                Kelola Token Emergency
+                            </a>
+                        </li>
+                        @endif
                         <li>
                             <a href="{{ route('surat-sakit.create') }}"
                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('surat-sakit*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">

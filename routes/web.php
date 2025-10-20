@@ -15,6 +15,7 @@ use App\Http\Controllers\HargaObatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MonitoringHargaController;
 use App\Http\Controllers\RekamMedisEmergencyController;
+use App\Http\Controllers\TokenEmergencyController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -118,12 +119,22 @@ Route::middleware('auth')->group(function () {
     Route::patch('/rekam-medis/{id}/update-status', [RekamMedisController::class, 'updateStatus'])->name('rekam-medis.updateStatus');
     Route::get('/rekam-medis/template', [RekamMedisController::class, 'downloadTemplate'])->name('rekam-medis.template');
     Route::post('/rekam-medis/import', [RekamMedisController::class, 'import'])->name('rekam-medis.import');
+    Route::get('/rekam-medis/choose-type', [RekamMedisController::class, 'chooseType'])->name('rekam-medis.chooseType');
     Route::get('/rekam-medis/create-emergency', [RekamMedisController::class, 'createEmergency'])->name('rekam-medis.createEmergency');
     Route::post('/rekam-medis/store-emergency', [RekamMedisController::class, 'storeEmergency'])->name('rekam-medis.storeEmergency');
     // Rekam Medis Resource Routes
     Route::resource('rekam-medis', RekamMedisController::class)->parameters([
         'rekam-medis' => 'id_rekam'
     ]);
+
+    // Token Emergency Routes
+    Route::get('/token-emergency', [TokenEmergencyController::class, 'index'])->name('token-emergency.index');
+    Route::get('/token-emergency/create', [TokenEmergencyController::class, 'create'])->name('token-emergency.create');
+    Route::post('/token-emergency/generate', [TokenEmergencyController::class, 'generate'])->name('token-emergency.generate');
+    Route::get('/token-emergency/validate', [TokenEmergencyController::class, 'validateForm'])->name('token-emergency.validate');
+    Route::post('/token-emergency/validate', [TokenEmergencyController::class, 'validateToken'])->name('token-emergency.validate.token');
+    Route::delete('/token-emergency/{id}', [TokenEmergencyController::class, 'destroy'])->name('token-emergency.destroy');
+    Route::post('/token-emergency/clear', [TokenEmergencyController::class, 'clearToken'])->name('token-emergency.clear');
 
     // Rekam Medis Emergency Routes
     Route::get('/rekam-medis-emergency', [RekamMedisEmergencyController::class, 'index'])->name('rekam-medis-emergency.index');
