@@ -38,8 +38,6 @@ class KeluargaSeeder extends Seeder
                     $successCount = 0;
                     $errorCount = 0;
                     $errors = [];
-                    $batchData = [];
-                    $batchSize = 500; // Process in batches to avoid memory issues
 
                     // Process data rows (skip header row)
                     for ($rowNumber = 1; $rowNumber < count($csvData); $rowNumber++) {
@@ -108,33 +106,24 @@ class KeluargaSeeder extends Seeder
                         // Generate no_rm (nomor rekam medis) if needed
                         $noRm = 'RM-' . date('Ym') . '-' . str_pad($successCount + 1, 4, '0', STR_PAD_LEFT);
 
-                        // Add to batch data
-                        $batchData[] = [
-                            'id_karyawan' => $idKaryawan,
-                            'nama_keluarga' => $namaKeluarga,
-                            'tanggal_lahir' => $tanggalLahirParsed,
-                            'jenis_kelamin' => $jenisKelamin,
-                            'alamat' => $alamat,
-                            'tanggal_daftar' => now(),
-                            'no_rm' => $noRm,
-                            'kode_hubungan' => $kodeHubungan,
-                            'bpjs_id' => $bpjsId,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ];
-
-                        // Insert batch when it reaches batch size
-                        if (count($batchData) >= $batchSize) {
-                            $this->insertBatch($batchData);
-                            $successCount += count($batchData);
-                            $batchData = [];
+                        // Create keluarga record using Eloquent
+                        try {
+                            Keluarga::create([
+                                'id_karyawan' => $idKaryawan,
+                                'nama_keluarga' => $namaKeluarga,
+                                'tanggal_lahir' => $tanggalLahirParsed,
+                                'jenis_kelamin' => $jenisKelamin,
+                                'alamat' => $alamat,
+                                'tanggal_daftar' => now(),
+                                'no_rm' => $noRm,
+                                'kode_hubungan' => $kodeHubungan,
+                                'bpjs_id' => $bpjsId,
+                            ]);
+                            $successCount++;
+                        } catch (\Exception $e) {
+                            $errors[] = "Baris " . ($rowNumber + 1) . ": Error creating record - " . $e->getMessage();
+                            $errorCount++;
                         }
-                    }
-
-                    // Insert remaining data
-                    if (!empty($batchData)) {
-                        $this->insertBatch($batchData);
-                        $successCount += count($batchData);
                     }
 
                     $this->command->info("Import data keluarga selesai: $successCount data berhasil diproses");
@@ -158,25 +147,6 @@ class KeluargaSeeder extends Seeder
             DB::rollBack();
             $this->command->error('Error importing keluarga: ' . $e->getMessage());
             Log::error('Error importing keluarga: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Insert batch data to database
-     */
-    private function insertBatch($data)
-    {
-        try {
-            DB::table('keluarga')->insert($data);
-        } catch (\Exception $e) {
-            // If batch insert fails, try individual inserts
-            foreach ($data as $item) {
-                try {
-                    DB::table('keluarga')->insert($item);
-                } catch (\Exception $e2) {
-                    Log::error('Error inserting individual keluarga record: ' . $e2->getMessage());
-                }
-            }
         }
     }
 
