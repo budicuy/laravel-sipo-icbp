@@ -52,43 +52,6 @@ class TokenEmergencyController extends Controller
             ->with('success', "Berhasil generate {$request->count} token emergency dengan panjang {$request->length} digit.");
     }
 
-    /**
-     * Show the form for token validation.
-     */
-    public function validateForm()
-    {
-        return view('token-emergency.validate');
-    }
-
-    /**
-     * Validate and use token.
-     */
-    public function validateToken(Request $request)
-    {
-        $request->validate([
-            'token' => 'required|string|digits_between:4,6'
-        ]);
-
-        $token = TokenEmergency::isValidToken($request->token);
-
-        if (!$token) {
-            // Always return JSON response for AJAX requests
-            return response()->json([
-                'success' => false,
-                'message' => 'Token tidak valid atau sudah digunakan.'
-            ], 422);
-        }
-
-        // Simpan token yang valid ke session
-        Session::put('valid_emergency_token', $token->token);
-
-        // Always return JSON response for AJAX requests
-        return response()->json([
-            'success' => true,
-            'message' => 'Token valid! Anda dapat menambahkan rekam medis emergency.',
-            'redirect_url' => route('rekam-medis-emergency.create')
-        ]);
-    }
 
     /**
      * Remove the specified resource from storage.

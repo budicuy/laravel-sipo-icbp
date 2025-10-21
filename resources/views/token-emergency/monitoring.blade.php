@@ -32,7 +32,6 @@
                 <h3 class="text-sm font-medium text-red-800">Peringatan: Token Rendah</h3>
                 <p class="text-sm text-red-700 mt-1">
                     Ada {{ $usersWithLowTokens->count() }} pengguna dengan token kurang dari 5.
-                    <button onclick="showTab('overview')" class="underline font-medium text-red-800 hover:text-red-900">Lihat daftar pengguna</button>
                 </p>
             </div>
         </div>
@@ -290,12 +289,6 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
                                 Generate Token
-                            </a>
-                            <a href="{{ route('token-emergency.validate') }}" class="px-3 py-1.5 bg-white text-purple-600 hover:bg-purple-50 text-sm font-medium rounded-lg shadow transition-all">
-                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                Validasi Token
                             </a>
                         </div>
                     </div>
