@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Audit Trail Token Emergency')
+@section('title', 'Riwayat Token Emergency')
 
 @section('content')
 <div class="p-6 bg-gray-50 min-h-screen">
@@ -13,7 +13,7 @@
                 </svg>
             </div>
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Audit Trail Token Emergency</h1>
+                <h1 class="text-3xl font-bold text-gray-900">Riwayat Token Emergency</h1>
                 <p class="text-gray-600 mt-1">Riwayat penggunaan dan manajemen token emergency</p>
             </div>
         </div>
@@ -81,7 +81,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                Riwayat Audit Trail
+                Riwayat
             </h2>
         </div>
 

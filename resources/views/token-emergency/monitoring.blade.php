@@ -32,7 +32,6 @@
                 <h3 class="text-sm font-medium text-red-800">Peringatan: Token Rendah</h3>
                 <p class="text-sm text-red-700 mt-1">
                     Ada {{ $usersWithLowTokens->count() }} pengguna dengan token kurang dari 5.
-                    <a href="#" class="underline font-medium">Lihat daftar pengguna</a>
                 </p>
             </div>
         </div>

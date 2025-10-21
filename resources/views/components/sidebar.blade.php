@@ -137,7 +137,7 @@
                                 Daftar Rekam Medis Emergency
                             </a>
                         </li>
-                        @if(auth()->user()->role === 'Super Admin')
+                        @if(auth()->user()->role === 'Super Admin' || auth()->user()->role === 'Admin')
                         <li>
                             <a href="{{ route('token-emergency.index') }}"
                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.index') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
