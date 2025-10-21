@@ -389,8 +389,8 @@
 </div>
 
 <!-- Reject Modal -->
-<div id="rejectModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+<div id="rejectModal" class="fixed inset-0 backdrop-blur-md overflow-y-auto h-full w-full z-[60] hidden flex items-center justify-center">
+    <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3 text-center">
             <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                 <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -423,8 +423,8 @@
 </div>
 
 <!-- All Requests Modal -->
-<div id="allRequestsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 hidden">
-    <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+<div id="allRequestsModal" class="fixed inset-0 backdrop-blur-md overflow-y-auto h-full w-full z-50 hidden flex items-center justify-center">
+    <div class="relative mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">Semua Permintaan Token</h3>
@@ -455,15 +455,108 @@
     </div>
 </div>
 
+<style>
+.modal-backdrop {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    animation: zoomOut 0.3s ease-out;
+}
+
+.modal-close {
+    animation: fadeOut 0.3s ease-out;
+}
+
+.modal-content-close {
+    animation: zoomIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes zoomOut {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+</style>
+
 <script>
 function showRejectModal(requestId) {
+    const modal = document.getElementById('rejectModal');
+    const backdrop = modal;
+    const content = modal.querySelector('.relative');
+    const allRequestsModal = document.getElementById('allRequestsModal');
+
     document.getElementById('request_id').value = requestId;
     document.getElementById('rejectForm').action = `/token-emergency/reject-request/${requestId}`;
-    document.getElementById('rejectModal').classList.remove('hidden');
+
+    // Hide the all requests modal first if it's open
+    if (allRequestsModal && !allRequestsModal.classList.contains('hidden')) {
+        allRequestsModal.classList.add('hidden');
+    }
+
+    // Reset classes
+    backdrop.classList.remove('hidden', 'modal-close');
+    content.classList.remove('modal-content-close');
+
+    // Add animation classes
+    backdrop.classList.add('modal-backdrop');
+    content.classList.add('modal-content');
+
+    // Remove animation classes after animation completes
+    setTimeout(() => {
+        backdrop.classList.remove('modal-backdrop');
+        content.classList.remove('modal-content');
+    }, 300);
 }
 
 function closeRejectModal() {
-    document.getElementById('rejectModal').classList.add('hidden');
+    const modal = document.getElementById('rejectModal');
+    const backdrop = modal;
+    const content = modal.querySelector('.relative');
+
+    // Add close animation classes
+    backdrop.classList.add('modal-close');
+    content.classList.add('modal-content-close');
+
+    // Hide modal after animation completes
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        backdrop.classList.remove('modal-close');
+        content.classList.remove('modal-content-close');
+
+        // Show the all requests modal again if it was hidden
+        const allRequestsModal = document.getElementById('allRequestsModal');
+        if (allRequestsModal && allRequestsModal.dataset.wasOpen === 'true') {
+            allRequestsModal.classList.remove('hidden');
+            allRequestsModal.dataset.wasOpen = 'false';
+        }
+    }, 300);
 }
 
 function showAllRequestsModal() {
@@ -522,7 +615,6 @@ function showAllRequestsModal() {
                                 <button onclick="showRejectModal(${request.id_token})"
                                         class="bg-red-600 text-white text-xs rounded px-3 py-1.5 hover:bg-red-700 transition-colors">
                                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                     Tolak
@@ -546,7 +638,23 @@ function showAllRequestsModal() {
                 tbody.appendChild(row);
             }
 
-            document.getElementById('allRequestsModal').classList.remove('hidden');
+            const modal = document.getElementById('allRequestsModal');
+            const backdrop = modal;
+            const content = modal.querySelector('.relative');
+
+            // Reset classes
+            backdrop.classList.remove('hidden', 'modal-close');
+            content.classList.remove('modal-content-close');
+
+            // Add animation classes
+            backdrop.classList.add('modal-backdrop');
+            content.classList.add('modal-content');
+
+            // Remove animation classes after animation completes
+            setTimeout(() => {
+                backdrop.classList.remove('modal-backdrop');
+                content.classList.remove('modal-content');
+            }, 300);
         })
         .catch(error => {
             console.error('Error fetching requests:', error);
@@ -554,7 +662,20 @@ function showAllRequestsModal() {
 }
 
 function closeAllRequestsModal() {
-    document.getElementById('allRequestsModal').classList.add('hidden');
+    const modal = document.getElementById('allRequestsModal');
+    const backdrop = modal;
+    const content = modal.querySelector('.relative');
+
+    // Add close animation classes
+    backdrop.classList.add('modal-close');
+    content.classList.add('modal-content-close');
+
+    // Hide modal after animation completes
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        backdrop.classList.remove('modal-close');
+        content.classList.remove('modal-content-close');
+    }, 300);
 }
 
 function showTab(tabName) {

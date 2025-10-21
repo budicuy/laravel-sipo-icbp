@@ -17,6 +17,7 @@ class TokenEmergency extends Model
         'status',
         'id_user',
         'used_at',
+        'used_by',
         'generated_by',
         'requested_by',
         'request_quantity',
@@ -128,6 +129,14 @@ class TokenEmergency extends Model
     }
 
     /**
+     * Relasi ke user (user yang menggunakan token)
+     */
+    public function usedBy()
+    {
+        return $this->belongsTo(User::class, 'used_by', 'id_user');
+    }
+
+    /**
      * Get available tokens count for a user
      */
     public static function getAvailableTokensCount($userId = null)
@@ -180,7 +189,7 @@ class TokenEmergency extends Model
      */
     public static function getAuditTrail()
     {
-        return self::with(['user', 'generator', 'requester', 'approver'])
+        return self::with(['user', 'generator', 'requester', 'approver', 'usedBy'])
             ->orderBy('created_at', 'desc')
             ->get();
     }

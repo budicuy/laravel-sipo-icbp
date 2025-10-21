@@ -82,6 +82,41 @@ class TokenEmergencyController extends Controller
     }
 
     /**
+     * Validate token via AJAX
+     */
+    public function validateToken(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string|exists:token_emergency,token'
+        ]);
+
+        $token = TokenEmergency::where('token', $request->token)
+            ->where('status', TokenEmergency::STATUS_AVAILABLE)
+            ->first();
+
+        if (!$token) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token tidak valid atau sudah digunakan.'
+            ], 400);
+        }
+
+        // Mark token as used
+        $token->status = TokenEmergency::STATUS_USED;
+        $token->used_at = now();
+        $token->used_by = Auth::id();
+        $token->save();
+
+        // Store valid token in session
+        session(['valid_emergency_token' => $token->token]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Token berhasil divalidasi.'
+        ]);
+    }
+
+    /**
      * Show token request form.
      */
     public function requestForm()
@@ -268,7 +303,19 @@ class TokenEmergencyController extends Controller
         $tokens = TokenEmergency::getUserTokens($userId);
         $availableTokensCount = TokenEmergency::getAvailableTokensCount($userId);
 
-        return view('token-emergency.my-tokens', compact('tokens', 'availableTokensCount'));
+        // Check if user has pending request
+        $hasPendingRequest = TokenEmergency::where('requested_by', $userId)
+            ->where('request_status', TokenEmergency::REQUEST_STATUS_PENDING)
+            ->exists();
+
+        // Get rejected requests with their details
+        $rejectedRequests = TokenEmergency::where('requested_by', $userId)
+            ->where('request_status', TokenEmergency::REQUEST_STATUS_REJECTED)
+            ->orderBy('request_approved_at', 'desc')
+            ->take(5) // Show last 5 rejected requests
+            ->get();
+
+        return view('token-emergency.my-tokens', compact('tokens', 'availableTokensCount', 'hasPendingRequest', 'rejectedRequests'));
     }
 
     /**
@@ -308,7 +355,7 @@ class TokenEmergencyController extends Controller
         $perPage = request('per_page', 20);
         $page = request('page', 1);
 
-        $tokens = TokenEmergency::with(['user', 'generator'])
+        $tokens = TokenEmergency::with(['user', 'generator', 'usedBy'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -356,7 +403,7 @@ class TokenEmergencyController extends Controller
         $perPage = request('per_page', 20);
         $page = request('page', 1);
 
-        $tokens = TokenEmergency::with(['user', 'generator'])
+        $tokens = TokenEmergency::with(['user', 'generator', 'usedBy'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
