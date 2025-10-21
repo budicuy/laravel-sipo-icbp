@@ -136,6 +136,23 @@ Route::middleware('auth')->group(function () {
     Route::delete('/token-emergency/{id}', [TokenEmergencyController::class, 'destroy'])->name('token-emergency.destroy');
     Route::post('/token-emergency/clear', [TokenEmergencyController::class, 'clearToken'])->name('token-emergency.clear');
 
+    // Token Request Routes
+    Route::get('/token-emergency/request', [TokenEmergencyController::class, 'requestForm'])->name('token-emergency.request');
+    Route::post('/token-emergency/request', [TokenEmergencyController::class, 'storeRequest'])->name('token-emergency.storeRequest');
+
+    // User Token Management Routes
+    Route::get('/token-emergency/my-tokens', [TokenEmergencyController::class, 'myTokens'])->name('token-emergency.my-tokens');
+
+    // Token Management Routes (Admin/Super Admin only)
+    Route::middleware(['auth', 'role:Admin,Super Admin'])->group(function () {
+        Route::get('/token-emergency/pending-requests', [TokenEmergencyController::class, 'pendingRequests'])->name('token-emergency.pending-requests');
+        Route::post('/token-emergency/approve-request/{id}', [TokenEmergencyController::class, 'approveRequest'])->name('token-emergency.approve-request');
+        Route::post('/token-emergency/reject-request/{id}', [TokenEmergencyController::class, 'rejectRequest'])->name('token-emergency.reject-request');
+        Route::get('/token-emergency/monitoring', [TokenEmergencyController::class, 'monitoring'])->name('token-emergency.monitoring');
+        Route::get('/token-emergency/audit-trail', [TokenEmergencyController::class, 'auditTrail'])->name('token-emergency.audit-trail');
+        Route::get('/token-emergency/user-profile/{userId}', [TokenEmergencyController::class, 'userProfile'])->name('token-emergency.user-profile');
+    });
+
     // Rekam Medis Emergency Routes
     Route::get('/rekam-medis-emergency', [RekamMedisEmergencyController::class, 'index'])->name('rekam-medis-emergency.index');
     Route::get('/rekam-medis-emergency/create', [RekamMedisEmergencyController::class, 'create'])->name('rekam-medis-emergency.create');

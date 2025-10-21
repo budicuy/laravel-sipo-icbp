@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\TokenEmergency;
 
 class User extends Authenticatable
 {
@@ -132,5 +133,13 @@ class User extends Authenticatable
     public function isActive()
     {
         return $this->is_active ?? true;
+    }
+
+    /**
+     * Relasi ke Token Emergency
+     */
+    public function tokens()
+    {
+        return $this->hasMany(TokenEmergency::class, 'id_user', 'id_user');
     }
 }

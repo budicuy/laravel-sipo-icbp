@@ -109,6 +109,40 @@
                         </div>
                         <p class="mt-2 text-sm text-gray-500">Pilih panjang token (4-6 digit)</p>
                     </div>
+
+                    <div>
+                        <label for="user_id" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Tetapkan ke Pengguna
+                        </label>
+                        <div class="relative">
+                            <select id="user_id" name="user_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none bg-white">
+                                <option value="">-- Tidak ditetapkan (Umum) --</option>
+                                @foreach($users as $user)
+                                <option value="{{ $user->id_user }}" {{ request('user_id') == $user->id_user ? 'selected' : '' }}>
+                                    {{ $user->nama_lengkap }} ({{ $user->username }})
+                                </option>
+                                @endforeach
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Opsional: Tetapkan token ke pengguna spesifik</p>
+                    </div>
+
+                    <div>
+                        <label for="notes" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Catatan
+                        </label>
+                        <textarea id="notes"
+                                  name="notes"
+                                  rows="3"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                  placeholder="Tambahkan catatan untuk token ini..."></textarea>
+                        <p class="mt-2 text-sm text-gray-500">Opsional: Tambahkan catatan untuk token ini</p>
+                    </div>
                 </div>
 
                 <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
