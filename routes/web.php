@@ -144,6 +144,11 @@ Route::middleware('auth')->group(function () {
     // User Token Management Routes
     Route::get('/token-emergency/my-tokens', [TokenEmergencyController::class, 'myTokens'])->name('token-emergency.my-tokens');
 
+    // API Routes for Token Emergency
+    Route::get('/api/token-emergency/pending-requests', [TokenEmergencyController::class, 'apiPendingRequests'])->name('token-emergency.api.pending-requests');
+    Route::get('/api/token-emergency/audit-trail', [TokenEmergencyController::class, 'apiAuditTrail'])->name('token-emergency.api.audit-trail');
+    Route::get('/api/token-emergency/manage-tokens', [TokenEmergencyController::class, 'apiManageTokens'])->name('token-emergency.api.manage-tokens');
+
     // Token Management Routes (Admin/Super Admin only)
     Route::middleware(['auth', 'role:Admin,Super Admin'])->group(function () {
         Route::get('/token-emergency/pending-requests', [TokenEmergencyController::class, 'pendingRequests'])->name('token-emergency.pending-requests');

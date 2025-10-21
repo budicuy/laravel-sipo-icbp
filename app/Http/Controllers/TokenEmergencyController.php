@@ -16,11 +16,8 @@ class TokenEmergencyController extends Controller
      */
     public function index()
     {
-        $tokens = TokenEmergency::with(['user', 'generator', 'requester'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
-
-        return view('token-emergency.index', compact('tokens'));
+        // Redirect to monitoring page since the index page is removed
+        return redirect()->route('token-emergency.monitoring');
     }
 
     /**
@@ -51,7 +48,7 @@ class TokenEmergencyController extends Controller
             Auth::id()
         );
 
-        return redirect()->route('token-emergency.index')
+        return redirect()->route('token-emergency.monitoring')
             ->with('success', "Berhasil generate {$request->count} token emergency dengan panjang {$request->length} digit.");
     }
 
@@ -107,7 +104,7 @@ class TokenEmergencyController extends Controller
 
         $token->delete();
 
-        return redirect()->route('token-emergency.index')
+        return redirect()->route('token-emergency.monitoring')
             ->with('success', 'Token berhasil dihapus.');
     }
 
@@ -309,5 +306,114 @@ class TokenEmergencyController extends Controller
         $availableTokensCount = TokenEmergency::getAvailableTokensCount($userId);
 
         return view('token-emergency.my-tokens', compact('tokens', 'availableTokensCount'));
+    }
+
+    /**
+     * API endpoint to get all pending requests
+     */
+    public function apiPendingRequests()
+    {
+        $pendingRequests = TokenEmergency::with('requester')
+            ->where('request_status', TokenEmergency::REQUEST_STATUS_PENDING)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $formattedRequests = $pendingRequests->map(function ($request) {
+            return [
+                'id_token' => $request->id_token,
+                'requester' => [
+                    'nama_lengkap' => $request->requester->nama_lengkap,
+                    'username' => $request->requester->username
+                ],
+                'request_quantity' => $request->request_quantity,
+                'notes' => $request->notes,
+                'created_at_formatted' => $request->created_at->format('d/m/Y H:i'),
+                'time_ago' => $request->created_at->diffForHumans()
+            ];
+        });
+
+        return response()->json([
+            'requests' => $formattedRequests
+        ]);
+    }
+
+    /**
+     * API endpoint to get audit trail data
+     */
+    public function apiAuditTrail()
+    {
+        $tokens = TokenEmergency::with(['user', 'generator'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $formattedTokens = $tokens->map(function ($token) {
+            return [
+                'id_token' => $token->id_token,
+                'token' => $token->token,
+                'user' => $token->user ? [
+                    'nama_lengkap' => $token->user->nama_lengkap,
+                    'username' => $token->user->username
+                ] : null,
+                'generator' => $token->generator ? [
+                    'nama_lengkap' => $token->generator->nama_lengkap,
+                    'username' => $token->generator->username
+                ] : null,
+                'status' => $token->status,
+                'status_badge' => $token->status_badge,
+                'created_at_formatted' => $token->created_at->format('d/m/Y H:i'),
+                'used_at_formatted' => $token->used_at ? $token->used_at->format('d/m/Y H:i') : null,
+                'time_ago' => $token->created_at->diffForHumans(),
+                'notes' => $token->notes
+            ];
+        });
+
+        return response()->json([
+            'tokens' => $formattedTokens
+        ]);
+    }
+
+    /**
+     * API endpoint to get tokens for management
+     */
+    public function apiManageTokens()
+    {
+        $perPage = request('per_page', 20);
+        $tokens = TokenEmergency::with(['user', 'generator'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        $formattedTokens = $tokens->getCollection()->map(function ($token) {
+            return [
+                'id_token' => $token->id_token,
+                'token' => $token->token,
+                'user' => $token->user ? [
+                    'nama_lengkap' => $token->user->nama_lengkap,
+                    'username' => $token->user->username
+                ] : null,
+                'generator' => $token->generator ? [
+                    'nama_lengkap' => $token->generator->nama_lengkap,
+                    'username' => $token->generator->username
+                ] : null,
+                'status' => $token->status,
+                'status_badge' => $token->status_badge,
+                'created_at_formatted' => $token->created_at->format('d/m/Y H:i'),
+                'used_at_formatted' => $token->used_at ? $token->used_at->format('d/m/Y H:i') : null,
+                'time_ago' => $token->created_at->diffForHumans(),
+                'notes' => $token->notes
+            ];
+        });
+
+        return response()->json([
+            'tokens' => new \Illuminate\Pagination\LengthAwarePaginator(
+                $formattedTokens,
+                $tokens->total(),
+                $tokens->perPage(),
+                $tokens->currentPage(),
+                [
+                    'path' => $tokens->path(),
+                    'pageName' => 'page',
+                ]
+            )
+        ]);
     }
 }

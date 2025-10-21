@@ -96,9 +96,9 @@
                 </li>
 
                 <!-- Rekam Medis (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') ? 'true' : 'false' }} }">
+                <li x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('token-emergency/monitoring*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                            class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                            class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('token-emergency/monitoring*') ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                             :title="!sidebarOpen ? 'Rekam Medis' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110" :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,21 +139,9 @@
                         </li>
                         @if(auth()->user()->role === 'Super Admin' || auth()->user()->role === 'Admin')
                         <li>
-                            <a href="{{ route('token-emergency.index') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.index') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                Kelola Token Emergency
-                            </a>
-                        </li>
-                        <li>
                             <a href="{{ route('token-emergency.monitoring') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.monitoring*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
+                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('token-emergency/monitoring*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
                                 Monitoring Token
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('token-emergency.pending-requests') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.pending-requests*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                Permintaan Token
                                 @php
                                     $pendingRequestsCount = \App\Models\TokenEmergency::getPendingRequestsCount();
                                 @endphp
@@ -162,12 +150,6 @@
                                     {{ $pendingRequestsCount }}
                                 </span>
                                 @endif
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('token-emergency.audit-trail') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.audit-trail*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                Riwayat Token
                             </a>
                         </li>
                         @endif
