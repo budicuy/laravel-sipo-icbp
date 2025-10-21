@@ -20,6 +20,114 @@
         <!-- SweetAlert2 -->
         <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
 
+        <!-- Custom Styles for Token Modal -->
+        <style>
+            /* SweetAlert2 Custom Animations */
+            .swal2-popup {
+                animation: swal2-show 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            }
+
+            .swal2-hide {
+                animation: swal2-hide 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            }
+
+            @keyframes swal2-show {
+                0% {
+                    transform: scale(0.8) translateY(-20px);
+                    opacity: 0;
+                }
+                100% {
+                    transform: scale(1) translateY(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes swal2-hide {
+                0% {
+                    transform: scale(1) translateY(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: scale(0.8) translateY(-20px);
+                    opacity: 0;
+                }
+            }
+
+            /* Custom Toast Animations */
+            .colored-toast.swal2-toast-show {
+                animation: slideInRight 0.3s ease-out;
+            }
+
+            .colored-toast.swal2-toast-hide {
+                animation: slideOutRight 0.3s ease-in;
+            }
+
+            @keyframes slideInRight {
+                0% {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideOutRight {
+                0% {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            /* Sidebar Emergency Menu Animation */
+            .emergency-menu-enter {
+                animation: emergencyMenuEnter 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            }
+
+            @keyframes emergencyMenuEnter {
+                0% {
+                    transform: translateX(-20px) scale(0.9);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translateX(0) scale(1);
+                    opacity: 1;
+                }
+            }
+
+            /* Token Input Focus Effect */
+            .token-input-focus {
+                box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+                border-color: rgb(6, 182, 212);
+            }
+
+            /* Button Hover Effects */
+            .btn-emergency {
+                position: relative;
+                overflow: hidden;
+            }
+
+            .btn-emergency::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.5s;
+            }
+
+            .btn-emergency:hover::before {
+                left: 100%;
+            }
+        </style>
+
         @stack('styles')
     </head>
     <body class="bg-gray-100">

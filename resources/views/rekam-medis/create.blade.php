@@ -7,11 +7,6 @@
     <!-- Header Section -->
     <div class="mb-6">
         <div class="flex items-center gap-3 mb-3">
-            <a href="{{ route('rekam-medis.index') }}" class="p-2 hover:bg-white rounded-lg transition-colors">
-                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </a>
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
                     <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">

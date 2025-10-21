@@ -72,6 +72,11 @@ class RekamMedisController extends Controller
         return view('rekam-medis.index', compact('rekamMedis'));
     }
 
+    public function chooseType()
+    {
+        return view('rekam-medis.choose-type');
+    }
+
     public function create()
     {
         // Get all diagnosa and obat for keluhan inputs
@@ -128,6 +133,12 @@ class RekamMedisController extends Controller
 
     public function storeEmergency(Request $request)
     {
+        // Check if user has valid token
+        if (!session('valid_emergency_token')) {
+            return redirect()->route('token-emergency.validate')
+                ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
+        }
+
         $validated = $request->validate([
             'nik_pasien' => 'required|digits_between:1,16|numeric',
             'nama_pasien' => 'required|string|max:255',
@@ -144,6 +155,18 @@ class RekamMedisController extends Controller
         try {
             // Using Laravel 12's transaction method with automatic retry for better reliability
             $rekamMedisEmergency = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request) {
+                // Get and use the token
+                $token = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))
+                    ->where('status', 'available')
+                    ->first();
+
+                if (!$token) {
+                    throw new \Exception('Token tidak valid atau sudah digunakan.');
+                }
+
+                // Use the token (mark as used)
+                $token->useToken(Auth::id());
+
                 // Simpan data rekam medis emergency langsung ke tabel rekam_medis_emergency
                 $rekamMedisEmergency = \App\Models\RekamMedisEmergency::create([
                     'nik_pasien' => $validated['nik_pasien'],
@@ -160,10 +183,13 @@ class RekamMedisController extends Controller
                     'hubungan' => 'Emergency',
                 ]);
 
+                // Clear token from session after successful use
+                session()->forget('valid_emergency_token');
+
                 return $rekamMedisEmergency;
             }, 3); // Retry up to 3 times on deadlock
 
-            return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil ditambahkan!');
+            return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil ditambahkan! Token telah digunakan.');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
