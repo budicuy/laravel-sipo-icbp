@@ -1,0 +1,4 @@
+nik_employee,nama_employee,kode_rm,tanggal_lahir,jenis_kelamin,alamat,no_hp,nama_vendor,no_ktp,bpjs_id,kategori
+80007053,John Doe,80007053-F,1993-09-09,L,Jakarta,082122,PT. Tropis Service,6372040909930005,0001547298944,X - Guest
+80007054,Jane Smith,80007054-F,1995-05-15,P,Bandung,082123,PT. Tropis Service,6372051505950006,0001547298945,Y - Outsourcing
+80007055,Robert Johnson,80007055-F,1990-12-20,L,Surabaya,082124,PT. Mitra Sejati,6372122009900007,0001547298946,Z - Supporting
