@@ -86,6 +86,44 @@ class TokenEmergency extends Model
     }
 
     /**
+     * Cek apakah token valid dan dapat digunakan oleh user tertentu
+     */
+    public static function isValidTokenForUser($token, $userId)
+    {
+        return self::where('token', $token)
+                  ->where('status', self::STATUS_AVAILABLE)
+                  ->where(function($query) use ($userId) {
+                      $query->whereNull('id_user') // Token umum
+                            ->orWhere('id_user', $userId); // Token milik user
+                  })
+                  ->first();
+    }
+
+    /**
+     * Cek apakah token milik user tertentu
+     */
+    public function isOwnedBy($userId)
+    {
+        return $this->id_user == $userId;
+    }
+
+    /**
+     * Cek apakah token bersifat umum (tidak dimiliki oleh user tertentu)
+     */
+    public function isGeneralToken()
+    {
+        return is_null($this->id_user);
+    }
+
+    /**
+     * Cek apakah token dapat digunakan oleh user tertentu
+     */
+    public function canBeUsedBy($userId)
+    {
+        return $this->isGeneralToken() || $this->isOwnedBy($userId);
+    }
+
+    /**
      * Gunakan token (ubah status menjadi used)
      */
     public function useToken($userId)

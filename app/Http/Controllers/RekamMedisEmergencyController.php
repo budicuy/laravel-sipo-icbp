@@ -86,17 +86,28 @@ class RekamMedisEmergencyController extends Controller
 
         try {
             // Get and use the token
-            $token = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))
-                ->where('status', 'available')
-                ->first();
+            $currentUserId = Auth::id();
+            $token = \App\Models\TokenEmergency::isValidTokenForUser(session('valid_emergency_token'), $currentUserId);
 
             if (!$token) {
+                // Check if token exists but is not available for this user
+                $existingToken = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))->first();
+                if ($existingToken) {
+                    if ($existingToken->status !== \App\Models\TokenEmergency::STATUS_AVAILABLE) {
+                        return redirect()->route('token-emergency.validate')
+                            ->with('error', 'Token sudah digunakan atau kadaluarsa.');
+                    } else if (!$existingToken->canBeUsedBy($currentUserId)) {
+                        return redirect()->route('token-emergency.validate')
+                            ->with('error', 'Token ini bukan milik Anda dan tidak dapat digunakan.');
+                    }
+                }
+
                 return redirect()->route('token-emergency.validate')
-                    ->with('error', 'Token tidak valid atau sudah digunakan.');
+                    ->with('error', 'Token tidak valid.');
             }
 
             // Use the token (mark as used)
-            $token->useToken(Auth::id());
+            $token->useToken($currentUserId);
 
             // Add additional data
             $validated['hubungan'] = 'Emergency';

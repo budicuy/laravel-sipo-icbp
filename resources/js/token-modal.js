@@ -169,22 +169,43 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateEmergencySidebar(true);
                 });
             } else {
+                // Tampilkan pesan error yang berbeda berdasarkan status code
+                let iconType = 'error';
+                let titleText = 'Token Tidak Valid!';
+                let additionalInfo = '';
+
+                if (data.message && data.message.includes('bukan milik Anda')) {
+                    iconType = 'warning';
+                    titleText = 'Akses Ditolak!';
+                    additionalInfo = `
+                        <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p class="text-sm text-amber-800">
+                                <strong>Info:</strong> Token emergency bersifat pribadi dan hanya dapat digunakan oleh pemiliknya.
+                            </p>
+                        </div>
+                    `;
+                }
+
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Token Tidak Valid!',
+                    icon: iconType,
+                    title: titleText,
                     html: `
                         <div class="text-center">
-                            <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            <div class="inline-flex items-center justify-center w-16 h-16 bg-${iconType === 'warning' ? 'amber' : 'red'}-100 rounded-full mb-4">
+                                <svg class="w-8 h-8 text-${iconType === 'warning' ? 'amber' : 'red'}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    ${iconType === 'warning' ?
+                                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>' :
+                                        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>'
+                                    }
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Token Tidak Valid!</h3>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">${titleText}</h3>
                             <p class="text-gray-600">${data.message || 'Token yang Anda masukkan tidak valid atau sudah digunakan.'}</p>
+                            ${additionalInfo}
                         </div>
                     `,
-                    confirmButtonColor: '#ef4444',
-                    confirmButtonText: 'Coba Lagi',
+                    confirmButtonColor: iconType === 'warning' ? '#f59e0b' : '#ef4444',
+                    confirmButtonText: iconType === 'warning' ? 'Mengerti' : 'Coba Lagi',
                     customClass: {
                         popup: 'rounded-2xl shadow-2xl max-w-md w-full p-6',
                         title: 'hidden',
@@ -310,11 +331,25 @@ document.addEventListener('alpine:init', () => {
                         updateEmergencySidebar(true);
                     });
                 } else {
+                    // Tampilkan pesan error yang berbeda berdasarkan jenis error
+                    let iconType = 'error';
+                    let titleText = 'Token Tidak Valid!';
+                    let confirmText = 'Coba Lagi';
+                    let confirmColor = '#ef4444';
+
+                    if (data.message && data.message.includes('bukan milik Anda')) {
+                        iconType = 'warning';
+                        titleText = 'Akses Ditolak!';
+                        confirmText = 'Mengerti';
+                        confirmColor = '#f59e0b';
+                    }
+
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Token Tidak Valid!',
+                        icon: iconType,
+                        title: titleText,
                         text: data.message || 'Token tidak valid atau sudah digunakan',
-                        confirmButtonColor: '#ef4444'
+                        confirmButtonColor: confirmColor,
+                        confirmButtonText: confirmText
                     });
                 }
             } catch (error) {

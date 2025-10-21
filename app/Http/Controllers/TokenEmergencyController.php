@@ -90,21 +90,38 @@ class TokenEmergencyController extends Controller
             'token' => 'required|string|exists:token_emergency,token'
         ]);
 
-        $token = TokenEmergency::where('token', $request->token)
-            ->where('status', TokenEmergency::STATUS_AVAILABLE)
-            ->first();
+        $currentUserId = Auth::id();
+
+        // Use the new method to check if token is valid for the current user
+        $token = TokenEmergency::isValidTokenForUser($request->token, $currentUserId);
 
         if (!$token) {
+            // Check if token exists but is not available for this user
+            $existingToken = TokenEmergency::where('token', $request->token)->first();
+            if ($existingToken) {
+                if ($existingToken->status !== TokenEmergency::STATUS_AVAILABLE) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Token sudah digunakan atau kadaluarsa.'
+                    ], 400);
+                } else if (!$existingToken->canBeUsedBy($currentUserId)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Token ini bukan milik Anda dan tidak dapat digunakan.'
+                    ], 403);
+                }
+            }
+
             return response()->json([
                 'success' => false,
-                'message' => 'Token tidak valid atau sudah digunakan.'
+                'message' => 'Token tidak valid.'
             ], 400);
         }
 
         // Mark token as used
         $token->status = TokenEmergency::STATUS_USED;
         $token->used_at = now();
-        $token->used_by = Auth::id();
+        $token->used_by = $currentUserId;
         $token->save();
 
         // Store valid token in session
