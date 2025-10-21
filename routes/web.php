@@ -15,6 +15,7 @@ use App\Http\Controllers\HargaObatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MonitoringHargaController;
 use App\Http\Controllers\RekamMedisEmergencyController;
+use App\Http\Controllers\ExternalEmployeeController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -134,6 +135,19 @@ Route::middleware('auth')->group(function () {
     Route::patch('/rekam-medis-emergency/{id}/update-status', [RekamMedisEmergencyController::class, 'updateStatus'])->name('rekam-medis-emergency.updateStatus');
     Route::put('/rekam-medis-emergency/{id}', [RekamMedisEmergencyController::class, 'update'])->name('rekam-medis-emergency.update');
     Route::delete('/rekam-medis-emergency/{id}', [RekamMedisEmergencyController::class, 'destroy'])->name('rekam-medis-emergency.destroy');
+
+    // External Employee Routes
+    Route::get('/external-employee', [ExternalEmployeeController::class, 'index'])->name('external-employee.index');
+    Route::get('/external-employee/create', [ExternalEmployeeController::class, 'create'])->name('external-employee.create');
+    Route::post('/external-employee', [ExternalEmployeeController::class, 'store'])->name('external-employee.store');
+    Route::get('/external-employee/{id}', [ExternalEmployeeController::class, 'show'])->name('external-employee.show');
+    Route::get('/external-employee/{id}/edit', [ExternalEmployeeController::class, 'edit'])->name('external-employee.edit');
+    Route::put('/external-employee/{id}', [ExternalEmployeeController::class, 'update'])->name('external-employee.update');
+    Route::delete('/external-employee/{id}', [ExternalEmployeeController::class, 'destroy'])->name('external-employee.destroy');
+    Route::post('/external-employee/import', [ExternalEmployeeController::class, 'import'])->name('external-employee.import');
+    Route::get('/external-employee/export', [ExternalEmployeeController::class, 'export'])->name('external-employee.export');
+    Route::post('/external-employee/bulk-delete', [ExternalEmployeeController::class, 'bulkDelete'])->name('external-employee.bulkDelete');
+    Route::get('/external-employee/template', [ExternalEmployeeController::class, 'downloadTemplate'])->name('external-employee.template');
 
     // Surat Sakit Routes
     Route::get('/surat-sakit', function () {
