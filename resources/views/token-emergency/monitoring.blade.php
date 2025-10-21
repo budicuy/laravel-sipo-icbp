@@ -19,10 +19,27 @@
         </div>
     </div>
 
+    <!-- Warning for Low Token Users -->
+    @if($usersWithLowTokens->count() > 0)
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.964-5.964A6 6 0 0112 8.257v4.18m0 0a.75.75 0 01.75-.75V8.257m0 0h-.005z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Peringatan: Token Rendah</h3>
+                <p class="text-sm text-red-700 mt-1">
+                    Ada {{ $usersWithLowTokens->count() }} pengguna dengan token kurang dari 5.
+                    <button onclick="showTab('overview')" class="underline font-medium text-red-800 hover:text-red-900">Lihat daftar pengguna</button>
+                </p>
+            </div>
+        </div>
+    </div>
+    @endif
     <!-- Quick Actions -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="flex mb-5 gap-3">
             <a href="{{ route('token-emergency.create') }}"
                class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,27 +69,7 @@
                 Export Riwayat
             </button>
         </div>
-    </div>
 
-    <!-- Warning for Low Token Users -->
-    @if($usersWithLowTokens->count() > 0)
-    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
-        <div class="flex">
-            <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.964-5.964A6 6 0 0112 8.257v4.18m0 0a.75.75 0 01.75-.75V8.257m0 0h-.005z" clip-rule="evenodd"/>
-                </svg>
-            </div>
-            <div class="ml-3">
-                <h3 class="text-sm font-medium text-red-800">Peringatan: Token Rendah</h3>
-                <p class="text-sm text-red-700 mt-1">
-                    Ada {{ $usersWithLowTokens->count() }} pengguna dengan token kurang dari 5.
-                    <button onclick="showTab('overview')" class="underline font-medium text-red-800 hover:text-red-900">Lihat daftar pengguna</button>
-                </p>
-            </div>
-        </div>
-    </div>
-    @endif
 
     <!-- Tabs -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -589,13 +586,29 @@ function showTab(tabName) {
 
     // Load data based on selected tab
     if (tabName === 'audit') {
-        loadAuditTrail();
+        // Check if there are URL parameters when switching to audit tab
+        const currentUrl = new URL(window.location.href);
+        const params = currentUrl.searchParams;
+
+        if (params.toString()) {
+            loadAuditTrail(currentUrl.toString());
+        } else {
+            loadAuditTrail();
+        }
     } else if (tabName === 'manage') {
-        loadManageTokens();
+        // Check if there are URL parameters when switching to manage tab
+        const currentUrl = new URL(window.location.href);
+        const params = currentUrl.searchParams;
+
+        if (params.toString()) {
+            loadManageTokens(currentUrl.toString());
+        } else {
+            loadManageTokens();
+        }
     }
 }
 
-function loadManageTokens() {
+function loadManageTokens(customUrl = null) {
     // Show loading state
     const tbody = document.getElementById('manageTokensTableBody');
     const pagination = document.getElementById('manageTokensPagination');
@@ -617,8 +630,31 @@ function loadManageTokens() {
         </div>
     `;
 
+    // Determine the URL to use
+    let fetchUrl = '/api/token-emergency/manage-tokens';
+
+    if (customUrl) {
+        // Extract query parameters from the custom URL
+        const urlObj = new URL(customUrl, window.location.origin);
+        const params = urlObj.searchParams;
+
+        // Build the API URL with parameters
+        if (params.toString()) {
+            fetchUrl += '?' + params.toString();
+        }
+    } else {
+        // Check current URL for parameters
+        const currentUrl = new URL(window.location.href);
+        const params = currentUrl.searchParams;
+
+        // Build the API URL with parameters
+        if (params.toString()) {
+            fetchUrl += '?' + params.toString();
+        }
+    }
+
     // Fetch tokens data
-    fetch('/api/token-emergency/manage-tokens')
+    fetch(fetchUrl)
         .then(response => response.json())
         .then(data => {
             // Populate table
@@ -785,8 +821,8 @@ function loadManageTokensPage(url) {
     const newUrl = new URL(url, window.location.origin);
     window.history.pushState({}, '', newUrl);
 
-    // Reload the tokens
-    loadManageTokens();
+    // Reload the tokens with the new URL
+    loadManageTokens(url);
 }
 
 function attachDeleteListeners() {
@@ -837,9 +873,11 @@ function attachDeleteListeners() {
     });
 }
 
-function loadAuditTrail() {
+function loadAuditTrail(customUrl = null) {
     // Show loading state
     const tbody = document.getElementById('auditTableBody');
+    const pagination = document.getElementById('auditPagination');
+
     tbody.innerHTML = `
         <tr>
             <td colspan="8" class="px-6 py-8 text-center text-gray-500">
@@ -851,17 +889,46 @@ function loadAuditTrail() {
         </tr>
     `;
 
+    pagination.innerHTML = `
+        <div class="flex justify-center">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+        </div>
+    `;
+
+    // Determine the URL to use
+    let fetchUrl = '/api/token-emergency/audit-trail';
+
+    if (customUrl) {
+        // Extract query parameters from the custom URL
+        const urlObj = new URL(customUrl, window.location.origin);
+        const params = urlObj.searchParams;
+
+        // Build the API URL with parameters
+        if (params.toString()) {
+            fetchUrl += '?' + params.toString();
+        }
+    } else {
+        // Check current URL for parameters
+        const currentUrl = new URL(window.location.href);
+        const params = currentUrl.searchParams;
+
+        // Build the API URL with parameters
+        if (params.toString()) {
+            fetchUrl += '?' + params.toString();
+        }
+    }
+
     // Fetch audit trail data
-    fetch('/api/token-emergency/audit-trail')
+    fetch(fetchUrl)
         .then(response => response.json())
         .then(data => {
             tbody.innerHTML = '';
 
-            if (data.tokens && data.tokens.length > 0) {
-                data.tokens.forEach((token, index) => {
+            if (data.tokens && data.tokens.data.length > 0) {
+                data.tokens.data.forEach((token, index) => {
                     let row = document.createElement('tr');
                     row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${data.tokens.from + index}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                                 ${token.token}
@@ -893,6 +960,17 @@ function loadAuditTrail() {
                     `;
                     tbody.appendChild(row);
                 });
+
+                // Populate pagination
+                if (data.tokens.links && data.tokens.links.length > 3) {
+                    pagination.innerHTML = generateAuditPagination(data.tokens);
+                } else {
+                    pagination.innerHTML = `
+                        <div class="text-sm text-gray-600 text-center">
+                            Menampilkan ${data.tokens.from} hingga ${data.tokens.to} dari ${data.tokens.total} data
+                        </div>
+                    `;
+                }
             } else {
                 let row = document.createElement('tr');
                 row.innerHTML = `
@@ -905,6 +983,7 @@ function loadAuditTrail() {
                     </td>
                 `;
                 tbody.appendChild(row);
+                pagination.innerHTML = '';
             }
         })
         .catch(error => {
@@ -920,7 +999,87 @@ function loadAuditTrail() {
                     </td>
                 </tr>
             `;
+            pagination.innerHTML = '';
         });
+}
+
+function generateAuditPagination(data) {
+    let html = `
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-sm text-gray-600">
+                Halaman <span class="font-semibold text-gray-900">${data.current_page}</span>
+                dari <span class="font-semibold text-gray-900">${data.last_page}</span>
+                <span class="mx-2 text-gray-400">•</span>
+                Total <span class="font-semibold text-gray-900">${data.total}</span> data
+            </div>
+
+            <nav class="flex items-center gap-2" role="navigation">
+    `;
+
+    // Previous button
+    if (data.prev_page_url) {
+        html += `<a href="javascript:void(0)" onclick="loadAuditTrailPage('${data.prev_page_url}')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">Previous</a>`;
+    } else {
+        html += `<span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>`;
+    }
+
+    // Page numbers
+    html += '<div class="flex items-center gap-1">';
+
+    // Calculate visible page range
+    let start = Math.max(1, data.current_page - 2);
+    let end = Math.min(data.last_page, data.current_page + 2);
+
+    // First page
+    if (start > 1) {
+        html += `<a href="javascript:void(0)" onclick="loadAuditTrailPage('${data.first_page_url}')" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">1</a>`;
+        if (start > 2) {
+            html += `<span class="px-2 text-gray-500">...</span>`;
+        }
+    }
+
+    // Page numbers
+    for (let i = start; i <= end; i++) {
+        let url = data.links.find(link => link.label == i.toString())?.url || '';
+        if (i == data.current_page) {
+            html += `<span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-teal-600 rounded-lg shadow-md">${i}</span>`;
+        } else {
+            html += `<a href="javascript:void(0)" onclick="loadAuditTrailPage('${url}')" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">${i}</a>`;
+        }
+    }
+
+    // Last page
+    if (end < data.last_page) {
+        if (end < data.last_page - 1) {
+            html += `<span class="px-2 text-gray-500">...</span>`;
+        }
+        html += `<a href="javascript:void(0)" onclick="loadAuditTrailPage('${data.last_page_url}')" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">${data.last_page}</a>`;
+    }
+
+    html += '</div>';
+
+    // Next button
+    if (data.next_page_url) {
+        html += `<a href="javascript:void(0)" onclick="loadAuditTrailPage('${data.next_page_url}')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">Next</a>`;
+    } else {
+        html += `<span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>`;
+    }
+
+    html += `
+            </nav>
+        </div>
+    `;
+
+    return html;
+}
+
+function loadAuditTrailPage(url) {
+    // Update the URL with the page parameter
+    const newUrl = new URL(url, window.location.origin);
+    window.history.pushState({}, '', newUrl);
+
+    // Reload the audit trail
+    loadAuditTrail(url);
 }
 
 function filterAuditTrail() {

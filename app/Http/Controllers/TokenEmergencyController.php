@@ -342,45 +342,12 @@ class TokenEmergencyController extends Controller
      */
     public function apiAuditTrail()
     {
-        $tokens = TokenEmergency::with(['user', 'generator'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        $formattedTokens = $tokens->map(function ($token) {
-            return [
-                'id_token' => $token->id_token,
-                'token' => $token->token,
-                'user' => $token->user ? [
-                    'nama_lengkap' => $token->user->nama_lengkap,
-                    'username' => $token->user->username
-                ] : null,
-                'generator' => $token->generator ? [
-                    'nama_lengkap' => $token->generator->nama_lengkap,
-                    'username' => $token->generator->username
-                ] : null,
-                'status' => $token->status,
-                'status_badge' => $token->status_badge,
-                'created_at_formatted' => $token->created_at->format('d/m/Y H:i'),
-                'used_at_formatted' => $token->used_at ? $token->used_at->format('d/m/Y H:i') : null,
-                'time_ago' => $token->created_at->diffForHumans(),
-                'notes' => $token->notes
-            ];
-        });
-
-        return response()->json([
-            'tokens' => $formattedTokens
-        ]);
-    }
-
-    /**
-     * API endpoint to get tokens for management
-     */
-    public function apiManageTokens()
-    {
         $perPage = request('per_page', 20);
+        $page = request('page', 1);
+
         $tokens = TokenEmergency::with(['user', 'generator'])
             ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+            ->paginate($perPage, ['*'], 'page', $page);
 
         $formattedTokens = $tokens->getCollection()->map(function ($token) {
             return [
@@ -410,8 +377,57 @@ class TokenEmergencyController extends Controller
                 $tokens->perPage(),
                 $tokens->currentPage(),
                 [
-                    'path' => $tokens->path(),
+                    'path' => request()->url(),
                     'pageName' => 'page',
+                    'query' => request()->query(),
+                ]
+            )
+        ]);
+    }
+
+    /**
+     * API endpoint to get tokens for management
+     */
+    public function apiManageTokens()
+    {
+        $perPage = request('per_page', 20);
+        $page = request('page', 1);
+
+        $tokens = TokenEmergency::with(['user', 'generator'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $formattedTokens = $tokens->getCollection()->map(function ($token) {
+            return [
+                'id_token' => $token->id_token,
+                'token' => $token->token,
+                'user' => $token->user ? [
+                    'nama_lengkap' => $token->user->nama_lengkap,
+                    'username' => $token->user->username
+                ] : null,
+                'generator' => $token->generator ? [
+                    'nama_lengkap' => $token->generator->nama_lengkap,
+                    'username' => $token->generator->username
+                ] : null,
+                'status' => $token->status,
+                'status_badge' => $token->status_badge,
+                'created_at_formatted' => $token->created_at->format('d/m/Y H:i'),
+                'used_at_formatted' => $token->used_at ? $token->used_at->format('d/m/Y H:i') : null,
+                'time_ago' => $token->created_at->diffForHumans(),
+                'notes' => $token->notes
+            ];
+        });
+
+        return response()->json([
+            'tokens' => new \Illuminate\Pagination\LengthAwarePaginator(
+                $formattedTokens,
+                $tokens->total(),
+                $tokens->perPage(),
+                $tokens->currentPage(),
+                [
+                    'path' => request()->url(),
+                    'pageName' => 'page',
+                    'query' => request()->query(),
                 ]
             )
         ]);
