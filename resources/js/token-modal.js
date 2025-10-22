@@ -151,13 +151,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </svg>
                             </div>
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">Token Berhasil Divalidasi!</h3>
-                            <p class="text-gray-600">Halaman akan direfresh untuk memperbarui menu emergency.</p>
+                            <p class="text-gray-600">Mengarahkan ke halaman tambah rekam medis emergency...</p>
                         </div>
                     `,
                     showConfirmButton: true,
-                    confirmButtonText: 'OK',
+                    confirmButtonText: 'Lanjutkan',
                     confirmButtonColor: '#10b981',
-                    timer: 3500,
+                    timer: 2000,
                     timerProgressBar: true,
                     customClass: {
                         popup: 'rounded-2xl shadow-2xl max-w-md w-full p-6',
@@ -165,8 +165,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         htmlContainer: 'p-0'
                     }
                 }).then(() => {
-                    // Update sidebar untuk menampilkan menu emergency
-                    updateEmergencySidebar(true);
+                    // Redirect to create emergency medical record page
+                    window.location.href = data.redirect_url || '/rekam-medis-emergency/create';
                 });
             } else {
                 Swal.fire({
@@ -299,15 +299,15 @@ document.addEventListener('alpine:init', () => {
                     Swal.fire({
                         icon: 'success',
                         title: 'Token Valid!',
-                        html: 'Token berhasil divalidasi.<br><small class="text-gray-600">Halaman akan direfresh untuk memperbarui menu.</small>',
+                        html: 'Token berhasil divalidasi.<br><small class="text-gray-600">Mengarahkan ke halaman tambah rekam medis emergency...</small>',
                         showConfirmButton: true,
-                        confirmButtonText: 'OK',
+                        confirmButtonText: 'Lanjutkan',
                         confirmButtonColor: '#10b981',
-                        timer: 3500,
+                        timer: 2000,
                         timerProgressBar: true
                     }).then(() => {
-                        // Update sidebar untuk menampilkan menu emergency
-                        updateEmergencySidebar(true);
+                        // Redirect to create emergency medical record page
+                        window.location.href = data.redirect_url || '/rekam-medis-emergency/create';
                     });
                 } else {
                     Swal.fire({

@@ -416,11 +416,12 @@
                     <thead class="bg-gray-800">
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tgl / Hari</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tanggal</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Waktu</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">NIK</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Karyawan</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Kode RM</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Pasien</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Diagnosa</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Keluhan</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Catatan</th>
@@ -438,8 +439,6 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                 {{ $rm->tanggal_periksa ? $rm->tanggal_periksa->format('d-m-Y') : '-' }}
-                                <br>
-                                <small class="text-gray-500">{{ $rm->tanggal_periksa ? \Carbon\Carbon::parse($rm->tanggal_periksa)->locale('id')->translatedFormat('l') : '-' }}</small>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                 {{ $rm->waktu_periksa ? $rm->waktu_periksa->format('H:i') : '-' }}
@@ -452,6 +451,9 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
                                 {{ $rm->externalEmployee->kode_rm ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rm->externalEmployee->nama_employee ?? '-' }}
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
                                 @php
@@ -523,7 +525,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="13" class="px-6 py-8 text-center text-gray-500">
+                            <td colspan="14" class="px-6 py-8 text-center text-gray-500">
                                 <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
