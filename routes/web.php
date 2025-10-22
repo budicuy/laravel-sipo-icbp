@@ -69,15 +69,26 @@ Route::middleware('auth')->group(function () {
         'obat' => 'id_obat'
     ]);
 
-    // Stok Obat Routes
+    // Stok Obat Routes - Sistem Revisi Baru
     Route::get('/stok-obat', [StokObatController::class, 'index'])->name('stok-obat.index');
-    Route::get('/stok-obat/export', [StokObatController::class, 'export'])->name('stok-obat.export');
-    Route::get('/stok-obat/template', [StokObatController::class, 'downloadTemplateStokObat'])->name('stok-obat.template');
-    Route::post('/stok-obat/import', [StokObatController::class, 'importStokObat'])->name('stok-obat.import');
+    Route::get('/stok-obat/create', [StokObatController::class, 'create'])->name('stok-obat.create');
+    Route::post('/stok-obat', [StokObatController::class, 'store'])->name('stok-obat.store');
+    Route::get('/stok-obat/{id}/edit', [StokObatController::class, 'edit'])->name('stok-obat.edit');
+    Route::put('/stok-obat/{id}', [StokObatController::class, 'update'])->name('stok-obat.update');
     Route::delete('/stok-obat/{id}', [StokObatController::class, 'destroy'])->name('stok-obat.destroy');
     Route::post('/stok-obat/bulk-delete', [StokObatController::class, 'bulkDelete'])->name('stok-obat.bulkDelete');
-    Route::post('/stok-obat/fix-consistency', [StokObatController::class, 'fixStokConsistency'])->name('stok-obat.fix-consistency');
-    Route::post('/stok-obat/update-stok-awal', [StokObatController::class, 'updateStokAwalForNewPeriod'])->name('stok-obat.update-stok-awal');
+    
+    // Additional routes for new stok system
+    Route::post('/stok-obat/update-stok-pakai', [StokObatController::class, 'updateStokPakai'])->name('stok-obat.update-stok-pakai');
+    Route::post('/stok-obat/generate-stok-awal', [StokObatController::class, 'generateStokAwal'])->name('stok-obat.generate-stok-awal');
+    
+    // API Route untuk preview stok
+    Route::get('/api/stok-obat/preview', [StokObatController::class, 'previewStok'])->name('api.stok-obat.preview');
+    
+    // Legacy routes (dapat dihapus jika tidak diperlukan)
+    Route::get('/stok-obat/export', [StokObatController::class, 'export'])->name('stok-obat.export');
+    Route::get('/stok-obat/template', [StokObatController::class, 'downloadTemplate'])->name('stok-obat.template');
+    Route::post('/stok-obat/import', [StokObatController::class, 'import'])->name('stok-obat.import');
 
     // Harga Obat Routes
     Route::get('/harga-obat', [HargaObatController::class, 'index'])->name('harga-obat.index');
