@@ -131,12 +131,6 @@
                                 Daftar Rekam Medis
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('rekam-medis-emergency.index') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('rekam-medis-emergency.index') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                Daftar Rekam Medis Emergency
-                            </a>
-                        </li>
                         @if(auth()->user()->role === 'Super Admin')
                         <li>
                             <a href="{{ route('token-emergency.index') }}"

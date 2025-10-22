@@ -24,6 +24,7 @@ class RekamMedisController extends Controller
 {
     public function index(Request $request)
     {
+        // Query for regular medical records
         $query = RekamMedis::with([
             'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
             'keluarga.hubungan:kode_hubungan,hubungan',
@@ -32,7 +33,7 @@ class RekamMedisController extends Controller
             'keluhans.obat:id_obat,nama_obat'
         ]);
 
-        // Filter pencarian
+        // Filter pencarian for regular records
         if ($request->filled('q')) {
             $q = $request->input('q');
             $query->where(function ($sub) use ($q) {
@@ -47,7 +48,7 @@ class RekamMedisController extends Controller
             });
         }
 
-        // Filter tanggal
+        // Filter tanggal for regular records
         if ($request->filled('dari_tanggal')) {
             $query->where('tanggal_periksa', '>=', $request->dari_tanggal);
         }
@@ -56,12 +57,12 @@ class RekamMedisController extends Controller
             $query->where('tanggal_periksa', '<=', $request->sampai_tanggal);
         }
 
-        // Filter status
+        // Filter status for regular records
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Pagination
+        // Pagination for regular records
         $perPage = $request->input('per_page', 50);
         if (!in_array($perPage, [50, 100, 200])) {
             $perPage = 50;
@@ -69,7 +70,44 @@ class RekamMedisController extends Controller
 
         $rekamMedis = $query->orderBy('id_rekam', 'desc')->paginate($perPage)->appends($request->except('page'));
 
-        return view('rekam-medis.index', compact('rekamMedis'));
+        // Query for emergency medical records
+        $queryEmergency = \App\Models\RekamMedisEmergency::with([
+            'user:id_user,username,nama_lengkap',
+            'externalEmployee',
+            'keluhans.diagnosaEmergency'
+        ]);
+
+        // Filter pencarian for emergency records
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $queryEmergency->where(function ($sub) use ($q) {
+                $sub->where('nama_pasien', 'like', "%$q%")
+                    ->orWhere('nik_pasien', 'like', "%$q%")
+                    ->orWhere('no_rm', 'like', "%$q%")
+                    ->orWhereHas('externalEmployee', function($employee) use ($q) {
+                        $employee->where('nama_employee', 'like', "%$q%")
+                                ->orWhere('nik_employee', 'like', "%$q%");
+                    });
+            });
+        }
+
+        // Filter tanggal for emergency records
+        if ($request->filled('dari_tanggal')) {
+            $queryEmergency->where('tanggal_periksa', '>=', $request->dari_tanggal);
+        }
+
+        if ($request->filled('sampai_tanggal')) {
+            $queryEmergency->where('tanggal_periksa', '<=', $request->sampai_tanggal);
+        }
+
+        // Filter status for emergency records
+        if ($request->filled('status')) {
+            $queryEmergency->where('status', $request->status);
+        }
+
+        $rekamMedisEmergency = $queryEmergency->orderBy('id_emergency', 'desc')->paginate($perPage)->appends($request->except('page'));
+
+        return view('rekam-medis.index', compact('rekamMedis', 'rekamMedisEmergency'));
     }
 
     public function chooseType()
@@ -238,10 +276,11 @@ class RekamMedisController extends Controller
                                     'id_rekam' => $rekamMedis->id_rekam,
                                     'id_keluarga' => $validated['id_keluarga'],
                                     'id_diagnosa' => $keluhanData['id_diagnosa'],
+                                    'id_diagnosa_emergency' => null, // Set to null for regular records
                                     'terapi' => $keluhanData['terapi'],
                                     'keterangan' => $keluhanData['keterangan'] ?? null,
                                     'id_obat' => $obatData['id_obat'],
-                                    'jumlah_obat' => $obatData['jumlah_obat'] ?? null,
+                                    'jumlah_obat' => $obatData['jumlah_obat'] ?? 0, // Default to 0
                                     'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
                                 ]);
                             }
@@ -251,10 +290,11 @@ class RekamMedisController extends Controller
                                 'id_rekam' => $rekamMedis->id_rekam,
                                 'id_keluarga' => $validated['id_keluarga'],
                                 'id_diagnosa' => $keluhanData['id_diagnosa'],
+                                'id_diagnosa_emergency' => null, // Set to null for regular records
                                 'terapi' => $keluhanData['terapi'],
                                 'keterangan' => $keluhanData['keterangan'] ?? null,
                                 'id_obat' => null,
-                                'jumlah_obat' => null,
+                                'jumlah_obat' => 0, // Default to 0
                                 'aturan_pakai' => null,
                             ]);
                         }
@@ -355,10 +395,11 @@ class RekamMedisController extends Controller
                                     'id_rekam' => $rekamMedis->id_rekam,
                                     'id_keluarga' => $validated['id_keluarga'],
                                     'id_diagnosa' => $keluhanData['id_diagnosa'],
+                                    'id_diagnosa_emergency' => null, // Set to null for regular records
                                     'terapi' => $keluhanData['terapi'],
                                     'keterangan' => $keluhanData['keterangan'] ?? null,
                                     'id_obat' => $obatData['id_obat'],
-                                    'jumlah_obat' => $obatData['jumlah_obat'] ?? null,
+                                    'jumlah_obat' => $obatData['jumlah_obat'] ?? 0, // Default to 0
                                     'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
                                 ]);
                             }
@@ -368,10 +409,11 @@ class RekamMedisController extends Controller
                                 'id_rekam' => $rekamMedis->id_rekam,
                                 'id_keluarga' => $validated['id_keluarga'],
                                 'id_diagnosa' => $keluhanData['id_diagnosa'],
+                                'id_diagnosa_emergency' => null, // Set to null for regular records
                                 'terapi' => $keluhanData['terapi'],
                                 'keterangan' => $keluhanData['keterangan'] ?? null,
                                 'id_obat' => null,
-                                'jumlah_obat' => null,
+                                'jumlah_obat' => 0, // Default to 0
                                 'aturan_pakai' => null,
                             ]);
                         }

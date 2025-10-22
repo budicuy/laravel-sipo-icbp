@@ -19,13 +19,13 @@
                 </div>
             </div>
             <div class="flex gap-3">
-                <a href="{{ route('rekam-medis.create') }}" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                <button onclick="showAddModal()" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
                     Tambah Rekam Medis
-                </a>
-                <button type="button" onclick="openImportModal()" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                </button>
+                <button type="button" onclick="openImportModal()" id="import-excel-btn" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
@@ -85,281 +85,556 @@
         </form>
     </div>
 
-    <!-- Table Section -->
-    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-        <!-- Table Header -->
-        <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
-            <div class="flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Data Rekam Medis Pasien
-                </h2>
-                <form action="{{ route('rekam-medis.index') }}" method="GET" class="flex items-center gap-2">
-                    <label class="text-white text-sm">Show</label>
-                    <select name="per_page" onchange="this.form.submit()" class="px-3 py-1.5 bg-white border border-white rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-white">
-                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
-                    </select>
-                    <span class="text-white text-sm">entries</span>
-                </form>
-            </div>
+    <!-- Tab Navigation -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 mb-6">
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px">
+                <button type="button" onclick="switchTab('regular')" id="regular-tab" class="tab-button py-4 px-6 border-b-2 font-medium text-sm rounded-tl-lg focus:outline-none transition-colors border-green-500 text-green-600 bg-green-50">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Rekam Medis Reguler
+                    </div>
+                </button>
+                <button type="button" onclick="switchTab('emergency')" id="emergency-tab" class="tab-button py-4 px-6 border-b-2 font-medium text-sm rounded-tr-lg focus:outline-none transition-colors border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Rekam Medis Emergency
+                    </div>
+                </button>
+            </nav>
         </div>
+    </div>
 
-        <!-- Table Content -->
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-gray-800">
-                    <tr>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tgl / Hari</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Waktu</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">NIK</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Karyawan</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Kode RM</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Pasien</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Diagnosa</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Terapi</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Obat</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Anamnesa</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
-                        <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Detail</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Petugas Medis</th>
-                        <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($rekamMedis as $index => $rm)
-                    <tr class="hover:bg-green-50 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $rekamMedis->firstItem() + $index }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ is_string($rm->tanggal_periksa) ? $rm->tanggal_periksa : $rm->tanggal_periksa->format('d-m-Y') }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $rm->waktu_periksa ? (is_string($rm->waktu_periksa) ? $rm->waktu_periksa : $rm->waktu_periksa->format('H:i')) : '-' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $rm->keluarga->karyawan->nik_karyawan ?? '-' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $rm->keluarga->karyawan->nama_karyawan ?? '-' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
-                            {{ ($rm->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rm->keluarga->kode_hubungan ?? '') }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
-                            {{ $rm->keluarga->nama_keluarga ?? '-' }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @php
-                                $uniqueDiagnosa = [];
-                                foreach($rm->keluhans as $keluhan) {
-                                    $diagnosaName = $keluhan->diagnosa->nama_diagnosa ?? '-';
-                                    if (!in_array($diagnosaName, $uniqueDiagnosa)) {
-                                        $uniqueDiagnosa[] = $diagnosaName;
-                                    }
-                                }
-                            @endphp
-                            {{ implode(', ', $uniqueDiagnosa) }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @php
-                                $uniqueTerapi = [];
-                                foreach($rm->keluhans as $keluhan) {
-                                    if (!in_array($keluhan->terapi, $uniqueTerapi)) {
-                                        $uniqueTerapi[] = $keluhan->terapi;
-                                    }
-                                }
-                            @endphp
-                            @foreach($uniqueTerapi as $terapi)
-                                <span class="px-2 py-1
-                                    @if($terapi == 'Obat') bg-purple-100 text-purple-800
-                                    @elseif($terapi == 'Lab') bg-orange-100 text-orange-800
-                                    @else bg-green-100 text-green-800
-                                    @endif
-                                    rounded-full text-xs font-medium mr-1">
-                                    {{ $terapi }}
-                                </span>
-                            @endforeach
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @php
-                                $uniqueObat = [];
-                                foreach($rm->keluhans as $keluhan) {
-                                    if($keluhan->obat) {
-                                        $obatName = $keluhan->obat->nama_obat;
-                                        if (!in_array($obatName, $uniqueObat)) {
-                                            $uniqueObat[] = $obatName;
+    <!-- Tab Content -->
+    <!-- Regular Tab -->
+    <div id="regular-content" class="tab-content">
+        <!-- Table Section -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            <!-- Table Header -->
+            <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Data Rekam Medis Reguler
+                    </h2>
+                    <form action="{{ route('rekam-medis.index') }}" method="GET" class="flex items-center gap-2">
+                        <input type="hidden" name="tab" value="regular">
+                        <label class="text-white text-sm">Show</label>
+                        <select name="per_page" onchange="this.form.submit()" class="px-3 py-1.5 bg-white border border-white rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-white">
+                            <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                            <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                        </select>
+                        <span class="text-white text-sm">entries</span>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Table Content -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-800">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tgl / Hari</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Waktu</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">NIK</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Karyawan</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Kode RM</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Pasien</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Diagnosa</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Terapi</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Obat</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Anamnesa</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Detail</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Petugas Medis</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse($rekamMedis as $index => $rm)
+                        <tr class="hover:bg-green-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rekamMedis->firstItem() + $index }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ is_string($rm->tanggal_periksa) ? $rm->tanggal_periksa : $rm->tanggal_periksa->format('d-m-Y') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rm->waktu_periksa ? (is_string($rm->waktu_periksa) ? $rm->waktu_periksa : $rm->waktu_periksa->format('H:i')) : '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rm->keluarga->karyawan->nik_karyawan ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rm->keluarga->karyawan->nama_karyawan ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
+                                {{ ($rm->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rm->keluarga->kode_hubungan ?? '') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
+                                {{ $rm->keluarga->nama_keluarga ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
+                                @php
+                                    $uniqueDiagnosa = [];
+                                    foreach($rm->keluhans as $keluhan) {
+                                        $diagnosaName = $keluhan->diagnosa->nama_diagnosa ?? '-';
+                                        if (!in_array($diagnosaName, $uniqueDiagnosa)) {
+                                            $uniqueDiagnosa[] = $diagnosaName;
                                         }
                                     }
-                                }
-                            @endphp
-                            {{ !empty($uniqueObat) ? implode(', ', $uniqueObat) : '-' }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                            @php
-                                $keteranganText = '';
-                                foreach($rm->keluhans as $keluhan) {
-                                    if(!empty($keluhan->keterangan)) {
-                                        $keteranganText = $keluhan->keterangan;
-                                        break;
+                                @endphp
+                                {{ implode(', ', $uniqueDiagnosa) }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
+                                @php
+                                    $uniqueTerapi = [];
+                                    foreach($rm->keluhans as $keluhan) {
+                                        if (!in_array($keluhan->terapi, $uniqueTerapi)) {
+                                            $uniqueTerapi[] = $keluhan->terapi;
+                                        }
                                     }
-                                }
-                            @endphp
-                            {{ !empty($keteranganText) ? Str::limit($keteranganText, 50) : '-' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            <div class="status-dropdown" data-id="{{ $rm->id_rekam }}">
-                                <select class="status-select px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500
-                                    @if($rm->status == 'On Progress') bg-yellow-100 text-yellow-800
-                                    @elseif($rm->status == 'Close') bg-green-100 text-green-800
-                                    @endif"
-                                    data-id="{{ $rm->id_rekam }}"
-                                    data-current-status="{{ $rm->status ?? 'On Progress' }}">
-                                    <option value="On Progress" {{ ($rm->status ?? 'On Progress') == 'On Progress' ? 'selected' : '' }}>On Progress</option>
-                                    <option value="Close" {{ ($rm->status ?? 'On Progress') == 'Close' ? 'selected' : '' }}>Close</option>
-                                </select>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
-                            <a href="{{ route('rekam-medis.show', $rm->id_rekam) }}" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
-                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                                Detail
-                            </a>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $rm->user->nama_lengkap ?? '-' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <div class="flex items-center justify-center space-x-2">
-                                <a href="{{ route('rekam-medis.edit', $rm->id_rekam) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </a>
-                                <button type="button" class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded delete-btn"
+                                @endphp
+                                @foreach($uniqueTerapi as $terapi)
+                                    <span class="px-2 py-1
+                                        @if($terapi == 'Obat') bg-purple-100 text-purple-800
+                                        @elseif($terapi == 'Lab') bg-orange-100 text-orange-800
+                                        @else bg-green-100 text-green-800
+                                        @endif
+                                        rounded-full text-xs font-medium mr-1">
+                                        {{ $terapi }}
+                                    </span>
+                                @endforeach
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
+                                @php
+                                    $uniqueObat = [];
+                                    foreach($rm->keluhans as $keluhan) {
+                                        if($keluhan->obat) {
+                                            $obatName = $keluhan->obat->nama_obat;
+                                            if (!in_array($obatName, $uniqueObat)) {
+                                                $uniqueObat[] = $obatName;
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                {{ !empty($uniqueObat) ? implode(', ', $uniqueObat) : '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
+                                @php
+                                    $keteranganText = '';
+                                    foreach($rm->keluhans as $keluhan) {
+                                        if(!empty($keluhan->keterangan)) {
+                                            $keteranganText = $keluhan->keterangan;
+                                            break;
+                                        }
+                                    }
+                                @endphp
+                                {{ !empty($keteranganText) ? Str::limit($keteranganText, 50) : '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                <div class="status-dropdown" data-id="{{ $rm->id_rekam }}">
+                                    <select class="status-select px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500
+                                        @if($rm->status == 'On Progress') bg-yellow-100 text-yellow-800
+                                        @elseif($rm->status == 'Close') bg-green-100 text-green-800
+                                        @endif"
                                         data-id="{{ $rm->id_rekam }}"
-                                        data-nama="{{ $rm->keluarga->nama_keluarga ?? '' }}">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        data-current-status="{{ $rm->status ?? 'On Progress' }}">
+                                        <option value="On Progress" {{ ($rm->status ?? 'On Progress') == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                                        <option value="Close" {{ ($rm->status ?? 'On Progress') == 'Close' ? 'selected' : '' }}>Close</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
+                                <a href="{{ route('rekam-medis.show', $rm->id_rekam) }}" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="16" class="px-6 py-8 text-center text-gray-500">
-                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <p class="text-lg font-medium">Tidak ada data rekam medis</p>
-                            <p class="text-sm mt-1">Silakan tambahkan data rekam medis baru</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                                    Detail
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rm->user->nama_lengkap ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="flex items-center justify-center space-x-2">
+                                    <a href="{{ route('rekam-medis.edit', $rm->id_rekam) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </a>
+                                    <button type="button" class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded delete-btn"
+                                            data-id="{{ $rm->id_rekam }}"
+                                            data-nama="{{ $rm->keluarga->nama_keluarga ?? '' }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="16" class="px-6 py-8 text-center text-gray-500">
+                                <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p class="text-lg font-medium">Tidak ada data rekam medis</p>
+                                <p class="text-sm mt-1">Silakan tambahkan data rekam medis baru</p>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-        <!-- Custom Pagination -->
-        @if($rekamMedis->hasPages())
-        <div class="px-6 py-5 border-t border-gray-200 bg-white">
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="text-sm text-gray-600">
-                    Halaman <span class="font-semibold text-gray-900">{{ $rekamMedis->currentPage() }}</span>
-                    dari <span class="font-semibold text-gray-900">{{ $rekamMedis->lastPage() }}</span>
-                    <span class="mx-2 text-gray-400">•</span>
-                    Total <span class="font-semibold text-gray-900">{{ $rekamMedis->total() }}</span> data
-                </div>
-
-                <nav class="flex items-center gap-2" role="navigation">
-                    @if($rekamMedis->onFirstPage())
-                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
-                            </svg>
-                        </span>
-                    @else
-                        <a href="{{ $rekamMedis->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
-                            </svg>
-                        </a>
-                    @endif
-
-                    @if($rekamMedis->onFirstPage())
-                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
-                    @else
-                        <a href="{{ $rekamMedis->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">Previous</a>
-                    @endif
-
-                    <div class="flex items-center gap-1">
-                        @php
-                            $start = max($rekamMedis->currentPage() - 2, 1);
-                            $end = min($rekamMedis->currentPage() + 2, $rekamMedis->lastPage());
-                        @endphp
-
-                        @if($start > 1)
-                            <a href="{{ $rekamMedis->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">1</a>
-                            @if($start > 2)
-                                <span class="px-2 text-gray-500">...</span>
-                            @endif
-                        @endif
-
-                        @for($i = $start; $i <= $end; $i++)
-                            @if($i == $rekamMedis->currentPage())
-                                <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg shadow-md">{{ $i }}</span>
-                            @else
-                                <a href="{{ $rekamMedis->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">{{ $i }}</a>
-                            @endif
-                        @endfor
-
-                        @if($end < $rekamMedis->lastPage())
-                            @if($end < $rekamMedis->lastPage() - 1)
-                                <span class="px-2 text-gray-500">...</span>
-                            @endif
-                            <a href="{{ $rekamMedis->appends(request()->except('page'))->url($rekamMedis->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">{{ $rekamMedis->lastPage() }}</a>
-                        @endif
+            <!-- Custom Pagination -->
+            @if($rekamMedis->hasPages())
+            <div class="px-6 py-5 border-t border-gray-200 bg-white">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-sm text-gray-600">
+                        Halaman <span class="font-semibold text-gray-900">{{ $rekamMedis->currentPage() }}</span>
+                        dari <span class="font-semibold text-gray-900">{{ $rekamMedis->lastPage() }}</span>
+                        <span class="mx-2 text-gray-400">•</span>
+                        Total <span class="font-semibold text-gray-900">{{ $rekamMedis->total() }}</span> data
                     </div>
 
-                    @if($rekamMedis->hasMorePages())
-                        <a href="{{ $rekamMedis->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">Next</a>
-                    @else
-                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
-                    @endif
+                    <nav class="flex items-center gap-2" role="navigation">
+                        @if($rekamMedis->onFirstPage())
+                            <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                                </svg>
+                            </span>
+                        @else
+                            <a href="{{ $rekamMedis->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                                </svg>
+                            </a>
+                        @endif
 
-                    @if($rekamMedis->currentPage() == $rekamMedis->lastPage())
-                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
-                            </svg>
-                        </span>
-                    @else
-                        <a href="{{ $rekamMedis->appends(request()->except('page'))->url($rekamMedis->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                    @endif
-                </nav>
+                        @if($rekamMedis->onFirstPage())
+                            <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
+                        @else
+                            <a href="{{ $rekamMedis->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">Previous</a>
+                        @endif
+
+                        <div class="flex items-center gap-1">
+                            @php
+                                $start = max($rekamMedis->currentPage() - 2, 1);
+                                $end = min($rekamMedis->currentPage() + 2, $rekamMedis->lastPage());
+                            @endphp
+
+                            @if($start > 1)
+                                <a href="{{ $rekamMedis->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">1</a>
+                                @if($start > 2)
+                                    <span class="px-2 text-gray-500">...</span>
+                                @endif
+                            @endif
+
+                            @for($i = $start; $i <= $end; $i++)
+                                @if($i == $rekamMedis->currentPage())
+                                    <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg shadow-md">{{ $i }}</span>
+                                @else
+                                    <a href="{{ $rekamMedis->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">{{ $i }}</a>
+                                @endif
+                            @endfor
+
+                            @if($end < $rekamMedis->lastPage())
+                                @if($end < $rekamMedis->lastPage() - 1)
+                                    <span class="px-2 text-gray-500">...</span>
+                                @endif
+                                <a href="{{ $rekamMedis->appends(request()->except('page'))->url($rekamMedis->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">{{ $rekamMedis->lastPage() }}</a>
+                            @endif
+                        </div>
+
+                        @if($rekamMedis->hasMorePages())
+                            <a href="{{ $rekamMedis->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">Next</a>
+                        @else
+                            <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
+                        @endif
+
+                        @if($rekamMedis->currentPage() == $rekamMedis->lastPage())
+                            <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        @else
+                            <a href="{{ $rekamMedis->appends(request()->except('page'))->url($rekamMedis->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-green-50 hover:border-green-400 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        @endif
+                    </nav>
+                </div>
             </div>
+            @endif
         </div>
-        @endif
+    </div>
+
+    <!-- Emergency Tab -->
+    <div id="emergency-content" class="tab-content hidden">
+        <!-- Table Section -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            <!-- Table Header -->
+            <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Data Rekam Medis Emergency
+                    </h2>
+                    <form action="{{ route('rekam-medis.index') }}" method="GET" class="flex items-center gap-2">
+                        <input type="hidden" name="tab" value="emergency">
+                        <label class="text-white text-sm">Show</label>
+                        <select name="per_page" onchange="this.form.submit()" class="px-3 py-1.5 bg-white border border-white rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-white">
+                            <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                            <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                        </select>
+                        <span class="text-white text-sm">entries</span>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Table Content -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-800">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tgl / Hari</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Waktu</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">NIK</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Karyawan</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Kode RM</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Diagnosa</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Keluhan</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Catatan</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Detail</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Petugas Medis</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse($rekamMedisEmergency as $index => $rm)
+                        <tr class="hover:bg-red-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rekamMedisEmergency->firstItem() + $index }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rm->tanggal_periksa ? $rm->tanggal_periksa->format('d-m-Y') : '-' }}
+                                <br>
+                                <small class="text-gray-500">{{ $rm->tanggal_periksa ? \Carbon\Carbon::parse($rm->tanggal_periksa)->locale('id')->translatedFormat('l') : '-' }}</small>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rm->waktu_periksa ? $rm->waktu_periksa->format('H:i') : '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rm->externalEmployee->nik_employee ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
+                                {{ $rm->externalEmployee->nama_employee ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
+                                {{ $rm->externalEmployee->kode_rm ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
+                                @php
+                                    $uniqueDiagnosaEmergency = [];
+                                    foreach($rm->keluhans as $keluhan) {
+                                        if($keluhan->diagnosaEmergency) {
+                                            $diagnosaName = $keluhan->diagnosaEmergency->nama_diagnosa_emergency;
+                                            if (!in_array($diagnosaName, $uniqueDiagnosaEmergency)) {
+                                                $uniqueDiagnosaEmergency[] = $diagnosaName;
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <div class="truncate" title="{{ implode(', ', $uniqueDiagnosaEmergency) ?? '-' }}">
+                                    {{ !empty($uniqueDiagnosaEmergency) ? implode(', ', $uniqueDiagnosaEmergency) : '-' }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
+                                <div class="truncate" title="{{ $rm->keluhan }}">
+                                    {{ $rm->keluhan ?: '-' }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
+                                <div class="truncate" title="{{ $rm->catatan }}">
+                                    {{ $rm->catatan ?: '-' }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                <div class="status-dropdown" data-id="{{ $rm->id_emergency }}">
+                                    <select class="status-select-emergency px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500
+                                        @if($rm->status == 'On Progress') bg-yellow-100 text-yellow-800
+                                        @elseif($rm->status == 'Close') bg-green-100 text-green-800
+                                        @endif"
+                                        data-id="{{ $rm->id_emergency }}"
+                                        data-current-status="{{ $rm->status }}">
+                                        <option value="On Progress" {{ $rm->status == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                                        <option value="Close" {{ $rm->status == 'Close' ? 'selected' : '' }}>Close</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
+                                <a href="{{ route('rekam-medis-emergency.show', $rm->id_emergency) }}" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Detail
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $rm->user->nama_lengkap ?? '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="flex items-center justify-center space-x-2">
+                                    <a href="{{ route('rekam-medis-emergency.edit', $rm->id_emergency) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </a>
+                                    <button type="button" class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded delete-btn-emergency"
+                                            data-id="{{ $rm->id_emergency }}"
+                                            data-nama="{{ $rm->externalEmployee->nama_employee ?? 'Pasien' }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="13" class="px-6 py-8 text-center text-gray-500">
+                                <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <p class="text-lg font-medium">Tidak ada data rekam medis emergency</p>
+                                <p class="text-sm mt-1">Silakan tambahkan data rekam medis emergency baru</p>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Custom Pagination -->
+            @if($rekamMedisEmergency->hasPages())
+            <div class="px-6 py-5 border-t border-gray-200 bg-white">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-sm text-gray-600">
+                        Halaman <span class="font-semibold text-gray-900">{{ $rekamMedisEmergency->currentPage() }}</span>
+                        dari <span class="font-semibold text-gray-900">{{ $rekamMedisEmergency->lastPage() }}</span>
+                        <span class="mx-2 text-gray-400">•</span>
+                        Total <span class="font-semibold text-gray-900">{{ $rekamMedisEmergency->total() }}</span> data
+                    </div>
+
+                    <nav class="flex items-center gap-2" role="navigation">
+                        @if($rekamMedisEmergency->onFirstPage())
+                            <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                                </svg>
+                            </span>
+                        @else
+                            <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                                </svg>
+                            </a>
+                        @endif
+
+                        @if($rekamMedisEmergency->onFirstPage())
+                            <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
+                        @else
+                            <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">Previous</a>
+                        @endif
+
+                        <div class="flex items-center gap-1">
+                            @php
+                                $start = max($rekamMedisEmergency->currentPage() - 2, 1);
+                                $end = min($rekamMedisEmergency->currentPage() + 2, $rekamMedisEmergency->lastPage());
+                            @endphp
+
+                            @if($start > 1)
+                                <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">1</a>
+                                @if($start > 2)
+                                    <span class="px-2 text-gray-500">...</span>
+                                @endif
+                            @endif
+
+                            @for($i = $start; $i <= $end; $i++)
+                                @if($i == $rekamMedisEmergency->currentPage())
+                                    <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg shadow-md">{{ $i }}</span>
+                                @else
+                                    <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">{{ $i }}</a>
+                                @endif
+                            @endfor
+
+                            @if($end < $rekamMedisEmergency->lastPage())
+                                @if($end < $rekamMedisEmergency->lastPage() - 1)
+                                    <span class="px-2 text-gray-500">...</span>
+                                @endif
+                                <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url($rekamMedisEmergency->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">{{ $rekamMedisEmergency->lastPage() }}</a>
+                            @endif
+                        </div>
+
+                        @if($rekamMedisEmergency->hasMorePages())
+                            <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">Next</a>
+                        @else
+                            <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
+                        @endif
+
+                        @if($rekamMedisEmergency->currentPage() == $rekamMedisEmergency->lastPage())
+                            <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                                </svg>
+                            </span>
+                        @else
+                            <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url($rekamMedisEmergency->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        @endif
+                    </nav>
+                </div>
+            </div>
+            @endif
+        </div>
     </div>
 </div>
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle delete confirmation with SweetAlert
+    // Initialize tab based on URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam === 'emergency') {
+        switchTab('emergency');
+    }
+
+    // Handle delete confirmation with SweetAlert for regular records
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
@@ -406,7 +681,54 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle status change
+    // Handle delete confirmation with SweetAlert for emergency records
+    document.querySelectorAll('.delete-btn-emergency').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const nama = this.getAttribute('data-nama');
+
+            Swal.fire({
+                title: 'Konfirmasi Hapus Data',
+                html: `Apakah Anda yakin ingin menghapus data rekam medis emergency untuk pasien <strong>${nama}</strong>?<br><small class="text-red-500">Tindakan ini tidak dapat dibatalkan.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function(resolve) {
+                        // Create form element
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `{{ route('rekam-medis-emergency.destroy', ':id') }}`.replace(':id', id);
+
+                        // Add CSRF token
+                        const csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = '_token';
+                        csrfToken.value = '{{ csrf_token() }}';
+                        form.appendChild(csrfToken);
+
+                        // Add DELETE method
+                        const methodInput = document.createElement('input');
+                        methodInput.type = 'hidden';
+                        methodInput.name = '_method';
+                        methodInput.value = 'DELETE';
+                        form.appendChild(methodInput);
+
+                        // Submit form
+                        document.body.appendChild(form);
+                        form.submit();
+                    });
+                }
+            });
+        });
+    });
+
+    // Handle status change for regular records
     document.querySelectorAll('.status-select').forEach(select => {
         select.addEventListener('change', function() {
             const id = this.getAttribute('data-id');
@@ -419,6 +741,65 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Send AJAX request
             fetch(`{{ route('rekam-medis.updateStatus', ':id') }}`.replace(':id', id), {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update status attribute
+                    this.setAttribute('data-current-status', newStatus);
+
+                    // Update styling based on new status
+                    this.classList.remove('bg-yellow-100', 'text-yellow-800', 'bg-green-100', 'text-green-800');
+
+                    if (newStatus === 'On Progress') {
+                        this.classList.add('bg-yellow-100', 'text-yellow-800');
+                    } else if (newStatus === 'Close') {
+                        this.classList.add('bg-green-100', 'text-green-800');
+                    }
+
+                    // Show success notification
+                    showNotification('Status berhasil diperbarui', 'success');
+                } else {
+                    // Revert to original status
+                    this.value = currentStatus;
+                    showNotification(data.message || 'Gagal memperbarui status', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Revert to original status
+                this.value = currentStatus;
+                showNotification('Terjadi kesalahan saat memperbarui status', 'error');
+            })
+            .finally(() => {
+                // Remove loading state
+                this.disabled = false;
+                this.classList.remove('opacity-50');
+            });
+        });
+    });
+
+    // Handle status change for emergency records
+    document.querySelectorAll('.status-select-emergency').forEach(select => {
+        select.addEventListener('change', function() {
+            const id = this.getAttribute('data-id');
+            const newStatus = this.value;
+            const currentStatus = this.getAttribute('data-current-status');
+
+            // Show loading state
+            this.disabled = true;
+            this.classList.add('opacity-50');
+
+            // Send AJAX request
+            fetch(`{{ route('rekam-medis-emergency.updateStatus', ':id') }}`.replace(':id', id), {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -508,6 +889,79 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 });
+
+// Tab switching function
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+
+    // Remove active state from all tabs
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('border-green-500', 'text-green-600', 'bg-green-50', 'border-red-500', 'text-red-600', 'bg-red-50');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+
+    // Show selected tab content
+    document.getElementById(tabName + '-content').classList.remove('hidden');
+
+    // Set active state for selected tab
+    const activeTab = document.getElementById(tabName + '-tab');
+    if (tabName === 'regular') {
+        activeTab.classList.remove('border-transparent', 'text-gray-500');
+        activeTab.classList.add('border-green-500', 'text-green-600', 'bg-green-50');
+        // Show import button for regular tab
+        document.getElementById('import-excel-btn').style.display = 'flex';
+    } else if (tabName === 'emergency') {
+        activeTab.classList.remove('border-transparent', 'text-gray-500');
+        activeTab.classList.add('border-red-500', 'text-red-600', 'bg-red-50');
+        // Hide import button for emergency tab
+        document.getElementById('import-excel-btn').style.display = 'none';
+    }
+
+    // Update URL parameter
+    const url = new URL(window.location);
+    if (tabName === 'regular') {
+        url.searchParams.delete('tab');
+    } else {
+        url.searchParams.set('tab', tabName);
+    }
+    window.history.replaceState({}, '', url);
+}
+
+// Show add modal for selecting record type
+function showAddModal() {
+    Swal.fire({
+        title: 'Pilih Jenis Rekam Medis',
+        html: `
+            <div class="text-left">
+                <p class="mb-4 text-gray-600">Silakan pilih jenis rekam medis yang ingin ditambahkan:</p>
+                <div class="space-y-3">
+                    <button onclick="window.location.href='{{ route('rekam-medis.create') }}'" 
+                            class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Rekam Medis Reguler
+                    </button>
+                    <button onclick="window.location.href='{{ route('token-emergency.validate') }}'" 
+                            class="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Rekam Medis Emergency
+                    </button>
+                </div>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCancelButton: true,
+        cancelButtonText: 'Batal',
+        cancelButtonColor: '#6b7280',
+        width: '500px'
+    });
+}
 
 // Import Excel Modal Functions
 function openImportModal() {

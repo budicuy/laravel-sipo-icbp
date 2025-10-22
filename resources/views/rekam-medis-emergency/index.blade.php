@@ -138,20 +138,20 @@
                             {{ $rm->waktu_periksa ? $rm->waktu_periksa->format('H:i') : '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $rm->nik_pasien }}
+                            {{ $rm->externalEmployee->nik_employee ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
-                            {{ $rm->nama_pasien }}
+                            {{ $rm->externalEmployee->nama_employee ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
-                            {{ $rm->no_rm }}
+                            {{ $rm->externalEmployee->kode_rm ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $rm->nama_pasien }}
+                            {{ $rm->externalEmployee->nama_employee ?? '-' }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
-                            <div class="truncate" title="{{ $rm->diagnosa }}">
-                                {{ $rm->diagnosa ?: '-' }}
+                            <div class="truncate" title="{{ $rm->keluhan->diagnosa->nama_diagnosa ?? '-' }}">
+                                {{ $rm->keluhan->diagnosa->nama_diagnosa ?? '-' }}
                             </div>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
@@ -167,13 +167,13 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             <div class="status-dropdown" data-id="{{ $rm->id_emergency }}">
                                 <select class="status-select px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500
-                                    @if($rm->status_rekam_medis == 'On Progress') bg-yellow-100 text-yellow-800
-                                    @elseif($rm->status_rekam_medis == 'Close') bg-green-100 text-green-800
+                                    @if($rm->status == 'On Progress') bg-yellow-100 text-yellow-800
+                                    @elseif($rm->status == 'Close') bg-green-100 text-green-800
                                     @endif"
                                     data-id="{{ $rm->id_emergency }}"
-                                    data-current-status="{{ $rm->status_rekam_medis }}">
-                                    <option value="On Progress" {{ $rm->status_rekam_medis == 'On Progress' ? 'selected' : '' }}>On Progress</option>
-                                    <option value="Close" {{ $rm->status_rekam_medis == 'Close' ? 'selected' : '' }}>Close</option>
+                                    data-current-status="{{ $rm->status }}">
+                                    <option value="On Progress" {{ $rm->status == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                                    <option value="Close" {{ $rm->status == 'Close' ? 'selected' : '' }}>Close</option>
                                 </select>
                             </div>
                         </td>
@@ -198,7 +198,7 @@
                                 </a>
                                 <button type="button" class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded delete-btn"
                                         data-id="{{ $rm->id_emergency }}"
-                                        data-nama="{{ $rm->nama_pasien }}">
+                                        data-nama="{{ $rm->externalEmployee->nama_employee ?? 'Pasien' }}">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
@@ -377,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({
-                    status_rekam_medis: newStatus
+                    status: newStatus
                 })
             })
             .then(response => response.json())

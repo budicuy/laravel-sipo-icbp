@@ -21,12 +21,14 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ObatSeeder::class,
             DiagnosaSeeder::class,
+            DiagnosaEmergencySeeder::class,
             KaryawanSeeder::class,
             KeluargaSeeder::class,
             HargaObatSeeder::class,
             VendorSeeder::class,
             KategoriSeeder::class,
             ExternalEmployeeSeeder::class,
+            DiagnosaEmergencyObatSeeder::class, // Tambahkan seeder untuk pivot table
         ]);
 
         // Tabel users belum ada, komentari dulu

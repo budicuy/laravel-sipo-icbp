@@ -3,8 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\RekamMedisEmergency;
+use App\Models\ExternalEmployee;
+use App\Models\DiagnosaEmergency;
+use App\Models\Diagnosa;
+use App\Models\Keluhan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RekamMedisEmergencyController extends Controller
 {
@@ -13,7 +18,7 @@ class RekamMedisEmergencyController extends Controller
      */
     public function index(Request $request)
     {
-        $query = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap']);
+        $query = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap', 'externalEmployee', 'keluhans.diagnosaEmergency']);
 
         // Filter pencarian
         if ($request->filled('q')) {
@@ -57,7 +62,12 @@ class RekamMedisEmergencyController extends Controller
                 ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
         }
 
-        return view('rekam-medis-emergency.create');
+        // Get data for dropdowns with relationships
+        $externalEmployees = ExternalEmployee::with(['vendor', 'kategori'])->aktif()->get();
+        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get();
+        $diagnosas = Diagnosa::all();
+
+        return view('rekam-medis-emergency.create', compact('externalEmployees', 'diagnosaEmergency', 'diagnosas'));
     }
 
     /**
@@ -72,16 +82,18 @@ class RekamMedisEmergencyController extends Controller
         }
 
         $validated = $request->validate([
-            'nik_pasien' => 'required|digits_between:1,16|numeric',
-            'nama_pasien' => 'required|string|max:255',
-            'no_rm' => 'required|string|max:30',
-            'jenis_kelamin' => 'required|in:L,P',
+            'external_employee_id' => 'required|exists:external_employees,id',
             'tanggal_periksa' => 'required|date',
             'waktu_periksa' => 'nullable|date_format:H:i',
-            'status_rekam_medis' => 'required|in:On Progress,Close',
+            'status' => 'required|in:On Progress,Close',
             'keluhan' => 'required|string',
-            'diagnosa' => 'nullable|string',
+            'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
+            'terapi' => 'required|string',
             'catatan' => 'nullable|string',
+            'obat_list' => 'nullable|array',
+            'obat_list.*.id_obat' => 'required|exists:obat,id_obat',
+            'obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
+            'obat_list.*.aturan_pakai' => 'nullable|string',
         ]);
 
         try {
@@ -99,11 +111,57 @@ class RekamMedisEmergencyController extends Controller
             $token->useToken(Auth::id());
 
             // Add additional data
-            $validated['hubungan'] = 'Emergency';
             $validated['id_user'] = Auth::id();
 
-            // Create emergency medical record
-            $rekamMedisEmergency = RekamMedisEmergency::create($validated);
+            // Create emergency medical record using transaction
+            DB::beginTransaction();
+            try {
+                // Create emergency medical record
+                $rekamMedisEmergency = RekamMedisEmergency::create([
+                    'id_external_employee' => $validated['external_employee_id'],
+                    'tanggal_periksa' => $validated['tanggal_periksa'],
+                    'waktu_periksa' => $validated['waktu_periksa'] ?? null,
+                    'status' => $validated['status'],
+                    'keluhan' => $validated['keluhan'],
+                    'catatan' => $validated['catatan'] ?? null,
+                    'id_user' => Auth::id(),
+                ]);
+
+                // Prepare keluhan data
+                $keluhanBaseData = [
+                    'id_emergency' => $rekamMedisEmergency->id_emergency,
+                    'id_rekam' => null, // Set to null for emergency records to avoid foreign key constraint
+                    'id_diagnosa' => null, // Set to null for emergency records
+                    'id_diagnosa_emergency' => $validated['id_diagnosa_emergency'], // Use emergency diagnosa
+                    'terapi' => $validated['terapi'],
+                    'keterangan' => $validated['keluhan'],
+                    'id_keluarga' => null, // Emergency records don't use keluarga
+                ];
+
+                // Check if there are obat_list (multiple obat)
+                if (isset($validated['obat_list']) && is_array($validated['obat_list'])) {
+                    // Save multiple keluhan entries, one for each obat
+                    foreach ($validated['obat_list'] as $obatData) {
+                        Keluhan::create(array_merge($keluhanBaseData, [
+                            'id_obat' => $obatData['id_obat'],
+                            'jumlah_obat' => $obatData['jumlah_obat'] ?? 0, // Default to 0 if not provided
+                            'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
+                        ]));
+                    }
+                } else {
+                    // No obat selected, save keluhan without obat
+                    Keluhan::create(array_merge($keluhanBaseData, [
+                        'id_obat' => null,
+                        'jumlah_obat' => 0, // Default to 0
+                        'aturan_pakai' => null,
+                    ]));
+                }
+
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
+                throw $e;
+            }
 
             // Clear token from session after successful use
             session()->forget('valid_emergency_token');
@@ -119,7 +177,7 @@ class RekamMedisEmergencyController extends Controller
      */
     public function show($id)
     {
-        $rekamMedisEmergency = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap'])->findOrFail($id);
+        $rekamMedisEmergency = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap', 'externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
         return view('rekam-medis-emergency.detail', compact('rekamMedisEmergency'));
     }
 
@@ -128,8 +186,14 @@ class RekamMedisEmergencyController extends Controller
      */
     public function edit($id)
     {
-        $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
-        return view('rekam-medis-emergency.edit', compact('rekamMedisEmergency'));
+        $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
+        
+        // Get data for dropdowns with relationships
+        $externalEmployees = ExternalEmployee::with(['vendor', 'kategori'])->aktif()->get();
+        $diagnosaEmergency = DiagnosaEmergency::all();
+        $diagnosas = Diagnosa::all();
+
+        return view('rekam-medis-emergency.edit', compact('rekamMedisEmergency', 'externalEmployees', 'diagnosaEmergency', 'diagnosas'));
     }
 
     /**
@@ -140,20 +204,54 @@ class RekamMedisEmergencyController extends Controller
         $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
 
         $validated = $request->validate([
-            'nik_pasien' => 'required|digits_between:1,16|numeric',
-            'nama_pasien' => 'required|string|max:255',
-            'no_rm' => 'required|string|max:30',
-            'jenis_kelamin' => 'required|in:L,P',
+            'external_employee_id' => 'required|exists:external_employees,id',
             'tanggal_periksa' => 'required|date',
             'waktu_periksa' => 'nullable|date_format:H:i',
-            'status_rekam_medis' => 'required|in:On Progress,Close',
+            'status' => 'required|in:On Progress,Close',
             'keluhan' => 'required|string',
-            'diagnosa' => 'nullable|string',
+            'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
+            'terapi' => 'required|string',
             'catatan' => 'nullable|string',
         ]);
 
         try {
-            $rekamMedisEmergency->update($validated);
+            DB::beginTransaction();
+            try {
+                // Update emergency medical record
+                $rekamMedisEmergency->update([
+                    'id_external_employee' => $validated['external_employee_id'],
+                    'tanggal_periksa' => $validated['tanggal_periksa'],
+                    'waktu_periksa' => $validated['waktu_periksa'],
+                    'status' => $validated['status'],
+                    'keluhan' => $validated['keluhan'],
+                    'catatan' => $validated['catatan'],
+                ]);
+
+                // Update or create keluhan record
+                $existingKeluhan = $rekamMedisEmergency->keluhans()->first();
+                if ($existingKeluhan) {
+                    // Update existing keluhan
+                    $existingKeluhan->update([
+                        'id_diagnosa' => null, // Set to null for emergency records
+                        'id_diagnosa_emergency' => $validated['id_diagnosa_emergency'],
+                        'terapi' => $validated['terapi'],
+                        'keterangan' => $validated['keluhan'],
+                    ]);
+                } else {
+                    // Create new keluhan using the model method
+                    $rekamMedisEmergency->createKeluhan([
+                        'id_diagnosa_emergency' => $validated['id_diagnosa_emergency'],
+                        'terapi' => $validated['terapi'],
+                        'keterangan' => $validated['keluhan'],
+                    ]);
+                }
+
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
+                throw $e;
+            }
+
             return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil diperbarui!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: ' . $e->getMessage());
@@ -179,18 +277,18 @@ class RekamMedisEmergencyController extends Controller
         $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
 
         $validated = $request->validate([
-            'status_rekam_medis' => 'required|in:On Progress,Close',
+            'status' => 'required|in:On Progress,Close',
         ]);
 
         try {
             $rekamMedisEmergency->update([
-                'status_rekam_medis' => $validated['status_rekam_medis'],
+                'status' => $validated['status'],
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Status berhasil diperbarui',
-                'status' => $rekamMedisEmergency->status_rekam_medis,
+                'status' => $rekamMedisEmergency->status,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -198,5 +296,53 @@ class RekamMedisEmergencyController extends Controller
                 'message' => 'Gagal memperbarui status: ' . $e->getMessage(),
             ], 500);
         }
+    }
+    
+    /**
+     * Get obat by diagnosa emergency ID
+     */
+    public function getObatByDiagnosa(Request $request)
+    {
+        $diagnosaId = $request->get('diagnosa_id');
+        
+        if (!$diagnosaId) {
+            return response()->json([]);
+        }
+        
+        $diagnosa = DiagnosaEmergency::with('obats')->find($diagnosaId);
+        
+        if (!$diagnosa) {
+            return response()->json([]);
+        }
+        
+        $obats = $diagnosa->obats->map(function($obat) {
+            return [
+                'id_obat' => $obat->id_obat,
+                'nama_obat' => $obat->nama_obat,
+            ];
+        });
+        
+        return response()->json($obats);
+    }
+    
+    /**
+     * Get all diagnosa emergency with their obat
+     */
+    public function getDiagnosaWithObat()
+    {
+        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get()->map(function($diagnosa) {
+            return [
+                'id_diagnosa_emergency' => $diagnosa->id_diagnosa_emergency,
+                'nama_diagnosa_emergency' => $diagnosa->nama_diagnosa_emergency,
+                'obats' => $diagnosa->obats->map(function($obat) {
+                    return [
+                        'id_obat' => $obat->id_obat,
+                        'nama_obat' => $obat->nama_obat,
+                    ];
+                })
+            ];
+        });
+        
+        return response()->json($diagnosaEmergency);
     }
 }
