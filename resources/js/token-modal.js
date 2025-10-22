@@ -142,28 +142,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Token Valid!',
-                    html: `
-                        <div class="text-center">
-                            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Token Berhasil Divalidasi!</h3>
-                            <p class="text-gray-600">Halaman akan direfresh untuk memperbarui menu emergency.</p>
-                        </div>
-                    `,
+                    title: 'Token Berhasil Divalidasi!',
+                    text: 'Halaman akan direfresh untuk memperbarui menu emergency.',
                     showConfirmButton: true,
                     confirmButtonText: 'OK',
                     confirmButtonColor: '#10b981',
                     timer: 3500,
-                    timerProgressBar: true,
-                    customClass: {
-                        popup: 'rounded-2xl shadow-2xl max-w-md w-full p-6',
-                        title: 'hidden',
-                        htmlContainer: 'p-0'
-                    }
+                    timerProgressBar: true
                 }).then(() => {
                     // Update sidebar untuk menampilkan menu emergency
                     updateEmergencySidebar(true);
@@ -186,76 +171,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     `;
                 }
 
-                // Check if we're on choose-type or rekam-medis-emergency page
-                const isChooseTypePage = window.location.pathname.includes('/rekam-medis/choose-type');
-                const isEmergencyIndexPage = window.location.pathname.includes('/rekam-medis-emergency');
+                // Show normal single icon for all pages
+                Swal.fire({
+                    icon: iconType,
+                    title: titleText,
+                    text: data.message || 'Token yang Anda masukkan tidak valid atau sudah digunakan.',
+                    confirmButtonColor: iconType === 'warning' ? '#f59e0b' : '#ef4444',
+                    confirmButtonText: iconType === 'warning' ? 'Mengerti' : 'Coba Lagi'
+                });
 
-                if (isChooseTypePage || isEmergencyIndexPage) {
-                    // Show double warning/error icon for these specific pages
-                    Swal.fire({
-                        icon: false,
-                        title: titleText,
-                        html: `
-                            <div class="text-center">
-                                <div class="flex justify-center mb-4">
-                                    <div class="inline-flex items-center justify-center w-16 h-16 bg-${iconType === 'warning' ? 'amber' : 'red'}-100 rounded-full">
-                                        <svg class="w-8 h-8 text-${iconType === 'warning' ? 'amber' : 'red'}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            ${iconType === 'warning' ?
-                                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>' :
-                                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>'
-                                            }
-                                        </svg>
-                                    </div>
-                                    <div class="inline-flex items-center justify-center w-16 h-16 bg-${iconType === 'warning' ? 'amber' : 'red'}-100 rounded-full -ml-4">
-                                        <svg class="w-8 h-8 text-${iconType === 'warning' ? 'amber' : 'red'}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            ${iconType === 'warning' ?
-                                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>' :
-                                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>'
-                                            }
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 class="text-xl font-semibold text-gray-900 mb-2">${titleText}</h3>
-                                <p class="text-gray-600">${data.message || 'Token yang Anda masukkan tidak valid atau sudah digunakan.'}</p>
-                                ${additionalInfo}
-                            </div>
-                        `,
-                        confirmButtonColor: iconType === 'warning' ? '#f59e0b' : '#ef4444',
-                        confirmButtonText: iconType === 'warning' ? 'Mengerti' : 'Coba Lagi',
-                        customClass: {
-                            popup: 'rounded-2xl shadow-2xl max-w-md w-full p-6',
-                            title: 'hidden',
-                            htmlContainer: 'p-0'
-                        }
-                    });
-                } else {
-                    // Show normal single icon for other pages
-                    Swal.fire({
-                        icon: iconType,
-                        title: titleText,
-                        html: `
-                            <div class="text-center">
-                                <div class="inline-flex items-center justify-center w-16 h-16 bg-${iconType === 'warning' ? 'amber' : 'red'}-100 rounded-full mb-4">
-                                    <svg class="w-8 h-8 text-${iconType === 'warning' ? 'amber' : 'red'}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        ${iconType === 'warning' ?
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>' :
-                                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>'
-                                        }
-                                    </svg>
-                                </div>
-                                <h3 class="text-xl font-semibold text-gray-900 mb-2">${titleText}</h3>
-                                <p class="text-gray-600">${data.message || 'Token yang Anda masukkan tidak valid atau sudah digunakan.'}</p>
-                                ${additionalInfo}
-                            </div>
-                        `,
-                        confirmButtonColor: iconType === 'warning' ? '#f59e0b' : '#ef4444',
-                        confirmButtonText: iconType === 'warning' ? 'Mengerti' : 'Coba Lagi',
-                        customClass: {
-                            popup: 'rounded-2xl shadow-2xl max-w-md w-full p-6',
-                            title: 'hidden',
-                            htmlContainer: 'p-0'
-                        }
-                    });
+                // Show additional info if exists
+                if (additionalInfo) {
+                    Swal.showValidationMessage(additionalInfo.replace(/<[^>]*>/g, ''));
                 }
             }
         })
@@ -264,24 +191,9 @@ document.addEventListener('DOMContentLoaded', function() {
             Swal.fire({
                 icon: 'error',
                 title: 'Terjadi Kesalahan!',
-                html: `
-                    <div class="text-center">
-                        <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Terjadi Kesalahan!</h3>
-                        <p class="text-gray-600">Gagal memvalidasi token. Silakan coba lagi.</p>
-                    </div>
-                `,
+                text: 'Gagal memvalidasi token. Silakan coba lagi.',
                 confirmButtonColor: '#ef4444',
-                confirmButtonText: 'OK',
-                customClass: {
-                    popup: 'rounded-2xl shadow-2xl max-w-md w-full p-6',
-                    title: 'hidden',
-                    htmlContainer: 'p-0'
-                }
+                confirmButtonText: 'OK'
             });
         });
     };
@@ -339,7 +251,8 @@ document.addEventListener('alpine:init', () => {
                     icon: 'warning',
                     title: 'Token Tidak Valid!',
                     text: 'Token harus berupa angka 4-6 digit',
-                    confirmButtonColor: '#f59e0b'
+                    confirmButtonColor: '#f59e0b',
+                    confirmButtonText: 'Mengerti'
                 });
                 return;
             }
@@ -364,8 +277,8 @@ document.addEventListener('alpine:init', () => {
                 if (data.success) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Token Valid!',
-                        html: 'Token berhasil divalidasi.<br><small class="text-gray-600">Halaman akan direfresh untuk memperbarui menu.</small>',
+                        title: 'Token Berhasil Divalidasi!',
+                        text: 'Halaman akan direfresh untuk memperbarui menu emergency.',
                         showConfirmButton: true,
                         confirmButtonText: 'OK',
                         confirmButtonColor: '#10b981',
@@ -403,7 +316,8 @@ document.addEventListener('alpine:init', () => {
                     icon: 'error',
                     title: 'Terjadi Kesalahan!',
                     text: 'Gagal memvalidasi token. Silakan coba lagi.',
-                    confirmButtonColor: '#ef4444'
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'OK'
                 });
             } finally {
                 this.processing = false;
@@ -415,3 +329,4 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 });
+
