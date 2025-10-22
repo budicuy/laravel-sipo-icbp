@@ -12,9 +12,9 @@
     <!-- Notifications & User Info & Logout -->
     <div class="flex items-center space-x-4" x-data="{ userMenuOpen: false, notificationOpen: false }">
         <!-- Token Request Notifications (Admin/Super Admin only) -->
-        @if(auth()->user()->role === 'Super Admin')
+        @if(auth()->user()->role === 'Super Admin' || auth()->user()->role === 'Admin')
         @php
-            $pendingRequestsCount = \App\Models\TokenEmergency::getPendingRequestsCount();
+            $pendingRequestsCount = \App\Models\TokenRequest::getPendingRequestsCount();
         @endphp
         <div class="relative">
             <button @click="notificationOpen = !notificationOpen"
@@ -43,7 +43,7 @@
                 <!-- Notification Header -->
                 <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-3 flex items-center justify-between">
                     <h3 class="text-sm font-semibold text-white">Notifikasi Token</h3>
-                    <a href="{{ route('token-emergency.pending-requests') }}" class="text-xs text-white/80 hover:text-white transition-colors">
+                    <a href="{{ route('token-emergency.monitoring') }}" class="text-xs text-white/80 hover:text-white transition-colors">
                         Lihat Semua
                     </a>
                 </div>
@@ -52,8 +52,8 @@
                 @if($pendingRequestsCount > 0)
                 <div class="max-h-64 overflow-y-auto">
                     @php
-                        $pendingRequests = \App\Models\TokenEmergency::with('requester')
-                            ->where('request_status', \App\Models\TokenEmergency::REQUEST_STATUS_PENDING)
+                        $pendingRequests = \App\Models\TokenRequest::with('requester')
+                            ->where('status', \App\Models\TokenRequest::STATUS_PENDING)
                             ->orderBy('created_at', 'desc')
                             ->take(5)
                             ->get();
@@ -80,7 +80,7 @@
                     @endforeach
                 </div>
                 <div class="px-4 py-3 bg-gray-50 text-center">
-                    <a href="{{ route('token-emergency.pending-requests') }}" class="text-sm font-medium text-purple-600 hover:text-purple-700">
+                    <a href="{{ route('token-emergency.monitoring') }}" class="text-sm font-medium text-purple-600 hover:text-purple-700">
                         Kelola Permintaan ({{ $pendingRequestsCount }})
                     </a>
                 </div>

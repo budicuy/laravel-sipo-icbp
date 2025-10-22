@@ -132,8 +132,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/token-emergency', [TokenEmergencyController::class, 'index'])->name('token-emergency.index');
     Route::get('/token-emergency/create', [TokenEmergencyController::class, 'create'])->name('token-emergency.create');
     Route::post('/token-emergency/generate', [TokenEmergencyController::class, 'generate'])->name('token-emergency.generate');
-    Route::get('/token-emergency/validate', [TokenEmergencyController::class, 'validateForm'])->name('token-emergency.validate');
-    Route::post('/token-emergency/validate', [TokenEmergencyController::class, 'validateToken'])->name('token-emergency.validate.token');
+    Route::post('/token-emergency/validate', [TokenEmergencyController::class, 'validateToken'])->name('token-emergency.validate');
     Route::delete('/token-emergency/{id}', [TokenEmergencyController::class, 'destroy'])->name('token-emergency.destroy');
     Route::post('/token-emergency/clear', [TokenEmergencyController::class, 'clearToken'])->name('token-emergency.clear');
 
@@ -143,6 +142,12 @@ Route::middleware('auth')->group(function () {
 
     // User Token Management Routes
     Route::get('/token-emergency/my-tokens', [TokenEmergencyController::class, 'myTokens'])->name('token-emergency.my-tokens');
+
+    // API Routes for Token Emergency
+    Route::get('/api/token-emergency/pending-requests', [TokenEmergencyController::class, 'apiPendingRequests'])->name('token-emergency.api.pending-requests');
+    Route::get('/api/token-emergency/audit-trail', [TokenEmergencyController::class, 'apiAuditTrail'])->name('token-emergency.api.audit-trail');
+    Route::get('/api/token-emergency/manage-tokens', [TokenEmergencyController::class, 'apiManageTokens'])->name('token-emergency.api.manage-tokens');
+    Route::get('/api/token-emergency/request-history', [TokenEmergencyController::class, 'apiRequestHistory'])->name('token-emergency.api.request-history');
 
     // Token Management Routes (Admin/Super Admin only)
     Route::middleware(['auth', 'role:Admin,Super Admin'])->group(function () {

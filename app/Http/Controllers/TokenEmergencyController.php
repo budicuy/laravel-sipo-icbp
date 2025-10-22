@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TokenEmergency;
+use App\Models\TokenRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -16,11 +17,8 @@ class TokenEmergencyController extends Controller
      */
     public function index()
     {
-        $tokens = TokenEmergency::with(['user', 'generator', 'requester'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
-
-        return view('token-emergency.index', compact('tokens'));
+        // Redirect to monitoring page since the index page is removed
+        return redirect()->route('token-emergency.monitoring');
     }
 
     /**
@@ -51,47 +49,10 @@ class TokenEmergencyController extends Controller
             Auth::id()
         );
 
-        return redirect()->route('token-emergency.index')
+        return redirect()->route('token-emergency.monitoring')
             ->with('success', "Berhasil generate {$request->count} token emergency dengan panjang {$request->length} digit.");
     }
 
-    /**
-     * Show the form for token validation.
-     */
-    public function validateForm()
-    {
-        return view('token-emergency.validate');
-    }
-
-    /**
-     * Validate and use token.
-     */
-    public function validateToken(Request $request)
-    {
-        $request->validate([
-            'token' => 'required|string|digits_between:4,6'
-        ]);
-
-        $token = TokenEmergency::isValidToken($request->token);
-
-        if (!$token) {
-            // Always return JSON response for AJAX requests
-            return response()->json([
-                'success' => false,
-                'message' => 'Token tidak valid atau sudah digunakan.'
-            ], 422);
-        }
-
-        // Simpan token yang valid ke session
-        Session::put('valid_emergency_token', $token->token);
-
-        // Always return JSON response for AJAX requests
-        return response()->json([
-            'success' => true,
-            'message' => 'Token valid! Anda dapat menambahkan rekam medis emergency.',
-            'redirect_url' => route('rekam-medis-emergency.create')
-        ]);
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -107,7 +68,7 @@ class TokenEmergencyController extends Controller
 
         $token->delete();
 
-        return redirect()->route('token-emergency.index')
+        return redirect()->route('token-emergency.monitoring')
             ->with('success', 'Token berhasil dihapus.');
     }
 
@@ -119,6 +80,58 @@ class TokenEmergencyController extends Controller
         Session::forget('valid_emergency_token');
         return redirect()->route('dashboard')
             ->with('success', 'Token emergency telah dihapus dari sesi.');
+    }
+
+    /**
+     * Validate token via AJAX
+     */
+    public function validateToken(Request $request)
+    {
+        // Remove the exists validation to handle custom error messages
+        $request->validate([
+            'token' => 'required|string'
+        ]);
+
+        $currentUserId = Auth::id();
+
+        // Check if token exists
+        $existingToken = TokenEmergency::where('token', $request->token)->first();
+        if (!$existingToken) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token tidak ditemukan. Pastikan token yang Anda masukkan benar.'
+            ], 404);
+        }
+
+        // Check if token is available
+        if ($existingToken->status !== TokenEmergency::STATUS_AVAILABLE) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token sudah digunakan atau kadaluarsa.'
+            ], 400);
+        }
+
+        // Check if token can be used by current user
+        if (!$existingToken->canBeUsedBy($currentUserId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token ini bukan milik Anda dan tidak dapat digunakan.'
+            ], 403);
+        }
+
+        // Mark token as used
+        $existingToken->status = TokenEmergency::STATUS_USED;
+        $existingToken->used_at = now();
+        $existingToken->used_by = $currentUserId;
+        $existingToken->save();
+
+        // Store valid token in session
+        session(['valid_emergency_token' => $existingToken->token]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Token berhasil divalidasi.'
+        ]);
     }
 
     /**
@@ -140,13 +153,11 @@ class TokenEmergencyController extends Controller
         ]);
 
         // Create a token request record
-        $tokenRequest = TokenEmergency::create([
-            'token' => 'REQ-' . time(), // Temporary token for request
-            'status' => 'used', // Mark as used until approved
-            'request_quantity' => $request->quantity,
-            'request_status' => TokenEmergency::REQUEST_STATUS_PENDING,
+        $tokenRequest = TokenRequest::create([
             'requested_by' => Auth::id(),
-            'notes' => $request->notes
+            'quantity' => $request->quantity,
+            'notes' => $request->notes,
+            'status' => TokenRequest::STATUS_PENDING
         ]);
 
         // Check if request is from AJAX (modal)
@@ -166,8 +177,8 @@ class TokenEmergencyController extends Controller
      */
     public function pendingRequests()
     {
-        $pendingRequests = TokenEmergency::with('requester')
-            ->where('request_status', TokenEmergency::REQUEST_STATUS_PENDING)
+        $pendingRequests = TokenRequest::with('requester')
+            ->where('status', TokenRequest::STATUS_PENDING)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -183,9 +194,9 @@ class TokenEmergencyController extends Controller
             'notes' => 'nullable|string|max:255'
         ]);
 
-        $tokenRequest = TokenEmergency::findOrFail($id);
+        $tokenRequest = TokenRequest::findOrFail($id);
 
-        if ($tokenRequest->request_status !== TokenEmergency::REQUEST_STATUS_PENDING) {
+        if ($tokenRequest->status !== TokenRequest::STATUS_PENDING) {
             return redirect()->back()
                 ->with('error', 'Permintaan ini tidak dapat diproses.');
         }
@@ -193,15 +204,15 @@ class TokenEmergencyController extends Controller
         DB::beginTransaction();
         try {
             // Update the request record
-            $tokenRequest->request_status = TokenEmergency::REQUEST_STATUS_APPROVED;
-            $tokenRequest->request_approved_at = now();
-            $tokenRequest->request_approved_by = Auth::id();
+            $tokenRequest->status = TokenRequest::STATUS_APPROVED;
+            $tokenRequest->approved_by = Auth::id();
+            $tokenRequest->approved_at = now();
             $tokenRequest->notes = $request->notes;
             $tokenRequest->save();
 
             // Generate tokens for the user
             TokenEmergency::generateMultipleTokens(
-                $tokenRequest->request_quantity,
+                $tokenRequest->quantity,
                 6,
                 $tokenRequest->requested_by,
                 Auth::id()
@@ -209,9 +220,9 @@ class TokenEmergencyController extends Controller
 
             DB::commit();
 
-            return redirect()->route('token-emergency.pending-requests')
+            return redirect()->route('token-emergency.monitoring')
                 ->with('success', 'Permintaan token telah disetujui. ' .
-                    $tokenRequest->request_quantity . ' token telah digenerate.');
+                    $tokenRequest->quantity . ' token telah digenerate.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
@@ -228,20 +239,20 @@ class TokenEmergencyController extends Controller
             'rejection_reason' => 'required|string|max:255'
         ]);
 
-        $tokenRequest = TokenEmergency::findOrFail($id);
+        $tokenRequest = TokenRequest::findOrFail($id);
 
-        if ($tokenRequest->request_status !== TokenEmergency::REQUEST_STATUS_PENDING) {
+        if ($tokenRequest->status !== TokenRequest::STATUS_PENDING) {
             return redirect()->back()
                 ->with('error', 'Permintaan ini tidak dapat diproses.');
         }
 
-        $tokenRequest->request_status = TokenEmergency::REQUEST_STATUS_REJECTED;
-        $tokenRequest->request_approved_at = now();
-        $tokenRequest->request_approved_by = Auth::id();
-        $tokenRequest->notes = 'Ditolak: ' . $request->rejection_reason;
+        $tokenRequest->status = TokenRequest::STATUS_REJECTED;
+        $tokenRequest->approved_by = Auth::id();
+        $tokenRequest->approved_at = now();
+        $tokenRequest->rejection_reason = $request->rejection_reason;
         $tokenRequest->save();
 
-        return redirect()->route('token-emergency.pending-requests')
+        return redirect()->route('token-emergency.monitoring')
             ->with('success', 'Permintaan token telah ditolak.');
     }
 
@@ -251,9 +262,9 @@ class TokenEmergencyController extends Controller
     public function monitoring()
     {
         $usersWithLowTokens = TokenEmergency::getUsersWithLowTokens(5);
-        $pendingRequestsCount = TokenEmergency::getPendingRequestsCount();
-        $pendingRequests = TokenEmergency::with('requester')
-            ->where('request_status', TokenEmergency::REQUEST_STATUS_PENDING)
+        $pendingRequestsCount = TokenRequest::getPendingRequestsCount();
+        $pendingRequests = TokenRequest::with('requester')
+            ->where('status', TokenRequest::STATUS_PENDING)
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
@@ -308,6 +319,194 @@ class TokenEmergencyController extends Controller
         $tokens = TokenEmergency::getUserTokens($userId);
         $availableTokensCount = TokenEmergency::getAvailableTokensCount($userId);
 
-        return view('token-emergency.my-tokens', compact('tokens', 'availableTokensCount'));
+        // Check if user has pending request
+        $hasPendingRequest = TokenRequest::where('requested_by', $userId)
+            ->where('status', TokenRequest::STATUS_PENDING)
+            ->exists();
+
+        // Get rejected requests with their details
+        $rejectedRequests = TokenRequest::where('requested_by', $userId)
+            ->where('status', TokenRequest::STATUS_REJECTED)
+            ->orderBy('approved_at', 'desc')
+            ->take(5) // Show last 5 rejected requests
+            ->get();
+
+        return view('token-emergency.my-tokens', compact('tokens', 'availableTokensCount', 'hasPendingRequest', 'rejectedRequests'));
+    }
+
+    /**
+     * API endpoint to get all pending requests
+     */
+    public function apiPendingRequests()
+    {
+        $pendingRequests = TokenRequest::with('requester')
+            ->where('status', TokenRequest::STATUS_PENDING)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $formattedRequests = $pendingRequests->map(function ($request) {
+            return [
+                'id' => $request->id,
+                'requester' => [
+                    'nama_lengkap' => $request->requester->nama_lengkap,
+                    'username' => $request->requester->username
+                ],
+                'quantity' => $request->quantity,
+                'notes' => $request->notes,
+                'created_at_formatted' => $request->created_at->format('d/m/Y H:i'),
+                'time_ago' => $request->created_at->diffForHumans()
+            ];
+        });
+
+        return response()->json([
+            'requests' => $formattedRequests
+        ]);
+    }
+
+    /**
+     * API endpoint to get audit trail data
+     */
+    public function apiAuditTrail()
+    {
+        $perPage = request('per_page', 20);
+        $page = request('page', 1);
+
+        $tokens = TokenEmergency::with(['user', 'generator', 'usedBy'])
+            ->where('status', TokenEmergency::STATUS_USED) // Only show used tokens
+            ->orderBy('used_at', 'desc') // Order by when they were used
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $formattedTokens = $tokens->getCollection()->map(function ($token) {
+            return [
+                'id_token' => $token->id_token,
+                'token' => $token->token,
+                'user' => $token->user ? [
+                    'nama_lengkap' => $token->user->nama_lengkap,
+                    'username' => $token->user->username
+                ] : null,
+                'generator' => $token->generator ? [
+                    'nama_lengkap' => $token->generator->nama_lengkap,
+                    'username' => $token->generator->username
+                ] : null,
+                'status' => $token->status,
+                'status_badge' => $token->status_badge,
+                'created_at_formatted' => $token->created_at->format('d/m/Y H:i'),
+                'used_at_formatted' => $token->used_at ? $token->used_at->format('d/m/Y H:i') : null,
+                'time_ago' => $token->created_at->diffForHumans(),
+                'notes' => $token->notes
+            ];
+        });
+
+        return response()->json([
+            'tokens' => new \Illuminate\Pagination\LengthAwarePaginator(
+                $formattedTokens,
+                $tokens->total(),
+                $tokens->perPage(),
+                $tokens->currentPage(),
+                [
+                    'path' => request()->url(),
+                    'pageName' => 'page',
+                    'query' => request()->query(),
+                ]
+            )
+        ]);
+    }
+
+    /**
+     * API endpoint to get tokens for management
+     */
+    public function apiManageTokens()
+    {
+        $perPage = request('per_page', 20);
+        $page = request('page', 1);
+
+        $tokens = TokenEmergency::with(['user', 'generator', 'usedBy'])
+            ->where('status', TokenEmergency::STATUS_AVAILABLE) // Only show available tokens
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $formattedTokens = $tokens->getCollection()->map(function ($token) {
+            return [
+                'id_token' => $token->id_token,
+                'token' => $token->token,
+                'user' => $token->user ? [
+                    'nama_lengkap' => $token->user->nama_lengkap,
+                    'username' => $token->user->username
+                ] : null,
+                'generator' => $token->generator ? [
+                    'nama_lengkap' => $token->generator->nama_lengkap,
+                    'username' => $token->generator->username
+                ] : null,
+                'status' => $token->status,
+                'status_badge' => $token->status_badge,
+                'created_at_formatted' => $token->created_at->format('d/m/Y H:i'),
+                'used_at_formatted' => $token->used_at ? $token->used_at->format('d/m/Y H:i') : null,
+                'time_ago' => $token->created_at->diffForHumans(),
+                'notes' => $token->notes
+            ];
+        });
+
+        return response()->json([
+            'tokens' => new \Illuminate\Pagination\LengthAwarePaginator(
+                $formattedTokens,
+                $tokens->total(),
+                $tokens->perPage(),
+                $tokens->currentPage(),
+                [
+                    'path' => request()->url(),
+                    'pageName' => 'page',
+                    'query' => request()->query(),
+                ]
+            )
+        ]);
+    }
+
+    /**
+     * API endpoint to get request history
+     */
+    public function apiRequestHistory()
+    {
+        $perPage = request('per_page', 20);
+        $page = request('page', 1);
+
+        $requests = TokenRequest::with(['requester', 'approver'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $formattedRequests = $requests->getCollection()->map(function ($request) {
+            return [
+                'id' => $request->id,
+                'requester' => [
+                    'nama_lengkap' => $request->requester->nama_lengkap,
+                    'username' => $request->requester->username
+                ],
+                'approver' => $request->approver ? [
+                    'nama_lengkap' => $request->approver->nama_lengkap,
+                    'username' => $request->approver->username
+                ] : null,
+                'quantity' => $request->quantity,
+                'status' => $request->status,
+                'status_badge' => $request->status_badge,
+                'notes' => $request->notes,
+                'rejection_reason' => $request->rejection_reason,
+                'created_at_formatted' => $request->created_at->format('d/m/Y H:i'),
+                'approved_at_formatted' => $request->approved_at ? $request->approved_at->format('d/m/Y H:i') : null,
+                'time_ago' => $request->created_at->diffForHumans()
+            ];
+        });
+
+        return response()->json([
+            'requests' => new \Illuminate\Pagination\LengthAwarePaginator(
+                $formattedRequests,
+                $requests->total(),
+                $requests->perPage(),
+                $requests->currentPage(),
+                [
+                    'path' => request()->url(),
+                    'pageName' => 'page',
+                    'query' => request()->query(),
+                ]
+            )
+        ]);
     }
 }

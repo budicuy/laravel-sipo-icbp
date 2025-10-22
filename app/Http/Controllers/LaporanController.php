@@ -257,11 +257,15 @@ class LaporanController extends Controller
 
         $kunjunganIdMap = [];
         if (!empty($kunjunganConditions)) {
-            $kunjunganRecords = DB::select("
-                SELECT id_keluarga, DATE(tanggal_kunjungan) as tanggal, id_kunjungan
-                FROM kunjungan
-                WHERE " . implode(' OR ', $kunjunganConditions)
-            );
+            $kunjunganRecords = Kunjungan::where(function($query) use ($kunjunganKeys) {
+                foreach ($kunjunganKeys as $key) {
+                    list($idKeluarga, $tanggal) = explode('_', $key);
+                    $query->orWhere(function($q) use ($idKeluarga, $tanggal) {
+                        $q->where('id_keluarga', $idKeluarga)
+                          ->whereDate('tanggal_kunjungan', $tanggal);
+                    });
+                }
+            })->get();
 
             foreach ($kunjunganRecords as $record) {
                 $key = $record->id_keluarga . '_' . $record->tanggal;

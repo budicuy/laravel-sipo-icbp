@@ -1,0 +1,87 @@
+=== ANALISIS FITUR KELOLA TOKEN ===
+
+1. ROUTE YANG TERKAIT:
+132:    Route::get('/token-emergency', [TokenEmergencyController::class, 'index'])->name('token-emergency.index');
+133:    Route::get('/token-emergency/create', [TokenEmergencyController::class, 'create'])->name('token-emergency.create');
+134:    Route::post('/token-emergency/generate', [TokenEmergencyController::class, 'generate'])->name('token-emergency.generate');
+135:    Route::get('/token-emergency/validate', [TokenEmergencyController::class, 'validateForm'])->name('token-emergency.validate');
+136:    Route::post('/token-emergency/validate', [TokenEmergencyController::class, 'validateToken'])->name('token-emergency.validate.token');
+137:    Route::delete('/token-emergency/{id}', [TokenEmergencyController::class, 'destroy'])->name('token-emergency.destroy');
+138:    Route::post('/token-emergency/clear', [TokenEmergencyController::class, 'clearToken'])->name('token-emergency.clear');
+141:    Route::get('/token-emergency/request', [TokenEmergencyController::class, 'requestForm'])->name('token-emergency.request');
+142:    Route::post('/token-emergency/request', [TokenEmergencyController::class, 'storeRequest'])->name('token-emergency.storeRequest');
+145:    Route::get('/token-emergency/my-tokens', [TokenEmergencyController::class, 'myTokens'])->name('token-emergency.my-tokens');
+148:    Route::get('/api/token-emergency/pending-requests', [TokenEmergencyController::class, 'apiPendingRequests'])->name('token-emergency.api.pending-requests');
+149:    Route::get('/api/token-emergency/audit-trail', [TokenEmergencyController::class, 'apiAuditTrail'])->name('token-emergency.api.audit-trail');
+150:    Route::get('/api/token-emergency/manage-tokens', [TokenEmergencyController::class, 'apiManageTokens'])->name('token-emergency.api.manage-tokens');
+154:        Route::get('/token-emergency/pending-requests', [TokenEmergencyController::class, 'pendingRequests'])->name('token-emergency.pending-requests');
+155:        Route::post('/token-emergency/approve-request/{id}', [TokenEmergencyController::class, 'approveRequest'])->name('token-emergency.approve-request');
+156:        Route::post('/token-emergency/reject-request/{id}', [TokenEmergencyController::class, 'rejectRequest'])->name('token-emergency.reject-request');
+158:        Route::get('/token-emergency/audit-trail', [TokenEmergencyController::class, 'auditTrail'])->name('token-emergency.audit-trail');
+159:        Route::get('/token-emergency/user-profile/{userId}', [TokenEmergencyController::class, 'userProfile'])->name('token-emergency.user-profile');
+
+2. CONTROLLER METODE YANG TERKAIT:
+17:    public function index()
+29:    public function create()
+38:    public function generate(Request $request)
+61:    public function validateForm()
+69:    public function validateToken(Request $request)
+99:    public function destroy($id)
+117:    public function clearToken()
+127:    public function requestForm()
+135:    public function storeRequest(Request $request)
+167:    public function pendingRequests()
+180:    public function approveRequest(Request $request, $id)
+225:    public function rejectRequest(Request $request, $id)
+284:    public function auditTrail()
+294:    public function userProfile($userId)
+305:    public function myTokens()
+317:    public function apiPendingRequests()
+346:    public function apiAuditTrail()
+381:    public function apiManageTokens()
+
+3. VIEW FILE YANG TERKAIT:
+total 160
+drwxr-xr-x. 1 budicuyyy budicuyyy   304 Oct 21 13:52 .
+drwxr-xr-x. 1 budicuyyy budicuyyy   418 Oct 21 11:57 ..
+-rw-r--r--. 1 budicuyyy budicuyyy 16860 Oct 21 13:12 audit-trail.blade.php
+-rw-r--r--. 1 budicuyyy budicuyyy 12636 Oct 21 10:55 create.blade.php
+-rw-r--r--. 1 budicuyyy budicuyyy 18366 Oct 20 15:19 index.blade.php
+-rw-r--r--. 1 budicuyyy budicuyyy 57269 Oct 21 14:24 monitoring.blade.php
+-rw-r--r--. 1 budicuyyy budicuyyy 16041 Oct 21 11:48 my-tokens.blade.php
+-rw-r--r--. 1 budicuyyy budicuyyy 10207 Oct 21 10:58 pending-requests.blade.php
+-rw-r--r--. 1 budicuyyy budicuyyy  7242 Oct 21 10:59 request.blade.php
+-rw-r--r--. 1 budicuyyy budicuyyy 11062 Oct 20 14:50 validate.blade.php
+
+4. DEPENDENSI DI SIDEBAR:
+142:                            <a href="{{ route('token-emergency.index') }}"
+143:                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.index') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
+=== RENCANA PENGHAPUSAN FITUR KELOLA TOKEN ===
+
+LANGKAH 1: Hapus menu Kelola Token dari sidebar navigasi
+LANGKAH 2: Pertahankan semua route dan controller untuk mendukung fitur di halaman monitoring
+LANGKAH 3: Pastikan halaman monitoring tetap berfungsi dengan baik
+
+FILE YANG AKAN DIUBAH:
+- resources/views/components/sidebar.blade.php (hapus menu Kelola Token)
+
+FILE YANG AKAN DIPERTAHANKAN:
+- Semua route di routes/web.php
+- Semua metode di TokenEmergencyController
+- Semua view file di resources/views/token-emergency/
+- resources/views/token-emergency/monitoring.blade.php (tetap berfungsi)
+=== VERIFIKASI PENGHAPUSAN MENU KELOLA TOKEN ===
+
+1. Menu Kelola Token telah dihapus dari sidebar navigasi
+2. Menu Monitoring Token tetap ada di sidebar navigasi
+3. Semua route dan controller tetap dipertahankan untuk mendukung fitur di halaman monitoring
+4. Halaman monitoring.blade.php tetap berfungsi dengan baik
+
+FITUR YANG TETAP BERFUNGSI DI HALAMAN MONITORING:
+- Tab Ringkasan: Statistik token, pengguna dengan token rendah, permintaan token menunggu
+- Tab Kelola Token: Generate token, validasi token, hapus token
+- Tab Riwayat Token: Audit trail aktivitas token
+
+AKSES KE HALAMAN MONITORING:
+- Langsung melalui URL: /token-emergency/monitoring
+- Melalui menu sidebar: Monitoring Token
