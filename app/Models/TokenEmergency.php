@@ -19,28 +19,17 @@ class TokenEmergency extends Model
         'used_at',
         'used_by',
         'generated_by',
-        'requested_by',
-        'request_quantity',
-        'request_status',
-        'request_approved_at',
-        'request_approved_by',
         'notes'
     ];
 
     protected $casts = [
         'used_at' => 'datetime',
-        'request_approved_at' => 'datetime'
     ];
 
     // Status constants
     const STATUS_AVAILABLE = 'available';
     const STATUS_USED = 'used';
     const STATUS_EXPIRED = 'expired';
-
-    // Request status constants
-    const REQUEST_STATUS_PENDING = 'pending';
-    const REQUEST_STATUS_APPROVED = 'approved';
-    const REQUEST_STATUS_REJECTED = 'rejected';
 
     /**
      * Generate random token dengan panjang 4-6 digit
@@ -150,21 +139,6 @@ class TokenEmergency extends Model
         return $this->belongsTo(User::class, 'generated_by', 'id_user');
     }
 
-    /**
-     * Relasi ke user (user yang requested token)
-     */
-    public function requester()
-    {
-        return $this->belongsTo(User::class, 'requested_by', 'id_user');
-    }
-
-    /**
-     * Relasi ke user (admin yang approved request)
-     */
-    public function approver()
-    {
-        return $this->belongsTo(User::class, 'request_approved_by', 'id_user');
-    }
 
     /**
      * Relasi ke user (user yang menggunakan token)
@@ -196,14 +170,6 @@ class TokenEmergency extends Model
             ->get();
     }
 
-    /**
-     * Get pending token requests count
-     */
-    public static function getPendingRequestsCount()
-    {
-        return self::where('request_status', self::REQUEST_STATUS_PENDING)
-            ->count();
-    }
 
     /**
      * Get users with low token count (less than 5)
@@ -227,7 +193,7 @@ class TokenEmergency extends Model
      */
     public static function getAuditTrail()
     {
-        return self::with(['user', 'generator', 'requester', 'approver', 'usedBy'])
+        return self::with(['user', 'generator', 'usedBy'])
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -240,13 +206,6 @@ class TokenEmergency extends Model
         return $query->where('status', $status);
     }
 
-    /**
-     * Scope to get tokens by request status
-     */
-    public function scopeByRequestStatus($query, $requestStatus)
-    {
-        return $query->where('request_status', $requestStatus);
-    }
 
     /**
      * Check if token is expired (older than 30 days)
@@ -270,17 +229,4 @@ class TokenEmergency extends Model
         return $badges[$this->status] ?? '';
     }
 
-    /**
-     * Get request status badge HTML
-     */
-    public function getRequestStatusBadgeAttribute()
-    {
-        $badges = [
-            self::REQUEST_STATUS_PENDING => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Menunggu</span>',
-            self::REQUEST_STATUS_APPROVED => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Disetujui</span>',
-            self::REQUEST_STATUS_REJECTED => '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Ditolak</span>',
-        ];
-
-        return $badges[$this->request_status] ?? '';
-    }
 }

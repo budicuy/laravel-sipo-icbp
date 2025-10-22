@@ -251,7 +251,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        {{ $rejected->request_quantity }} Token
+                                        {{ $rejected->quantity }} Token
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
@@ -264,14 +264,14 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                     <div>
-                                        <div class="text-sm">{{ $rejected->request_approved_at->format('d/m/Y H:i') }}</div>
-                                        <div class="text-xs text-gray-500">{{ $rejected->request_approved_at->diffForHumans() }}</div>
+                                        <div class="text-sm">{{ $rejected->approved_at->format('d/m/Y H:i') }}</div>
+                                        <div class="text-xs text-gray-500">{{ $rejected->approved_at->diffForHumans() }}</div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900 max-w-xs">
-                                    @if($rejected->notes && str_starts_with($rejected->notes, 'Ditolak: '))
-                                    <div class="truncate" title="{{ substr($rejected->notes, 8) }}">
-                                        {{ substr($rejected->notes, 8) }}
+                                    @if($rejected->rejection_reason)
+                                    <div class="truncate" title="{{ $rejected->rejection_reason }}">
+                                        {{ $rejected->rejection_reason }}
                                     </div>
                                     @else
                                     <span class="text-gray-400">-</span>

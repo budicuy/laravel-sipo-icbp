@@ -147,6 +147,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/token-emergency/pending-requests', [TokenEmergencyController::class, 'apiPendingRequests'])->name('token-emergency.api.pending-requests');
     Route::get('/api/token-emergency/audit-trail', [TokenEmergencyController::class, 'apiAuditTrail'])->name('token-emergency.api.audit-trail');
     Route::get('/api/token-emergency/manage-tokens', [TokenEmergencyController::class, 'apiManageTokens'])->name('token-emergency.api.manage-tokens');
+    Route::get('/api/token-emergency/request-history', [TokenEmergencyController::class, 'apiRequestHistory'])->name('token-emergency.api.request-history');
 
     // Token Management Routes (Admin/Super Admin only)
     Route::middleware(['auth', 'role:Admin,Super Admin'])->group(function () {

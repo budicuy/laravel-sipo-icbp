@@ -96,9 +96,9 @@
                 </li>
 
                 <!-- Rekam Medis (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('token-emergency/monitoring*') ? 'true' : 'false' }} }">
+                <li x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                            class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('token-emergency/monitoring*') ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                            class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                             :title="!sidebarOpen ? 'Rekam Medis' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110" :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,22 +137,6 @@
                                 Daftar Rekam Medis Emergency
                             </a>
                         </li>
-                        @if(auth()->user()->role === 'Super Admin' || auth()->user()->role === 'Admin')
-                        <li>
-                            <a href="{{ route('token-emergency.monitoring') }}"
-                               class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('token-emergency/monitoring*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                Monitoring Token
-                                @php
-                                    $pendingRequestsCount = \App\Models\TokenEmergency::getPendingRequestsCount();
-                                @endphp
-                                @if($pendingRequestsCount > 0)
-                                <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                                    {{ $pendingRequestsCount }}
-                                </span>
-                                @endif
-                            </a>
-                        </li>
-                        @endif
                         @if(auth()->user()->role === 'User')
                         <li>
                             <a href="{{ route('token-emergency.my-tokens') }}"
@@ -251,6 +235,33 @@
                         </li>
                     </ul>
                 </li>
+
+                <!-- Monitoring Token Emergency (Menu Utama) -->
+                @if(auth()->user()->role === 'Super Admin' || auth()->user()->role === 'Admin')
+                <li>
+                    <a href="{{ route('token-emergency.monitoring') }}"
+                       class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('token-emergency/monitoring*') ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                       :title="!sidebarOpen ? 'Monitoring Token Emergency' : ''"
+                       @click="activeMenu = 'token-emergency-monitoring'">
+                        <div class="relative">
+                            <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110" :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            @if(request()->is('token-emergency/monitoring*'))
+                            @endif
+                        </div>
+                        <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">Authenticator</span>
+                        @php
+                            $pendingRequestsCount = \App\Models\TokenRequest::getPendingRequestsCount();
+                        @endphp
+                        @if($pendingRequestsCount > 0)
+                        <span x-show="sidebarOpen" class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            {{ $pendingRequestsCount }}
+                        </span>
+                        @endif
+                    </a>
+                </li>
+                @endif
             </ul>
         </nav>
 

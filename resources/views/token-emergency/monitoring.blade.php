@@ -9,11 +9,11 @@
         <div class="flex items-center gap-3">
             <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-lg shadow-lg">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
             </div>
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Monitoring Token Emergency</h1>
+                <h1 class="text-3xl font-bold text-gray-900">Authenticator Emergency</h1>
                 <p class="text-gray-600 mt-1">Pantau status token dan permintaan secara real-time</p>
             </div>
         </div>
@@ -86,6 +86,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                     </svg>
                     Kelola Token
+                </button>
+                <button onclick="showTab('requests')" id="requests-tab" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Riwayat Permintaan
                 </button>
                 <button onclick="showTab('audit')" id="audit-tab" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,17 +236,17 @@
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-sm font-medium text-gray-900">{{ $request->requester->nama_lengkap }}</p>
-                                            <p class="text-xs text-gray-500">Meminta {{ $request->request_quantity }} token</p>
+                                            <p class="text-xs text-gray-500">Meminta {{ $request->quantity }} token</p>
                                             <p class="text-xs text-gray-400">{{ $request->created_at->format('d/m/Y H:i') }}</p>
                                         </div>
                                         <div class="flex space-x-2">
-                                            <form action="{{ route('token-emergency.approve-request', $request->id_token) }}" method="POST" class="inline">
+                                            <form action="{{ route('token-emergency.approve-request', $request->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 <button type="submit" class="bg-green-600 text-white text-xs rounded px-2 py-1 hover:bg-green-700">
                                                     Setujui
                                                 </button>
                                             </form>
-                                            <button onclick="showRejectModal({{ $request->id_token }})"
+                                            <button onclick="showRejectModal({{ $request->id }})"
                                                     class="bg-red-600 text-white text-xs rounded px-2 py-1 hover:bg-red-700">
                                                 Tolak
                                             </button>
@@ -302,7 +308,8 @@
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Token</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Pengguna</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Pemilik</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Generator</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Digunakan Pada</th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Dibuat Pada</th>
                                     <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
@@ -330,15 +337,9 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
-                            Riwayat Token
+                            Riwayat Token (Sudah Digunakan)
                         </h3>
                         <div class="flex items-center gap-2">
-                            <select id="auditFilter" onchange="filterAuditTrail()" class="text-sm border-gray-300 rounded-md focus:ring-white focus:border-white bg-white text-black font-semibold px-3 py-1.5">
-                                <option class="text-black" value="">Semua Status</option>
-                                <option class="text-black" value="available">Tersedia</option>
-                                <option class="text-black" value="used">Digunakan</option>
-                                <option class="text-black" value="expired">Kadaluarsa</option>
-                            </select>
                             <div class="relative">
                                 <input type="text" id="searchToken" placeholder="Cari token atau pengguna..."
                                        class="text-sm border-gray-300 rounded-md focus:ring-white focus:border-white bg-white text-black placeholder-gray-300 pl-8 pr-4 py-1.5 w-64"
@@ -384,8 +385,65 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Request History Tab Content -->
+            <div id="requests-tab-content" class="tab-content hidden">
+                    <!-- Table Header -->
+                    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-4 rounded-t-lg">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Riwayat Permintaan Token
+                            </h3>
+                            <div class="flex items-center gap-2">
+                                <select id="requestFilter" onchange="filterRequestHistory()" class="text-sm border-gray-300 rounded-md focus:ring-white focus:border-white bg-white text-black font-semibold px-3 py-1.5">
+                                    <option class="text-black" value="">Semua Status</option>
+                                    <option class="text-black" value="pending">Menunggu</option>
+                                    <option class="text-black" value="approved">Disetujui</option>
+                                    <option class="text-black" value="rejected">Ditolak</option>
+                                </select>
+                                <div class="relative">
+                                    <input type="text" id="searchRequest" placeholder="Cari pemohon..."
+                                           class="text-sm border-gray-300 rounded-md focus:ring-white focus:border-white bg-white text-black placeholder-gray-300 pl-8 pr-4 py-1.5 w-64"
+                                           onkeyup="filterRequestHistory()">
+                                    <svg class="w-4 h-4 absolute left-2.5 top-2.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-b-lg shadow border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Pemohon</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Jumlah</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Disetujui Oleh</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tanggal Permintaan</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Catatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="requestTableBody">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50" id="requestPagination">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 </div>
 
 <!-- Reject Modal -->
@@ -587,7 +645,7 @@ function showAllRequestsModal() {
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                ${request.request_quantity} Token
+                                ${request.quantity} Token
                             </span>
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-900 max-w-xs">
@@ -603,7 +661,7 @@ function showAllRequestsModal() {
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap text-center">
                             <div class="flex items-center justify-center space-x-2">
-                                <form action="/token-emergency/approve-request/${request.id_token}" method="POST" class="inline">
+                                <form action="/token-emergency/approve-request/${request.id}" method="POST" class="inline">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <button type="submit" class="bg-green-600 text-white text-xs rounded px-3 py-1.5 hover:bg-green-700 transition-colors">
                                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -612,7 +670,7 @@ function showAllRequestsModal() {
                                         Setujui
                                     </button>
                                 </form>
-                                <button onclick="showRejectModal(${request.id_token})"
+                                <button onclick="showRejectModal(${request.id})"
                                         class="bg-red-600 text-white text-xs rounded px-3 py-1.5 hover:bg-red-700 transition-colors">
                                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -719,6 +777,10 @@ function showTab(tabName) {
         } else {
             loadManageTokens();
         }
+    } else if (tabName === 'requests') {
+        // Always load request history when switching to requests tab
+        console.log('Loading request history tab');
+        loadRequestHistory();
     }
 }
 
@@ -729,7 +791,7 @@ function loadManageTokens(customUrl = null) {
 
     tbody.innerHTML = `
         <tr>
-            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+            <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                 <svg class="w-8 h-8 mx-auto text-gray-400 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -794,6 +856,9 @@ function loadManageTokens(customUrl = null) {
                             ${token.user ? token.user.nama_lengkap : '-'}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            ${token.generator ? token.generator.nama_lengkap : '-'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             ${token.used_at_formatted || '-'}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
@@ -831,7 +896,7 @@ function loadManageTokens(customUrl = null) {
             } else {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                        <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                             <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                             </svg>
@@ -847,7 +912,7 @@ function loadManageTokens(customUrl = null) {
             console.error('Error loading tokens:', error);
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-red-500">
+                    <td colspan="8" class="px-6 py-8 text-center text-red-500">
                         <svg class="w-16 h-16 mx-auto text-red-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -1197,7 +1262,6 @@ function loadAuditTrailPage(url) {
 }
 
 function filterAuditTrail() {
-    const status = document.getElementById('auditFilter').value;
     const searchTerm = document.getElementById('searchToken').value;
 
     // Show loading state
@@ -1208,14 +1272,6 @@ function filterAuditTrail() {
         const rows = document.querySelectorAll('#auditTableBody tr');
         rows.forEach(row => {
             let showRow = true;
-
-            // Filter by status
-            if (status !== '') {
-                const statusCell = row.querySelector('td:nth-child(4)');
-                if (statusCell && !statusCell.textContent.toLowerCase().includes(status.toLowerCase())) {
-                    showRow = false;
-                }
-            }
 
             // Filter by search term
             if (searchTerm !== '') {
@@ -1239,6 +1295,266 @@ function exportAuditTrail() {
         text: 'Fitur export CSV akan segera tersedia.',
         confirmButtonText: 'OK'
     });
+}
+
+function loadRequestHistory(customUrl = null) {
+    // Show loading state
+    const tbody = document.getElementById('requestTableBody');
+    const pagination = document.getElementById('requestPagination');
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                <svg class="w-8 h-8 mx-auto text-gray-400 mb-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <p class="text-sm">Memuat riwayat permintaan...</p>
+            </td>
+        </tr>
+    `;
+
+    pagination.innerHTML = `
+        <div class="flex justify-center">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-yellow-500 mx-auto"></div>
+        </div>
+    `;
+
+    // Determine the URL to use
+    let fetchUrl = '/api/token-emergency/request-history';
+
+    if (customUrl) {
+        // Extract query parameters from the custom URL
+        const urlObj = new URL(customUrl, window.location.origin);
+        const params = urlObj.searchParams;
+
+        // Build the API URL with parameters
+        if (params.toString()) {
+            fetchUrl += '?' + params.toString();
+        }
+    } else {
+        // Check current URL for parameters
+        const currentUrl = new URL(window.location.href);
+        const params = currentUrl.searchParams;
+
+        // Build the API URL with parameters
+        if (params.toString()) {
+            fetchUrl += '?' + params.toString();
+        }
+    }
+
+    // Add debug log
+    console.log('Fetching request history from:', fetchUrl);
+
+    // Fetch request history data
+    fetch(fetchUrl)
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Request history data:', data);
+            tbody.innerHTML = '';
+
+            if (data.requests && data.requests.data && data.requests.data.length > 0) {
+                data.requests.data.forEach((request, index) => {
+                    let row = document.createElement('tr');
+                    row.className = 'hover:bg-yellow-50 transition-colors';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            ${data.requests.from + index}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                                    <span class="text-sm font-medium text-yellow-600">
+                                        ${request.requester.nama_lengkap.charAt(0)}
+                                    </span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">${request.requester.nama_lengkap}</div>
+                                    <div class="text-xs text-gray-500">${request.requester.username}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                ${request.quantity} Token
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            ${request.status_badge}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            ${request.approver ? request.approver.nama_lengkap : '-'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                            <div>
+                                <div class="text-sm">${request.created_at_formatted}</div>
+                                <div class="text-xs text-gray-500">${request.time_ago}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                            <div class="truncate" title="${request.notes || request.rejection_reason || '-'}">
+                                ${request.notes || request.rejection_reason || '-'}
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                // Populate pagination
+                if (data.requests.links && data.requests.links.length > 3) {
+                    pagination.innerHTML = generateRequestPagination(data.requests);
+                } else {
+                    pagination.innerHTML = `
+                        <div class="text-sm text-gray-600 text-center">
+                            Menampilkan ${data.requests.from} hingga ${data.requests.to} dari ${data.requests.total} data
+                        </div>
+                    `;
+                }
+            } else {
+                let row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                        <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-lg font-medium">Tidak ada riwayat permintaan</p>
+                        <p class="text-sm mt-1">Belum ada permintaan token yang tercatat</p>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                pagination.innerHTML = '';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading request history:', error);
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-6 py-8 text-center text-red-500">
+                        <svg class="w-16 h-16 mx-auto text-red-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-lg font-medium">Gagal memuat riwayat permintaan</p>
+                        <p class="text-sm mt-1">Terjadi kesalahan saat mengambil data</p>
+                    </td>
+                </tr>
+            `;
+            pagination.innerHTML = '';
+        });
+}
+
+function generateRequestPagination(data) {
+    let html = `
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-sm text-gray-600">
+                Halaman <span class="font-semibold text-gray-900">${data.current_page}</span>
+                dari <span class="font-semibold text-gray-900">${data.last_page}</span>
+                <span class="mx-2 text-gray-400">•</span>
+                Total <span class="font-semibold text-gray-900">${data.total}</span> data
+            </div>
+
+            <nav class="flex items-center gap-2" role="navigation">
+    `;
+
+    // Previous button
+    if (data.prev_page_url) {
+        html += `<a href="javascript:void(0)" onclick="loadRequestHistoryPage('${data.prev_page_url}')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all">Previous</a>`;
+    } else {
+        html += `<span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>`;
+    }
+
+    // Page numbers
+    html += '<div class="flex items-center gap-1">';
+
+    // Calculate visible page range
+    let start = Math.max(1, data.current_page - 2);
+    let end = Math.min(data.last_page, data.current_page + 2);
+
+    // First page
+    if (start > 1) {
+        html += `<a href="javascript:void(0)" onclick="loadRequestHistoryPage('${data.first_page_url}')" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all">1</a>`;
+        if (start > 2) {
+            html += `<span class="px-2 text-gray-500">...</span>`;
+        }
+    }
+
+    // Page numbers
+    for (let i = start; i <= end; i++) {
+        let url = data.links.find(link => link.label == i.toString())?.url || '';
+        if (i == data.current_page) {
+            html += `<span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg shadow-md">${i}</span>`;
+        } else {
+            html += `<a href="javascript:void(0)" onclick="loadRequestHistoryPage('${url}')" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all">${i}</a>`;
+        }
+    }
+
+    // Last page
+    if (end < data.last_page) {
+        if (end < data.last_page - 1) {
+            html += `<span class="px-2 text-gray-500">...</span>`;
+        }
+        html += `<a href="javascript:void(0)" onclick="loadRequestHistoryPage('${data.last_page_url}')" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all">${data.last_page}</a>`;
+    }
+
+    html += '</div>';
+
+    // Next button
+    if (data.next_page_url) {
+        html += `<a href="javascript:void(0)" onclick="loadRequestHistoryPage('${data.next_page_url}')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all">Next</a>`;
+    } else {
+        html += `<span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>`;
+    }
+
+    html += `
+            </nav>
+        </div>
+    `;
+
+    return html;
+}
+
+function loadRequestHistoryPage(url) {
+    // Update the URL with the page parameter
+    const newUrl = new URL(url, window.location.origin);
+    window.history.pushState({}, '', newUrl);
+
+    // Reload the request history
+    loadRequestHistory(url);
+}
+
+function filterRequestHistory() {
+    const status = document.getElementById('requestFilter').value;
+    const searchTerm = document.getElementById('searchRequest').value;
+
+    // Show loading state
+    loadRequestHistory();
+
+    // Apply filter after loading
+    setTimeout(() => {
+        const rows = document.querySelectorAll('#requestTableBody tr');
+        rows.forEach(row => {
+            let showRow = true;
+
+            // Filter by status
+            if (status !== '') {
+                const statusCell = row.querySelector('td:nth-child(4)');
+                if (statusCell && !statusCell.textContent.toLowerCase().includes(status.toLowerCase())) {
+                    showRow = false;
+                }
+            }
+
+            // Filter by search term
+            if (searchTerm !== '') {
+                const rowText = row.textContent.toLowerCase();
+                if (!rowText.includes(searchTerm.toLowerCase())) {
+                    showRow = false;
+                }
+            }
+
+            row.style.display = showRow ? '' : 'none';
+        });
+    }, 500);
 }
 
 // Initialize with overview tab

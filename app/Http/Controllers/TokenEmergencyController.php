@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TokenEmergency;
+use App\Models\TokenRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -86,46 +87,46 @@ class TokenEmergencyController extends Controller
      */
     public function validateToken(Request $request)
     {
+        // Remove the exists validation to handle custom error messages
         $request->validate([
-            'token' => 'required|string|exists:token_emergency,token'
+            'token' => 'required|string'
         ]);
 
         $currentUserId = Auth::id();
 
-        // Use the new method to check if token is valid for the current user
-        $token = TokenEmergency::isValidTokenForUser($request->token, $currentUserId);
-
-        if (!$token) {
-            // Check if token exists but is not available for this user
-            $existingToken = TokenEmergency::where('token', $request->token)->first();
-            if ($existingToken) {
-                if ($existingToken->status !== TokenEmergency::STATUS_AVAILABLE) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Token sudah digunakan atau kadaluarsa.'
-                    ], 400);
-                } else if (!$existingToken->canBeUsedBy($currentUserId)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Token ini bukan milik Anda dan tidak dapat digunakan.'
-                    ], 403);
-                }
-            }
-
+        // Check if token exists
+        $existingToken = TokenEmergency::where('token', $request->token)->first();
+        if (!$existingToken) {
             return response()->json([
                 'success' => false,
-                'message' => 'Token tidak valid.'
+                'message' => 'Token tidak ditemukan. Pastikan token yang Anda masukkan benar.'
+            ], 404);
+        }
+
+        // Check if token is available
+        if ($existingToken->status !== TokenEmergency::STATUS_AVAILABLE) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token sudah digunakan atau kadaluarsa.'
             ], 400);
         }
 
+        // Check if token can be used by current user
+        if (!$existingToken->canBeUsedBy($currentUserId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token ini bukan milik Anda dan tidak dapat digunakan.'
+            ], 403);
+        }
+
         // Mark token as used
-        $token->status = TokenEmergency::STATUS_USED;
-        $token->used_at = now();
-        $token->used_by = $currentUserId;
-        $token->save();
+        $existingToken->status = TokenEmergency::STATUS_USED;
+        $existingToken->used_at = now();
+        $existingToken->used_by = $currentUserId;
+        $existingToken->save();
 
         // Store valid token in session
-        session(['valid_emergency_token' => $token->token]);
+        session(['valid_emergency_token' => $existingToken->token]);
 
         return response()->json([
             'success' => true,
@@ -152,13 +153,11 @@ class TokenEmergencyController extends Controller
         ]);
 
         // Create a token request record
-        $tokenRequest = TokenEmergency::create([
-            'token' => 'REQ-' . time(), // Temporary token for request
-            'status' => 'used', // Mark as used until approved
-            'request_quantity' => $request->quantity,
-            'request_status' => TokenEmergency::REQUEST_STATUS_PENDING,
+        $tokenRequest = TokenRequest::create([
             'requested_by' => Auth::id(),
-            'notes' => $request->notes
+            'quantity' => $request->quantity,
+            'notes' => $request->notes,
+            'status' => TokenRequest::STATUS_PENDING
         ]);
 
         // Check if request is from AJAX (modal)
@@ -178,8 +177,8 @@ class TokenEmergencyController extends Controller
      */
     public function pendingRequests()
     {
-        $pendingRequests = TokenEmergency::with('requester')
-            ->where('request_status', TokenEmergency::REQUEST_STATUS_PENDING)
+        $pendingRequests = TokenRequest::with('requester')
+            ->where('status', TokenRequest::STATUS_PENDING)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -195,9 +194,9 @@ class TokenEmergencyController extends Controller
             'notes' => 'nullable|string|max:255'
         ]);
 
-        $tokenRequest = TokenEmergency::findOrFail($id);
+        $tokenRequest = TokenRequest::findOrFail($id);
 
-        if ($tokenRequest->request_status !== TokenEmergency::REQUEST_STATUS_PENDING) {
+        if ($tokenRequest->status !== TokenRequest::STATUS_PENDING) {
             return redirect()->back()
                 ->with('error', 'Permintaan ini tidak dapat diproses.');
         }
@@ -205,15 +204,15 @@ class TokenEmergencyController extends Controller
         DB::beginTransaction();
         try {
             // Update the request record
-            $tokenRequest->request_status = TokenEmergency::REQUEST_STATUS_APPROVED;
-            $tokenRequest->request_approved_at = now();
-            $tokenRequest->request_approved_by = Auth::id();
+            $tokenRequest->status = TokenRequest::STATUS_APPROVED;
+            $tokenRequest->approved_by = Auth::id();
+            $tokenRequest->approved_at = now();
             $tokenRequest->notes = $request->notes;
             $tokenRequest->save();
 
             // Generate tokens for the user
             TokenEmergency::generateMultipleTokens(
-                $tokenRequest->request_quantity,
+                $tokenRequest->quantity,
                 6,
                 $tokenRequest->requested_by,
                 Auth::id()
@@ -221,9 +220,9 @@ class TokenEmergencyController extends Controller
 
             DB::commit();
 
-            return redirect()->route('token-emergency.pending-requests')
+            return redirect()->route('token-emergency.monitoring')
                 ->with('success', 'Permintaan token telah disetujui. ' .
-                    $tokenRequest->request_quantity . ' token telah digenerate.');
+                    $tokenRequest->quantity . ' token telah digenerate.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
@@ -240,20 +239,20 @@ class TokenEmergencyController extends Controller
             'rejection_reason' => 'required|string|max:255'
         ]);
 
-        $tokenRequest = TokenEmergency::findOrFail($id);
+        $tokenRequest = TokenRequest::findOrFail($id);
 
-        if ($tokenRequest->request_status !== TokenEmergency::REQUEST_STATUS_PENDING) {
+        if ($tokenRequest->status !== TokenRequest::STATUS_PENDING) {
             return redirect()->back()
                 ->with('error', 'Permintaan ini tidak dapat diproses.');
         }
 
-        $tokenRequest->request_status = TokenEmergency::REQUEST_STATUS_REJECTED;
-        $tokenRequest->request_approved_at = now();
-        $tokenRequest->request_approved_by = Auth::id();
-        $tokenRequest->notes = 'Ditolak: ' . $request->rejection_reason;
+        $tokenRequest->status = TokenRequest::STATUS_REJECTED;
+        $tokenRequest->approved_by = Auth::id();
+        $tokenRequest->approved_at = now();
+        $tokenRequest->rejection_reason = $request->rejection_reason;
         $tokenRequest->save();
 
-        return redirect()->route('token-emergency.pending-requests')
+        return redirect()->route('token-emergency.monitoring')
             ->with('success', 'Permintaan token telah ditolak.');
     }
 
@@ -263,9 +262,9 @@ class TokenEmergencyController extends Controller
     public function monitoring()
     {
         $usersWithLowTokens = TokenEmergency::getUsersWithLowTokens(5);
-        $pendingRequestsCount = TokenEmergency::getPendingRequestsCount();
-        $pendingRequests = TokenEmergency::with('requester')
-            ->where('request_status', TokenEmergency::REQUEST_STATUS_PENDING)
+        $pendingRequestsCount = TokenRequest::getPendingRequestsCount();
+        $pendingRequests = TokenRequest::with('requester')
+            ->where('status', TokenRequest::STATUS_PENDING)
             ->orderBy('created_at', 'desc')
             ->take(10)
             ->get();
@@ -321,14 +320,14 @@ class TokenEmergencyController extends Controller
         $availableTokensCount = TokenEmergency::getAvailableTokensCount($userId);
 
         // Check if user has pending request
-        $hasPendingRequest = TokenEmergency::where('requested_by', $userId)
-            ->where('request_status', TokenEmergency::REQUEST_STATUS_PENDING)
+        $hasPendingRequest = TokenRequest::where('requested_by', $userId)
+            ->where('status', TokenRequest::STATUS_PENDING)
             ->exists();
 
         // Get rejected requests with their details
-        $rejectedRequests = TokenEmergency::where('requested_by', $userId)
-            ->where('request_status', TokenEmergency::REQUEST_STATUS_REJECTED)
-            ->orderBy('request_approved_at', 'desc')
+        $rejectedRequests = TokenRequest::where('requested_by', $userId)
+            ->where('status', TokenRequest::STATUS_REJECTED)
+            ->orderBy('approved_at', 'desc')
             ->take(5) // Show last 5 rejected requests
             ->get();
 
@@ -340,19 +339,19 @@ class TokenEmergencyController extends Controller
      */
     public function apiPendingRequests()
     {
-        $pendingRequests = TokenEmergency::with('requester')
-            ->where('request_status', TokenEmergency::REQUEST_STATUS_PENDING)
+        $pendingRequests = TokenRequest::with('requester')
+            ->where('status', TokenRequest::STATUS_PENDING)
             ->orderBy('created_at', 'desc')
             ->get();
 
         $formattedRequests = $pendingRequests->map(function ($request) {
             return [
-                'id_token' => $request->id_token,
+                'id' => $request->id,
                 'requester' => [
                     'nama_lengkap' => $request->requester->nama_lengkap,
                     'username' => $request->requester->username
                 ],
-                'request_quantity' => $request->request_quantity,
+                'quantity' => $request->quantity,
                 'notes' => $request->notes,
                 'created_at_formatted' => $request->created_at->format('d/m/Y H:i'),
                 'time_ago' => $request->created_at->diffForHumans()
@@ -373,7 +372,8 @@ class TokenEmergencyController extends Controller
         $page = request('page', 1);
 
         $tokens = TokenEmergency::with(['user', 'generator', 'usedBy'])
-            ->orderBy('created_at', 'desc')
+            ->where('status', TokenEmergency::STATUS_USED) // Only show used tokens
+            ->orderBy('used_at', 'desc') // Order by when they were used
             ->paginate($perPage, ['*'], 'page', $page);
 
         $formattedTokens = $tokens->getCollection()->map(function ($token) {
@@ -421,6 +421,7 @@ class TokenEmergencyController extends Controller
         $page = request('page', 1);
 
         $tokens = TokenEmergency::with(['user', 'generator', 'usedBy'])
+            ->where('status', TokenEmergency::STATUS_AVAILABLE) // Only show available tokens
             ->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -451,6 +452,55 @@ class TokenEmergencyController extends Controller
                 $tokens->total(),
                 $tokens->perPage(),
                 $tokens->currentPage(),
+                [
+                    'path' => request()->url(),
+                    'pageName' => 'page',
+                    'query' => request()->query(),
+                ]
+            )
+        ]);
+    }
+
+    /**
+     * API endpoint to get request history
+     */
+    public function apiRequestHistory()
+    {
+        $perPage = request('per_page', 20);
+        $page = request('page', 1);
+
+        $requests = TokenRequest::with(['requester', 'approver'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $formattedRequests = $requests->getCollection()->map(function ($request) {
+            return [
+                'id' => $request->id,
+                'requester' => [
+                    'nama_lengkap' => $request->requester->nama_lengkap,
+                    'username' => $request->requester->username
+                ],
+                'approver' => $request->approver ? [
+                    'nama_lengkap' => $request->approver->nama_lengkap,
+                    'username' => $request->approver->username
+                ] : null,
+                'quantity' => $request->quantity,
+                'status' => $request->status,
+                'status_badge' => $request->status_badge,
+                'notes' => $request->notes,
+                'rejection_reason' => $request->rejection_reason,
+                'created_at_formatted' => $request->created_at->format('d/m/Y H:i'),
+                'approved_at_formatted' => $request->approved_at ? $request->approved_at->format('d/m/Y H:i') : null,
+                'time_ago' => $request->created_at->diffForHumans()
+            ];
+        });
+
+        return response()->json([
+            'requests' => new \Illuminate\Pagination\LengthAwarePaginator(
+                $formattedRequests,
+                $requests->total(),
+                $requests->perPage(),
+                $requests->currentPage(),
                 [
                     'path' => request()->url(),
                     'pageName' => 'page',
