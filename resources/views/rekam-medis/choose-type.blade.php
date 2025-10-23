@@ -236,6 +236,26 @@ document.addEventListener('DOMContentLoaded', function() {
     if (urlParams.get('type') === 'regular') {
         window.location.href = '{{ route('rekam-medis.create') }}';
     }
+
+    // Auto-show token modal jika ada parameter type=emergency
+    if (urlParams.get('type') === 'emergency') {
+        // Tunggu sebentar untuk memastikan SweetAlert sudah dimuat
+        setTimeout(() => {
+            if (typeof showTokenModal === 'function') {
+                showTokenModal();
+            }
+        }, 500);
+    }
+
+    // Fallback jika ada parameter showModal=true
+    if (urlParams.get('showModal') === 'true') {
+        // Tunggu sebentar untuk memastikan SweetAlert sudah dimuat
+        setTimeout(() => {
+            if (typeof showTokenModal === 'function') {
+                showTokenModal();
+            }
+        }, 500);
+    }
 });
 </script>
 @endsection

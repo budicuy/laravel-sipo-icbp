@@ -72,15 +72,26 @@ Route::middleware('auth')->group(function () {
         'obat' => 'id_obat'
     ]);
 
-    // Stok Obat Routes
+    // Stok Obat Routes - Sistem Revisi Baru
     Route::get('/stok-obat', [StokObatController::class, 'index'])->name('stok-obat.index');
-    Route::get('/stok-obat/export', [StokObatController::class, 'export'])->name('stok-obat.export');
-    Route::get('/stok-obat/template', [StokObatController::class, 'downloadTemplateStokObat'])->name('stok-obat.template');
-    Route::post('/stok-obat/import', [StokObatController::class, 'importStokObat'])->name('stok-obat.import');
+    Route::get('/stok-obat/create', [StokObatController::class, 'create'])->name('stok-obat.create');
+    Route::post('/stok-obat', [StokObatController::class, 'store'])->name('stok-obat.store');
+    Route::get('/stok-obat/{id}/edit', [StokObatController::class, 'edit'])->name('stok-obat.edit');
+    Route::put('/stok-obat/{id}', [StokObatController::class, 'update'])->name('stok-obat.update');
     Route::delete('/stok-obat/{id}', [StokObatController::class, 'destroy'])->name('stok-obat.destroy');
     Route::post('/stok-obat/bulk-delete', [StokObatController::class, 'bulkDelete'])->name('stok-obat.bulkDelete');
-    Route::post('/stok-obat/fix-consistency', [StokObatController::class, 'fixStokConsistency'])->name('stok-obat.fix-consistency');
-    Route::post('/stok-obat/update-stok-awal', [StokObatController::class, 'updateStokAwalForNewPeriod'])->name('stok-obat.update-stok-awal');
+    
+    // Additional routes for new stok system
+    Route::post('/stok-obat/update-stok-pakai', [StokObatController::class, 'updateStokPakai'])->name('stok-obat.update-stok-pakai');
+    Route::post('/stok-obat/generate-stok-awal', [StokObatController::class, 'generateStokAwal'])->name('stok-obat.generate-stok-awal');
+    
+    // API Route untuk preview stok
+    Route::get('/api/stok-obat/preview', [StokObatController::class, 'previewStok'])->name('api.stok-obat.preview');
+    
+    // Legacy routes (dapat dihapus jika tidak diperlukan)
+    Route::get('/stok-obat/export', [StokObatController::class, 'export'])->name('stok-obat.export');
+    Route::get('/stok-obat/template', [StokObatController::class, 'downloadTemplate'])->name('stok-obat.template');
+    Route::post('/stok-obat/import', [StokObatController::class, 'import'])->name('stok-obat.import');
 
     // Harga Obat Routes
     Route::get('/harga-obat', [HargaObatController::class, 'index'])->name('harga-obat.index');
@@ -154,8 +165,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/token-emergency', [TokenEmergencyController::class, 'index'])->name('token-emergency.index');
     Route::get('/token-emergency/create', [TokenEmergencyController::class, 'create'])->name('token-emergency.create');
     Route::post('/token-emergency/generate', [TokenEmergencyController::class, 'generate'])->name('token-emergency.generate');
-    Route::get('/token-emergency/validate', [TokenEmergencyController::class, 'validateForm'])->name('token-emergency.validate');
-    Route::post('/token-emergency/validate', [TokenEmergencyController::class, 'validateToken'])->name('token-emergency.validate.token');
+    Route::post('/token-emergency/validate', [TokenEmergencyController::class, 'validateToken'])->name('token-emergency.validate');
     Route::delete('/token-emergency/{id}', [TokenEmergencyController::class, 'destroy'])->name('token-emergency.destroy');
     Route::post('/token-emergency/clear', [TokenEmergencyController::class, 'clearToken'])->name('token-emergency.clear');
 
@@ -165,6 +175,12 @@ Route::middleware('auth')->group(function () {
 
     // User Token Management Routes
     Route::get('/token-emergency/my-tokens', [TokenEmergencyController::class, 'myTokens'])->name('token-emergency.my-tokens');
+
+    // API Routes for Token Emergency
+    Route::get('/api/token-emergency/pending-requests', [TokenEmergencyController::class, 'apiPendingRequests'])->name('token-emergency.api.pending-requests');
+    Route::get('/api/token-emergency/audit-trail', [TokenEmergencyController::class, 'apiAuditTrail'])->name('token-emergency.api.audit-trail');
+    Route::get('/api/token-emergency/manage-tokens', [TokenEmergencyController::class, 'apiManageTokens'])->name('token-emergency.api.manage-tokens');
+    Route::get('/api/token-emergency/request-history', [TokenEmergencyController::class, 'apiRequestHistory'])->name('token-emergency.api.request-history');
 
     // Token Management Routes (Admin/Super Admin only)
     Route::middleware(['auth', 'role:Admin,Super Admin'])->group(function () {

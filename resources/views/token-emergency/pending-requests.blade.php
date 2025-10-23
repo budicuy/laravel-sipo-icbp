@@ -64,7 +64,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                {{ $request->request_quantity }} Token
+                                {{ $request->quantity }} Token
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
@@ -80,7 +80,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <div class="flex items-center justify-center space-x-2">
-                                <form action="{{ route('token-emergency.approve-request', $request->id_token) }}" method="POST" class="inline">
+                                <form action="{{ route('token-emergency.approve-request', $request->id) }}" method="POST" class="inline">
                                     @csrf
                                     <button type="submit" class="bg-green-600 text-white text-xs rounded px-3 py-1.5 hover:bg-green-700 transition-colors">
                                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,7 +89,7 @@
                                         Setujui
                                     </button>
                                 </form>
-                                <button onclick="showRejectModal({{ $request->id_token }})" 
+                                <button onclick="showRejectModal({{ $request->id }})"
                                         class="bg-red-600 text-white text-xs rounded px-3 py-1.5 hover:bg-red-700 transition-colors">
                                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

@@ -12,9 +12,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
             </div>
-            Data Stok Obat
+            Manajemen Stok Obat
         </h1>
-        <p class="text-gray-600 mt-2 ml-1">Monitor data stok obat per periode bulanan</p>
+        <p class="text-gray-600 mt-2 ml-1">Kelola stok obat per periode bulanan dengan sistem revisi</p>
     </div>
 
     <!-- Success Message -->
@@ -34,51 +34,71 @@
         </script>
     @endif
 
+    <!-- Error Message -->
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: '{{ session('error') }}',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            });
+        </script>
+    @endif
+
+    <!-- Info Message -->
+    @if(session('info'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: '{{ session('info') }}',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            });
+        </script>
+    @endif
+
     <!-- Main Card -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <!-- Action Buttons Section -->
         <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-purple-50">
             <div class="flex flex-wrap gap-3 items-center">
-                <a href="{{ route('stok-obat.template') }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <a href="{{ route('stok-obat.create') }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    Template Import
+                    Tambah Stok
                 </a>
 
-                <button type="button" onclick="openImportModal()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <button type="button" onclick="generateStokAwal()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Import Data
+                    Generate Stok Awal
+                </a>
+
+                <button type="button" onclick="updateStokPakai()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Update Stok Pakai
                 </button>
-
-                <a href="{{ route('stok-obat.export', request()->query()) }}" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Export Excel
-                </a>
 
                 <button type="button" onclick="submitBulkDelete()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                     Hapus Terpilih
-                </button>
-
-                <button type="button" onclick="fixStokConsistency()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Perbaiki Stok
-                </button>
-
-                <button type="button" onclick="updateStokAwalNewPeriod()" class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Update Stok Awal
                 </button>
             </div>
         </div>
@@ -140,7 +160,6 @@
                         @endforeach
                     </select>
                 </div>
-
 
                 <div class="min-w-[150px]">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Status Stok</label>
@@ -263,6 +282,28 @@
                             </a>
                         </th>
                         <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                            <a href="{{ route('stok-obat.index', array_merge(request()->query(), ['sort' => 'stok_masuk', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
+                                <span>Stok Masuk</span>
+                                <span class="ml-2">
+                                    @if(request('sort') == 'stok_masuk')
+                                        @if(request('direction') == 'asc')
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        @endif
+                                    @else
+                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                        </svg>
+                                    @endif
+                                </span>
+                            </a>
+                        </th>
+                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
                             <a href="{{ route('stok-obat.index', array_merge(request()->query(), ['sort' => 'stok_pakai', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
                                 <span>Stok Pakai</span>
                                 <span class="ml-2">
@@ -306,28 +347,7 @@
                                 </span>
                             </a>
                         </th>
-                        <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
-                            <a href="{{ route('stok-obat.index', array_merge(request()->query(), ['sort' => 'stok_masuk', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}" class="flex items-center justify-center group hover:text-purple-300 transition-colors">
-                                <span>Stok Masuk</span>
-                                <span class="ml-2">
-                                    @if(request('sort') == 'stok_masuk')
-                                        @if(request('direction') == 'asc')
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                                            </svg>
-                                        @else
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                            </svg>
-                                        @endif
-                                    @else
-                                        <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-                                        </svg>
-                                    @endif
-                                </span>
-                            </a>
-                        </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Keterangan</th>
                         <th class="px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -335,13 +355,18 @@
                     @forelse($stokObats as $index => $stok)
                         <tr class="hover:bg-purple-50 transition-colors {{ $stok->stok_akhir <= 0 ? 'bg-red-50' : ($stok->stok_akhir <= 10 ? 'bg-yellow-50' : '') }}">
                             <td class="px-4 py-3">
-                                <input type="checkbox" name="selected_ids[]" value="{{ $stok->id_stok_bulanan }}" class="row-checkbox rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500">
+                                <input type="checkbox" name="selected_ids[]" value="{{ $stok->id_stok_obat }}" class="row-checkbox rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500" {{ $stok->is_initial_stok ? 'disabled' : '' }}>
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900">{{ ($stokObats->currentPage() - 1) * $stokObats->perPage() + $index + 1 }}</td>
                             <td class="px-4 py-3">
                                 <div class="text-sm font-medium text-gray-900">{{ $stok->obat->nama_obat }}</div>
                                 @if($stok->obat->keterangan)
                                     <div class="text-xs text-gray-500 truncate max-w-xs" title="{{ $stok->obat->keterangan }}">{{ Str::limit($stok->obat->keterangan, 50) }}</div>
+                                @endif
+                                @if($stok->is_initial_stok)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 mt-1">
+                                        Stok Awal
+                                    </span>
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-600">{{ $stok->obat->satuanObat->nama_satuan ?? '-' }}</td>
@@ -352,27 +377,41 @@
                                 <div class="text-xs text-gray-500 mt-1">{{ $stok->periode_format }}</div>
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900 text-center">{{ number_format($stok->stok_awal) }}</td>
+                            <td class="px-4 py-3 text-sm {{ $stok->stok_masuk > 0 ? 'text-green-600' : 'text-gray-900' }} text-center">{{ number_format($stok->stok_masuk) }}</td>
                             <td class="px-4 py-3 text-sm {{ $stok->stok_pakai > 0 ? 'text-red-600' : 'text-gray-900' }} text-center">{{ number_format($stok->stok_pakai) }}</td>
                             <td class="px-4 py-3 text-sm font-semibold text-center {{ $stok->stok_akhir <= 0 ? 'text-red-600' : ($stok->stok_akhir <= 10 ? 'text-yellow-600' : 'text-green-600') }}">
                                 {{ number_format($stok->stok_akhir) }}
                             </td>
-                            <td class="px-4 py-3 text-sm {{ $stok->stok_masuk > 0 ? 'text-green-600' : 'text-gray-900' }} text-center">{{ number_format($stok->stok_masuk) }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">
+                                @if($stok->keterangan)
+                                    <span class="truncate inline-block max-w-xs" title="{{ $stok->keterangan }}">{{ Str::limit($stok->keterangan, 30) }}</span>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3 text-sm font-medium text-center">
-                                <button onclick="deleteStok({{ $stok->id_stok_bulanan }}, '{{ $stok->obat->nama_obat }} - {{ $stok->periode }}')" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
+                                <a href="{{ route('stok-obat.edit', $stok->id_stok_obat) }}" class="inline-flex items-center justify-center w-9 h-9 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md mr-1" title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
-                                </button>
+                                </a>
+                                @if(!$stok->is_initial_stok)
+                                    <button onclick="deleteStok({{ $stok->id_stok_obat }}, '{{ $stok->obat->nama_obat }} - {{ $stok->periode }}')" class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md" title="Hapus">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="11" class="px-4 py-8 text-center text-gray-500">
                                 <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                 </svg>
                                 <p class="text-lg font-medium">Tidak ada data stok obat</p>
-                                <p class="text-sm mt-1">Import data stok obat untuk memulai</p>
+                                <p class="text-sm mt-1">Tambah stok obat untuk memulai</p>
                             </td>
                         </tr>
                     @endforelse
@@ -382,10 +421,10 @@
                         <tr>
                             <th colspan="5" class="px-4 py-3 text-right text-sm font-medium text-gray-700">Total</th>
                             <th class="px-4 py-3 text-center text-sm font-bold text-gray-900">{{ number_format($stokObats->sum('stok_awal')) }}</th>
+                            <th class="px-4 py-3 text-center text-sm font-bold text-green-600">{{ number_format($stokObats->sum('stok_masuk')) }}</th>
                             <th class="px-4 py-3 text-center text-sm font-bold text-red-600">{{ number_format($stokObats->sum('stok_pakai')) }}</th>
                             <th class="px-4 py-3 text-center text-sm font-bold text-gray-900">{{ number_format($stokObats->sum('stok_akhir')) }}</th>
-                            <th class="px-4 py-3 text-center text-sm font-bold text-green-600">{{ number_format($stokObats->sum('stok_masuk')) }}</th>
-                            <th class="px-4 py-3"></th>
+                            <th colspan="2" class="px-4 py-3"></th>
                         </tr>
                     </tfoot>
                 @endif
@@ -481,7 +520,7 @@
 
 <script>
 function toggleAll(checkbox) {
-    const checkboxes = document.querySelectorAll('.row-checkbox');
+    const checkboxes = document.querySelectorAll('.row-checkbox:not([disabled])');
     checkboxes.forEach(cb => cb.checked = checkbox.checked);
     updateSelectedCount();
 }
@@ -531,6 +570,8 @@ function deleteStok(id, nama) {
                     }).then(() => {
                         location.reload();
                     });
+                } else {
+                    Swal.fire('Error!', data.message, 'error');
                 }
             })
             .catch(error => {
@@ -589,6 +630,8 @@ function submitBulkDelete() {
                     }).then(() => {
                         location.reload();
                     });
+                } else {
+                    Swal.fire('Error!', data.message, 'error');
                 }
             })
             .catch(error => {
@@ -598,206 +641,12 @@ function submitBulkDelete() {
     });
 }
 
-function openImportModal() {
+function generateStokAwal() {
     Swal.fire({
-        title: 'Import Data Stok Obat dari Excel',
+        title: 'Generate Stok Awal Periode Baru',
         html: `
             <div class="text-left">
-                <div class="mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                    <h4 class="font-semibold text-purple-900 mb-2 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Informasi Penting
-                    </h4>
-                    <ul class="text-sm text-purple-800 space-y-1 ml-7">
-                        <li>• Format file: Excel (.xlsx atau .xls)</li>
-                        <li>• Maksimal ukuran file: 5MB</li>
-                        <li>• Download template terlebih dahulu</li>
-                        <li>• Format: No | Nama Obat | Satuan | Periode | Stok Awal | Stok Pakai | Stok Masuk | Stok Akhir</li>
-                    </ul>
-                </div>
-
-                <div class="mb-4">
-                    <a href="{{ route('stok-obat.template') }}"
-                       class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-all w-full justify-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Download Template Stok Obat
-                    </a>
-                </div>
-
-                <form id="importForm" action="{{ route('stok-obat.import') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File Excel Stok Obat</label>
-                        <input type="file"
-                               name="file"
-                               id="importFile"
-                               accept=".xlsx,.xls"
-                               required
-                               class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2">
-                        <p class="mt-1 text-xs text-gray-500">File Excel (.xlsx atau .xls), maksimal 5MB</p>
-                    </div>
-                </form>
-            </div>
-        `,
-        showCancelButton: true,
-        confirmButtonText: 'Upload & Import',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#7c3aed',
-        cancelButtonColor: '#6b7280',
-        width: '600px',
-        customClass: {
-            confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
-            cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
-        },
-        preConfirm: () => {
-            const fileInput = document.getElementById('importFile');
-            if (!fileInput.files || fileInput.files.length === 0) {
-                Swal.showValidationMessage('Silakan pilih file Excel terlebih dahulu');
-                return false;
-            }
-
-            const file = fileInput.files[0];
-            const maxSize = 5 * 1024 * 1024; // 5MB
-
-            if (file.size > maxSize) {
-                Swal.showValidationMessage('Ukuran file maksimal 5MB');
-                return false;
-            }
-
-            const allowedExtensions = ['xlsx', 'xls'];
-            const fileExtension = file.name.split('.').pop().toLowerCase();
-
-            if (!allowedExtensions.includes(fileExtension)) {
-                Swal.showValidationMessage('Format file harus .xlsx atau .xls');
-                return false;
-            }
-
-            return true;
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const fileInput = document.getElementById('importFile');
-            const file = fileInput.files[0];
-
-            // Create FormData
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-
-            // Show loading
-            Swal.fire({
-                title: 'Sedang Mengimport...',
-                html: 'Mohon tunggu, data stok bulanan sedang diproses',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Submit via AJAX
-            fetch('{{ route("stok-obat.import") }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => Promise.reject(err));
-                }
-                return response.json();
-            })
-            .then(data => {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    html: data.message,
-                    confirmButtonColor: '#7c3aed'
-                }).then(() => {
-                    // Reload page to show new data
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000); // 2-second delay
-                });
-            })
-            .catch(error => {
-                console.error('Import error:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal Import',
-                    html: error.message || 'Terjadi kesalahan saat mengimport data stok obat',
-                    confirmButtonColor: '#7c3aed'
-                });
-            });
-        }
-    });
-}
-
-// Auto submit filter on periode change
-document.addEventListener('DOMContentLoaded', function() {
-    const periodeSelect = document.getElementById('periode');
-    if (periodeSelect) {
-        periodeSelect.addEventListener('change', function() {
-            this.form.submit();
-        });
-    }
-});
-
-function fixStokConsistency() {
-    Swal.fire({
-        title: 'Perbaiki Data Stok?',
-        html: `Apakah Anda yakin ingin memperbaiki data stok yang tidak konsisten?<br><br>
-               <small>Sistem akan memperbaiki stok awal dan stok akhir yang tidak sesuai dengan rumus perhitungan.</small>`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ea580c',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Ya, Perbaiki!',
-        cancelButtonText: 'Batal',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{{ route("stok-obat.fix-consistency") }}';
-
-            // Add CSRF token
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '_token';
-            csrfInput.value = '{{ csrf_token() }}';
-            form.appendChild(csrfInput);
-
-            // Add current filters
-            const currentUrl = new URL(window.location);
-            currentUrl.searchParams.forEach((value, key) => {
-                if (key !== 'page') {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = value;
-                    form.appendChild(input);
-                }
-            });
-
-            document.body.appendChild(form);
-            form.submit();
-        }
-    });
-}
-
-function updateStokAwalNewPeriod() {
-    Swal.fire({
-        title: 'Update Stok Awal Periode Baru',
-        html: `
-            <div class="text-left">
-                <p class="mb-4">Masukkan periode baru (format MM-YY) untuk mengupdate stok awal semua obat:</p>
+                <p class="mb-4">Masukkan periode baru (format MM-YY) untuk membuat stok awal semua obat:</p>
                 <div class="mb-3">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Periode Baru</label>
                     <input id="newPeriode" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Contoh: 10-25" maxlength="5">
@@ -809,7 +658,7 @@ function updateStokAwalNewPeriod() {
         showCancelButton: true,
         confirmButtonColor: '#0d9488',
         cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Update Stok Awal',
+        confirmButtonText: 'Generate Stok Awal',
         cancelButtonText: 'Batal',
         reverseButtons: true,
         preConfirm: () => {
@@ -831,7 +680,7 @@ function updateStokAwalNewPeriod() {
         if (result.isConfirmed) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '{{ route("stok-obat.update-stok-awal") }}';
+            form.action = '/stok-obat/generate-stok-awal';
 
             // Add CSRF token
             const csrfInput = document.createElement('input');
@@ -852,5 +701,76 @@ function updateStokAwalNewPeriod() {
         }
     });
 }
+
+function updateStokPakai() {
+    Swal.fire({
+        title: 'Update Stok Pakai Otomatis',
+        html: `
+            <div class="text-left">
+                <p class="mb-4">Masukkan periode (format MM-YY) untuk mengupdate stok pakai otomatis dari data keluhan:</p>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Periode</label>
+                    <input id="periode" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: 10-25" maxlength="5">
+                    <p class="text-xs text-gray-500 mt-1">Format: MM-YY (contoh: 10-25 untuk Oktober 2025)</p>
+                </div>
+            </div>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#ea580c',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Update Stok Pakai',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+        preConfirm: () => {
+            const periode = document.getElementById('periode').value;
+
+            if (!periode) {
+                Swal.showValidationMessage('Periode wajib diisi');
+                return false;
+            }
+
+            if (!/^\d{2}-\d{2}$/.test(periode)) {
+                Swal.showValidationMessage('Format periode harus MM-YY (contoh: 10-25)');
+                return false;
+            }
+
+            return periode;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/stok-obat/update-stok-pakai';
+
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+
+            // Add periode
+            const periodeInput = document.createElement('input');
+            periodeInput.type = 'hidden';
+            periodeInput.name = 'periode';
+            periodeInput.value = result.value;
+            form.appendChild(periodeInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+// Auto submit filter on periode change
+document.addEventListener('DOMContentLoaded', function() {
+    const periodeSelect = document.querySelector('select[name="periode"]');
+    if (periodeSelect) {
+        periodeSelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+});
 </script>
 @endsection

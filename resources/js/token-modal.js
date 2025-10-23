@@ -142,55 +142,48 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Token Valid!',
-                    html: `
-                        <div class="text-center">
-                            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Token Berhasil Divalidasi!</h3>
-                            <p class="text-gray-600">Mengarahkan ke halaman tambah rekam medis emergency...</p>
-                        </div>
-                    `,
+                    title: 'Token Berhasil Divalidasi!',
+                    text: 'Halaman akan direfresh untuk memperbarui menu emergency.',
                     showConfirmButton: true,
                     confirmButtonText: 'Lanjutkan',
                     confirmButtonColor: '#10b981',
-                    timer: 2000,
-                    timerProgressBar: true,
-                    customClass: {
-                        popup: 'rounded-2xl shadow-2xl max-w-md w-full p-6',
-                        title: 'hidden',
-                        htmlContainer: 'p-0'
-                    }
+                    timer: 3500,
+                    timerProgressBar: true
                 }).then(() => {
                     // Redirect to create emergency medical record page
                     window.location.href = data.redirect_url || '/rekam-medis-emergency/create';
                 });
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Token Tidak Valid!',
-                    html: `
-                        <div class="text-center">
-                            <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </div>
-                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Token Tidak Valid!</h3>
-                            <p class="text-gray-600">${data.message || 'Token yang Anda masukkan tidak valid atau sudah digunakan.'}</p>
+                // Tampilkan pesan error yang berbeda berdasarkan status code
+                let iconType = 'error';
+                let titleText = 'Token Tidak Valid!';
+                let additionalInfo = '';
+
+                if (data.message && data.message.includes('bukan milik Anda')) {
+                    iconType = 'warning';
+                    titleText = 'Akses Ditolak!';
+                    additionalInfo = `
+                        <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p class="text-sm text-amber-800">
+                                <strong>Info:</strong> Token emergency bersifat pribadi dan hanya dapat digunakan oleh pemiliknya.
+                            </p>
                         </div>
-                    `,
-                    confirmButtonColor: '#ef4444',
-                    confirmButtonText: 'Coba Lagi',
-                    customClass: {
-                        popup: 'rounded-2xl shadow-2xl max-w-md w-full p-6',
-                        title: 'hidden',
-                        htmlContainer: 'p-0'
-                    }
+                    `;
+                }
+
+                // Show normal single icon for all pages
+                Swal.fire({
+                    icon: iconType,
+                    title: titleText,
+                    text: data.message || 'Token yang Anda masukkan tidak valid atau sudah digunakan.',
+                    confirmButtonColor: iconType === 'warning' ? '#f59e0b' : '#ef4444',
+                    confirmButtonText: iconType === 'warning' ? 'Mengerti' : 'Coba Lagi'
                 });
+
+                // Show additional info if exists
+                if (additionalInfo) {
+                    Swal.showValidationMessage(additionalInfo.replace(/<[^>]*>/g, ''));
+                }
             }
         })
         .catch(error => {
@@ -198,24 +191,9 @@ document.addEventListener('DOMContentLoaded', function() {
             Swal.fire({
                 icon: 'error',
                 title: 'Terjadi Kesalahan!',
-                html: `
-                    <div class="text-center">
-                        <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Terjadi Kesalahan!</h3>
-                        <p class="text-gray-600">Gagal memvalidasi token. Silakan coba lagi.</p>
-                    </div>
-                `,
+                text: 'Gagal memvalidasi token. Silakan coba lagi.',
                 confirmButtonColor: '#ef4444',
-                confirmButtonText: 'OK',
-                customClass: {
-                    popup: 'rounded-2xl shadow-2xl max-w-md w-full p-6',
-                    title: 'hidden',
-                    htmlContainer: 'p-0'
-                }
+                confirmButtonText: 'OK'
             });
         });
     };
@@ -273,7 +251,8 @@ document.addEventListener('alpine:init', () => {
                     icon: 'warning',
                     title: 'Token Tidak Valid!',
                     text: 'Token harus berupa angka 4-6 digit',
-                    confirmButtonColor: '#f59e0b'
+                    confirmButtonColor: '#f59e0b',
+                    confirmButtonText: 'Mengerti'
                 });
                 return;
             }
@@ -298,8 +277,8 @@ document.addEventListener('alpine:init', () => {
                 if (data.success) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Token Valid!',
-                        html: 'Token berhasil divalidasi.<br><small class="text-gray-600">Mengarahkan ke halaman tambah rekam medis emergency...</small>',
+                        title: 'Token Berhasil Divalidasi!',
+                        text: 'Halaman akan direfresh untuk memperbarui menu emergency.',
                         showConfirmButton: true,
                         confirmButtonText: 'Lanjutkan',
                         confirmButtonColor: '#10b981',
@@ -310,11 +289,25 @@ document.addEventListener('alpine:init', () => {
                         window.location.href = data.redirect_url || '/rekam-medis-emergency/create';
                     });
                 } else {
+                    // Tampilkan pesan error yang berbeda berdasarkan jenis error
+                    let iconType = 'error';
+                    let titleText = 'Token Tidak Valid!';
+                    let confirmText = 'Coba Lagi';
+                    let confirmColor = '#ef4444';
+
+                    if (data.message && data.message.includes('bukan milik Anda')) {
+                        iconType = 'warning';
+                        titleText = 'Akses Ditolak!';
+                        confirmText = 'Mengerti';
+                        confirmColor = '#f59e0b';
+                    }
+
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Token Tidak Valid!',
+                        icon: iconType,
+                        title: titleText,
                         text: data.message || 'Token tidak valid atau sudah digunakan',
-                        confirmButtonColor: '#ef4444'
+                        confirmButtonColor: confirmColor,
+                        confirmButtonText: confirmText
                     });
                 }
             } catch (error) {
@@ -323,7 +316,8 @@ document.addEventListener('alpine:init', () => {
                     icon: 'error',
                     title: 'Terjadi Kesalahan!',
                     text: 'Gagal memvalidasi token. Silakan coba lagi.',
-                    confirmButtonColor: '#ef4444'
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'OK'
                 });
             } finally {
                 this.processing = false;
@@ -335,3 +329,4 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 });
+
