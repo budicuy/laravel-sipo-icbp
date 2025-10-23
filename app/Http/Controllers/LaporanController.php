@@ -22,6 +22,7 @@ class LaporanController extends Controller
         $tahun = $request->get('tahun', date('Y'));
         $bulan = $request->get('bulan', date('m'));
         $periode = $request->get('periode', Carbon::now()->format('m-y'));
+        $search = $request->get('search', '');
         $perPage = $request->get('per_page', 50);
         $perPage = in_array($perPage, [50, 100, 200]) ? $perPage : 50;
 
@@ -30,7 +31,7 @@ class LaporanController extends Controller
         $chartBiaya = $this->getChartBiaya($tahun);
 
         // Get data untuk tabel transaksi dengan pagination
-        $transaksiData = $this->getTransaksiData($periode, $perPage);
+        $transaksiData = $this->getTransaksiData($periode, $perPage, $search);
         $transaksi = $transaksiData['data'];
         $fallbackNotifications = $transaksiData['fallbackNotifications'] ?? [];
 
@@ -45,6 +46,7 @@ class LaporanController extends Controller
             'tahun',
             'bulan',
             'periode',
+            'search',
             'perPage',
             'fallbackNotifications'
         ));
@@ -221,7 +223,7 @@ class LaporanController extends Controller
     /**
      * Get data transaksi untuk tabel
      */
-    private function getTransaksiData($periode, $perPage = 50)
+    private function getTransaksiData($periode, $perPage = 50, $search = '')
     {
         // Parse periode format MM-YY to get month and year
         if (preg_match('/^(\d{2})-(\d{2})$/', $periode, $matches)) {
@@ -233,54 +235,30 @@ class LaporanController extends Controller
             $year = Carbon::now()->year;
         }
 
-        // Optimized query with specific columns and eager loading for reguler
-        $rekamMedisQuery = RekamMedis::with([
-                'keluarga' => function($query) {
-                    $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan')
-                          ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan'])
-                          ->with(['hubungan:kode_hubungan,hubungan']);
-                },
-                'keluhans' => function($query) {
-                    $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat')
-                          ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
-                          ->with(['obat:id_obat,nama_obat']);
-                },
-                'user:id_user,username,nama_lengkap'
-            ])
-            ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
-            ->whereMonth('tanggal_periksa', $month)
-            ->whereYear('tanggal_periksa', $year)
-            ->orderBy('tanggal_periksa', 'desc');
+        // Apply search filter if provided
+        $searchFilter = [];
+        if (!empty($search)) {
+            $searchTerm = '%' . $search . '%';
+            $searchFilter = [
+                ['nama_keluarga', 'like', $searchTerm],
+                ['no_rm', 'like', $searchTerm],
+                ['nik_karyawan', 'like', $searchTerm],
+                ['nama_karyawan', 'like', $searchTerm],
+                ['nama_employee', 'like', $searchTerm],
+                ['nik_employee', 'like', $searchTerm],
+            ];
+        }
 
-        // Optimized query with specific columns and eager loading for emergency
-        $rekamMedisEmergencyQuery = RekamMedisEmergency::with([
-                'externalEmployee' => function($query) {
-                    $query->select('id', 'nik_employee', 'nama_employee');
-                },
-                'keluhans' => function($query) {
-                    $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat')
-                          ->with(['diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency'])
-                          ->with(['obat:id_obat,nama_obat']);
-                },
-                'user:id_user,username,nama_lengkap'
-            ])
-            ->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'status', 'id_user')
-            ->whereMonth('tanggal_periksa', $month)
-            ->whereYear('tanggal_periksa', $year)
-            ->orderBy('tanggal_periksa', 'desc');
-
-        // Get data for both reguler and emergency
-        $rekamMedisData = $rekamMedisQuery->get();
-        $rekamMedisEmergencyData = $rekamMedisEmergencyQuery->get();
-
-        // Combine data for pagination
-        $allData = $rekamMedisData->concat($rekamMedisEmergencyData);
+        // Get all transaction data first to apply proper filtering
+        $allTransaksiData = $this->getAllTransaksiDataForExport($month, $year, $search);
+        
+        // Create a LengthAwarePaginator
         $currentPage = request()->get('page', 1);
         $offset = ($currentPage - 1) * $perPage;
-        $itemsForCurrentPage = $allData->slice($offset, $perPage)->values();
+        $itemsForCurrentPage = collect($allTransaksiData)->slice($offset, $perPage)->values();
         $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
             $itemsForCurrentPage,
-            $allData->count(),
+            count($allTransaksiData),
             $perPage,
             $currentPage,
             ['path' => request()->url(), 'query' => request()->query()]
@@ -1084,9 +1062,512 @@ class LaporanController extends Controller
      */
     public function exportTransaksi(Request $request)
     {
-        // Implementation for Excel export
-        // This would require a package like maatwebsite/excel
-        return redirect()->back()->with('success', 'Fitur export akan segera tersedia');
+        // Get filter parameters
+        $tahun = $request->get('tahun', date('Y'));
+        $bulan = $request->get('bulan', date('m'));
+        $periode = $request->get('periode', Carbon::now()->format('m-y'));
+        $search = $request->get('search', '');
+        
+        // Parse periode format MM-YY to get month and year
+        if (preg_match('/^(\d{2})-(\d{2})$/', $periode, $matches)) {
+            $month = (int)$matches[1];
+            $year = (int)$matches[2] + 2000; // Convert YY to YYYY
+        } else {
+            // Default to current month if format is invalid
+            $month = Carbon::now()->month;
+            $year = Carbon::now()->year;
+        }
+        
+        // Get all transaction data without pagination
+        $allTransaksiData = $this->getAllTransaksiDataForExport($month, $year, $search);
+        
+        // Create a new Excel file
+        $filename = 'Laporan_Transaksi_' . $month . '_' . $year . '.xlsx';
+        
+        // Set headers for Excel download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        
+        // Create a new PHPExcel object
+        $objPHPExcel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $objPHPExcel->getProperties()->setTitle("Laporan Transaksi");
+        
+        // Set active sheet
+        $sheet = $objPHPExcel->getActiveSheet();
+        $sheet->setTitle("Laporan Transaksi");
+        
+        // Find the maximum number of diagnoses and medicines to determine column count
+        $maxDiagnoses = 0;
+        $maxObat = 0;
+        foreach ($allTransaksiData as $item) {
+            $diagnosaCount = count($item['diagnosa_list']);
+            $obatCount = count($item['obat_details']);
+            $maxDiagnoses = max($maxDiagnoses, $diagnosaCount);
+            $maxObat = max($maxObat, $obatCount);
+        }
+        
+        // Ensure at least 1 column for each
+        $maxDiagnoses = max($maxDiagnoses, 1);
+        $maxObat = max($maxObat, 1);
+        
+        // Set headers
+        $sheet->setCellValue('A1', 'No');
+        $sheet->setCellValue('B1', 'No Registrasi');
+        $sheet->setCellValue('C1', 'Tipe');
+        $sheet->setCellValue('D1', 'No RM');
+        $sheet->setCellValue('E1', 'Nama Pasien');
+        $sheet->setCellValue('F1', 'Hubungan');
+        $sheet->setCellValue('G1', 'NIK Karyawan');
+        $sheet->setCellValue('H1', 'Nama Karyawan');
+        $sheet->setCellValue('I1', 'Tanggal Periksa');
+        
+        // Add headers for diagnoses
+        $col = 'J';
+        for ($i = 1; $i <= $maxDiagnoses; $i++) {
+            $sheet->setCellValue($col . '1', 'Diagnosa ' . $i);
+            $col++;
+        }
+        
+        // Add headers for medicines
+        for ($i = 1; $i <= $maxObat; $i++) {
+            $sheet->setCellValue($col . '1', 'Obat ' . $i);
+            $col++;
+            $sheet->setCellValue($col . '1', 'Jumlah ' . $i);
+            $col++;
+            $sheet->setCellValue($col . '1', 'Harga ' . $i);
+            $col++;
+            $sheet->setCellValue($col . '1', 'Subtotal ' . $i);
+            $col++;
+        }
+        
+        $sheet->setCellValue($col . '1', 'Total Biaya');
+        $totalCol = $col;
+        
+        // Style the header row
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'color' => ['rgb' => 'E2EFDA']
+            ]
+        ];
+        $sheet->getStyle('A1:' . $totalCol . '1')->applyFromArray($headerStyle);
+        
+        // Set column widths
+        $sheet->getColumnDimension('A')->setWidth(5);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(12);
+        $sheet->getColumnDimension('D')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(25);
+        $sheet->getColumnDimension('F')->setWidth(15);
+        $sheet->getColumnDimension('G')->setWidth(15);
+        $sheet->getColumnDimension('H')->setWidth(25);
+        $sheet->getColumnDimension('I')->setWidth(15);
+        
+        // Set widths for diagnosis columns
+        $col = 'J';
+        for ($i = 1; $i <= $maxDiagnoses; $i++) {
+            $sheet->getColumnDimension($col)->setWidth(25);
+            $col++;
+        }
+        
+        // Set widths for medicine columns
+        for ($i = 1; $i <= $maxObat; $i++) {
+            $sheet->getColumnDimension($col)->setWidth(25); // Obat
+            $col++;
+            $sheet->getColumnDimension($col)->setWidth(10); // Jumlah
+            $col++;
+            $sheet->getColumnDimension($col)->setWidth(15); // Harga
+            $col++;
+            $sheet->getColumnDimension($col)->setWidth(15); // Subtotal
+            $col++;
+        }
+        
+        $sheet->getColumnDimension($totalCol)->setWidth(15); // Total Biaya
+        
+        // Add data rows
+        $row = 2;
+        $totalBiaya = 0;
+        
+        foreach ($allTransaksiData as $index => $item) {
+            $sheet->setCellValue('A' . $row, $index + 1);
+            $sheet->setCellValue('B' . $row, $item['kode_transaksi']);
+            $sheet->setCellValue('C' . $row, $item['tipe']);
+            $sheet->setCellValue('D' . $row, $item['no_rm']);
+            $sheet->setCellValue('E' . $row, $item['nama_pasien']);
+            $sheet->setCellValue('F' . $row, $item['hubungan']);
+            $sheet->setCellValue('G' . $row, $item['nik_karyawan']);
+            $sheet->setCellValue('H' . $row, $item['nama_karyawan']);
+            $sheet->setCellValue('I' . $row, $item['tanggal']);
+            
+            // Add diagnoses
+            $col = 'J';
+            for ($i = 0; $i < $maxDiagnoses; $i++) {
+                $diagnosa = $item['diagnosa_list'][$i] ?? '';
+                $sheet->setCellValue($col . $row, $diagnosa);
+                $col++;
+            }
+            
+            // Add medicines and calculate formula
+            $formulaParts = [];
+            for ($i = 0; $i < $maxObat; $i++) {
+                $obatDetail = $item['obat_details'][$i] ?? null;
+                if ($obatDetail) {
+                    $sheet->setCellValue($col . $row, $obatDetail['nama_obat']);
+                    $col++;
+                    $sheet->setCellValue($col . $row, $obatDetail['jumlah_obat']);
+                    $col++;
+                    $sheet->setCellValue($col . $row, $obatDetail['harga_satuan']);
+                    $col++;
+                    $sheet->setCellValue($col . $row, $obatDetail['subtotal']);
+                    $col++;
+                    
+                    // Add to formula for total biaya
+                    $jumlahCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($col) - 3) . $row;
+                    $hargaCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($col) - 2) . $row;
+                    $formulaParts[] = $jumlahCol . '*' . $hargaCol;
+                } else {
+                    // Fill empty cells for missing medicines
+                    $sheet->setCellValue($col . $row, '');
+                    $col++;
+                    $sheet->setCellValue($col . $row, '');
+                    $col++;
+                    $sheet->setCellValue($col . $row, '');
+                    $col++;
+                    $sheet->setCellValue($col . $row, '');
+                    $col++;
+                }
+            }
+            
+            // Add formula for total biaya in Excel
+            if (!empty($formulaParts)) {
+                $formula = '=' . implode('+', $formulaParts);
+                $sheet->setCellValue($totalCol . $row, $formula);
+            } else {
+                $sheet->setCellValue($totalCol . $row, 0);
+            }
+            
+            // Accumulate total biaya
+            $totalBiaya += $item['total_biaya'];
+            
+            // Style data rows
+            $dataStyle = [
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+            ];
+            $sheet->getStyle('A' . $row . ':' . $totalCol . $row)->applyFromArray($dataStyle);
+            
+            // Format currency columns
+            $startCurrencyCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString('J') + ($maxDiagnoses * 1) + ($maxObat * 2) + 1);
+            $endCurrencyCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($totalCol));
+            $sheet->getStyle($startCurrencyCol . $row . ':' . $endCurrencyCol . $row)->getNumberFormat()->setFormatCode('#,##0');
+            
+            $row++;
+        }
+        
+        // Add total row
+        $sheet->setCellValue('A' . $row, 'TOTAL');
+        $sheet->mergeCells('A' . $row . ':' . \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($totalCol) - 1) . $row);
+        $sheet->setCellValue($totalCol . $row, $totalBiaya);
+        
+        // Style total row
+        $totalStyle = [
+            'font' => [
+                'bold' => true,
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'color' => ['rgb' => 'D9EAD3']
+            ]
+        ];
+        $sheet->getStyle('A' . $row . ':' . $totalCol . $row)->applyFromArray($totalStyle);
+        $sheet->getStyle($totalCol . $row)->getNumberFormat()->setFormatCode('#,##0');
+        
+        // Add summary section
+        $summaryRow = $row + 2;
+        $sheet->setCellValue('A' . $summaryRow, 'RINGKASAN LAPORAN TRANSAKSI');
+        $sheet->mergeCells('A' . $summaryRow . ':' . $totalCol . $summaryRow);
+        
+        $summaryStyle = [
+            'font' => [
+                'bold' => true,
+                'size' => 14,
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+        ];
+        $sheet->getStyle('A' . $summaryRow . ':' . $totalCol . $summaryRow)->applyFromArray($summaryStyle);
+        
+        $summaryRow++;
+        $sheet->setCellValue('A' . $summaryRow, 'Periode:');
+        $sheet->setCellValue('B' . $summaryRow, $month . ' - ' . $year);
+        
+        $summaryRow++;
+        $sheet->setCellValue('A' . $summaryRow, 'Total Transaksi:');
+        $sheet->setCellValue('B' . $summaryRow, count($allTransaksiData));
+        
+        $summaryRow++;
+        $sheet->setCellValue('A' . $summaryRow, 'Total Biaya:');
+        $sheet->setCellValue('B' . $summaryRow, 'Rp ' . number_format($totalBiaya, 0, ',', '.'));
+        
+        // Create the Excel file
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($objPHPExcel, 'Xlsx');
+        $writer->save('php://output');
+        exit;
+    }
+    
+    /**
+     * Get all transaction data for export (without pagination)
+     */
+    private function getAllTransaksiDataForExport($month, $year, $search = '')
+    {
+        // Optimized query with specific columns and eager loading for reguler
+        $rekamMedisQuery = RekamMedis::with([
+                'keluarga' => function($query) {
+                    $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan')
+                          ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan'])
+                          ->with(['hubungan:kode_hubungan,hubungan']);
+                },
+                'keluhans' => function($query) {
+                    $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat')
+                          ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
+                          ->with(['obat:id_obat,nama_obat']);
+                },
+                'user:id_user,username,nama_lengkap'
+            ])
+            ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
+            ->whereMonth('tanggal_periksa', $month)
+            ->whereYear('tanggal_periksa', $year)
+            ->orderBy('tanggal_periksa', 'desc');
+
+        // Optimized query with specific columns and eager loading for emergency
+        $rekamMedisEmergencyQuery = RekamMedisEmergency::with([
+                'externalEmployee' => function($query) {
+                    $query->select('id', 'nik_employee', 'nama_employee');
+                },
+                'keluhans' => function($query) {
+                    $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat')
+                          ->with(['diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency'])
+                          ->with(['obat:id_obat,nama_obat']);
+                },
+                'user:id_user,username,nama_lengkap'
+            ])
+            ->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'status', 'id_user')
+            ->whereMonth('tanggal_periksa', $month)
+            ->whereYear('tanggal_periksa', $year)
+            ->orderBy('tanggal_periksa', 'desc');
+
+        // Apply search filter if provided
+        if (!empty($search)) {
+            $searchTerm = '%' . $search . '%';
+            
+            // Filter reguler records
+            $rekamMedisQuery->whereHas('keluarga', function($query) use ($searchTerm) {
+                $query->where('nama_keluarga', 'like', $searchTerm)
+                      ->orWhere('no_rm', 'like', $searchTerm)
+                      ->orWhereHas('karyawan', function($karyawanQuery) use ($searchTerm) {
+                          $karyawanQuery->where('nik_karyawan', 'like', $searchTerm)
+                                       ->orWhere('nama_karyawan', 'like', $searchTerm);
+                      });
+            });
+            
+            // Filter emergency records
+            $rekamMedisEmergencyQuery->whereHas('externalEmployee', function($query) use ($searchTerm) {
+                $query->where('nama_employee', 'like', $searchTerm)
+                      ->orWhere('nik_employee', 'like', $searchTerm);
+            });
+        }
+
+        // Get data for both reguler and emergency
+        $rekamMedisData = $rekamMedisQuery->get();
+        $rekamMedisEmergencyData = $rekamMedisEmergencyQuery->get();
+
+        // Collect all unique obat IDs and periods to prevent duplicate queries
+        $obatPeriods = [];
+        foreach ($rekamMedisData as $rekamMedis) {
+            $periode = $rekamMedis->tanggal_periksa->format('m-y');
+            foreach ($rekamMedis->keluhans as $keluhan) {
+                if ($keluhan->id_obat) {
+                    $obatPeriods[] = [
+                        'id_obat' => $keluhan->id_obat,
+                        'periode' => $periode
+                    ];
+                }
+            }
+        }
+        
+        foreach ($rekamMedisEmergencyData as $rekamMedisEmergency) {
+            $periode = $rekamMedisEmergency->tanggal_periksa->format('m-y');
+            foreach ($rekamMedisEmergency->keluhans as $keluhan) {
+                if ($keluhan->id_obat) {
+                    $obatPeriods[] = [
+                        'id_obat' => $keluhan->id_obat,
+                        'periode' => $periode
+                    ];
+                }
+            }
+        }
+
+        // Fetch all harga obat data with fallback mechanism
+        $hargaObatMap = [];
+
+        if (!empty($obatPeriods)) {
+            // Get unique combinations to avoid duplicates
+            $uniqueObatPeriods = collect($obatPeriods)->unique(function ($item) {
+                return $item['id_obat'] . '_' . $item['periode'];
+            })->values()->toArray();
+
+            // Use the bulk fallback method for optimized performance
+            $hargaObatResults = HargaObatPerBulan::getBulkHargaObatWithFallback($uniqueObatPeriods);
+
+            // Create a lookup map
+            foreach ($hargaObatResults as $key => $result) {
+                if ($result && $result['harga']) {
+                    $hargaObatMap[$key] = $result['harga'];
+                }
+            }
+        }
+
+        // Process reguler data
+        $resultReguler = $rekamMedisData->map(function($rekamMedis) use ($hargaObatMap) {
+            // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
+            $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
+            $bulan = $rekamMedis->tanggal_periksa->format('m');
+            $tahun = $rekamMedis->tanggal_periksa->format('Y');
+            $kodeTransaksi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+
+            // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
+            $keluhans = $rekamMedis->keluhans;
+            $periode = $rekamMedis->tanggal_periksa->format('m-y');
+
+            $totalBiaya = 0;
+            $obatDetails = [];
+            
+            foreach ($keluhans as $keluhan) {
+                if (!$keluhan->id_obat) continue;
+
+                // Get harga obat from our pre-fetched map
+                $key = $keluhan->id_obat . '_' . $periode;
+                $hargaObat = $hargaObatMap[$key] ?? null;
+                $hargaSatuan = $hargaObat->harga_per_satuan ?? 0;
+                $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
+                
+                $totalBiaya += $subtotal;
+                
+                // Store obat details for export
+                $obatDetails[] = [
+                    'nama_obat' => $keluhan->obat->nama_obat ?? '',
+                    'jumlah_obat' => $keluhan->jumlah_obat,
+                    'harga_satuan' => $hargaSatuan,
+                    'subtotal' => $subtotal
+                ];
+            }
+
+            // Get unique diagnoses as an array
+            $diagnosaList = $keluhans->pluck('diagnosa.nama_diagnosa')->filter()->unique()->values()->toArray();
+
+            return [
+                'kode_transaksi' => $kodeTransaksi,
+                'no_rm' => ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->kode_hubungan ?? ''),
+                'nama_pasien' => $rekamMedis->keluarga->nama_keluarga,
+                'hubungan' => $rekamMedis->keluarga->hubungan->hubungan ?? '-',
+                'nik_karyawan' => $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-',
+                'nama_karyawan' => $rekamMedis->keluarga->karyawan->nama_karyawan ?? '-',
+                'tanggal' => $rekamMedis->tanggal_periksa->format('d-m-Y'),
+                'diagnosa_list' => $diagnosaList,
+                'total_biaya' => $totalBiaya,
+                'id_rekam' => $rekamMedis->id_rekam,
+                'tipe' => 'Reguler',
+                'obat_details' => $obatDetails
+            ];
+        })->filter();
+        
+        // Process emergency data
+        $resultEmergency = $rekamMedisEmergencyData->map(function($rekamMedisEmergency) use ($hargaObatMap) {
+            // Generate kode_transaksi format: 2(No Running)/NDL/BJM/MM/YYYY
+            $noRunning = str_pad($rekamMedisEmergency->id_emergency, 1, '0', STR_PAD_LEFT);
+            $bulan = $rekamMedisEmergency->tanggal_periksa->format('m');
+            $tahun = $rekamMedisEmergency->tanggal_periksa->format('Y');
+            $kodeTransaksi = "2{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+
+            // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
+            $keluhans = $rekamMedisEmergency->keluhans;
+            $periode = $rekamMedisEmergency->tanggal_periksa->format('m-y');
+
+            $totalBiaya = 0;
+            $obatDetails = [];
+            
+            foreach ($keluhans as $keluhan) {
+                if (!$keluhan->id_obat) continue;
+
+                // Get harga obat from our pre-fetched map
+                $key = $keluhan->id_obat . '_' . $periode;
+                $hargaObat = $hargaObatMap[$key] ?? null;
+                $hargaSatuan = $hargaObat->harga_per_satuan ?? 0;
+                $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
+                
+                $totalBiaya += $subtotal;
+                
+                // Store obat details for export
+                $obatDetails[] = [
+                    'nama_obat' => $keluhan->obat->nama_obat ?? '',
+                    'jumlah_obat' => $keluhan->jumlah_obat,
+                    'harga_satuan' => $hargaSatuan,
+                    'subtotal' => $subtotal
+                ];
+            }
+
+            // Get unique diagnoses as an array
+            $diagnosaList = $keluhans->pluck('diagnosaEmergency.nama_diagnosa_emergency')->filter()->unique()->values()->toArray();
+
+            return [
+                'kode_transaksi' => $kodeTransaksi,
+                'no_rm' => $rekamMedisEmergency->externalEmployee->nik_employee ?? '-',
+                'nama_pasien' => $rekamMedisEmergency->externalEmployee->nama_employee ?? '-',
+                'hubungan' => 'External Employee',
+                'nik_karyawan' => '-',
+                'nama_karyawan' => '-',
+                'tanggal' => $rekamMedisEmergency->tanggal_periksa->format('d-m-Y'),
+                'diagnosa_list' => $diagnosaList,
+                'total_biaya' => $totalBiaya,
+                'id_rekam' => $rekamMedisEmergency->id_emergency,
+                'tipe' => 'Emergency',
+                'obat_details' => $obatDetails
+            ];
+        })->filter();
+
+        // Combine results
+        $allResults = $resultReguler->concat($resultEmergency);
+        
+        // Sort by date descending
+        $allResults = $allResults->sortByDesc(function($item) {
+            return \Carbon\Carbon::createFromFormat('d-m-Y', $item['tanggal']);
+        })->values();
+        
+        return $allResults;
     }
 
     /**

@@ -96,7 +96,7 @@ class RekamMedisEmergencyController extends Controller
         $validated = $request->validate([
             'external_employee_id' => 'required|exists:external_employees,id',
             'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i',
+            'waktu_periksa' => 'nullable|date_format:H:i:s',
             'status' => 'required|in:On Progress,Close',
             'keluhan' => 'required|string',
             'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
@@ -234,7 +234,7 @@ class RekamMedisEmergencyController extends Controller
         $validated = $request->validate([
             'external_employee_id' => 'required|exists:external_employees,id',
             'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i',
+            'waktu_periksa' => 'nullable|date_format:H:i:s',
             'status' => 'required|in:On Progress,Close',
             'keluhan' => 'required|string',
             'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',

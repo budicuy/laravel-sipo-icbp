@@ -94,7 +94,7 @@ class KunjunganController extends Controller
             'user:id_user,username,nama_lengkap',
             'keluhans:id_keluhan,id_rekam,id_diagnosa,terapi,keterangan,id_obat,jumlah_obat,aturan_pakai,id_keluarga',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
-            'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
+            'keluhans.obat:id_obat,nama_obat'
         ])->findOrFail($id);
 
         // Generate nomor registrasi format: 1(No Running)/NDL/BJM/08/2025
@@ -122,7 +122,7 @@ class KunjunganController extends Controller
             'user:id_user,username,nama_lengkap',
             'keluhans:id_keluhan,id_rekam,id_diagnosa,terapi,keterangan,id_obat,jumlah_obat,aturan_pakai,id_keluarga',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
-            'keluhans.obat:id_obat,nama_obat,harga_per_satuan'
+            'keluhans.obat:id_obat,nama_obat'
         ])
         ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
         ->where('id_keluarga', $rekamMedis->id_keluarga)

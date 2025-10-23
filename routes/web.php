@@ -241,7 +241,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/transaksi/emergency/{id}/detail', [LaporanController::class, 'detailTransaksiEmergency'])->name('laporan.detail-emergency');
     Route::get('/laporan/transaksi/emergency/{id}/cetak', [LaporanController::class, 'cetakDetailTransaksiEmergency'])->name('laporan.cetak.detail-emergency');
     Route::get('/laporan/transaksi/{id}/cetak', [LaporanController::class, 'cetakDetailTransaksi'])->name('laporan.cetak.detail');
-    Route::post('/laporan/transaksi/export', [LaporanController::class, 'exportTransaksi'])->name('laporan.export');
+    Route::get('/laporan/transaksi/export', [LaporanController::class, 'exportTransaksi'])->name('laporan.export.transaksi');
 
     // Monitoring Harga Routes
     Route::get('/monitoring/harga', [MonitoringHargaController::class, 'index'])->name('monitoring.harga.index');

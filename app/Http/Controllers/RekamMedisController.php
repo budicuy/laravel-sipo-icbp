@@ -231,7 +231,7 @@ class RekamMedisController extends Controller
         $validated = $request->validate([
             'id_keluarga' => 'required|exists:keluarga,id_keluarga',
             'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i',
+            'waktu_periksa' => 'nullable|date_format:H:i:s',
             'status' => 'required|in:On Progress,Close',
             'jumlah_keluhan' => 'required|integer|min:1|max:3',
 
@@ -349,7 +349,7 @@ class RekamMedisController extends Controller
         $validated = $request->validate([
             'id_keluarga' => 'required|exists:keluarga,id_keluarga',
             'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i',
+            'waktu_periksa' => 'nullable|date_format:H:i:s',
             'status' => 'required|in:On Progress,Close',
             'jumlah_keluhan' => 'required|integer|min:1|max:3',
 
