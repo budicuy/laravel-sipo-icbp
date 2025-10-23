@@ -12,27 +12,39 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rekam_medis_emergency', function (Blueprint $table) {
-            // Drop existing columns that will be replaced
-            $table->dropColumn(['nik_pasien', 'nama_pasien', 'no_rm', 'hubungan', 'jenis_kelamin']);
-            
-            // Add foreign key to external_employees
-            $table->unsignedInteger('id_external_employee')->after('id_emergency');
-            
-            // Add relationship to keluhan table (one-to-one for emergency)
+            // Pastikan kolom yang akan dihapus memang ada
+            if (Schema::hasColumn('rekam_medis_emergency', 'nik_pasien')) {
+                $table->dropColumn(['nik_pasien', 'nama_pasien', 'no_rm', 'hubungan', 'jenis_kelamin']);
+            }
+
+            // Tambah foreign key ke external_employees
+            $table->unsignedBigInteger('id_external_employee')->after('id_emergency');
+
+            // Tambah relasi ke keluhan (satu ke satu)
             $table->unsignedInteger('id_keluhan')->nullable()->after('catatan');
-            
-            // Update status column name to match rekam_medis
-            $table->renameColumn('status_rekam_medis', 'status');
-            
-            // Drop diagnosa text column (will use relationship)
-            $table->dropColumn('diagnosa');
-            
-            // Add foreign key constraints
-            $table->foreign('id_external_employee')->references('id_external_employee')->on('external_employees')
-                  ->onUpdate('cascade')->onDelete('restrict');
-                  
-            $table->foreign('id_keluhan')->references('id_keluhan')->on('keluhan')
-                  ->onUpdate('cascade')->onDelete('set null');
+
+            // Rename kolom status jika ada
+            if (Schema::hasColumn('rekam_medis_emergency', 'status_rekam_medis')) {
+                $table->renameColumn('status_rekam_medis', 'status');
+            }
+
+            // Hapus diagnosa (akan diganti relasi)
+            if (Schema::hasColumn('rekam_medis_emergency', 'diagnosa')) {
+                $table->dropColumn('diagnosa');
+            }
+
+            // Tambah foreign key constraints
+            $table->foreign('id_external_employee')
+                  ->references('id')
+                  ->on('external_employees')
+                  ->onUpdate('cascade')
+                  ->onDelete('restrict');
+
+            $table->foreign('id_keluhan')
+                  ->references('id_keluhan')
+                  ->on('keluhan')
+                  ->onUpdate('cascade')
+                  ->onDelete('set null');
         });
     }
 
@@ -42,25 +54,36 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('rekam_medis_emergency', function (Blueprint $table) {
-            // Drop foreign keys first
-            $table->dropForeign(['id_external_employee']);
-            $table->dropForeign(['id_keluhan']);
-            
-            // Drop added columns
-            $table->dropColumn(['id_external_employee', 'id_keluhan']);
-            
-            // Add back original columns
+            // Drop foreign keys terlebih dahulu
+            if (Schema::hasColumn('rekam_medis_emergency', 'id_external_employee')) {
+                $table->dropForeign(['id_external_employee']);
+            }
+            if (Schema::hasColumn('rekam_medis_emergency', 'id_keluhan')) {
+                $table->dropForeign(['id_keluhan']);
+            }
+
+            // Drop kolom yang ditambahkan
+            if (Schema::hasColumn('rekam_medis_emergency', 'id_external_employee')) {
+                $table->dropColumn('id_external_employee');
+            }
+            if (Schema::hasColumn('rekam_medis_emergency', 'id_keluhan')) {
+                $table->dropColumn('id_keluhan');
+            }
+
+            // Kembalikan kolom lama
             $table->string('nik_pasien', 16)->after('id_emergency');
             $table->string('nama_pasien')->after('nik_pasien');
             $table->string('no_rm')->after('nama_pasien');
             $table->string('hubungan')->default('Emergency')->after('no_rm');
             $table->enum('jenis_kelamin', ['L', 'P'])->after('hubungan');
-            
-            // Add back diagnosa column
+
+            // Tambahkan kembali diagnosa
             $table->text('diagnosa')->nullable()->after('waktu_periksa');
-            
-            // Rename status back
-            $table->renameColumn('status', 'status_rekam_medis');
+
+            // Rename kolom status kembali jika ada
+            if (Schema::hasColumn('rekam_medis_emergency', 'status')) {
+                $table->renameColumn('status', 'status_rekam_medis');
+            }
         });
     }
 };
