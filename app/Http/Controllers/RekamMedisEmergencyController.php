@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RekamMedisEmergency;
-use App\Models\ExternalEmployee;
-use App\Models\DiagnosaEmergency;
+use App\Events\RekamMedisEmergencyDeleted;
 use App\Models\Diagnosa;
+use App\Models\DiagnosaEmergency;
+use App\Models\ExternalEmployee;
 use App\Models\Keluhan;
+use App\Models\RekamMedisEmergency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -42,7 +43,7 @@ class RekamMedisEmergencyController extends Controller
 
         // Pagination
         $perPage = $request->input('per_page', 50);
-        if (!in_array($perPage, [50, 100, 200])) {
+        if (! in_array($perPage, [50, 100, 200])) {
             $perPage = 50;
         }
 
@@ -57,7 +58,7 @@ class RekamMedisEmergencyController extends Controller
     public function create()
     {
         // Check if user has valid token
-        if (!session('valid_emergency_token')) {
+        if (! session('valid_emergency_token')) {
             return redirect()->route('token-emergency.validate')
                 ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
         }
@@ -76,7 +77,7 @@ class RekamMedisEmergencyController extends Controller
     public function store(Request $request)
     {
         // Check if user has valid token
-        if (!session('valid_emergency_token')) {
+        if (! session('valid_emergency_token')) {
             return redirect()->route('token-emergency.validate')
                 ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
         }
@@ -101,14 +102,14 @@ class RekamMedisEmergencyController extends Controller
             $currentUserId = Auth::id();
             $token = \App\Models\TokenEmergency::isValidTokenForUser(session('valid_emergency_token'), $currentUserId);
 
-            if (!$token) {
+            if (! $token) {
                 // Check if token exists but is not available for this user
                 $existingToken = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))->first();
                 if ($existingToken) {
                     if ($existingToken->status !== \App\Models\TokenEmergency::STATUS_AVAILABLE) {
                         return redirect()->route('token-emergency.validate')
                             ->with('error', 'Token sudah digunakan atau kadaluarsa.');
-                    } else if (!$existingToken->canBeUsedBy($currentUserId)) {
+                    } elseif (! $existingToken->canBeUsedBy($currentUserId)) {
                         return redirect()->route('token-emergency.validate')
                             ->with('error', 'Token ini bukan milik Anda dan tidak dapat digunakan.');
                     }
@@ -174,12 +175,15 @@ class RekamMedisEmergencyController extends Controller
                 throw $e;
             }
 
+            // Dispatch event untuk mengurangi stok obat otomatis
+            RekamMedisEmergencyCreated::dispatch($rekamMedisEmergency);
+
             // Clear token from session after successful use
             session()->forget('valid_emergency_token');
 
             return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil ditambahkan! Token telah digunakan.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: '.$e->getMessage());
         }
     }
 
@@ -189,6 +193,7 @@ class RekamMedisEmergencyController extends Controller
     public function show($id)
     {
         $rekamMedisEmergency = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap', 'externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
+
         return view('rekam-medis-emergency.detail', compact('rekamMedisEmergency'));
     }
 
@@ -198,7 +203,7 @@ class RekamMedisEmergencyController extends Controller
     public function edit($id)
     {
         $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
-        
+
         // Get data for dropdowns with relationships
         $externalEmployees = ExternalEmployee::with(['vendor', 'kategori'])->aktif()->get();
         $diagnosaEmergency = DiagnosaEmergency::all();
@@ -265,7 +270,7 @@ class RekamMedisEmergencyController extends Controller
 
             return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil diperbarui!');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: '.$e->getMessage());
         }
     }
 
@@ -275,9 +280,13 @@ class RekamMedisEmergencyController extends Controller
     public function destroy($id)
     {
         $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
+
+        // Dispatch event untuk mengembalikan stok obat otomatis
+        RekamMedisEmergencyDeleted::dispatch($rekamMedisEmergency);
+
         $rekamMedisEmergency->delete();
 
-        return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil dihapus!');
+        return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil dihapus! Stok obat telah dikembalikan.');
     }
 
     /**
@@ -304,56 +313,56 @@ class RekamMedisEmergencyController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui status: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui status: '.$e->getMessage(),
             ], 500);
         }
     }
-    
+
     /**
      * Get obat by diagnosa emergency ID
      */
     public function getObatByDiagnosa(Request $request)
     {
         $diagnosaId = $request->get('diagnosa_id');
-        
-        if (!$diagnosaId) {
+
+        if (! $diagnosaId) {
             return response()->json([]);
         }
-        
+
         $diagnosa = DiagnosaEmergency::with('obats')->find($diagnosaId);
-        
-        if (!$diagnosa) {
+
+        if (! $diagnosa) {
             return response()->json([]);
         }
-        
-        $obats = $diagnosa->obats->map(function($obat) {
+
+        $obats = $diagnosa->obats->map(function ($obat) {
             return [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
             ];
         });
-        
+
         return response()->json($obats);
     }
-    
+
     /**
      * Get all diagnosa emergency with their obat
      */
     public function getDiagnosaWithObat()
     {
-        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get()->map(function($diagnosa) {
+        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get()->map(function ($diagnosa) {
             return [
                 'id_diagnosa_emergency' => $diagnosa->id_diagnosa_emergency,
                 'nama_diagnosa_emergency' => $diagnosa->nama_diagnosa_emergency,
-                'obats' => $diagnosa->obats->map(function($obat) {
+                'obats' => $diagnosa->obats->map(function ($obat) {
                     return [
                         'id_obat' => $obat->id_obat,
                         'nama_obat' => $obat->nama_obat,
                     ];
-                })
+                }),
             ];
         });
-        
+
         return response()->json($diagnosaEmergency);
     }
 }
