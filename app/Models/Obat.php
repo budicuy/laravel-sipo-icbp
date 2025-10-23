@@ -38,6 +38,19 @@ class Obat extends Model
         );
     }
 
+    /**
+     * Relasi many-to-many dengan diagnosa emergency
+     */
+    public function diagnosaEmergencies()
+    {
+        return $this->belongsToMany(
+            DiagnosaEmergency::class,
+            'diagnosa_emergency_obat',
+            'id_obat',
+            'id_diagnosa_emergency'
+        )->withTimestamps();
+    }
+
     // Relasi ke Keluhan
     public function keluhans()
     {

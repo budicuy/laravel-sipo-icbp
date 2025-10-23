@@ -170,8 +170,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/token-emergency/user-profile/{userId}', [TokenEmergencyController::class, 'userProfile'])->name('token-emergency.user-profile');
     });
 
-    // Rekam Medis Emergency Routes
-    Route::get('/rekam-medis-emergency', [RekamMedisEmergencyController::class, 'index'])->name('rekam-medis-emergency.index');
+    // Rekam Medis Emergency Routes (keep individual routes for CRUD operations)
     Route::get('/rekam-medis-emergency/create', [RekamMedisEmergencyController::class, 'create'])->name('rekam-medis-emergency.create');
     Route::post('/rekam-medis-emergency', [RekamMedisEmergencyController::class, 'store'])->name('rekam-medis-emergency.store');
     Route::get('/rekam-medis-emergency/{id}', [RekamMedisEmergencyController::class, 'show'])->name('rekam-medis-emergency.show');
@@ -179,6 +178,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/rekam-medis-emergency/{id}/update-status', [RekamMedisEmergencyController::class, 'updateStatus'])->name('rekam-medis-emergency.updateStatus');
     Route::put('/rekam-medis-emergency/{id}', [RekamMedisEmergencyController::class, 'update'])->name('rekam-medis-emergency.update');
     Route::delete('/rekam-medis-emergency/{id}', [RekamMedisEmergencyController::class, 'destroy'])->name('rekam-medis-emergency.destroy');
+    Route::get('/rekam-medis-emergency/get-obat-by-diagnosa', [RekamMedisEmergencyController::class, 'getObatByDiagnosa'])->name('rekam-medis-emergency.getObatByDiagnosa');
+    Route::get('/rekam-medis-emergency/get-diagnosa-with-obat', [RekamMedisEmergencyController::class, 'getDiagnosaWithObat'])->name('rekam-medis-emergency.getDiagnosaWithObat');
 
     // External Employee Routes
     Route::get('/external-employee', [ExternalEmployeeController::class, 'index'])->name('external-employee.index');

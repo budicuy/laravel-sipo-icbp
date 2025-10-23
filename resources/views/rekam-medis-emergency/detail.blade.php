@@ -48,39 +48,39 @@
             </h2>
             <div class="status-dropdown" data-id="{{ $rekamMedisEmergency->id_emergency }}">
                 <select class="status-select px-4 py-2 rounded-full text-sm font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500
-                    @if($rekamMedisEmergency->status_rekam_medis == 'On Progress') bg-yellow-100 text-yellow-800
-                    @elseif($rekamMedisEmergency->status_rekam_medis == 'Close') bg-green-100 text-green-800
+                    @if($rekamMedisEmergency->status == 'On Progress') bg-yellow-100 text-yellow-800
+                    @elseif($rekamMedisEmergency->status == 'Close') bg-green-100 text-green-800
                     @endif"
                     data-id="{{ $rekamMedisEmergency->id_emergency }}"
-                    data-current-status="{{ $rekamMedisEmergency->status_rekam_medis }}">
-                    <option value="On Progress" {{ $rekamMedisEmergency->status_rekam_medis == 'On Progress' ? 'selected' : '' }}>On Progress</option>
-                    <option value="Close" {{ $rekamMedisEmergency->status_rekam_medis == 'Close' ? 'selected' : '' }}>Close</option>
+                    data-current-status="{{ $rekamMedisEmergency->status }}">
+                    <option value="On Progress" {{ $rekamMedisEmergency->status == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                    <option value="Close" {{ $rekamMedisEmergency->status == 'Close' ? 'selected' : '' }}>Close</option>
                 </select>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
-                <label class="block text-sm font-medium text-gray-500 mb-1">NIK Pasien</label>
-                <p class="text-gray-900 font-medium">{{ $rekamMedisEmergency->nik_pasien }}</p>
+                <label class="block text-sm font-medium text-gray-500 mb-1">NIK Karyawan</label>
+                <p class="text-gray-900 font-medium">{{ $rekamMedisEmergency->externalEmployee->nik_employee ?? '-' }}</p>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-500 mb-1">Nama Pasien</label>
-                <p class="text-gray-900 font-medium">{{ $rekamMedisEmergency->nama_pasien }}</p>
+                <label class="block text-sm font-medium text-gray-500 mb-1">Nama Karyawan</label>
+                <p class="text-gray-900 font-medium">{{ $rekamMedisEmergency->externalEmployee->nama_employee ?? '-' }}</p>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-500 mb-1">No RM</label>
-                <p class="text-gray-900 font-medium">{{ $rekamMedisEmergency->no_rm }}</p>
+                <p class="text-gray-900 font-medium">{{ $rekamMedisEmergency->externalEmployee->kode_rm ?? '-' }}</p>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-500 mb-1">Hubungan</label>
                 <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
-                    {{ $rekamMedisEmergency->hubungan }}
+                    Emergency
                 </span>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-500 mb-1">Jenis Kelamin</label>
-                <p class="text-gray-900 font-medium">{{ $rekamMedisEmergency->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</p>
+                <p class="text-gray-900 font-medium">{{ $rekamMedisEmergency->externalEmployee->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</p>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-500 mb-1">Tanggal Periksa</label>
@@ -93,11 +93,11 @@
             <div>
                 <label class="block text-sm font-medium text-gray-500 mb-1">Status Rekam Medis</label>
                 <span class="px-3 py-1
-                    @if($rekamMedisEmergency->status_rekam_medis == 'On Progress') bg-yellow-100 text-yellow-800
-                    @elseif($rekamMedisEmergency->status_rekam_medis == 'Close') bg-green-100 text-green-800
+                    @if($rekamMedisEmergency->status == 'On Progress') bg-yellow-100 text-yellow-800
+                    @elseif($rekamMedisEmergency->status == 'Close') bg-green-100 text-green-800
                     @endif
                     rounded-full text-xs font-medium">
-                    {{ $rekamMedisEmergency->status_rekam_medis }}
+                    {{ $rekamMedisEmergency->status }}
                 </span>
             </div>
             <div>
@@ -131,7 +131,7 @@
                 Diagnosa
             </h3>
             <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <p class="text-gray-800 whitespace-pre-line">{{ $rekamMedisEmergency->diagnosa ?? 'Belum ada diagnosa' }}</p>
+                <p class="text-gray-800 whitespace-pre-line">{{ $rekamMedisEmergency->keluhan->diagnosa->nama_diagnosa ?? 'Belum ada diagnosa' }}</p>
             </div>
         </div>
 
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: JSON.stringify({
-                    status_rekam_medis: newStatus
+                    status: newStatus
                 })
             })
             .then(response => response.json())

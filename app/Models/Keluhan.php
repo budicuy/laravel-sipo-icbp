@@ -12,7 +12,9 @@ class Keluhan extends Model
 
     protected $fillable = [
         'id_rekam',
+        'id_emergency', // Kolom untuk relasi dengan rekam_medis_emergency
         'id_diagnosa',
+        'id_diagnosa_emergency', // Kolom untuk relasi langsung dengan diagnosa_emergency
         'terapi',
         'keterangan',
         'id_obat',
@@ -56,6 +58,73 @@ class Keluhan extends Model
     public function keluarga()
     {
         return $this->belongsTo(Keluarga::class, 'id_keluarga', 'id_keluarga');
+    }
+
+    /**
+     * Relasi ke tabel rekam_medis_emergency
+     */
+    public function rekamMedisEmergency()
+    {
+        return $this->belongsTo(RekamMedisEmergency::class, 'id_emergency', 'id_emergency');
+    }
+
+    /**
+     * Relasi ke diagnosa_emergency (relasi langsung)
+     */
+    public function diagnosaEmergency()
+    {
+        return $this->belongsTo(DiagnosaEmergency::class, 'id_diagnosa_emergency', 'id_diagnosa_emergency');
+    }
+
+    /**
+     * Scope untuk mendapatkan keluhan emergency
+     */
+    public function scopeEmergency($query)
+    {
+        return $query->whereNotNull('id_emergency');
+    }
+
+    /**
+     * Scope untuk mendapatkan keluhan regular
+     */
+    public function scopeRegular($query)
+    {
+        return $query->whereNotNull('id_rekam');
+    }
+
+    /**
+     * Accessor untuk menentukan jenis keluhan
+     */
+    public function getJenisKeluhanAttribute()
+    {
+        if ($this->id_emergency) {
+            return 'Emergency';
+        } elseif ($this->id_rekam) {
+            return 'Regular';
+        }
+        return 'Unknown';
+    }
+
+    /**
+     * Mutator untuk memastikan hanya satu jenis relasi yang aktif
+     */
+    public function setIdEmergencyAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['id_rekam'] = null;
+        }
+        $this->attributes['id_emergency'] = $value;
+    }
+
+    /**
+     * Mutator untuk memastikan hanya satu jenis relasi yang aktif
+     */
+    public function setIdRekamAttribute($value)
+    {
+        if ($value) {
+            $this->attributes['id_emergency'] = null;
+        }
+        $this->attributes['id_rekam'] = $value;
     }
 
     // Scope untuk filter keluhan dengan obat
