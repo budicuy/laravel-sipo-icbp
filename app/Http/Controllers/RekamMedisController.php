@@ -82,15 +82,7 @@ class RekamMedisController extends Controller
         // Filter pencarian for emergency records
         if ($request->filled('q')) {
             $q = $request->input('q');
-            $queryEmergency->where(function ($sub) use ($q) {
-                $sub->where('nama_pasien', 'like', "%$q%")
-                    ->orWhere('nik_pasien', 'like', "%$q%")
-                    ->orWhere('no_rm', 'like', "%$q%")
-                    ->orWhereHas('externalEmployee', function($employee) use ($q) {
-                        $employee->where('nama_employee', 'like', "%$q%")
-                                ->orWhere('nik_employee', 'like', "%$q%");
-                    });
-            });
+            $queryEmergency->search($q);
         }
 
         // Filter tanggal for emergency records

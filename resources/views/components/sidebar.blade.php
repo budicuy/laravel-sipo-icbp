@@ -69,7 +69,7 @@
                         </li>
                         <li>
                             <a href="{{ route('external-employee.index') }}" class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('external-employee*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
-                                External Employee
+                                Data External Employee
                             </a>
                         </li>
                     </ul>
@@ -115,7 +115,7 @@
                             <a href="{{ route('token-emergency.pending-requests') }}" class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.pending-requests*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
                                 Permintaan Token
                                 @php
-                                $pendingRequestsCount = \App\Models\TokenEmergency::getPendingRequestsCount();
+                                $pendingRequestsCount = \App\Models\TokenRequest::getPendingRequestsCount();
                                 @endphp
                                 @if($pendingRequestsCount > 0)
                                 <span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
