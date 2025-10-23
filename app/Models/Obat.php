@@ -15,6 +15,7 @@ class Obat extends Model
         'nama_obat',
         'keterangan',
         'id_satuan',
+        'stok_awal',
         'tanggal_update',
     ];
 
@@ -57,10 +58,16 @@ class Obat extends Model
         return $this->hasMany(Keluhan::class, 'id_obat', 'id_obat');
     }
 
-    // Relasi ke Stok Bulanan
-    public function stokBulanans()
+    // Relasi ke Stok Bulanan (lama)
+    public function stokObats()
     {
         return $this->hasMany(StokObat::class, 'id_obat', 'id_obat');
+    }
+
+    // Relasi ke Stok Bulanan (baru)
+    public function stokBulanans()
+    {
+        return $this->hasMany(StokBulanan::class, 'obat_id', 'id_obat');
     }
 
     // Relasi ke Harga Obat Per Bulan
@@ -99,5 +106,21 @@ class Obat extends Model
                 'id_satuan' => $obat->id_satuan
             ]);
         });
+    }
+
+    /**
+     * Menghitung sisa stok saat ini
+     */
+    public function getSisaStokAttribute()
+    {
+        return StokBulanan::getSisaStokSaatIni($this->id_obat);
+    }
+
+    /**
+     * Mendapatkan riwayat stok bulanan
+     */
+    public function getRiwayatStok($limit = 12)
+    {
+        return StokBulanan::getRiwayatStok($this->id_obat, $limit);
     }
 }

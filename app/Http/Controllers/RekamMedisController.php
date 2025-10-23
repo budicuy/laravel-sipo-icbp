@@ -9,6 +9,7 @@ use App\Models\Keluhan;
 use App\Models\Diagnosa;
 use App\Models\Obat;
 use App\Models\User;
+use App\Events\RekamMedisCreated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -276,7 +277,6 @@ class RekamMedisController extends Controller
                                     'id_rekam' => $rekamMedis->id_rekam,
                                     'id_keluarga' => $validated['id_keluarga'],
                                     'id_diagnosa' => $keluhanData['id_diagnosa'],
-                                    'id_diagnosa_emergency' => null, // Set to null for regular records
                                     'terapi' => $keluhanData['terapi'],
                                     'keterangan' => $keluhanData['keterangan'] ?? null,
                                     'id_obat' => $obatData['id_obat'],
@@ -290,7 +290,6 @@ class RekamMedisController extends Controller
                                 'id_rekam' => $rekamMedis->id_rekam,
                                 'id_keluarga' => $validated['id_keluarga'],
                                 'id_diagnosa' => $keluhanData['id_diagnosa'],
-                                'id_diagnosa_emergency' => null, // Set to null for regular records
                                 'terapi' => $keluhanData['terapi'],
                                 'keterangan' => $keluhanData['keterangan'] ?? null,
                                 'id_obat' => null,
@@ -303,6 +302,9 @@ class RekamMedisController extends Controller
 
                 return $rekamMedis;
             }, 3); // Retry up to 3 times on deadlock
+
+            // Dispatch event untuk mengurangi stok obat otomatis
+            RekamMedisCreated::dispatch($rekamMedis);
 
             return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil ditambahkan!');
         } catch (\Exception $e) {
@@ -395,7 +397,6 @@ class RekamMedisController extends Controller
                                     'id_rekam' => $rekamMedis->id_rekam,
                                     'id_keluarga' => $validated['id_keluarga'],
                                     'id_diagnosa' => $keluhanData['id_diagnosa'],
-                                    'id_diagnosa_emergency' => null, // Set to null for regular records
                                     'terapi' => $keluhanData['terapi'],
                                     'keterangan' => $keluhanData['keterangan'] ?? null,
                                     'id_obat' => $obatData['id_obat'],
@@ -409,7 +410,6 @@ class RekamMedisController extends Controller
                                 'id_rekam' => $rekamMedis->id_rekam,
                                 'id_keluarga' => $validated['id_keluarga'],
                                 'id_diagnosa' => $keluhanData['id_diagnosa'],
-                                'id_diagnosa_emergency' => null, // Set to null for regular records
                                 'terapi' => $keluhanData['terapi'],
                                 'keterangan' => $keluhanData['keterangan'] ?? null,
                                 'id_obat' => null,

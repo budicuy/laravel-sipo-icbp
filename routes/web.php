@@ -11,6 +11,8 @@ use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ObatController;
 use App\Http\Controllers\StokObatController;
+use App\Http\Controllers\StokController;
+use App\Http\Controllers\StokMasukController;
 use App\Http\Controllers\HargaObatController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MonitoringHargaController;
@@ -77,18 +79,25 @@ Route::middleware('auth')->group(function () {
     Route::put('/stok-obat/{id}', [StokObatController::class, 'update'])->name('stok-obat.update');
     Route::delete('/stok-obat/{id}', [StokObatController::class, 'destroy'])->name('stok-obat.destroy');
     Route::post('/stok-obat/bulk-delete', [StokObatController::class, 'bulkDelete'])->name('stok-obat.bulkDelete');
-    
+
     // Additional routes for new stok system
     Route::post('/stok-obat/update-stok-pakai', [StokObatController::class, 'updateStokPakai'])->name('stok-obat.update-stok-pakai');
     Route::post('/stok-obat/generate-stok-awal', [StokObatController::class, 'generateStokAwal'])->name('stok-obat.generate-stok-awal');
-    
+
     // API Route untuk preview stok
     Route::get('/api/stok-obat/preview', [StokObatController::class, 'previewStok'])->name('api.stok-obat.preview');
-    
+
     // Legacy routes (dapat dihapus jika tidak diperlukan)
     Route::get('/stok-obat/export', [StokObatController::class, 'export'])->name('stok-obat.export');
     Route::get('/stok-obat/template', [StokObatController::class, 'downloadTemplate'])->name('stok-obat.template');
     Route::post('/stok-obat/import', [StokObatController::class, 'import'])->name('stok-obat.import');
+
+    // Sistem Stok Baru (Automated)
+    Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
+    Route::get('/stok/{obat_id}', [StokController::class, 'show'])->name('stok.show');
+
+    // Stok Masuk Routes
+    Route::post('/stok/masuk', [StokMasukController::class, 'store'])->name('stok.masuk.store');
 
     // Harga Obat Routes
     Route::get('/harga-obat', [HargaObatController::class, 'index'])->name('harga-obat.index');
