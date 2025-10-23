@@ -284,6 +284,9 @@ class StokObat extends Model
         
         $stokObat->save();
 
+        // Update flag is_initial_stok setelah menambah stok
+        self::updateInitialStokFlag($idObat);
+
         return $stokObat;
     }
 
@@ -292,7 +295,7 @@ class StokObat extends Model
      */
     public static function buatStokAwalPertama($idObat, $periode, $jumlah)
     {
-        return self::updateOrCreate(
+        $stokObat = self::updateOrCreate(
             [
                 'id_obat' => $idObat,
                 'periode' => $periode,
@@ -302,19 +305,51 @@ class StokObat extends Model
                 'stok_masuk' => $jumlah,
                 'stok_pakai' => 0,
                 'stok_akhir' => $jumlah,
-                'is_initial_stok' => true,
                 'keterangan' => 'Stok awal pertama kali',
             ]
         );
+
+        // Update flag is_initial_stok setelah membuat stok
+        self::updateInitialStokFlag($idObat);
+
+        return $stokObat;
     }
 
     /**
-     * Cek apakah obat sudah memiliki stok awal pertama
+     * Cek apakah obat sudah memiliki stok
      */
     public static function hasInitialStok($idObat)
     {
         return self::where('id_obat', $idObat)
-                   ->where('is_initial_stok', true)
                    ->exists();
+    }
+
+    /**
+     * Mendapatkan stok awal (periode paling lama) untuk obat tertentu
+     */
+    public static function getStokAwal($idObat)
+    {
+        return self::where('id_obat', $idObat)
+                   ->orderByRaw("SUBSTRING(periode, 4, 2) ASC, SUBSTRING(periode, 1, 2) ASC")
+                   ->first();
+    }
+
+    /**
+     * Update flag is_initial_stok untuk semua stok obat
+     * Stok awal (periode paling lama) akan ditandai sebagai is_initial_stok = true
+     */
+    public static function updateInitialStokFlag($idObat)
+    {
+        // Reset semua flag is_initial_stok untuk obat ini
+        self::where('id_obat', $idObat)
+            ->update(['is_initial_stok' => false]);
+
+        // Set flag is_initial_stok = true untuk stok awal (periode paling lama)
+        $stokAwal = self::getStokAwal($idObat);
+        if ($stokAwal) {
+            $stokAwal->update(['is_initial_stok' => true]);
+        }
+
+        return $stokAwal;
     }
 }

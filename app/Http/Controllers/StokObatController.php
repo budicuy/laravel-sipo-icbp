@@ -162,10 +162,10 @@ class StokObatController extends Controller
             $periode = $request->periode;
             $stokMasuk = $request->stok_masuk;
 
-            // Cek apakah ini stok awal pertama kali
-            $isInitialStok = !StokObat::hasInitialStok($idObat);
+            // Cek apakah ini stok pertama kali untuk obat ini
+            $isFirstStok = !StokObat::hasInitialStok($idObat);
 
-            if ($isInitialStok) {
+            if ($isFirstStok) {
                 // Buat stok awal pertama kali
                 $stokObat = StokObat::buatStokAwalPertama($idObat, $periode, $stokMasuk);
                 $message = 'Stok awal pertama berhasil ditambahkan';
@@ -280,11 +280,12 @@ class StokObatController extends Controller
         try {
             $stokObat = StokObat::findOrFail($id);
             
-            // Cek apakah ini stok awal pertama
-            if ($stokObat->is_initial_stok) {
+            // Cek apakah ini stok awal (periode paling lama)
+            $stokAwal = StokObat::getStokAwal($stokObat->id_obat);
+            if ($stokAwal && $stokAwal->id_stok_obat == $id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Stok awal pertama tidak dapat dihapus'
+                    'message' => 'Stok awal tidak dapat dihapus'
                 ], 400);
             }
             
@@ -317,15 +318,23 @@ class StokObatController extends Controller
         }
 
         try {
-            // Cek apakah ada stok awal pertama yang akan dihapus
-            $hasInitialStok = StokObat::whereIn('id_stok_obat', $ids)
-                                   ->where('is_initial_stok', true)
-                                   ->exists();
+            // Cek apakah ada stok awal (periode paling lama) yang akan dihapus
+            $hasInitialStok = false;
+            foreach ($ids as $id) {
+                $stokObat = StokObat::find($id);
+                if ($stokObat) {
+                    $stokAwal = StokObat::getStokAwal($stokObat->id_obat);
+                    if ($stokAwal && $stokAwal->id_stok_obat == $id) {
+                        $hasInitialStok = true;
+                        break;
+                    }
+                }
+            }
 
             if ($hasInitialStok) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Tidak dapat menghapus stok awal pertama'
+                    'message' => 'Tidak dapat menghapus stok awal'
                 ], 400);
             }
 
@@ -402,9 +411,6 @@ class StokObatController extends Controller
                                        ->first();
 
                 if (!$existingStok) {
-                    // Cek apakah ini stok awal pertama kali untuk obat ini
-                    $isFirstStok = !StokObat::hasInitialStok($obat->id_obat);
-                    
                     // Buat stok awal dari stok akhir bulan sebelumnya
                     $stokAwal = StokObat::getStokAkhirBulanSebelumnya($obat->id_obat, $periode);
                     
@@ -415,11 +421,11 @@ class StokObatController extends Controller
                         'stok_masuk' => 0,
                         'stok_pakai' => 0,
                         'stok_akhir' => $stokAwal,
-                        'is_initial_stok' => $isFirstStok, // Jika ini stok pertama, tandai sebagai initial stok
-                        'keterangan' => $isFirstStok 
-                            ? 'Stok awal pertama kali' 
-                            : 'Stok awal periode ' . $periode,
+                        'keterangan' => 'Stok awal periode ' . $periode,
                     ]);
+
+                    // Update flag is_initial_stok untuk obat ini
+                    StokObat::updateInitialStokFlag($obat->id_obat);
 
                     $createdCount++;
                 }
