@@ -306,7 +306,7 @@
                             </div>
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap">
-                            @if($employee->jenis_kelamin == 'Laki-laki')
+                            @if($employee->jenis_kelamin == 'L')
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                     Laki-laki
                                 </span>

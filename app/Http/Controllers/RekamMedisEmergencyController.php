@@ -81,18 +81,6 @@ class RekamMedisEmergencyController extends Controller
                 ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
         }
 
-        // Get and validate the token first before processing the form
-        $token = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))
-            ->where('status', 'available')
-            ->first();
-
-        if (!$token) {
-            // Clear invalid token from session
-            session()->forget('valid_emergency_token');
-            return redirect()->route('token-emergency.validate')
-                ->with('error', 'Token tidak valid atau sudah digunakan. Silakan minta token baru.');
-        }
-
         $validated = $request->validate([
             'external_employee_id' => 'required|exists:external_employees,id',
             'tanggal_periksa' => 'required|date',
@@ -183,18 +171,13 @@ class RekamMedisEmergencyController extends Controller
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollback();
-                // If there's an error, restore the token availability
-                $token->status = 'available';
-                $token->used_at = null;
-                $token->id_user = null;
-                $token->save();
                 throw $e;
             }
 
             // Clear token from session after successful use
             session()->forget('valid_emergency_token');
 
-            return redirect()->route('rekam-medis.index', ['tab' => 'emergency'])->with('success', 'Data rekam medis emergency berhasil ditambahkan! Token telah digunakan.');
+            return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil ditambahkan! Token telah digunakan.');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
@@ -280,7 +263,7 @@ class RekamMedisEmergencyController extends Controller
                 throw $e;
             }
 
-            return redirect()->route('rekam-medis.index', ['tab' => 'emergency'])->with('success', 'Data rekam medis emergency berhasil diperbarui!');
+            return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil diperbarui!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: ' . $e->getMessage());
         }
@@ -294,7 +277,7 @@ class RekamMedisEmergencyController extends Controller
         $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
         $rekamMedisEmergency->delete();
 
-        return redirect()->route('rekam-medis.index', ['tab' => 'emergency'])->with('success', 'Data rekam medis emergency berhasil dihapus!');
+        return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil dihapus!');
     }
 
     /**
