@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KeluargaController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\RekamMedisEmergencyController;
 use App\Http\Controllers\ExternalEmployeeController;
 use App\Http\Controllers\TokenEmergencyController;
 use App\Http\Controllers\DiagnosaEmergencyController;
+use App\Models\Obat;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -111,6 +113,17 @@ Route::middleware('auth')->group(function () {
     Route::resource('diagnosa-emergency', DiagnosaEmergencyController::class)->parameters([
         'diagnosa-emergency' => 'id_diagnosa_emergency'
     ]);
+    
+    // API Route for Obat Search
+    Route::get('/api/obat/search', function (Request $request) {
+        $search = $request->get('q');
+        $obats = Obat::where('nama_obat', 'like', '%' . $search . '%')
+            ->select(['id_obat', 'nama_obat', 'deskripsi_obat'])
+            ->limit(10)
+            ->get();
+            
+        return response()->json($obats);
+    })->name('api.obat.search');
 
     // User Routes - Resource Routes
     Route::resource('user', UserController::class)->parameters([

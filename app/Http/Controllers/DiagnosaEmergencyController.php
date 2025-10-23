@@ -94,8 +94,9 @@ class DiagnosaEmergencyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(DiagnosaEmergency $diagnosaEmergency)
+    public function show($id)
     {
+        $diagnosaEmergency = DiagnosaEmergency::findOrFail($id);
         $diagnosaEmergency->load(['obats', 'keluhans' => function($query) {
             $query->with(['user', 'rekamMedisEmergency.externalEmployee', 'rekamMedis.keluarga.karyawan'])
                   ->orderBy('created_at', 'desc');
@@ -107,8 +108,9 @@ class DiagnosaEmergencyController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(DiagnosaEmergency $diagnosaEmergency)
+    public function edit($id)
     {
+        $diagnosaEmergency = DiagnosaEmergency::findOrFail($id);
         $obats = Obat::orderBy('nama_obat')->get();
         $selectedObats = $diagnosaEmergency->obats->pluck('id_obat')->toArray();
         
@@ -118,8 +120,10 @@ class DiagnosaEmergencyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, DiagnosaEmergency $diagnosaEmergency)
+    public function update(Request $request, $id)
     {
+        $diagnosaEmergency = DiagnosaEmergency::findOrFail($id);
+        
         $validator = Validator::make($request->all(), [
             'nama_diagnosa_emergency' => 'required|string|max:255|unique:diagnosa_emergency,nama_diagnosa_emergency,' . $diagnosaEmergency->id_diagnosa_emergency . ',id_diagnosa_emergency',
             'deskripsi' => 'nullable|string',
@@ -164,9 +168,11 @@ class DiagnosaEmergencyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(DiagnosaEmergency $diagnosaEmergency)
+    public function destroy($id)
     {
         try {
+            $diagnosaEmergency = DiagnosaEmergency::findOrFail($id);
+            
             // Check if the diagnosa is being used in any keluhan
             $keluhanCount = $diagnosaEmergency->keluhans()->count();
             if ($keluhanCount > 0) {

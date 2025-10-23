@@ -11,6 +11,8 @@ class DiagnosaEmergency extends Model
 
     protected $table = 'diagnosa_emergency';
     protected $primaryKey = 'id_diagnosa_emergency';
+    public $incrementing = true;
+    protected $keyType = 'int';
     protected $fillable = [
         'nama_diagnosa_emergency',
         'deskripsi',
@@ -30,5 +32,13 @@ class DiagnosaEmergency extends Model
     public function keluhans()
     {
         return $this->hasMany(Keluhan::class, 'id_diagnosa_emergency', 'id_diagnosa_emergency');
+    }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'id_diagnosa_emergency';
     }
 }

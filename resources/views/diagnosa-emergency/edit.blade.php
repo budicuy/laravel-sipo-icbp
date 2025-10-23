@@ -76,21 +76,39 @@
                             }
                         @endphp
                         @foreach($selectedObats as $index => $obatId)
+                            @php
+                                $selectedObat = null;
+                                if (!empty($obatId)) {
+                                    $selectedObat = $obats->firstWhere('id_obat', $obatId);
+                                }
+                            @endphp
                             <div class="obat-item flex items-center gap-3">
-                                <select name="obat_rekomendasi[]" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
-                                    <option value="">-- Pilih Obat --</option>
-                                    @foreach($obats as $obat)
-                                        <option value="{{ $obat->id_obat }}" {{ $obat->id_obat == $obatId ? 'selected' : '' }}>{{ $obat->nama_obat }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="flex-1 relative">
+                                    <input type="text"
+                                           name="obat_rekomendasi_text[]"
+                                           value="{{ $selectedObat ? $selectedObat->nama_obat : '' }}"
+                                           class="obat-autocomplete w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                                           placeholder="Ketik nama obat untuk mencari..."
+                                           autocomplete="off">
+                                    <input type="hidden" name="obat_rekomendasi[]" class="obat-id" value="{{ $obatId }}">
+                                    <svg class="absolute right-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    <div class="obat-suggestions absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden"></div>
+                                </div>
+                                <div class="obat-description text-sm text-gray-600 italic max-w-md @if($selectedObat && $selectedObat->deskripsi_obat) @else hidden @endif">
+                                    @if($selectedObat && $selectedObat->deskripsi_obat)
+                                        {{ $selectedObat->deskripsi_obat }}
+                                    @endif
+                                </div>
                                 @if($index == 0)
-                                    <button type="button" onclick="addObatField()" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
+                                    <button type="button" onclick="addObatField()" class="px-3 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                         </svg>
                                     </button>
                                 @else
-                                    <button type="button" onclick="removeObatField(this)" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+                                    <button type="button" onclick="removeObatField(this)" class="px-3 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
@@ -121,19 +139,29 @@
 
 @push('scripts')
 <script>
+// Data obat dari server
+const obatsData = @json($obats);
+
 function addObatField() {
     const container = document.getElementById('obat-container');
     const obatItem = document.createElement('div');
-    obatItem.className = 'obat-item flex items-center gap-3';
+    obatItem.className = 'obat-item flex items-start gap-3';
     
     obatItem.innerHTML = `
-        <select name="obat_rekomendasi[]" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
-            <option value="">-- Pilih Obat --</option>
-            @foreach($obats as $obat)
-                <option value="{{ $obat->id_obat }}">{{ $obat->nama_obat }}</option>
-            @endforeach
-        </select>
-        <button type="button" onclick="removeObatField(this)" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+        <div class="flex-1 relative">
+            <input type="text"
+                   name="obat_rekomendasi_text[]"
+                   class="obat-autocomplete w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+                   placeholder="Ketik nama obat untuk mencari..."
+                   autocomplete="off">
+            <input type="hidden" name="obat_rekomendasi[]" class="obat-id">
+            <svg class="absolute right-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <div class="obat-suggestions absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden"></div>
+        </div>
+        <div class="obat-description text-sm text-gray-600 italic max-w-md hidden"></div>
+        <button type="button" onclick="removeObatField(this)" class="px-3 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
             </svg>
@@ -141,6 +169,7 @@ function addObatField() {
     `;
     
     container.appendChild(obatItem);
+    initializeAutocomplete(obatItem);
 }
 
 function removeObatField(button) {
@@ -156,6 +185,136 @@ function removeObatField(button) {
         });
     }
 }
+
+function initializeAutocomplete(container) {
+    const input = container.querySelector('.obat-autocomplete');
+    const hiddenInput = container.querySelector('.obat-id');
+    const suggestionsDiv = container.querySelector('.obat-suggestions');
+    const descriptionDiv = container.querySelector('.obat-description');
+    
+    let currentFocus = -1;
+    
+    input.addEventListener('input', function() {
+        const value = this.value.trim();
+        closeAllLists();
+        
+        if (!value) {
+            hiddenInput.value = '';
+            descriptionDiv.classList.add('hidden');
+            return;
+        }
+        
+        // Filter obats based on input
+        const filteredObats = obatsData.filter(obat =>
+            obat.nama_obat.toLowerCase().includes(value.toLowerCase())
+        );
+        
+        if (filteredObats.length === 0) {
+            return;
+        }
+        
+        // Create suggestions
+        filteredObats.forEach((obat, index) => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.className = 'px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center border-b border-gray-100 last:border-b-0';
+            suggestionItem.innerHTML = `
+                <div class="flex-1">
+                    <div class="font-medium text-sm">${obat.nama_obat}</div>
+                    ${obat.deskripsi_obat ? `<div class="text-xs text-gray-500 mt-1">${obat.deskripsi_obat.substring(0, 100)}${obat.deskripsi_obat.length > 100 ? '...' : ''}</div>` : ''}
+                </div>
+            `;
+            
+            suggestionItem.addEventListener('click', function() {
+                input.value = obat.nama_obat;
+                hiddenInput.value = obat.id_obat;
+                
+                // Show description
+                if (obat.deskripsi_obat) {
+                    // Truncate description to reasonable length
+                    const truncatedDesc = obat.deskripsi_obat.length > 100 ?
+                        obat.deskripsi_obat.substring(0, 100) + '...' :
+                        obat.deskripsi_obat;
+                    descriptionDiv.textContent = truncatedDesc;
+                    descriptionDiv.classList.remove('hidden');
+                } else {
+                    descriptionDiv.classList.add('hidden');
+                }
+                
+                closeAllLists();
+            });
+            
+            // Show description on hover
+            suggestionItem.addEventListener('mouseenter', function() {
+                if (obat.deskripsi_obat) {
+                    // Truncate description to reasonable length
+                    const truncatedDesc = obat.deskripsi_obat.length > 100 ?
+                        obat.deskripsi_obat.substring(0, 100) + '...' :
+                        obat.deskripsi_obat;
+                    descriptionDiv.textContent = truncatedDesc;
+                    descriptionDiv.classList.remove('hidden');
+                }
+            });
+            
+            suggestionsDiv.appendChild(suggestionItem);
+        });
+        
+        suggestionsDiv.classList.remove('hidden');
+    });
+    
+    input.addEventListener('keydown', function(e) {
+        const items = suggestionsDiv.getElementsByTagName('div');
+        if (e.keyCode === 40) { // Down arrow
+            currentFocus++;
+            addActive(items);
+        } else if (e.keyCode === 38) { // Up arrow
+            currentFocus--;
+            addActive(items);
+        } else if (e.keyCode === 13) { // Enter
+            e.preventDefault();
+            if (currentFocus > -1 && items[currentFocus]) {
+                items[currentFocus].click();
+            }
+        } else if (e.keyCode === 27) { // Escape
+            closeAllLists();
+        }
+    });
+    
+    function addActive(items) {
+        if (!items) return false;
+        removeActive(items);
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = items.length - 1;
+        items[currentFocus].classList.add('bg-gray-100');
+        return true;
+    }
+    
+    function removeActive(items) {
+        for (let i = 0; i < items.length; i++) {
+            items[i].classList.remove('bg-gray-100');
+        }
+    }
+    
+    function closeAllLists() {
+        suggestionsDiv.innerHTML = '';
+        suggestionsDiv.classList.add('hidden');
+        currentFocus = -1;
+    }
+    
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!container.contains(e.target)) {
+            closeAllLists();
+        }
+    });
+}
+
+// Initialize autocomplete on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const obatItems = document.querySelectorAll('.obat-item');
+    obatItems.forEach(item => {
+        initializeAutocomplete(item);
+    });
+});
 </script>
 @endpush
 @endsection
