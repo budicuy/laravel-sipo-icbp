@@ -85,7 +85,7 @@ class RekamMedisEmergencyController extends Controller
         $validated = $request->validate([
             'external_employee_id' => 'required|exists:external_employees,id',
             'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i',
+            'waktu_periksa' => 'nullable|date_format:H:i:s|date_format:H:i',
             'status' => 'required|in:On Progress,Close',
             'keluhan' => 'required|string',
             'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
@@ -222,7 +222,7 @@ class RekamMedisEmergencyController extends Controller
         $validated = $request->validate([
             'external_employee_id' => 'required|exists:external_employees,id',
             'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i',
+            'waktu_periksa' => 'nullable|date_format:H:i:s|date_format:H:i',
             'status' => 'required|in:On Progress,Close',
             'keluhan' => 'required|string',
             'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
@@ -231,6 +231,9 @@ class RekamMedisEmergencyController extends Controller
         ]);
 
         try {
+            // Simpan keluhan lama untuk perbandingan stok
+            $oldKeluhans = $rekamMedisEmergency->keluhans()->get();
+
             DB::beginTransaction();
             try {
                 // Update emergency medical record
@@ -268,7 +271,10 @@ class RekamMedisEmergencyController extends Controller
                 throw $e;
             }
 
-            return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil diperbarui!');
+            // Dispatch event untuk menyesuaikan stok obat otomatis
+            RekamMedisEmergencyUpdated::dispatch($rekamMedisEmergency, $oldKeluhans);
+
+            return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil diperbarui! Stok obat telah disesuaikan.');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: '.$e->getMessage());
         }

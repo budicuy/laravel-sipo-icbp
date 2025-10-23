@@ -31,12 +31,20 @@ class EventServiceProvider extends ServiceProvider
             KembalikanStokObatListener::class,
         ],
 
+        RekamMedisUpdated::class => [
+            AdjustStokObatListener::class,
+        ],
+
         RekamMedisEmergencyCreated::class => [
             KurangiStokObatEmergencyListener::class,
         ],
 
         RekamMedisEmergencyDeleted::class => [
             KembalikanStokObatEmergencyListener::class,
+        ],
+
+        RekamMedisEmergencyUpdated::class => [
+            AdjustStokObatEmergencyListener::class,
         ],
     ];
 

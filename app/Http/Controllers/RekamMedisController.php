@@ -231,7 +231,7 @@ class RekamMedisController extends Controller
         $validated = $request->validate([
             'id_keluarga' => 'required|exists:keluarga,id_keluarga',
             'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i',
+            'waktu_periksa' => 'nullable|date_format:H:i:s|date_format:H:i',
             'status' => 'required|in:On Progress,Close',
             'jumlah_keluhan' => 'required|integer|min:1|max:3',
 
@@ -331,8 +331,10 @@ class RekamMedisController extends Controller
     public function edit($id)
     {
         $rekamMedis = RekamMedis::with([
-            'keluhans.diagnosa',   // relasi diagnosa di tabel keluhans
-            'keluhans.obat',        // relasi obat (pivot diagnosa_obat)
+            'keluarga.karyawan.departemen',  // relasi keluarga dengan karyawan dan departemen
+            'keluarga.hubungan',             // relasi hubungan
+            'keluhans.diagnosa',             // relasi diagnosa di tabel keluhans
+            'keluhans.obat',                  // relasi obat (pivot diagnosa_obat)
         ])->findOrFail($id);
 
         $diagnosas = Diagnosa::orderBy('nama_diagnosa')->get();
@@ -348,7 +350,7 @@ class RekamMedisController extends Controller
         $validated = $request->validate([
             'id_keluarga' => 'required|exists:keluarga,id_keluarga',
             'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i',
+            'waktu_periksa' => 'nullable|date_format:H:i:s|date_format:H:i',
             'status' => 'required|in:On Progress,Close',
             'jumlah_keluhan' => 'required|integer|min:1|max:3',
 
@@ -364,6 +366,9 @@ class RekamMedisController extends Controller
 
         // Using Laravel 12's transaction method with automatic retry for better reliability
         try {
+            // Simpan keluhan lama untuk perbandingan stok
+            $oldKeluhans = $rekamMedis->keluhans()->get();
+
             \Illuminate\Support\Facades\DB::transaction(function () use ($rekamMedis, $validated, $request) {
                 // Update data rekam medis
                 $rekamMedis->update([
@@ -412,7 +417,10 @@ class RekamMedisController extends Controller
                 }
             }, 3); // Retry up to 3 times on deadlock
 
-            return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil diperbarui!');
+            // Dispatch event untuk menyesuaikan stok obat otomatis
+            RekamMedisUpdated::dispatch($rekamMedis, $oldKeluhans);
+
+            return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil diperbarui! Stok obat telah disesuaikan.');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: '.$e->getMessage());
         }
