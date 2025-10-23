@@ -518,6 +518,18 @@
                     tension: 0.4,
                     pointRadius: 4,
                     pointHoverRadius: 6
+                },
+                {
+                    label: 'Total Pemeriksaan',
+                    data: chartPemeriksaanData.total,
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderDash: [5, 5]
                 }
             ]
         },
@@ -585,6 +597,18 @@
                     tension: 0.4,
                     pointRadius: 4,
                     pointHoverRadius: 6
+                },
+                {
+                    label: 'Total Biaya',
+                    data: chartBiayaData.total,
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderDash: [5, 5]
                 }
             ]
         },

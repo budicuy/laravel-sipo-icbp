@@ -239,6 +239,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/transaksi', [LaporanController::class, 'transaksi'])->name('laporan.transaksi');
     Route::get('/laporan/transaksi/{id}/detail', [LaporanController::class, 'detailTransaksi'])->name('laporan.detail');
     Route::get('/laporan/transaksi/emergency/{id}/detail', [LaporanController::class, 'detailTransaksiEmergency'])->name('laporan.detail-emergency');
+    Route::get('/laporan/transaksi/emergency/{id}/cetak', [LaporanController::class, 'cetakDetailTransaksiEmergency'])->name('laporan.cetak.detail-emergency');
     Route::get('/laporan/transaksi/{id}/cetak', [LaporanController::class, 'cetakDetailTransaksi'])->name('laporan.cetak.detail');
     Route::post('/laporan/transaksi/export', [LaporanController::class, 'exportTransaksi'])->name('laporan.export');
 

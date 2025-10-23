@@ -394,7 +394,7 @@ class ExternalEmployeeController extends Controller
             'nik_employee' => $data['nik_employee'],
             'nama_employee' => $data['nama_employee'],
             'kode_rm' => $data['kode_rm'],
-            'tanggal_lahir' => !empty($data['tanggal_lahir']) ? date('Y-m-d', strtotime($data['tanggal_lahir'])) : null,
+            'tanggal_lahir' => $this->parseDate($data['tanggal_lahir']),
             'jenis_kelamin' => $data['jenis_kelamin'],
             'alamat' => $data['alamat'] ?? '',
             'no_hp' => $data['no_hp'],
@@ -409,6 +409,46 @@ class ExternalEmployeeController extends Controller
         ExternalEmployee::create($insertData);
         
         return ['success' => true, 'skipped' => false, 'message' => ''];
+    }
+
+    /**
+     * Parse date from various formats (Excel serial, text, etc.)
+     */
+    private function parseDate($dateValue)
+    {
+        if (empty($dateValue)) {
+            return null;
+        }
+        
+        // If it's already a valid date string (YYYY-MM-DD format)
+        if (is_string($dateValue) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateValue)) {
+            return $dateValue;
+        }
+        
+        // If it's a numeric value (Excel serial date)
+        if (is_numeric($dateValue)) {
+            try {
+                // Excel stores dates as days since 1900-01-01 (with 1900 incorrectly considered a leap year)
+                // PHP's base date is 1970-01-01
+                $excelEpoch = new \DateTime('1899-12-30'); // Excel's epoch adjusted for the leap year bug
+                $interval = new \DateInterval('P' . $dateValue . 'D');
+                $date = clone $excelEpoch;
+                $date->add($interval);
+                return $date->format('Y-m-d');
+            } catch (\Exception $e) {
+                // If parsing fails, return null
+                return null;
+            }
+        }
+        
+        // Try to parse as a regular date string
+        try {
+            $date = new \DateTime($dateValue);
+            return $date->format('Y-m-d');
+        } catch (\Exception $e) {
+            // If parsing fails, return null
+            return null;
+        }
     }
 
     public function export(Request $request)
@@ -457,24 +497,22 @@ class ExternalEmployeeController extends Controller
 
     public function downloadTemplate()
     {
-        $filePath = public_path('templates/external-employee-template.csv');
-        
-        if (!file_exists($filePath)) {
-            // Create template directory if not exists
-            $templateDir = public_path('templates');
-            if (!is_dir($templateDir)) {
-                mkdir($templateDir, 0755, true);
-            }
-            
-            // Create a simple CSV template as fallback
-            $csvContent = "nik_employee,nama_employee,kode_rm,tanggal_lahir,jenis_kelamin,alamat,no_hp,nama_vendor,no_ktp,bpjs_id,kategori\n";
-            $csvContent .= "80007053,John Doe,80007053-F,1993-09-09,L,Jakarta,082122,PT. Tropis Service,6372040909930005,0001547298944,X - Guest\n";
-            $csvContent .= "80007054,Jane Smith,80007054-F,1995-05-15,P,Bandung,082123,PT. Tropis Service,6372051505950006,0001547298945,Y - Outsourcing\n";
-            $csvContent .= "80007055,Robert Johnson,80007055-F,1990-12-20,L,Surabaya,082124,PT. Mitra Sejati,6372122009900007,0001547298946,Z - Supporting\n";
-            
-            file_put_contents($filePath, $csvContent);
+        // Create template directory if not exists
+        $templateDir = public_path('templates');
+        if (!is_dir($templateDir)) {
+            mkdir($templateDir, 0755, true);
         }
         
-        return response()->download($filePath, 'external-employee-template.csv');
+        $filePath = $templateDir . '/external-employee-template.csv';
+        
+        // Create a simple CSV template
+        $csvContent = "nik_employee,nama_employee,kode_rm,tanggal_lahir,jenis_kelamin,alamat,no_hp,nama_vendor,no_ktp,bpjs_id,kategori\n";
+        $csvContent .= "80007053,John Doe,80007053-F,1993-09-09,L,Jakarta,082122,PT. Tropis Service,6372040909930005,0001547298944,X - Guest\n";
+        $csvContent .= "80007054,Jane Smith,80007054-F,1995-05-15,P,Bandung,082123,PT. Tropis Service,6372051505950006,0001547298945,Y - Outsourcing\n";
+        $csvContent .= "80007055,Robert Johnson,80007055-F,1990-12-20,L,Surabaya,082124,PT. Mitra Sejati,6372122009900007,0001547298946,Z - Supporting\n";
+        
+        file_put_contents($filePath, $csvContent);
+        
+        return response()->download($filePath, 'external-employee-template.csv')->deleteFileAfterSend(true);
     }
 }
