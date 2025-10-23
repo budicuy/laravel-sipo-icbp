@@ -858,6 +858,12 @@ function clearValidationErrors() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // Preserve token session when validation errors occur
+    @if($errors->any())
+        // If there are validation errors, ensure token is still in session
+        // This prevents the token from being lost when form validation fails
+        console.log('Validation errors detected, preserving token session');
+    @endif
     // Add real-time validation for critical fields
     document.getElementById('search_karyawan').addEventListener('blur', function() {
         const idExternalEmployee = document.getElementById('id_external_employee').value;

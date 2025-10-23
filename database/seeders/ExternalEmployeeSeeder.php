@@ -12,10 +12,12 @@ class ExternalEmployeeSeeder extends Seeder
 {
     public function run()
     {
-        // Truncate table first for clean seeding
+        // ✅ Nonaktifkan foreign key check sementara (agar bisa truncate)
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('external_employees')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Get the CSV file path
+        // Path ke file CSV
         $csvFile = database_path('seeders/employee/Data_Master_Employee.csv');
         
         if (!file_exists($csvFile)) {
@@ -23,20 +25,14 @@ class ExternalEmployeeSeeder extends Seeder
             return;
         }
 
-        // Open the CSV file
         $file = fopen($csvFile, 'r');
-        
-        // Skip header
-        fgetcsv($file, 1000, ';');
-        
-        // Process each row
-        while (($data = fgetcsv($file, 1000, ';')) !== FALSE) {
-            // Skip empty rows
-            if (empty(trim($data[0]))) {
-                continue;
-            }
+        fgetcsv($file, 1000, ';'); // lewati header CSV
 
-            // Extract data from CSV
+        while (($data = fgetcsv($file, 1000, ';')) !== FALSE) {
+            // Lewati baris kosong
+            if (empty(trim($data[0]))) continue;
+
+            // Ambil data dari CSV
             $nikEmployee = trim($data[0]);
             $namaEmployee = trim($data[1]);
             $kodeRm = trim($data[2]);
@@ -48,49 +44,38 @@ class ExternalEmployeeSeeder extends Seeder
             $noKtp = trim($data[8]);
             $bpjsId = trim($data[9]);
             $kategori = trim($data[10]);
-            
-            // Skip if required fields are empty
-            if (empty($nikEmployee) || empty($namaEmployee) || empty($kodeRm)) {
-                continue;
+
+            if (empty($nikEmployee) || empty($namaEmployee) || empty($kodeRm)) continue;
+
+            // 🔹 Cari atau buat vendor
+            $vendor = null;
+            if (!empty($namaVendor)) {
+                $vendor = Vendor::firstOrCreate(['nama_vendor' => $namaVendor]);
             }
-            
-            // Find or create vendor
-            $vendor = Vendor::where('nama_vendor', $namaVendor)->first();
-            if (!$vendor && !empty($namaVendor)) {
-                $vendor = Vendor::create(['nama_vendor' => $namaVendor]);
-            }
-            
-            // Process kategori
+
+            // 🔹 Proses kategori
             $kategoriModel = null;
             if (!empty($kategori)) {
-                // Extract kode kategori from format like "Y - Outsourcing"
                 if (preg_match('/^([xyz])\s*-\s*(.+)$/i', $kategori, $matches)) {
                     $kodeKategori = strtolower($matches[1]);
                     $namaKategori = $matches[2];
-                    
-                    $kategoriModel = Kategori::where('kode_kategori', $kodeKategori)->first();
-                    if (!$kategoriModel) {
-                        $kategoriModel = Kategori::create([
-                            'kode_kategori' => $kodeKategori,
-                            'nama_kategori' => $namaKategori
-                        ]);
-                    }
+                    $kategoriModel = Kategori::firstOrCreate([
+                        'kode_kategori' => $kodeKategori
+                    ], [
+                        'nama_kategori' => $namaKategori
+                    ]);
                 } elseif (preg_match('/^([xyz])\s*-\s*F/i', $kategori, $matches)) {
                     $kodeKategori = strtolower($matches[1]);
-                    $namaKategori = '';
-                    
-                    $kategoriModel = Kategori::where('kode_kategori', $kodeKategori)->first();
-                    if (!$kategoriModel) {
-                        $kategoriModel = Kategori::create([
-                            'kode_kategori' => $kodeKategori,
-                            'nama_kategori' => $namaKategori
-                        ]);
-                    }
+                    $kategoriModel = Kategori::firstOrCreate([
+                        'kode_kategori' => $kodeKategori
+                    ], [
+                        'nama_kategori' => ''
+                    ]);
                 }
             }
-            
-            // Prepare data for insertion
-            $insertData = [
+
+            // 🔹 Buat data External Employee
+            ExternalEmployee::create([
                 'nik_employee' => $nikEmployee,
                 'nama_employee' => $namaEmployee,
                 'kode_rm' => $kodeRm,
@@ -103,14 +88,11 @@ class ExternalEmployeeSeeder extends Seeder
                 'bpjs_id' => !empty($bpjsId) ? $bpjsId : null,
                 'id_kategori' => $kategoriModel ? $kategoriModel->id_kategori : null,
                 'status' => 'aktif'
-            ];
-            
-            // Create external employee
-            ExternalEmployee::create($insertData);
+            ]);
         }
-        
+
         fclose($file);
-        
-        $this->command->info('External Employee data seeded successfully!');
+
+        $this->command->info('✅ External Employee data seeded successfully!');
     }
 }
