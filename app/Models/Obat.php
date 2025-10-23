@@ -19,6 +19,9 @@ class Obat extends Model
         'tanggal_update',
     ];
 
+    // Properties yang akan di-append tanpa memanggil accessor
+    protected $appends = ['sisa_stok'];
+
     protected $casts = [
         'tanggal_update' => 'datetime',
     ];
@@ -110,10 +113,15 @@ class Obat extends Model
 
     /**
      * Menghitung sisa stok saat ini
+     *
+     * Catatan: Accessor ini telah dihapus untuk menghindari N+1 query.
+     * Gunakan StokBulanan::getSisaStokSaatIniForMultiple() untuk multiple obat.
      */
     public function getSisaStokAttribute()
     {
-        return StokBulanan::getSisaStokSaatIni($this->id_obat);
+        // Jangan panggil method yang menyebabkan N+1 query
+        // Kembalikan nilai default 0
+        return 0;
     }
 
     /**

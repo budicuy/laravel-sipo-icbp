@@ -20,6 +20,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class RekamMedisController extends Controller
 {
@@ -976,7 +977,7 @@ class RekamMedisController extends Controller
                     break;
             }
         } catch (\Exception $e) {
-            \Log::error("Error reading cell {$column}{$row}: " . $e->getMessage());
+            Log::error("Error reading cell {$column}{$row}: " . $e->getMessage());
             $value = null;
         }
 
@@ -1036,7 +1037,7 @@ class RekamMedisController extends Controller
             }
 
             // Debug: Log the detected format
-            \Log::info("Detected Excel format: " . ($isMultiDiagnosaFormat ? "Multiple Diagnoses" : "Single Diagnosa"));
+            Log::info("Detected Excel format: " . ($isMultiDiagnosaFormat ? "Multiple Diagnoses" : "Single Diagnosa"));
 
             for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
                 if ($isMultiDiagnosaFormat) {
@@ -1112,7 +1113,7 @@ class RekamMedisController extends Controller
                     $status = $this->getCellValue($sheet, 'AD', $rowNumber, 'string');
 
                     // Debug: Log the values
-                    \Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
+                    Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
                 } else {
                     // Process single-diagnosa format
                     // A: Hari / Tgl
@@ -1159,7 +1160,7 @@ class RekamMedisController extends Controller
                     $status = $this->getCellValue($sheet, 'T', $rowNumber, 'string');
 
                     // Debug: Log the values
-                    \Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
+                    Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
                 }
 
                 // Skip empty rows
@@ -1295,7 +1296,7 @@ class RekamMedisController extends Controller
                 ]);
 
                 // Debug: Log the waktu_periksa value
-                \Log::info('Row ' . $rowNumber . ': waktu_periksa = ' . $waktuPeriksa);
+                Log::info('Row ' . $rowNumber . ': waktu_periksa = ' . $waktuPeriksa);
 
                 // Process data based on format
                 $keluhanCount = 0;

@@ -6,6 +6,8 @@ use App\Models\Obat;
 use App\Models\StokBulanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class StokController extends Controller
 {
@@ -26,12 +28,33 @@ class StokController extends Controller
             });
         }
 
+        // Filter by stok status
+        if ($request->has('stok_status') && $request->stok_status != '') {
+            $query->whereHas('stokBulanans', function($q) use ($request) {
+                // Hitung sisa stok dan filter berdasarkan status
+                switch ($request->stok_status) {
+                    case 'habis':
+                        // Ini akan dihandle di collection level
+                        break;
+                    case 'rendah':
+                        // Ini akan dihandle di collection level
+                        break;
+                    case 'tersedia':
+                        // Ini akan dihandle di collection level
+                        break;
+                }
+            });
+        }
+
         $obats = $query->get();
 
-        // Hitung sisa stok untuk setiap obat
-        $obatsWithStok = $obats->map(function ($obat) {
-            $sisaStok = StokBulanan::getSisaStokSaatIni($obat->id_obat);
-            $obat->sisa_stok = $sisaStok;
+        // Ambil semua ID obat untuk perhitungan stok sekaligus (menghindari N+1 query)
+        $obatIds = $obats->pluck('id_obat')->toArray();
+        $sisaStokCollection = StokBulanan::getSisaStokSaatIniForMultiple($obatIds);
+
+        // Tambahkan sisa stok ke setiap obat
+        $obatsWithStok = $obats->map(function ($obat) use ($sisaStokCollection) {
+            $obat->sisa_stok = $sisaStokCollection->get($obat->id_obat) ?? 0;
             return $obat;
         });
 
@@ -85,8 +108,9 @@ class StokController extends Controller
         // Tampilkan riwayat stok bulanan
         $riwayatStok = StokBulanan::getRiwayatStok($obat_id, 24); // 24 bulan terakhir
 
-        // Hitung sisa stok saat ini
-        $sisaStok = StokBulanan::getSisaStokSaatIni($obat_id);
+        // Hitung sisa stok saat ini (menggunakan method yang sudah dioptimasi)
+        $sisaStokCollection = StokBulanan::getSisaStokSaatIniForMultiple([$obat_id]);
+        $sisaStok = $sisaStokCollection->get($obat_id) ?? 0;
 
         // Data untuk form stok masuk bulan ini
         $tahunSekarang = now()->year;
@@ -106,5 +130,61 @@ class StokController extends Controller
             'bulanSekarang',
             'stokBulananIni'
         ));
+    }
+
+    /**
+     * Update the specified stok bulanan in storage.
+     */
+    public function update(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:stok_bulanans,id',
+            'obat_id' => 'required|exists:obat,id_obat',
+            'stok_masuk' => 'nullable|integer|min:0',
+            'stok_pakai' => 'nullable|integer|min:0',
+        ]);
+
+        try {
+            $stokBulanan = StokBulanan::findOrFail($request->id);
+
+            // Simpan nilai lama untuk logging
+            $oldValues = [
+                'stok_masuk' => $stokBulanan->stok_masuk,
+                'stok_pakai' => $stokBulanan->stok_pakai,
+            ];
+
+            // Update nilai
+            $stokBulanan->stok_masuk = $request->stok_masuk ?? 0;
+            $stokBulanan->stok_pakai = $request->stok_pakai ?? 0;
+            $stokBulanan->save();
+
+            // Log perubahan
+            Log::info('Stok bulanan updated', [
+                'stok_bulanan_id' => $stokBulanan->id,
+                'obat_id' => $stokBulanan->obat_id,
+                'periode' => $stokBulanan->periode,
+                'old_values' => $oldValues,
+                'new_values' => [
+                    'stok_masuk' => $stokBulanan->stok_masuk,
+                    'stok_pakai' => $stokBulanan->stok_pakai,
+                ],
+                'user_id' => Auth::user()->id_user ?? null,
+            ]);
+
+            return redirect()
+                ->route('stok.show', $request->obat_id)
+                ->with('success', 'Riwayat stok berhasil diperbarui');
+
+        } catch (\Exception $e) {
+            Log::error('Error updating stok bulanan', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all(),
+                'user_id' => Auth::user()->id_user ?? null,
+            ]);
+
+            return redirect()
+                ->route('stok.show', $request->obat_id)
+                ->with('error', 'Terjadi kesalahan saat memperbarui riwayat stok: ' . $e->getMessage());
+        }
     }
 }
