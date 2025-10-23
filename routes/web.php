@@ -17,6 +17,7 @@ use App\Http\Controllers\MonitoringHargaController;
 use App\Http\Controllers\RekamMedisEmergencyController;
 use App\Http\Controllers\ExternalEmployeeController;
 use App\Http\Controllers\TokenEmergencyController;
+use App\Http\Controllers\DiagnosaEmergencyController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -101,6 +102,14 @@ Route::middleware('auth')->group(function () {
     // Diagnosa Resource Routes
     Route::resource('diagnosa', DiagnosaController::class)->parameters([
         'diagnosa' => 'id_diagnosa'
+    ]);
+
+    // Diagnosa Emergency Routes - Custom routes BEFORE resource routes
+    Route::post('/diagnosa-emergency/bulk-delete', [DiagnosaEmergencyController::class, 'bulkDelete'])->name('diagnosa-emergency.bulkDelete');
+
+    // Diagnosa Emergency Resource Routes
+    Route::resource('diagnosa-emergency', DiagnosaEmergencyController::class)->parameters([
+        'diagnosa-emergency' => 'id_diagnosa_emergency'
     ]);
 
     // User Routes - Resource Routes
