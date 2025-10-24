@@ -32,6 +32,184 @@
             </ol>
         </nav>
 
+        <!-- Summary Statistics -->
+        @if ($riwayatStok->count() > 0)
+            <div class="mt-8">
+                <div
+                    class="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-2xl shadow-xl border border-white/20 backdrop-blur-sm overflow-hidden">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white/20 p-2 rounded-lg backdrop-blur-sm">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">Ringkasan Stok Obat</h3>
+                            <div class="ml-auto bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                                <span class="text-sm font-medium text-white">{{ $riwayatStok->count() }} periode</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- Total Stok Masuk -->
+                            <div class="group relative">
+                                <div
+                                    class="absolute -inset-1 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur">
+                                </div>
+                                <div class="relative bg-white rounded-xl border border-green-100 p-6 h-full">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div
+                                            class="bg-gradient-to-r from-green-500 to-emerald-500 p-3 rounded-xl shadow-lg">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                                            </svg>
+                                        </div>
+                                        <div class="bg-green-100 px-2 py-1 rounded-full">
+                                            <span
+                                                class="text-xs font-semibold text-green-800">+{{ $riwayatStok->sum('stok_masuk') > 0 ? number_format($riwayatStok->sum('stok_masuk')) : '0' }}</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-600 mb-2">Total Stok Masuk</p>
+                                    <p class="text-3xl font-bold text-gray-900">
+                                        {{ number_format($riwayatStok->sum('stok_masuk')) }}</p>
+                                    <div class="mt-3 flex items-center text-xs text-green-600">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                        </svg>
+                                        <span>Stok ditambahkan</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Total Stok Pakai -->
+                            <div class="group relative">
+                                <div
+                                    class="absolute -inset-1 bg-gradient-to-r from-red-600 to-rose-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur">
+                                </div>
+                                <div class="relative bg-white rounded-xl border border-red-100 p-6 h-full">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="bg-gradient-to-r from-red-500 to-rose-500 p-3 rounded-xl shadow-lg">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                                            </svg>
+                                        </div>
+                                        <div class="bg-red-100 px-2 py-1 rounded-full">
+                                            <span
+                                                class="text-xs font-semibold text-red-800">-{{ $riwayatStok->sum('stok_pakai') > 0 ? number_format($riwayatStok->sum('stok_pakai')) : '0' }}</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-600 mb-2">Total Stok Pakai</p>
+                                    <p class="text-3xl font-bold text-gray-900">
+                                        {{ number_format($riwayatStok->sum('stok_pakai')) }}</p>
+                                    <div class="mt-3 flex items-center text-xs text-red-600">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                                        </svg>
+                                        <span>Stok terpakai</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stok Awal -->
+                            <div class="group relative">
+                                <div
+                                    class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur">
+                                </div>
+                                <div class="relative bg-white rounded-xl border border-blue-100 p-6 h-full">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-3 rounded-xl shadow-lg">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div class="bg-blue-100 px-2 py-1 rounded-full">
+                                            <span class="text-xs font-semibold text-blue-800">Awal</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-600 mb-2">Stok Awal</p>
+                                    <p class="text-3xl font-bold text-gray-900">{{ number_format($obat->stok_awal) }}</p>
+                                    <div class="mt-3 flex items-center text-xs text-blue-600">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>Stok awal periode</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sisa Stok Akhir -->
+                            <div class="group relative">
+                                <div
+                                    class="absolute -inset-1 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur">
+                                </div>
+                                <div class="relative bg-white rounded-xl border border-purple-100 p-6 h-full">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div
+                                            class="bg-gradient-to-r {{ $sisaStok <= 0 ? 'from-red-500 to-rose-500' : ($sisaStok <= 10 ? 'from-yellow-500 to-orange-500' : 'from-green-500 to-emerald-500') }} p-3 rounded-xl shadow-lg">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div
+                                            class="{{ $sisaStok <= 0 ? 'bg-red-100 text-red-800' : ($sisaStok <= 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }} px-2 py-1 rounded-full">
+                                            <span
+                                                class="text-xs font-semibold">{{ $sisaStok <= 0 ? 'Habis' : ($sisaStok <= 10 ? 'Rendah' : 'Aman') }}</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-600 mb-2">Sisa Stok Akhir</p>
+                                    <p
+                                        class="text-3xl font-bold {{ $sisaStok <= 0 ? 'text-red-600' : ($sisaStok <= 10 ? 'text-yellow-600' : 'text-green-600') }}">
+                                        {{ number_format($sisaStok) }}</p>
+                                    <div
+                                        class="mt-3 flex items-center text-xs {{ $sisaStok <= 0 ? 'text-red-600' : ($sisaStok <= 10 ? 'text-yellow-600' : 'text-green-600') }}">
+                                        @if ($sisaStok <= 0)
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span>Stok habis, segera isi</span>
+                                        @elseif($sisaStok <= 10)
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                                            </svg>
+                                            <span>Stok rendah, perlu perhatian</span>
+                                        @else
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span>Stok aman</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Info Obat -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
             <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
@@ -304,35 +482,7 @@
             </div>
         </div>
 
-        <!-- Summary Statistics -->
-        @if ($riwayatStok->count() > 0)
-            <div class="mt-6 bg-white rounded-xl shadow-md border border-gray-100 p-4">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Ringkasan</h3>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="text-center">
-                        <p class="text-sm font-medium text-gray-500">Total Stok Masuk</p>
-                        <p class="text-2xl font-semibold text-green-600">
-                            {{ number_format($riwayatStok->sum('stok_masuk')) }}</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-sm font-medium text-gray-500">Total Stok Pakai</p>
-                        <p class="text-2xl font-semibold text-red-600">
-                            {{ number_format($riwayatStok->sum('stok_pakai')) }}</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-sm font-medium text-gray-500">Stok Awal</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($obat->stok_awal) }}</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-sm font-medium text-gray-500">Sisa Stok Akhir</p>
-                        <p
-                            class="text-2xl font-semibold {{ $sisaStok <= 0 ? 'text-red-600' : ($sisaStok <= 10 ? 'text-yellow-600' : 'text-green-600') }}">
-                            {{ number_format($sisaStok) }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        @endif
+
 
     </div>
 
@@ -419,7 +569,7 @@
                     if (jumlah && jumlah > 0) {
                         if (!confirm(
                                 `Apakah Anda yakin ingin menambah stok sebesar ${jumlah} {{ $obat->satuanObat->nama_satuan ?? '' }}?`
-                                )) {
+                            )) {
                             e.preventDefault();
                         }
                     }
