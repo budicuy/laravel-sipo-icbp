@@ -5,9 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Obat;
 use App\Models\StokBulanan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class StokController extends Controller
 {
@@ -23,14 +22,14 @@ class StokController extends Controller
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('nama_obat', 'like', '%' . $search . '%')
-                  ->orWhere('keterangan', 'like', '%' . $search . '%');
+                $q->where('nama_obat', 'like', '%'.$search.'%')
+                    ->orWhere('keterangan', 'like', '%'.$search.'%');
             });
         }
 
         // Filter by stok status
         if ($request->has('stok_status') && $request->stok_status != '') {
-            $query->whereHas('stokBulanans', function($q) use ($request) {
+            $query->whereHas('stokBulanans', function ($q) use ($request) {
                 // Hitung sisa stok dan filter berdasarkan status
                 switch ($request->stok_status) {
                     case 'habis':
@@ -54,8 +53,10 @@ class StokController extends Controller
 
         // Tambahkan sisa stok ke setiap obat
         $obatsWithStok = $obats->map(function ($obat) use ($sisaStokCollection) {
-            $obat->sisa_stok = $sisaStokCollection->get($obat->id_obat) ?? 0;
-            return $obat;
+            $newObat = clone $obat;
+            $newObat->sisa_stok = $sisaStokCollection->get($newObat->id_obat) ?? 0;
+
+            return $newObat;
         });
 
         // Filter berdasarkan status stok (setelah perhitungan)
@@ -103,7 +104,7 @@ class StokController extends Controller
     {
         // Ambil data Obat berdasarkan $obat_id
         $obat = Obat::with(['satuanObat:id_satuan,nama_satuan'])
-                   ->findOrFail($obat_id);
+            ->findOrFail($obat_id);
 
         // Tampilkan riwayat stok bulanan
         $riwayatStok = StokBulanan::getRiwayatStok($obat_id, 24); // 24 bulan terakhir
@@ -118,9 +119,9 @@ class StokController extends Controller
 
         // Cek apakah sudah ada stok bulanan untuk bulan ini
         $stokBulananIni = StokBulanan::where('obat_id', $obat_id)
-                                   ->where('tahun', $tahunSekarang)
-                                   ->where('bulan', $bulanSekarang)
-                                   ->first();
+            ->where('tahun', $tahunSekarang)
+            ->where('bulan', $bulanSekarang)
+            ->first();
 
         return view('stok.show', compact(
             'obat',
@@ -184,7 +185,7 @@ class StokController extends Controller
 
             return redirect()
                 ->route('stok.show', $request->obat_id)
-                ->with('error', 'Terjadi kesalahan saat memperbarui riwayat stok: ' . $e->getMessage());
+                ->with('error', 'Terjadi kesalahan saat memperbarui riwayat stok: '.$e->getMessage());
         }
     }
 }
