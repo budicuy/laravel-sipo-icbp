@@ -27,15 +27,14 @@ class KurangiStokObatListener
         try {
             // Ambil semua data keluhan yang terkait dengan RekamMedis tersebut
             $keluhans = Keluhan::where('id_rekam', $rekamMedis->id_rekam)
-                ->whereNotNull('id_obat')
-                ->where('jumlah_obat', '>', 0)
-                ->get();
+                               ->whereNotNull('id_obat')
+                               ->where('jumlah_obat', '>', 0)
+                               ->get();
 
             if ($keluhans->isEmpty()) {
                 Log::info('Tidak ada keluhan dengan obat untuk rekam medis ini', [
-                    'id_rekam' => $rekamMedis->id_rekam,
+                    'id_rekam' => $rekamMedis->id_rekam
                 ]);
-
                 return;
             }
 
@@ -56,7 +55,7 @@ class KurangiStokObatListener
                     'id_obat' => $obatId,
                     'jumlah_obat' => $jumlahObat,
                     'tahun' => $tahun,
-                    'bulan' => $bulan,
+                    'bulan' => $bulan
                 ]);
 
                 // Cari atau buat record di tabel StokBulanan
@@ -71,20 +70,20 @@ class KurangiStokObatListener
                     'tahun' => $tahun,
                     'bulan' => $bulan,
                     'jumlah_dikurangi' => $jumlahObat,
-                    'total_stok_pakai' => $stokBulanan->stok_pakai,
+                    'total_stok_pakai' => $stokBulanan->stok_pakai
                 ]);
             }
 
             Log::info('Proses pengurangan stok obat selesai', [
                 'id_rekam' => $rekamMedis->id_rekam,
-                'total_keluhan' => $keluhans->count(),
+                'total_keluhan' => $keluhans->count()
             ]);
 
         } catch (\Exception $e) {
             Log::error('Error dalam KurangiStokObatListener', [
                 'id_rekam' => $rekamMedis->id_rekam,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString()
             ]);
         }
     }

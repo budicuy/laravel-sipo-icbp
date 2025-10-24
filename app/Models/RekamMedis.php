@@ -10,9 +10,7 @@ class RekamMedis extends Model
     use HasFactory;
 
     protected $table = 'rekam_medis';
-
     protected $primaryKey = 'id_rekam';
-
     public $timestamps = false;
 
     protected $fillable = [
@@ -26,7 +24,6 @@ class RekamMedis extends Model
 
     protected $casts = [
         'tanggal_periksa' => 'date',
-        'waktu_periksa' => 'datetime:H:i',
     ];
 
     // Relasi ke Keluarga (Pasien)
@@ -75,20 +72,20 @@ class RekamMedis extends Model
     // Scope untuk pencarian pasien
     public function scopeSearchPatient($query, $search)
     {
-        return $query->whereHas('keluarga', function ($keluarga) use ($search) {
+        return $query->whereHas('keluarga', function($keluarga) use ($search) {
             $keluarga->where('nama_keluarga', 'like', "%{$search}%")
-                ->orWhere('no_rm', 'like', "%{$search}%")
-                ->orWhere('bpjs_id', 'like', "%{$search}%")
-                ->orWhereHas('karyawan', function ($karyawan) use ($search) {
-                    $karyawan->where('nik_karyawan', 'like', "%{$search}%");
-                });
+                    ->orWhere('no_rm', 'like', "%{$search}%")
+                    ->orWhere('bpjs_id', 'like', "%{$search}%")
+                    ->orWhereHas('karyawan', function($karyawan) use ($search) {
+                        $karyawan->where('nik_karyawan', 'like', "%{$search}%");
+                    });
         });
     }
 
     // Accessor untuk menghitung total biaya obat
     public function getTotalBiayaAttribute()
     {
-        return $this->keluhans->sum(function ($keluhan) {
+        return $this->keluhans->sum(function($keluhan) {
             return $keluhan->jumlah_obat * ($keluhan->obat->harga_per_satuan ?? 0);
         });
     }
@@ -99,7 +96,6 @@ class RekamMedis extends Model
         $noRunning = str_pad($this->id_rekam, 1, '0', STR_PAD_LEFT);
         $bulan = $this->tanggal_periksa?->format('m') ?? '00';
         $tahun = $this->tanggal_periksa?->format('Y') ?? '0000';
-
         return "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
     }
 }

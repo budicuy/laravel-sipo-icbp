@@ -145,13 +145,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     title: 'Token Berhasil Divalidasi!',
                     text: 'Halaman akan direfresh untuk memperbarui menu emergency.',
                     showConfirmButton: true,
-                    confirmButtonText: 'OK',
+                    confirmButtonText: 'Lanjutkan',
                     confirmButtonColor: '#10b981',
                     timer: 3500,
                     timerProgressBar: true
                 }).then(() => {
-                    // Update sidebar untuk menampilkan menu emergency
-                    updateEmergencySidebar(true);
+                    // Redirect to create emergency medical record page
+                    window.location.href = data.redirect_url || '/rekam-medis-emergency/create';
                 });
             } else {
                 // Tampilkan pesan error yang berbeda berdasarkan status code
@@ -280,13 +280,13 @@ document.addEventListener('alpine:init', () => {
                         title: 'Token Berhasil Divalidasi!',
                         text: 'Halaman akan direfresh untuk memperbarui menu emergency.',
                         showConfirmButton: true,
-                        confirmButtonText: 'OK',
+                        confirmButtonText: 'Lanjutkan',
                         confirmButtonColor: '#10b981',
-                        timer: 3500,
+                        timer: 2000,
                         timerProgressBar: true
                     }).then(() => {
-                        // Update sidebar untuk menampilkan menu emergency
-                        updateEmergencySidebar(true);
+                        // Redirect to create emergency medical record page
+                        window.location.href = data.redirect_url || '/rekam-medis-emergency/create';
                     });
                 } else {
                     // Tampilkan pesan error yang berbeda berdasarkan jenis error
