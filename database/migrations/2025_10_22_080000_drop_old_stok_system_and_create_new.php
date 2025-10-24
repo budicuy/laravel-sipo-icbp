@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -31,7 +31,7 @@ return new class extends Migration
 
             // Foreign key ke tabel obat
             $table->foreign('id_obat')->references('id_obat')->on('obat')
-                  ->onUpdate('cascade')->onDelete('cascade');
+                ->onUpdate('cascade')->onDelete('cascade');
 
             // Unique constraint untuk setiap obat per periode
             $table->unique(['id_obat', 'periode'], 'unique_obat_periode');
@@ -41,21 +41,24 @@ return new class extends Migration
             $table->index('is_initial_stok');
         });
 
+        // Hapus procedure jika sudah ada, lalu buat baru
+        DB::unprepared('DROP PROCEDURE IF EXISTS calculate_stok_pakai');
+
         // Buat trigger untuk menghitung stok pakai otomatis dari tabel keluhan
         DB::unprepared('
             CREATE PROCEDURE calculate_stok_pakai(IN p_periode VARCHAR(7), IN p_id_obat INT)
             BEGIN
                 DECLARE total_pakai INT DEFAULT 0;
-                
+
                 -- Hitung total stok pakai dari tabel keluhan berdasarkan periode dan id_obat
                 SELECT COALESCE(SUM(jumlah_obat), 0) INTO total_pakai
                 FROM keluhan k
                 JOIN rekam_medis r ON k.id_rekam = r.id_rekam
-                WHERE k.id_obat = p_id_obat 
+                WHERE k.id_obat = p_id_obat
                 AND DATE_FORMAT(r.tanggal_periksa, "%m-%y") = p_periode;
-                
+
                 -- Update stok_pakai di tabel stok_obat
-                UPDATE stok_obat 
+                UPDATE stok_obat
                 SET stok_pakai = total_pakai,
                     stok_akhir = stok_awal + stok_masuk - total_pakai
                 WHERE id_obat = p_id_obat AND periode = p_periode;
@@ -88,7 +91,7 @@ return new class extends Migration
 
             // Foreign key ke tabel obat
             $table->foreign('id_obat')->references('id_obat')->on('obat')
-                  ->onUpdate('cascade')->onDelete('cascade');
+                ->onUpdate('cascade')->onDelete('cascade');
 
             // Unique constraint untuk setiap obat per periode
             $table->unique(['id_obat', 'periode'], 'unique_obat_periode');
