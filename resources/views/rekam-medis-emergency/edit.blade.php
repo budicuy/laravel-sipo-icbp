@@ -90,7 +90,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                         Waktu Periksa
                     </label>
-                    <input type="time" name="waktu_periksa" value="{{ old('waktu_periksa', $rekamMedisEmergency->waktu_periksa ? $rekamMedisEmergency->waktu_periksa->format('H:i') : '') }}"
+                    <input type="time" name="waktu_periksa" value="{{ old('waktu_periksa', $rekamMedisEmergency->waktu_periksa ? $rekamMedisEmergency->waktu_periksa->format('H:i:s') : '') }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
                     @error('waktu_periksa')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -135,7 +135,7 @@
                         <option value="">-- Pilih Diagnosa Emergency --</option>
                         @foreach($diagnosaEmergency as $diagnosa)
                             <option value="{{ $diagnosa->id_diagnosa_emergency }}"
-                                    {{ old('id_diagnosa_emergency', $rekamMedisEmergency->keluhan->id_diagnosa ?? null) == $diagnosa->id_diagnosa_emergency ? 'selected' : '' }}>
+                                    {{ old('id_diagnosa_emergency', $rekamMedisEmergency->keluhans->first()->id_diagnosa_emergency ?? null) == $diagnosa->id_diagnosa_emergency ? 'selected' : '' }}>
                                 {{ $diagnosa->nama_diagnosa_emergency }}
                             </option>
                         @endforeach
@@ -153,10 +153,10 @@
                     <select name="terapi" required
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         <option value="">-- Pilih Terapi --</option>
-                        <option value="Obat" {{ old('terapi', $rekamMedisEmergency->keluhan->terapi ?? null) == 'Obat' ? 'selected' : '' }}>Obat</option>
-                        <option value="Lab" {{ old('terapi', $rekamMedisEmergency->keluhan->terapi ?? null) == 'Lab' ? 'selected' : '' }}>Lab</option>
-                        <option value="Istirahat" {{ old('terapi', $rekamMedisEmergency->keluhan->terapi ?? null) == 'Istirahat' ? 'selected' : '' }}>Istirahat</option>
-                        <option value="Emergency" {{ old('terapi', $rekamMedisEmergency->keluhan->terapi ?? null) == 'Emergency' ? 'selected' : '' }}>Emergency</option>
+                        <option value="Obat" {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Obat' ? 'selected' : '' }}>Obat</option>
+                        <option value="Lab" {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Lab' ? 'selected' : '' }}>Lab</option>
+                        <option value="Istirahat" {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Istirahat' ? 'selected' : '' }}>Istirahat</option>
+                        <option value="Emergency" {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Emergency' ? 'selected' : '' }}>Emergency</option>
                     </select>
                     @error('terapi')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -200,8 +200,24 @@
 <script>
 let searchTimeout;
 
-// Search karyawan external dengan AJAX
-document.getElementById('search_karyawan').addEventListener('input', function() {
+// Function to update employee info when selection changes
+function updateEmployeeInfo() {
+    const selectElement = document.getElementById('id_external_employee');
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    
+    if (selectElement.value) {
+        document.getElementById('displayNik').textContent = selectedOption.getAttribute('data-nik');
+        document.getElementById('displayNama').textContent = selectedOption.getAttribute('data-nama');
+        document.getElementById('displayRm').textContent = selectedOption.getAttribute('data-rm');
+        document.getElementById('displayJk').textContent = selectedOption.getAttribute('data-jk') === 'L' ? 'Laki-laki' : 'Perempuan';
+    } else {
+        document.getElementById('displayNik').textContent = '-';
+        document.getElementById('displayNama').textContent = '-';
+        document.getElementById('displayRm').textContent = '-';
+        document.getElementById('displayJk').textContent = '-';
+    }
+}
+
     clearTimeout(searchTimeout);
     const searchValue = this.value.trim();
 
@@ -276,18 +292,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Pre-fill with existing employee data
     const idEmployee = document.getElementById('id_external_employee').value;
     if (idEmployee) {
-        const employees = @json($externalEmployees);
-        const selectedEmployee = employees.find(emp => emp.id == idEmployee); // Use primary key 'id' instead of 'id_external_employee'
-        if (selectedEmployee) {
-            selectKaryawan(selectedEmployee);
-        }
+        updateEmployeeInfo();
     }
 
-    // Add change event listener to clear validation when employee is selected
+    // Add change event listener to update employee info when selection changes
     document.getElementById('id_external_employee').addEventListener('change', function() {
-        if (this.value) {
-            clearFieldError(document.getElementById('search_karyawan'));
-        }
+        updateEmployeeInfo();
     });
 });
 </script>

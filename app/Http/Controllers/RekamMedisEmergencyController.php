@@ -58,7 +58,7 @@ class RekamMedisEmergencyController extends Controller
     {
         // Check if user has valid token
         if (!session('valid_emergency_token')) {
-            return redirect()->route('token-emergency.validate')
+            return redirect()->route('token-emergency.validate.form')
                 ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
         }
 
@@ -77,20 +77,8 @@ class RekamMedisEmergencyController extends Controller
     {
         // Check if user has valid token
         if (!session('valid_emergency_token')) {
-            return redirect()->route('token-emergency.validate')
+            return redirect()->route('token-emergency.validate.form')
                 ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
-        }
-
-        // Get and validate the token first before processing the form
-        $token = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))
-            ->where('status', 'available')
-            ->first();
-
-        if (!$token) {
-            // Clear invalid token from session
-            session()->forget('valid_emergency_token');
-            return redirect()->route('token-emergency.validate')
-                ->with('error', 'Token tidak valid atau sudah digunakan. Silakan minta token baru.');
         }
 
         $validated = $request->validate([
@@ -111,27 +99,46 @@ class RekamMedisEmergencyController extends Controller
         try {
             // Get and use the token
             $currentUserId = Auth::id();
-            $token = \App\Models\TokenEmergency::isValidTokenForUser(session('valid_emergency_token'), $currentUserId);
+            $token = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))
+                ->where('status', \App\Models\TokenEmergency::STATUS_AVAILABLE)
+                ->first();
 
             if (!$token) {
                 // Check if token exists but is not available for this user
                 $existingToken = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))->first();
                 if ($existingToken) {
                     if ($existingToken->status !== \App\Models\TokenEmergency::STATUS_AVAILABLE) {
-                        return redirect()->route('token-emergency.validate')
-                            ->with('error', 'Token sudah digunakan atau kadaluarsa.');
+                        // Clear invalid token from session
+                        session()->forget('valid_emergency_token');
+                        return redirect()->route('token-emergency.validate.form')
+                            ->with('error', 'Token sudah digunakan atau kadaluarsa. Silakan masukkan token baru.');
                     } else if (!$existingToken->canBeUsedBy($currentUserId)) {
-                        return redirect()->route('token-emergency.validate')
+                        // Clear invalid token from session
+                        session()->forget('valid_emergency_token');
+                        return redirect()->route('token-emergency.validate.form')
                             ->with('error', 'Token ini bukan milik Anda dan tidak dapat digunakan.');
                     }
                 }
 
-                return redirect()->route('token-emergency.validate')
-                    ->with('error', 'Token tidak valid.');
+                // Clear invalid token from session
+                session()->forget('valid_emergency_token');
+                return redirect()->route('token-emergency.validate.form')
+                    ->with('error', 'Token tidak valid. Silakan masukkan token kembali.');
+            }
+
+            // Check if token can be used by current user
+            if (!$token->canBeUsedBy($currentUserId)) {
+                // Clear invalid token from session
+                session()->forget('valid_emergency_token');
+                return redirect()->route('token-emergency.validate.form')
+                    ->with('error', 'Token ini bukan milik Anda dan tidak dapat digunakan.');
             }
 
             // Use the token (mark as used)
-            $token->useToken($currentUserId);
+            $token->status = \App\Models\TokenEmergency::STATUS_USED;
+            $token->used_at = now();
+            $token->used_by = $currentUserId;
+            $token->save();
 
             // Add additional data
             $validated['id_user'] = Auth::id();
@@ -195,8 +202,17 @@ class RekamMedisEmergencyController extends Controller
             session()->forget('valid_emergency_token');
 
             return redirect()->route('rekam-medis.index', ['tab' => 'emergency'])->with('success', 'Data rekam medis emergency berhasil ditambahkan! Token telah digunakan.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // On validation error, keep token in session so user can retry
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('error', 'Mohon perbaiki kesalahan pada form. Token Anda masih aktif.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
+            // On other errors, keep token in session so user can retry
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal menyimpan data: ' . $e->getMessage() . ' Token Anda masih aktif, silakan coba lagi.');
         }
     }
 
@@ -214,11 +230,17 @@ class RekamMedisEmergencyController extends Controller
      */
     public function edit($id)
     {
+        // Check if user has valid token for editing emergency records
+        if (!session('valid_emergency_token')) {
+            return redirect()->route('token-emergency.validate.form')
+                ->with('error', 'Token emergency diperlukan untuk mengedit rekam medis emergency.');
+        }
+
         $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
         
         // Get data for dropdowns with relationships
         $externalEmployees = ExternalEmployee::with(['vendor', 'kategori'])->aktif()->get();
-        $diagnosaEmergency = DiagnosaEmergency::all();
+        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get();
         $diagnosas = Diagnosa::all();
 
         return view('rekam-medis-emergency.edit', compact('rekamMedisEmergency', 'externalEmployees', 'diagnosaEmergency', 'diagnosas'));
@@ -229,6 +251,12 @@ class RekamMedisEmergencyController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Check if user has valid token for editing emergency records
+        if (!session('valid_emergency_token')) {
+            return redirect()->route('token-emergency.validate.form')
+                ->with('error', 'Token emergency diperlukan untuk mengedit rekam medis emergency.');
+        }
+
         $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
 
         $validated = $request->validate([
@@ -243,6 +271,17 @@ class RekamMedisEmergencyController extends Controller
         ]);
 
         try {
+            // Verify token is still valid (but don't consume it for edits)
+            $currentUserId = Auth::id();
+            $token = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))->first();
+            
+            if (!$token || !$token->canBeUsedBy($currentUserId)) {
+                // Clear invalid token from session
+                session()->forget('valid_emergency_token');
+                return redirect()->route('token-emergency.validate.form')
+                    ->with('error', 'Token tidak valid atau sudah kadaluarsa. Silakan masukkan token kembali.');
+            }
+
             DB::beginTransaction();
             try {
                 // Update emergency medical record

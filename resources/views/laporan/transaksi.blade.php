@@ -352,13 +352,27 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-4">
-                                    <div class="text-sm text-gray-900 max-w-xs" title="{{ $item['diagnosa'] }}">
-                                        <span class="font-medium">{{ Str::limit($item['diagnosa'], 50) }}</span>
+                                    <div class="text-sm text-gray-900 max-w-xs">
+                                        @if(isset($item['diagnosa_list']) && is_array($item['diagnosa_list']))
+                                            @foreach($item['diagnosa_list'] as $index => $diagnosa)
+                                                @if($index > 0), @endif
+                                                <span class="font-medium">{{ $diagnosa }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="font-medium">-</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-4 py-4">
-                                    <div class="text-sm text-gray-700 max-w-xs" title="{{ $item['obat'] }}">
-                                        {{ Str::limit($item['obat'], 50) }}
+                                    <div class="text-sm text-gray-700 max-w-xs">
+                                        @if(isset($item['obat_details']) && is_array($item['obat_details']))
+                                            @foreach($item['obat_details'] as $index => $obat)
+                                                @if($index > 0), @endif
+                                                <span>{{ $obat['nama_obat'] }} ({{ $obat['jumlah_obat'] }})</span>
+                                            @endforeach
+                                        @else
+                                            <span>-</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
@@ -388,7 +402,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="11" class="px-4 py-8 text-center text-gray-500">
+                                <td colspan="10" class="px-4 py-8 text-center text-gray-500">
                                     <div class="flex flex-col items-center">
                                         <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

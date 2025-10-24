@@ -584,12 +584,13 @@ class RekamMedisController extends Controller
             ->setSubject('Template Import Rekam Medis')
             ->setDescription('Template untuk import data rekam medis');
 
-        // Header columns - Updated for multiple diagnoses format
+        // Header columns - Updated for new format with AD column
         $headers = [
-            'Hari / Tgl', 'Time', 'Shift', 'No', 'NIK', 'Nama Karyawan', 'Kode RM', 'Nama Pasien',
-            'Diagnosa 1', 'Keluhan 1', 'Obat 1-1', 'Qyt', 'Obat 1-2', 'Qyt', 'Obat 1-3', 'Qyt',
-            'Diagnosa 2', 'Keluhan 2', 'Obat 2-1', 'Qyt', 'Obat 2-2', 'Qyt',
-            'Diagnosa 3', 'Keluhan 3', 'Obat 3-1', 'Qyt', 'Obat 3-2', 'Qyt', 'Petugas', 'Status'
+            'Hari / Tgl', 'Time', 'NIK', 'Nama Karyawan', 'Kode RM', 'Nama Pasien',
+            'Diagnosa 1', 'Keluhan', 'Obat 1', 'Qty', 'Obat 2', 'Qty', 'Obat 3', 'Qty',
+            'Diagnosa 2', 'Keluhan', 'Obat 1', 'Qty', 'Obat 2', 'Qty', 'Obat 3', 'Qty',
+            'Diagnosa 3', 'Keluhan', 'Obat 1', 'Qty', 'Obat 2', 'Qty', 'Obat 3', 'Qty',
+            'Petugas Klinik', 'Status'
         ];
 
         $column = 'A';
@@ -621,23 +622,24 @@ class RekamMedisController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A1:AD1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:AF1')->applyFromArray($headerStyle);
 
         // Add sample data - Updated for multiple diagnoses format
+        // Sample 1: Single Diagnosa
         $sheet->setCellValue('A2', '01/08/2025');
         $sheet->setCellValue('B2', '09:22');
-        $sheet->setCellValue('C2', 'Pagi');
-        $sheet->setCellValue('D2', '1');
-        $sheet->setCellValue('E2', '1200929');
-        $sheet->setCellValue('F2', 'Purnomo');
-        $sheet->setCellValue('G2', '1200929-A');
-        $sheet->setCellValue('H2', 'Purnomo');
-        $sheet->setCellValue('I2', 'PPJP');
-        $sheet->setCellValue('J2', 'Sakit Gigi');
-        $sheet->setCellValue('K2', 'Natrium Diklofenak');
-        $sheet->setCellValue('L2', '10');
-        $sheet->setCellValue('M2', 'Amoxicilin');
-        $sheet->setCellValue('N2', '10');
+        $sheet->setCellValue('C2', '50173241');
+        $sheet->setCellValue('D2', 'M. K. Ronggo Warsito');
+        $sheet->setCellValue('E2', '50173241-A');
+        $sheet->setCellValue('F2', 'M. K. Ronggo Warsito');
+        $sheet->setCellValue('G2', 'Sakit Gigi');
+        $sheet->setCellValue('H2', 'Nyeri gigi geraham');
+        $sheet->setCellValue('I2', 'Natrium Diklofenak');
+        $sheet->setCellValue('J2', '10');
+        $sheet->setCellValue('K2', 'Amoxicilin');
+        $sheet->setCellValue('L2', '15');
+        $sheet->setCellValue('M2', '-');
+        $sheet->setCellValue('N2', '-');
         $sheet->setCellValue('O2', '-');
         $sheet->setCellValue('P2', '-');
         $sheet->setCellValue('Q2', '-');
@@ -652,29 +654,32 @@ class RekamMedisController extends Controller
         $sheet->setCellValue('Z2', '-');
         $sheet->setCellValue('AA2', '-');
         $sheet->setCellValue('AB2', '-');
-        $sheet->setCellValue('AC2', 'Farid Wajidi');
-        $sheet->setCellValue('AD2', 'Reguler');
+        $sheet->setCellValue('AC2', '-');
+        $sheet->setCellValue('AD2', '-');
+        $sheet->setCellValue('AE2', 'Farid Wajidi');
+        $sheet->setCellValue('AF2', 'Close');
 
+        // Sample 2: Double Diagnosa
         $sheet->setCellValue('A3', '01/08/2025');
         $sheet->setCellValue('B3', '10:30');
-        $sheet->setCellValue('C3', 'Pagi');
-        $sheet->setCellValue('D3', '2');
-        $sheet->setCellValue('E3', '50172104');
+        $sheet->setCellValue('C3', '50172104');
+        $sheet->setCellValue('D3', 'Adam Azhari');
+        $sheet->setCellValue('E3', '50172104-A');
         $sheet->setCellValue('F3', 'Adam Azhari');
-        $sheet->setCellValue('G3', '50172104-A');
-        $sheet->setCellValue('H3', 'Adam Azhari');
-        $sheet->setCellValue('I3', 'ISPA');
-        $sheet->setCellValue('J3', 'Batuk,Pilek,S.Tenggorakan');
-        $sheet->setCellValue('K3', '-');
-        $sheet->setCellValue('L3', '-');
-        $sheet->setCellValue('M3', 'Methylprednisolone');
+        $sheet->setCellValue('G3', 'ISPA');
+        $sheet->setCellValue('H3', 'Batuk, Pilek, Sakit Tenggorokan');
+        $sheet->setCellValue('I3', 'Paracetamol');
+        $sheet->setCellValue('J3', '10');
+        $sheet->setCellValue('K3', 'Methylprednisolone');
+        $sheet->setCellValue('L3', '5');
+        $sheet->setCellValue('M3', '-');
         $sheet->setCellValue('N3', '-');
-        $sheet->setCellValue('O3', 'Paracetamol');
-        $sheet->setCellValue('P3', '1');
-        $sheet->setCellValue('Q3', 'Demam Berdarah');
-        $sheet->setCellValue('R3', 'Pusing,Mual');
-        $sheet->setCellValue('S3', 'Paracetamol');
-        $sheet->setCellValue('T3', '2');
+        $sheet->setCellValue('O3', 'Demam Berdarah');
+        $sheet->setCellValue('P3', 'Pusing, Mual');
+        $sheet->setCellValue('Q3', 'Paracetamol');
+        $sheet->setCellValue('R3', '10');
+        $sheet->setCellValue('S3', '-');
+        $sheet->setCellValue('T3', '-');
         $sheet->setCellValue('U3', '-');
         $sheet->setCellValue('V3', '-');
         $sheet->setCellValue('W3', '-');
@@ -683,39 +688,44 @@ class RekamMedisController extends Controller
         $sheet->setCellValue('Z3', '-');
         $sheet->setCellValue('AA3', '-');
         $sheet->setCellValue('AB3', '-');
-        $sheet->setCellValue('AC3', 'Admin');
-        $sheet->setCellValue('AD3', 'Close');
+        $sheet->setCellValue('AC3', '-');
+        $sheet->setCellValue('AD3', '-');
+        $sheet->setCellValue('AE3', 'Didi Suryadi');
+        $sheet->setCellValue('AF3', 'Close');
 
+        // Sample 3: Triple Diagnosa
         $sheet->setCellValue('A4', '01/08/2025');
         $sheet->setCellValue('B4', '14:15');
-        $sheet->setCellValue('C4', 'Siang');
-        $sheet->setCellValue('D4', '3');
-        $sheet->setCellValue('E4', '1200337');
+        $sheet->setCellValue('C4', '1200337');
+        $sheet->setCellValue('D4', 'Suparjo');
+        $sheet->setCellValue('E4', '1200337-A');
         $sheet->setCellValue('F4', 'Suparjo');
-        $sheet->setCellValue('G4', '1200337-A');
-        $sheet->setCellValue('H4', 'Suparjo');
-        $sheet->setCellValue('I4', 'Hipertensi');
-        $sheet->setCellValue('J4', 'Pusing');
-        $sheet->setCellValue('K4', 'Amlodipin 5Mg');
+        $sheet->setCellValue('G4', 'Hipertensi');
+        $sheet->setCellValue('H4', 'Pusing');
+        $sheet->setCellValue('I4', 'Amlodipin 5Mg');
+        $sheet->setCellValue('J4', '10');
+        $sheet->setCellValue('K4', '-');
         $sheet->setCellValue('L4', '-');
         $sheet->setCellValue('M4', '-');
         $sheet->setCellValue('N4', '-');
-        $sheet->setCellValue('O4', '-');
-        $sheet->setCellValue('P4', '-');
-        $sheet->setCellValue('Q4', 'Diabetes');
-        $sheet->setCellValue('R4', 'Lemas');
-        $sheet->setCellValue('S4', 'Metformin');
+        $sheet->setCellValue('O4', 'Diabetes');
+        $sheet->setCellValue('P4', 'Lemas');
+        $sheet->setCellValue('Q4', 'Metformin');
+        $sheet->setCellValue('R4', '10');
+        $sheet->setCellValue('S4', '-');
         $sheet->setCellValue('T4', '-');
         $sheet->setCellValue('U4', '-');
         $sheet->setCellValue('V4', '-');
         $sheet->setCellValue('W4', 'Asam Urat');
         $sheet->setCellValue('X4', 'Nyeri Sendi');
         $sheet->setCellValue('Y4', 'Allopurinol');
-        $sheet->setCellValue('Z4', '-');
+        $sheet->setCellValue('Z4', '5');
         $sheet->setCellValue('AA4', '-');
         $sheet->setCellValue('AB4', '-');
-        $sheet->setCellValue('AC4', 'Admin');
-        $sheet->setCellValue('AD4', 'On Progress');
+        $sheet->setCellValue('AC4', '-');
+        $sheet->setCellValue('AD4', '-');
+        $sheet->setCellValue('AE4', 'Ellien M');
+        $sheet->setCellValue('AF4', 'On Progress');
 
         // Style sample data
         $dataStyle = [
@@ -730,7 +740,7 @@ class RekamMedisController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A2:AD4')->applyFromArray($dataStyle);
+        $sheet->getStyle('A2:AF4')->applyFromArray($dataStyle);
 
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(15);
@@ -761,8 +771,10 @@ class RekamMedisController extends Controller
         $sheet->getColumnDimension('Z')->setWidth(10);
         $sheet->getColumnDimension('AA')->setWidth(15);
         $sheet->getColumnDimension('AB')->setWidth(10);
-        $sheet->getColumnDimension('AC')->setWidth(20);
-        $sheet->getColumnDimension('AD')->setWidth(15);
+        $sheet->getColumnDimension('AC')->setWidth(15);
+        $sheet->getColumnDimension('AD')->setWidth(10);
+        $sheet->getColumnDimension('AE')->setWidth(20);
+        $sheet->getColumnDimension('AF')->setWidth(15);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -774,18 +786,20 @@ class RekamMedisController extends Controller
         $sheet->setCellValue('A6', 'CATATAN:');
         $sheet->setCellValue('A7', '• Format Tanggal: DD/MM/YYYY (contoh: 01/08/2025)');
         $sheet->setCellValue('A8', '• Format Waktu: HH:MM atau HH:MM:SS (contoh: 09:22 atau 09:22:00)');
-        $sheet->setCellValue('A9', '• Shift: Pagi, Siang, atau Malam');
-        $sheet->setCellValue('A10', '• NIK Karyawan harus ada di tabel karyawan');
-        $sheet->setCellValue('A11', '• Kode RM format: NIK-KodeHubungan (contoh: 1200929-A)');
-        $sheet->setCellValue('A12', '• Nama Pasien sesuai dengan data di tabel keluarga');
-        $sheet->setCellValue('A13', '• Diagnosa 1-3: diagnosa penyakit (opsional, isi dengan "-" jika tidak ada)');
-        $sheet->setCellValue('A14', '• Keluhan 1-3: keluhan pasien (opsional, isi dengan "-" jika tidak ada)');
-        $sheet->setCellValue('A15', '• Obat 1-1 hingga Obat 3-2: isi dengan nama obat yang ada di tabel obat, jika tidak ada isi dengan "-"');
-        $sheet->setCellValue('A16', '• Qyt: jumlah obat, jika tidak ada isi dengan "-"');
-        $sheet->setCellValue('A17', '• Petugas: nama petugas yang melakukan pemeriksaan');
-        $sheet->setCellValue('A18', '• Status: "Close", "On Progress", atau "Reguler"');
-        $sheet->setCellValue('A19', '• Setiap diagnosa dapat memiliki hingga 3 obat');
-        $sheet->setCellValue('A20', '• Lihat daftar karyawan, diagnosa, dan obat di sheet referensi');
+        $sheet->setCellValue('A9', '• NIK Karyawan harus ada di tabel karyawan');
+        $sheet->setCellValue('A10', '• Kode RM format: NIK-KodeHubungan (contoh: 1200929-A)');
+        $sheet->setCellValue('A11', '• Nama Pasien sesuai dengan data di tabel keluarga');
+        $sheet->setCellValue('A12', '• Diagnosa 1-3: diagnosa penyakit (opsional, isi dengan "-" jika tidak ada)');
+        $sheet->setCellValue('A13', '• Keluhan 1-3: keluhan pasien (opsional, isi dengan "-" jika tidak ada)');
+        $sheet->setCellValue('A14', '• Obat 1 hingga Obat 3: isi dengan nama obat yang ada di tabel obat, jika tidak ada isi dengan "-"');
+        $sheet->setCellValue('A15', '• Qty: jumlah obat, jika tidak ada isi dengan "-"');
+        $sheet->setCellValue('A16', '• Petugas Klinik: nama petugas yang melakukan pemeriksaan');
+        $sheet->setCellValue('A17', '• Status: "Close", "On Progress", atau "Reguler"');
+        $sheet->setCellValue('A18', '• Setiap diagnosa dapat memiliki hingga 3 obat');
+        $sheet->setCellValue('A19', '• Untuk diagnosa tunggal: isi hanya Diagnosa 1, Keluhan 1, dan Obat 1-1 hingga Obat 1-3');
+        $sheet->setCellValue('A20', '• Untuk diagnosa double: isi Diagnosa 1 & 2 beserta keluhan dan obatnya');
+        $sheet->setCellValue('A21', '• Untuk diagnosa triple: isi semua Diagnosa 1, 2, & 3 beserta keluhan dan obatnya');
+        $sheet->setCellValue('A22', '• Lihat daftar karyawan, diagnosa, dan obat di sheet referensi');
 
         $sheet->getStyle('A6')->getFont()->setBold(true);
         $sheet->getStyle('A7:A17')->getFont()->setItalic(true)->setSize(10);
@@ -875,7 +889,7 @@ class RekamMedisController extends Controller
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'template_rekam_medis_' . date('Y-m-d') . '.xlsx';
+        $filename = 'TEMPLATE_REKAM_MEDIS_' . date('Y-m-d') . '.xlsx';
 
         // Set headers for download
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -1023,13 +1037,13 @@ class RekamMedisController extends Controller
             // Check if the file has the multi-diagnosa format (up to column AD)
             if ($highestColumn >= 'AD') {
                 // Check if the headers match the multi-diagnosa format
-                $headerI = $this->getCellValue($sheet, 'I', 1, 'string');
-                $headerQ = $this->getCellValue($sheet, 'Q', 1, 'string');
+                $headerG = $this->getCellValue($sheet, 'G', 1, 'string');
+                $headerO = $this->getCellValue($sheet, 'O', 1, 'string');
                 $headerW = $this->getCellValue($sheet, 'W', 1, 'string');
 
                 // If headers contain "Diagnosa 1", "Diagnosa 2", "Diagnosa 3", it's multi-diagnosa format
-                if (stripos($headerI, 'diagnosa') !== false &&
-                    stripos($headerQ, 'diagnosa') !== false &&
+                if (stripos($headerG, 'diagnosa') !== false &&
+                    stripos($headerO, 'diagnosa') !== false &&
                     stripos($headerW, 'diagnosa') !== false) {
                     $isMultiDiagnosaFormat = true;
                 }
@@ -1043,63 +1057,65 @@ class RekamMedisController extends Controller
                     // Process multi-diagnosa format
                     // A: Hari / Tgl
                     // B: Time
-                    // C: Shift
-                    // D: No
-                    // E: NIK
-                    // F: Nama Karyawan
-                    // G: Kode RM
-                    // H: Nama Pasien
-                    // I: Diagnosa 1
-                    // J: Keluhan 1
-                    // K: Obat 1-1
+                    // C: NIK
+                    // D: Nama Karyawan
+                    // E: Kode RM
+                    // F: Nama Pasien
+                    // G: Diagnosa 1
+                    // H: Keluhan 1
+                    // I: Obat 1-1
+                    // J: Qyt
+                    // K: Obat 1-2
                     // L: Qyt
-                    // M: Obat 1-2
+                    // M: Obat 1-3
                     // N: Qyt
-                    // O: Obat 1-3
-                    // P: Qyt
-                    // Q: Diagnosa 2
-                    // R: Keluhan 2
-                    // S: Obat 2-1
+                    // O: Diagnosa 2
+                    // P: Keluhan 2
+                    // Q: Obat 2-1
+                    // R: Qyt
+                    // S: Obat 2-2
                     // T: Qyt
-                    // U: Obat 2-2
-                    // V: Qyt
+                    // U: Obat 2-3
+                    // V: QTY
                     // W: Diagnosa 3
                     // X: Keluhan 3
                     // Y: Obat 3-1
                     // Z: Qyt
                     // AA: Obat 3-2
                     // AB: Qyt
-                    // AC: Petugas
-                    // AD: Status
-
+                    // AC: Obat 3-3
+                    // AD: Qyt
+                    // AE: Petugas
+                    // AF: Status
+                    
                     // Read all columns using the helper function
                     $tanggalPeriksa = $this->getCellValue($sheet, 'A', $rowNumber, 'date');
                     $waktuPeriksa = $this->getCellValue($sheet, 'B', $rowNumber, 'time');
-                    $shift = $this->getCellValue($sheet, 'C', $rowNumber, 'string');
-                    $no = $this->getCellValue($sheet, 'D', $rowNumber, 'string');
-                    $nikKaryawan = $this->getCellValue($sheet, 'E', $rowNumber, 'string');
-                    $namaKaryawan = $this->getCellValue($sheet, 'F', $rowNumber, 'string');
-                    $kodeRM = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
-                    $namaPasien = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
-
+                    $nikKaryawan = $this->getCellValue($sheet, 'C', $rowNumber, 'string');
+                    $namaKaryawan = $this->getCellValue($sheet, 'D', $rowNumber, 'string');
+                    $kodeRM = $this->getCellValue($sheet, 'E', $rowNumber, 'string');
+                    $namaPasien = $this->getCellValue($sheet, 'F', $rowNumber, 'string');
+                    
                     // Diagnosa 1 data
-                    $diagnosa1 = $this->getCellValue($sheet, 'I', $rowNumber, 'string');
-                    $keluhan1 = $this->getCellValue($sheet, 'J', $rowNumber, 'string');
-                    $obat1_1 = $this->getCellValue($sheet, 'K', $rowNumber, 'string');
-                    $jumlahObat1_1 = $this->getCellValue($sheet, 'L', $rowNumber, 'number');
-                    $obat1_2 = $this->getCellValue($sheet, 'M', $rowNumber, 'string');
-                    $jumlahObat1_2 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
-                    $obat1_3 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
-                    $jumlahObat1_3 = $this->getCellValue($sheet, 'P', $rowNumber, 'number');
-
+                    $diagnosa1 = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
+                    $keluhan1 = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
+                    $obat1_1 = $this->getCellValue($sheet, 'I', $rowNumber, 'string');
+                    $jumlahObat1_1 = $this->getCellValue($sheet, 'J', $rowNumber, 'number');
+                    $obat1_2 = $this->getCellValue($sheet, 'K', $rowNumber, 'string');
+                    $jumlahObat1_2 = $this->getCellValue($sheet, 'L', $rowNumber, 'number');
+                    $obat1_3 = $this->getCellValue($sheet, 'M', $rowNumber, 'string');
+                    $jumlahObat1_3 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
+                    
                     // Diagnosa 2 data
-                    $diagnosa2 = $this->getCellValue($sheet, 'Q', $rowNumber, 'string');
-                    $keluhan2 = $this->getCellValue($sheet, 'R', $rowNumber, 'string');
-                    $obat2_1 = $this->getCellValue($sheet, 'S', $rowNumber, 'string');
-                    $jumlahObat2_1 = $this->getCellValue($sheet, 'T', $rowNumber, 'number');
-                    $obat2_2 = $this->getCellValue($sheet, 'U', $rowNumber, 'string');
-                    $jumlahObat2_2 = $this->getCellValue($sheet, 'V', $rowNumber, 'number');
-
+                    $diagnosa2 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
+                    $keluhan2 = $this->getCellValue($sheet, 'P', $rowNumber, 'string');
+                    $obat2_1 = $this->getCellValue($sheet, 'Q', $rowNumber, 'string');
+                    $jumlahObat2_1 = $this->getCellValue($sheet, 'R', $rowNumber, 'number');
+                    $obat2_2 = $this->getCellValue($sheet, 'S', $rowNumber, 'string');
+                    $jumlahObat2_2 = $this->getCellValue($sheet, 'T', $rowNumber, 'number');
+                    $obat2_3 = $this->getCellValue($sheet, 'U', $rowNumber, 'string');
+                    $jumlahObat2_3 = $this->getCellValue($sheet, 'V', $rowNumber, 'number');
+                    
                     // Diagnosa 3 data
                     $diagnosa3 = $this->getCellValue($sheet, 'W', $rowNumber, 'string');
                     $keluhan3 = $this->getCellValue($sheet, 'X', $rowNumber, 'string');
@@ -1107,9 +1123,11 @@ class RekamMedisController extends Controller
                     $jumlahObat3_1 = $this->getCellValue($sheet, 'Z', $rowNumber, 'number');
                     $obat3_2 = $this->getCellValue($sheet, 'AA', $rowNumber, 'string');
                     $jumlahObat3_2 = $this->getCellValue($sheet, 'AB', $rowNumber, 'number');
-
-                    $petugasKlinik = $this->getCellValue($sheet, 'AC', $rowNumber, 'string');
-                    $status = $this->getCellValue($sheet, 'AD', $rowNumber, 'string');
+                    $obat3_3 = $this->getCellValue($sheet, 'AC', $rowNumber, 'string');
+                    $jumlahObat3_3 = $this->getCellValue($sheet, 'AD', $rowNumber, 'number');
+                    
+                    $petugasKlinik = $this->getCellValue($sheet, 'AE', $rowNumber, 'string');
+                    $status = $this->getCellValue($sheet, 'AF', $rowNumber, 'string');
 
                     // Debug: Log the values
                     \Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
@@ -1121,21 +1139,33 @@ class RekamMedisController extends Controller
                     // D: Nama Karyawan
                     // E: Kode RM
                     // F: Nama Pasien
-                    // G: Anamnesa
-                    // H: Diagnosa
-                    // I: Obat 1
+                    // G: Diagnosa 1
+                    // H: Keluhan 1
+                    // I: Obat 1-1
                     // J: Qyt
-                    // K: Obat 2
+                    // K: Obat 1-2
                     // L: Qyt
-                    // M: Obat 3
+                    // M: Obat 1-3
                     // N: Qyt
-                    // O: Obat 4
-                    // P: Qyt
-                    // Q: Obat 5
+                    // O: Diagnosa 2
+                    // P: Keluhan 2
+                    // Q: Obat 2-1
                     // R: Qyt
-                    // S: Petugas Klinik
-                    // T: Status
-
+                    // S: Obat 2-2
+                    // T: Qyt
+                    // U: Obat 2-3
+                    // V: QTY
+                    // W: Diagnosa 3
+                    // X: Keluhan 3
+                    // Y: Obat 3-1
+                    // Z: Qyt
+                    // AA: Obat 3-2
+                    // AB: Qyt
+                    // AC: Obat 3-3
+                    // AD: Qyt
+                    // AE: Petugas
+                    // AF: Status
+                    
                     // Read all columns using the helper function
                     $tanggalPeriksa = $this->getCellValue($sheet, 'A', $rowNumber, 'date');
                     $waktuPeriksa = $this->getCellValue($sheet, 'B', $rowNumber, 'time');
@@ -1143,20 +1173,39 @@ class RekamMedisController extends Controller
                     $namaKaryawan = $this->getCellValue($sheet, 'D', $rowNumber, 'string');
                     $kodeRM = $this->getCellValue($sheet, 'E', $rowNumber, 'string');
                     $namaPasien = $this->getCellValue($sheet, 'F', $rowNumber, 'string');
-                    $anamnesa = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
-                    $diagnosa = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
-                    $obat1 = $this->getCellValue($sheet, 'I', $rowNumber, 'string');
-                    $jumlahObat1 = $this->getCellValue($sheet, 'J', $rowNumber, 'number');
-                    $obat2 = $this->getCellValue($sheet, 'K', $rowNumber, 'string');
-                    $jumlahObat2 = $this->getCellValue($sheet, 'L', $rowNumber, 'number');
-                    $obat3 = $this->getCellValue($sheet, 'M', $rowNumber, 'string');
-                    $jumlahObat3 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
-                    $obat4 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
-                    $jumlahObat4 = $this->getCellValue($sheet, 'P', $rowNumber, 'number');
-                    $obat5 = $this->getCellValue($sheet, 'Q', $rowNumber, 'string');
-                    $jumlahObat5 = $this->getCellValue($sheet, 'R', $rowNumber, 'number');
-                    $petugasKlinik = $this->getCellValue($sheet, 'S', $rowNumber, 'string');
-                    $status = $this->getCellValue($sheet, 'T', $rowNumber, 'string');
+                    
+                    // Diagnosa 1 data
+                    $diagnosa1 = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
+                    $keluhan1 = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
+                    $obat1_1 = $this->getCellValue($sheet, 'I', $rowNumber, 'string');
+                    $jumlahObat1_1 = $this->getCellValue($sheet, 'J', $rowNumber, 'number');
+                    $obat1_2 = $this->getCellValue($sheet, 'K', $rowNumber, 'string');
+                    $jumlahObat1_2 = $this->getCellValue($sheet, 'L', $rowNumber, 'number');
+                    $obat1_3 = $this->getCellValue($sheet, 'M', $rowNumber, 'string');
+                    $jumlahObat1_3 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
+                    
+                    // Diagnosa 2 data
+                    $diagnosa2 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
+                    $keluhan2 = $this->getCellValue($sheet, 'P', $rowNumber, 'string');
+                    $obat2_1 = $this->getCellValue($sheet, 'Q', $rowNumber, 'string');
+                    $jumlahObat2_1 = $this->getCellValue($sheet, 'R', $rowNumber, 'number');
+                    $obat2_2 = $this->getCellValue($sheet, 'S', $rowNumber, 'string');
+                    $jumlahObat2_2 = $this->getCellValue($sheet, 'T', $rowNumber, 'number');
+                    $obat2_3 = $this->getCellValue($sheet, 'U', $rowNumber, 'string');
+                    $jumlahObat2_3 = $this->getCellValue($sheet, 'V', $rowNumber, 'number');
+                    
+                    // Diagnosa 3 data
+                    $diagnosa3 = $this->getCellValue($sheet, 'W', $rowNumber, 'string');
+                    $keluhan3 = $this->getCellValue($sheet, 'X', $rowNumber, 'string');
+                    $obat3_1 = $this->getCellValue($sheet, 'Y', $rowNumber, 'string');
+                    $jumlahObat3_1 = $this->getCellValue($sheet, 'Z', $rowNumber, 'number');
+                    $obat3_2 = $this->getCellValue($sheet, 'AA', $rowNumber, 'string');
+                    $jumlahObat3_2 = $this->getCellValue($sheet, 'AB', $rowNumber, 'number');
+                    $obat3_3 = $this->getCellValue($sheet, 'AC', $rowNumber, 'string');
+                    $jumlahObat3_3 = $this->getCellValue($sheet, 'AD', $rowNumber, 'number');
+                    
+                    $petugasKlinik = $this->getCellValue($sheet, 'AE', $rowNumber, 'string');
+                    $status = $this->getCellValue($sheet, 'AF', $rowNumber, 'string');
 
                     // Debug: Log the values
                     \Log::info("Row {$rowNumber}: Tanggal={$tanggalPeriksa}, Waktu={$waktuPeriksa}, NIK={$nikKaryawan}, Nama={$namaPasien}");
@@ -1454,24 +1503,23 @@ class RekamMedisController extends Controller
                         }
                     }
                 } else {
-                    // Process single-diagnosa format
-
+                    // Process single-diagnosa format (using only Diagnosa 1 columns)
+                    
                     // Find or create diagnosa
                     $idDiagnosa = null;
-                    if (!empty($diagnosa) && $diagnosa !== '-') {
-                        $diagnosaModel = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa]);
+                    if (!empty($diagnosa1) && $diagnosa1 !== '-') {
+                        $diagnosaModel = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa1]);
                         $idDiagnosa = $diagnosaModel->id_diagnosa;
                     }
 
-                    // Create keluhan entries for each obat
+                    // Create keluhan entries for each obat from Diagnosa 1 only
                     $obatList = [
-                        ['nama' => $obat1, 'jumlah' => $jumlahObat1],
-                        ['nama' => $obat2, 'jumlah' => $jumlahObat2],
-                        ['nama' => $obat3, 'jumlah' => $jumlahObat3],
-                        ['nama' => $obat4, 'jumlah' => $jumlahObat4],
-                        ['nama' => $obat5, 'jumlah' => $jumlahObat5],
+                        ['nama' => $obat1_1, 'jumlah' => $jumlahObat1_1],
+                        ['nama' => $obat1_2, 'jumlah' => $jumlahObat1_2],
+                        ['nama' => $obat1_3, 'jumlah' => $jumlahObat1_3],
                     ];
 
+                    $hasObat = false;
                     foreach ($obatList as $obatData) {
                         if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
                             $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
@@ -1481,12 +1529,13 @@ class RekamMedisController extends Controller
                                     'id_keluarga' => $keluarga->id_keluarga,
                                     'id_diagnosa' => $idDiagnosa,
                                     'terapi' => 'Obat',
-                                    'keterangan' => $anamnesa,
+                                    'keterangan' => $keluhan1,
                                     'id_obat' => $obatModel->id_obat,
                                     'jumlah_obat' => is_numeric($obatData['jumlah']) ? $obatData['jumlah'] : null,
                                     'aturan_pakai' => null,
                                 ]);
                                 $keluhanCount++;
+                                $hasObat = true;
                             } else {
                                 $errors[] = "Baris $rowNumber: Obat '{$obatData['nama']}' tidak ditemukan";
                             }
@@ -1494,13 +1543,13 @@ class RekamMedisController extends Controller
                     }
 
                     // If no obat found but there's diagnosa, create keluhan without obat
-                    if ($keluhanCount === 0 && $idDiagnosa) {
+                    if (!$hasObat && $idDiagnosa) {
                         Keluhan::create([
                             'id_rekam' => $rekamMedis->id_rekam,
                             'id_keluarga' => $keluarga->id_keluarga,
                             'id_diagnosa' => $idDiagnosa,
                             'terapi' => 'Istirahat',
-                            'keterangan' => $anamnesa,
+                            'keterangan' => $keluhan1,
                             'id_obat' => null,
                             'jumlah_obat' => null,
                             'aturan_pakai' => null,

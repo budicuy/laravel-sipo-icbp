@@ -175,6 +175,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/token-emergency/create', [TokenEmergencyController::class, 'create'])->name('token-emergency.create');
     Route::post('/token-emergency/generate', [TokenEmergencyController::class, 'generate'])->name('token-emergency.generate');
     Route::post('/token-emergency/validate', [TokenEmergencyController::class, 'validateToken'])->name('token-emergency.validate');
+    Route::get('/token-emergency/validate', [TokenEmergencyController::class, 'showValidateForm'])->name('token-emergency.validate.form');
     Route::delete('/token-emergency/{id}', [TokenEmergencyController::class, 'destroy'])->name('token-emergency.destroy');
     Route::post('/token-emergency/clear', [TokenEmergencyController::class, 'clearToken'])->name('token-emergency.clear');
 
