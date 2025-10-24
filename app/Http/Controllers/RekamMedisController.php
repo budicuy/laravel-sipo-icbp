@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Events\RekamMedisCreated;
 use App\Events\RekamMedisDeleted;
+use App\Http\Requests\RekamMedisStoreRequest;
+use App\Http\Requests\RekamMedisUpdateRequest;
 use App\Models\Diagnosa;
 use App\Models\Karyawan;
 use App\Models\Keluarga;
@@ -181,6 +183,27 @@ class RekamMedisController extends Controller
             'keluhan' => 'required|string',
             'diagnosa' => 'nullable|string',
             'catatan' => 'nullable|string',
+        ], [
+            'nik_pasien.required' => 'NIK pasien harus diisi',
+            'nik_pasien.digits_between' => 'NIK pasien harus terdiri dari 1-16 digit angka',
+            'nik_pasien.numeric' => 'NIK pasien harus berupa angka',
+            'nama_pasien.required' => 'Nama pasien harus diisi',
+            'nama_pasien.string' => 'Nama pasien harus berupa teks',
+            'nama_pasien.max' => 'Nama pasien maksimal 255 karakter',
+            'no_rm.required' => 'No. RM harus diisi',
+            'no_rm.string' => 'No. RM harus berupa teks',
+            'no_rm.max' => 'No. RM maksimal 30 karakter',
+            'jenis_kelamin.required' => 'Jenis kelamin harus dipilih',
+            'jenis_kelamin.in' => 'Jenis kelamin harus "Laki-laki" atau "Perempuan"',
+            'tanggal_periksa.required' => 'Tanggal periksa harus diisi',
+            'tanggal_periksa.date' => 'Format tanggal tidak valid. Gunakan format YYYY-MM-DD',
+            'waktu_periksa.date_format' => 'Format waktu tidak valid. Gunakan format HH:MM',
+            'status_rekam_medis.required' => 'Status rekam medis harus dipilih',
+            'status_rekam_medis.in' => 'Status rekam medis harus "On Progress" atau "Close"',
+            'keluhan.required' => 'Keluhan harus diisi',
+            'keluhan.string' => 'Keluhan harus berupa teks',
+            'diagnosa.string' => 'Diagnosa harus berupa teks',
+            'catatan.string' => 'Catatan harus berupa teks',
         ]);
 
         try {
@@ -226,24 +249,9 @@ class RekamMedisController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(RekamMedisStoreRequest $request)
     {
-        $validated = $request->validate([
-            'id_keluarga' => 'required|exists:keluarga,id_keluarga',
-            'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i:s|date_format:H:i',
-            'status' => 'required|in:On Progress,Close',
-            'jumlah_keluhan' => 'required|integer|min:1|max:3',
-
-            // Validasi untuk setiap keluhan
-            'keluhan.*.id_diagnosa' => 'required|exists:diagnosa,id_diagnosa',
-            'keluhan.*.terapi' => 'required|in:Obat,Lab,Istirahat',
-            'keluhan.*.keterangan' => 'nullable|string',
-            'keluhan.*.obat_list' => 'nullable|array',
-            'keluhan.*.obat_list.*.id_obat' => 'required|exists:obat,id_obat',
-            'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
-            'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         // Using Laravel 12's transaction method with automatic retry for better reliability
         try {
@@ -343,26 +351,10 @@ class RekamMedisController extends Controller
         return view('rekam-medis.edit', compact('rekamMedis', 'diagnosas', 'obats'));
     }
 
-    public function update(Request $request, $id)
+    public function update(RekamMedisUpdateRequest $request, $id)
     {
         $rekamMedis = RekamMedis::findOrFail($id);
-
-        $validated = $request->validate([
-            'id_keluarga' => 'required|exists:keluarga,id_keluarga',
-            'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i:s|date_format:H:i',
-            'status' => 'required|in:On Progress,Close',
-            'jumlah_keluhan' => 'required|integer|min:1|max:3',
-
-            // Validasi untuk setiap keluhan
-            'keluhan.*.id_diagnosa' => 'required|exists:diagnosa,id_diagnosa',
-            'keluhan.*.terapi' => 'required|in:Obat,Lab,Istirahat',
-            'keluhan.*.keterangan' => 'nullable|string',
-            'keluhan.*.obat_list' => 'nullable|array',
-            'keluhan.*.obat_list.*.id_obat' => 'required|exists:obat,id_obat',
-            'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
-            'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         // Using Laravel 12's transaction method with automatic retry for better reliability
         try {
@@ -418,7 +410,7 @@ class RekamMedisController extends Controller
             }, 3); // Retry up to 3 times on deadlock
 
             // Dispatch event untuk menyesuaikan stok obat otomatis
-            RekamMedisUpdated::dispatch($rekamMedis, $oldKeluhans);
+            event(new \App\Events\RekamMedisUpdated($rekamMedis, $oldKeluhans));
 
             return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil diperbarui! Stok obat telah disesuaikan.');
         } catch (\Exception $e) {
@@ -559,6 +551,9 @@ class RekamMedisController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|in:On Progress,Close',
+        ], [
+            'status.required' => 'Status harus dipilih',
+            'status.in' => 'Status harus "On Progress" atau "Close"',
         ]);
 
         try {
@@ -784,7 +779,7 @@ class RekamMedisController extends Controller
         // Add notes
         $sheet->setCellValue('A6', 'CATATAN:');
         $sheet->setCellValue('A7', '• Format Tanggal: DD/MM/YYYY (contoh: 01/08/2025)');
-        $sheet->setCellValue('A8', '• Format Waktu: HH:MM atau HH:MM:SS (contoh: 09:22 atau 09:22:00)');
+        $sheet->setCellValue('A8', '• Format Waktu: HH:MM (contoh: 09:22)');
         $sheet->setCellValue('A9', '• Shift: Pagi, Siang, atau Malam');
         $sheet->setCellValue('A10', '• NIK Karyawan harus ada di tabel karyawan');
         $sheet->setCellValue('A11', '• Kode RM format: NIK-KodeHubungan (contoh: 1200929-A)');
@@ -937,13 +932,13 @@ class RekamMedisController extends Controller
                     if (\PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($cell)) {
                         // Excel stores time as a fraction of a day (e.g., 0.395833 for 09:30)
                         $timeObject = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($excelValue);
-                        $value = $timeObject->format('H:i:s');
+                        $value = $timeObject->format('H:i');
                     }
                     // Method 2: Check if it's a numeric value (for raw Excel time format)
                     elseif (is_numeric($excelValue)) {
                         // Excel menyimpan waktu sebagai pecahan hari (misal 0.572916 = 13:45)
                         $seconds = (float) $excelValue * 24 * 60 * 60;
-                        $value = gmdate('H:i:s', $seconds);
+                        $value = gmdate('H:i', $seconds);
                     }
                     // Method 3: Handle text format time (e.g., "09:15:00", "9.30", "09:30")
                     else {
@@ -960,7 +955,7 @@ class RekamMedisController extends Controller
 
                         if (! empty($rawTime)) {
                             $timeObject = \Carbon\Carbon::parse($rawTime);
-                            $value = $timeObject->format('H:i:s');
+                            $value = $timeObject->format('H:i');
                         }
                     }
                     break;

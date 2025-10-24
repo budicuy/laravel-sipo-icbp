@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Events\RekamMedisEmergencyDeleted;
+use App\Http\Requests\RekamMedisEmergencyStoreRequest;
+use App\Http\Requests\RekamMedisEmergencyUpdateRequest;
 use App\Models\Diagnosa;
 use App\Models\DiagnosaEmergency;
 use App\Models\ExternalEmployee;
@@ -74,28 +76,9 @@ class RekamMedisEmergencyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(RekamMedisEmergencyStoreRequest $request)
     {
-        // Check if user has valid token
-        if (! session('valid_emergency_token')) {
-            return redirect()->route('token-emergency.validate')
-                ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
-        }
-
-        $validated = $request->validate([
-            'external_employee_id' => 'required|exists:external_employees,id',
-            'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i:s|date_format:H:i',
-            'status' => 'required|in:On Progress,Close',
-            'keluhan' => 'required|string',
-            'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
-            'terapi' => 'required|string',
-            'catatan' => 'nullable|string',
-            'obat_list' => 'nullable|array',
-            'obat_list.*.id_obat' => 'required|exists:obat,id_obat',
-            'obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
-            'obat_list.*.aturan_pakai' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         try {
             // Get and use the token
@@ -215,20 +198,10 @@ class RekamMedisEmergencyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(RekamMedisEmergencyUpdateRequest $request, $id)
     {
         $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
-
-        $validated = $request->validate([
-            'external_employee_id' => 'required|exists:external_employees,id',
-            'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i:s|date_format:H:i',
-            'status' => 'required|in:On Progress,Close',
-            'keluhan' => 'required|string',
-            'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
-            'terapi' => 'required|string',
-            'catatan' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
 
         try {
             // Simpan keluhan lama untuk perbandingan stok
@@ -304,6 +277,9 @@ class RekamMedisEmergencyController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|in:On Progress,Close',
+        ], [
+            'status.required' => 'Status harus dipilih',
+            'status.in' => 'Status harus "On Progress" atau "Close"',
         ]);
 
         try {

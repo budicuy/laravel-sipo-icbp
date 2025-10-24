@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\RekamMedisUpdated;
 use App\Models\Keluhan;
+use App\Models\Obat;
 use App\Models\StokBulanan;
 use Illuminate\Support\Facades\Log;
 
@@ -77,12 +78,18 @@ class AdjustStokObatListener
                         ->where('bulan', $bulan)
                         ->first();
 
+                    // Update atau buat record di StokBulanan
+                    $stokBulanan = StokBulanan::where('obat_id', $obatId)
+                        ->where('tahun', $tahun)
+                        ->where('bulan', $bulan)
+                        ->first();
+
                     if ($stokBulanan) {
                         // Sesuaikan stok_pakai berdasarkan selisih
                         $stokBulanan->stok_pakai = max(0, $stokBulanan->stok_pakai + $selisih);
                         $stokBulanan->save();
 
-                        Log::info('Stok obat berhasil disesuaikan', [
+                        Log::info('Stok bulanan berhasil disesuaikan', [
                             'id_obat' => $obatId,
                             'tahun' => $tahun,
                             'bulan' => $bulan,
@@ -90,10 +97,20 @@ class AdjustStokObatListener
                             'total_stok_pakai' => $stokBulanan->stok_pakai,
                         ]);
                     } else {
-                        Log::warning('Tidak ditemukan record stok bulanan untuk obat', [
+                        // Buat record baru jika tidak ada
+                        $stokBulanan = StokBulanan::create([
+                            'obat_id' => $obatId,
+                            'tahun' => $tahun,
+                            'bulan' => $bulan,
+                            'stok_masuk' => 0,
+                            'stok_pakai' => max(0, $selisih),
+                        ]);
+
+                        Log::info('Stok bulanan baru dibuat', [
                             'id_obat' => $obatId,
                             'tahun' => $tahun,
                             'bulan' => $bulan,
+                            'stok_pakai' => $stokBulanan->stok_pakai,
                         ]);
                     }
                 }

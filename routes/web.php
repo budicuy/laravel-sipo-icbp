@@ -1,24 +1,23 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DiagnosaController;
+use App\Http\Controllers\ExternalEmployeeController;
+use App\Http\Controllers\HargaObatController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KeluargaController;
-use App\Http\Controllers\DiagnosaController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\MonitoringHargaController;
 use App\Http\Controllers\ObatController;
-use App\Http\Controllers\StokObatController;
+use App\Http\Controllers\RekamMedisController;
+use App\Http\Controllers\RekamMedisEmergencyController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\StokMasukController;
-use App\Http\Controllers\HargaObatController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MonitoringHargaController;
-use App\Http\Controllers\RekamMedisEmergencyController;
-use App\Http\Controllers\ExternalEmployeeController;
 use App\Http\Controllers\TokenEmergencyController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -46,7 +45,7 @@ Route::middleware('auth')->group(function () {
 
     // Karyawan Resource Routes
     Route::resource('karyawan', KaryawanController::class)->parameters([
-        'karyawan' => 'karyawan'
+        'karyawan' => 'karyawan',
     ]);
 
     // Keluarga Routes - Custom routes BEFORE resource routes
@@ -57,7 +56,7 @@ Route::middleware('auth')->group(function () {
 
     // Keluarga Resource Routes
     Route::resource('keluarga', KeluargaController::class)->parameters([
-        'keluarga' => 'id_keluarga'
+        'keluarga' => 'id_keluarga',
     ]);
 
     // Obat Routes - Custom routes BEFORE resource routes
@@ -68,7 +67,7 @@ Route::middleware('auth')->group(function () {
 
     // Obat Resource Routes
     Route::resource('obat', ObatController::class)->parameters([
-        'obat' => 'id_obat'
+        'obat' => 'id_obat',
     ]);
 
     // Sistem Stok Baru (Automated) - Mengganti stok-obat lama
@@ -100,12 +99,12 @@ Route::middleware('auth')->group(function () {
 
     // Diagnosa Resource Routes
     Route::resource('diagnosa', DiagnosaController::class)->parameters([
-        'diagnosa' => 'id_diagnosa'
+        'diagnosa' => 'id_diagnosa',
     ]);
 
     // User Routes - Resource Routes
     Route::resource('user', UserController::class)->parameters([
-        'user' => 'id_user'
+        'user' => 'id_user',
     ]);
 
     // Kunjungan Routes
@@ -125,7 +124,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/rekam-medis/store-emergency', [RekamMedisController::class, 'storeEmergency'])->name('rekam-medis.storeEmergency');
     // Rekam Medis Resource Routes
     Route::resource('rekam-medis', RekamMedisController::class)->parameters([
-        'rekam-medis' => 'id_rekam'
+        'rekam-medis' => 'id_rekam',
     ]);
 
     // Token Emergency Routes

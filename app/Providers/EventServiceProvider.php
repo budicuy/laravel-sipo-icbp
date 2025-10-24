@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Events\RekamMedisCreated;
 use App\Events\RekamMedisDeleted;
+use App\Events\RekamMedisUpdated;
+use App\Listeners\AdjustStokObatListener;
 use App\Listeners\KembalikanStokObatListener;
 use App\Listeners\KurangiStokObatListener;
 use Illuminate\Auth\Events\Registered;
