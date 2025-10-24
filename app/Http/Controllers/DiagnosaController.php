@@ -7,12 +7,12 @@ use App\Models\Obat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class DiagnosaController extends Controller
 {
@@ -23,7 +23,7 @@ class DiagnosaController extends Controller
         // Search functionality - pencarian berdasarkan nama diagnosa
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where('nama_diagnosa', 'like', '%'.$search.'%');
+            $query->where('nama_diagnosa', 'like', '%' . $search . '%');
         }
 
         // Sorting
@@ -43,7 +43,7 @@ class DiagnosaController extends Controller
         $perPage = $request->get('per_page', 50);
         $allowedPerPage = [50, 100, 150, 200];
 
-        if (! in_array($perPage, $allowedPerPage)) {
+        if (!in_array($perPage, $allowedPerPage)) {
             $perPage = 50;
         }
 
@@ -57,7 +57,6 @@ class DiagnosaController extends Controller
         $obats = Cache::remember('obats_all', 60, function () {
             return Obat::orderBy('nama_obat', 'asc')->get();
         });
-
         return view('diagnosa.create', compact('obats'));
     }
 
@@ -67,7 +66,7 @@ class DiagnosaController extends Controller
             'nama_diagnosa' => 'required|string|max:100',
             'deskripsi' => 'nullable|string',
             'obat_ids' => 'nullable|array',
-            'obat_ids.*' => 'exists:obat,id_obat',
+            'obat_ids.*' => 'exists:obat,id_obat'
         ], [
             'nama_diagnosa.required' => 'Nama diagnosa wajib diisi',
             'nama_diagnosa.max' => 'Nama diagnosa maksimal 100 karakter',
@@ -95,7 +94,6 @@ class DiagnosaController extends Controller
         $obats = Cache::remember('obats_all', 60, function () {
             return Obat::orderBy('nama_obat', 'asc')->get();
         });
-
         return view('diagnosa.edit', compact('diagnosa', 'obats'));
     }
 
@@ -107,7 +105,7 @@ class DiagnosaController extends Controller
             'nama_diagnosa' => 'required|string|max:100',
             'deskripsi' => 'nullable|string',
             'obat_ids' => 'nullable|array',
-            'obat_ids.*' => 'exists:obat,id_obat',
+            'obat_ids.*' => 'exists:obat,id_obat'
         ], [
             'nama_diagnosa.required' => 'Nama diagnosa wajib diisi',
             'nama_diagnosa.max' => 'Nama diagnosa maksimal 100 karakter',
@@ -133,11 +131,11 @@ class DiagnosaController extends Controller
 
     public function destroy($id)
     {
-        Log::info('Destroy method called with id: '.$id);
+        Log::info('Destroy method called with id: ' . $id);
 
         try {
             $diagnosa = Diagnosa::findOrFail($id);
-            Log::info('Diagnosa found: '.$diagnosa->nama_diagnosa);
+            Log::info('Diagnosa found: ' . $diagnosa->nama_diagnosa);
 
             // Detach relasi dengan obat sebelum menghapus
             $diagnosa->obats()->detach();
@@ -154,8 +152,8 @@ class DiagnosaController extends Controller
             return response()->json(['success' => true, 'message' => 'Data diagnosa berhasil dihapus']);
         } catch (\Exception $e) {
             // Log error
-            Log::error('Error deleting diagnosa: '.$e->getMessage());
-            Log::error('Stack trace: '.$e->getTraceAsString());
+            Log::error('Error deleting diagnosa: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
             return response()->json(['success' => false, 'message' => 'Gagal menghapus data diagnosa'], 500);
         }
@@ -163,7 +161,7 @@ class DiagnosaController extends Controller
 
     public function downloadTemplate()
     {
-        $spreadsheet = new Spreadsheet;
+        $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Import');
 
@@ -179,7 +177,7 @@ class DiagnosaController extends Controller
         $column = 'A';
 
         foreach ($headers as $header) {
-            $sheet->setCellValue($column.'1', $header);
+            $sheet->setCellValue($column . '1', $header);
             $column++;
         }
 
@@ -246,11 +244,11 @@ class DiagnosaController extends Controller
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'template_diagnosa_'.date('Y-m-d').'.xlsx';
+        $filename = 'template_diagnosa_' . date('Y-m-d') . '.xlsx';
 
         // Set headers for download
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="'.$filename.'"');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
 
         $writer->save('php://output');
@@ -281,8 +279,8 @@ class DiagnosaController extends Controller
 
             for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
                 // Read cell values
-                $namaDiagnosa = trim($sheet->getCell('A'.$rowNumber)->getValue() ?? '');
-                $deskripsi = trim($sheet->getCell('B'.$rowNumber)->getValue() ?? '');
+                $namaDiagnosa = trim($sheet->getCell('A' . $rowNumber)->getValue() ?? '');
+                $deskripsi = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
 
                 // Skip empty rows
                 if (empty($namaDiagnosa)) {
@@ -292,14 +290,12 @@ class DiagnosaController extends Controller
                 // Validate required fields
                 if (empty($namaDiagnosa)) {
                     $errors[] = "Baris $rowNumber: Nama Diagnosa tidak boleh kosong";
-
                     continue;
                 }
 
                 // Validate nama diagnosa length
                 if (strlen($namaDiagnosa) > 100) {
                     $errors[] = "Baris $rowNumber: Nama Diagnosa maksimal 100 karakter";
-
                     continue;
                 }
 
@@ -310,7 +306,7 @@ class DiagnosaController extends Controller
                 Diagnosa::updateOrCreate(
                     ['nama_diagnosa' => $namaDiagnosa],
                     [
-                        'deskripsi' => ! empty($deskripsi) ? $deskripsi : null,
+                        'deskripsi' => !empty($deskripsi) ? $deskripsi : null,
                     ]
                 );
 
@@ -327,9 +323,9 @@ class DiagnosaController extends Controller
             if ($hasErrors) {
                 $errorMessage = implode(', ', array_slice($errors, 0, 10));
                 if (count($errors) > 10) {
-                    $errorMessage .= ' ... dan '.(count($errors) - 10).' error lainnya';
+                    $errorMessage .= ' ... dan ' . (count($errors) - 10) . ' error lainnya';
                 }
-                $message .= '. Error: '.$errorMessage;
+                $message .= '. Error: ' . $errorMessage;
             }
 
             // Return JSON response for AJAX requests
@@ -340,8 +336,8 @@ class DiagnosaController extends Controller
                     'data' => [
                         'created' => $created,
                         'updated' => $updated,
-                        'errors' => $errors,
-                    ],
+                        'errors' => $errors
+                    ]
                 ]);
             }
 
@@ -356,32 +352,31 @@ class DiagnosaController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal import data: '.$e->getMessage(),
+                    'message' => 'Gagal import data: ' . $e->getMessage()
                 ], 500);
             }
 
-            return back()->with('error', 'Gagal import data: '.$e->getMessage());
+            return back()->with('error', 'Gagal import data: ' . $e->getMessage());
         }
     }
 
     public function bulkDelete(Request $request)
     {
         Log::info('Bulk delete method called');
-        Log::info('Request data: '.json_encode($request->all()));
+        Log::info('Request data: ' . json_encode($request->all()));
 
         try {
             $ids = $request->input('ids', []);
-            Log::info('IDs to delete: '.json_encode($ids));
+            Log::info('IDs to delete: ' . json_encode($ids));
 
             if (empty($ids)) {
                 Log::info('No IDs provided');
-
                 return response()->json(['success' => false, 'message' => 'Tidak ada data yang dipilih'], 400);
             }
 
             // Get diagnosas to delete for detaching relationships
             $diagnosas = Diagnosa::whereIn('id_diagnosa', $ids)->get();
-            Log::info('Found '.$diagnosas->count().' diagnosas to delete');
+            Log::info('Found ' . $diagnosas->count() . ' diagnosas to delete');
 
             // Detach relationships before deleting
             foreach ($diagnosas as $diagnosa) {
@@ -391,7 +386,7 @@ class DiagnosaController extends Controller
 
             // Delete the diagnosas
             $count = Diagnosa::whereIn('id_diagnosa', $ids)->delete();
-            Log::info('Deleted '.$count.' diagnosas');
+            Log::info('Deleted ' . $count . ' diagnosas');
 
             // Clear cache
             Cache::forget('obats_all');
@@ -400,8 +395,8 @@ class DiagnosaController extends Controller
             return response()->json(['success' => true, 'message' => "{$count} data diagnosa berhasil dihapus!"]);
         } catch (\Exception $e) {
             // Log error
-            Log::error('Error bulk deleting diagnosa: '.$e->getMessage());
-            Log::error('Stack trace: '.$e->getTraceAsString());
+            Log::error('Error bulk deleting diagnosa: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
             return response()->json(['success' => false, 'message' => 'Gagal menghapus data diagnosa'], 500);
         }

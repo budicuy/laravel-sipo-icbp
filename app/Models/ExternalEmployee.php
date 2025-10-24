@@ -11,8 +11,6 @@ class ExternalEmployee extends Model
 
     protected $table = 'external_employees';
 
-    protected $primaryKey = 'id_external_employee';
-
     protected $fillable = [
         'nik_employee',
         'nama_employee',
@@ -65,10 +63,10 @@ class ExternalEmployee extends Model
 
     public function scopeSearch($query, $search)
     {
-        return $query->where(function ($q) use ($search) {
+        return $query->where(function($q) use ($search) {
             $q->where('nik_employee', 'like', "%{$search}%")
-                ->orWhere('nama_employee', 'like', "%{$search}%")
-                ->orWhere('kode_rm', 'like', "%{$search}%");
+              ->orWhere('nama_employee', 'like', "%{$search}%")
+              ->orWhere('kode_rm', 'like', "%{$search}%");
         });
     }
 }

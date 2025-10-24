@@ -18,61 +18,61 @@ return new class extends Migration
         try {
             // 1. Perbaiki foreign key di tabel rekam_medis_emergency
             echo "Checking existing foreign keys in rekam_medis_emergency...\n";
-
+            
             // Get column types first
             $rekamMedisColumn = DB::select("
-                SELECT DATA_TYPE, COLUMN_TYPE
-                FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE()
-                AND TABLE_NAME = 'rekam_medis_emergency'
+                SELECT DATA_TYPE, COLUMN_TYPE 
+                FROM INFORMATION_SCHEMA.COLUMNS 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = 'rekam_medis_emergency' 
                 AND COLUMN_NAME = 'id_external_employee'
             ")[0];
-
+            
             $externalEmployeeColumn = DB::select("
-                SELECT DATA_TYPE, COLUMN_TYPE
-                FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE()
-                AND TABLE_NAME = 'external_employees'
-                AND COLUMN_NAME = 'id_external_employee'
+                SELECT DATA_TYPE, COLUMN_TYPE 
+                FROM INFORMATION_SCHEMA.COLUMNS 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = 'external_employees' 
+                AND COLUMN_NAME = 'id'
             ")[0];
-
+            
             echo "rekam_medis_emergency.id_external_employee type: {$rekamMedisColumn->COLUMN_TYPE}\n";
-            echo "external_employees.id_external_employee type: {$externalEmployeeColumn->COLUMN_TYPE}\n";
-
+            echo "external_employees.id type: {$externalEmployeeColumn->COLUMN_TYPE}\n";
+            
             // Check if types are compatible
             if ($rekamMedisColumn->DATA_TYPE !== $externalEmployeeColumn->DATA_TYPE) {
                 echo "Column types are incompatible. Fixing id_external_employee column type...\n";
-
+                
                 // Drop existing foreign keys if any
                 $foreignKeys = DB::select("
-                    SELECT CONSTRAINT_NAME
-                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                    WHERE TABLE_SCHEMA = DATABASE()
-                    AND TABLE_NAME = 'rekam_medis_emergency'
+                    SELECT CONSTRAINT_NAME 
+                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'rekam_medis_emergency' 
                     AND REFERENCED_TABLE_NAME = 'external_employees'
                 ");
-
+                
                 if (!empty($foreignKeys)) {
                     foreach ($foreignKeys as $foreignKey) {
                         echo "Dropping foreign key: {$foreignKey->CONSTRAINT_NAME}\n";
                         DB::statement("ALTER TABLE rekam_medis_emergency DROP FOREIGN KEY {$foreignKey->CONSTRAINT_NAME}");
                     }
                 }
-
+                
                 // Change column type to match external_employees.id (bigint unsigned)
                 DB::statement("ALTER TABLE rekam_medis_emergency MODIFY COLUMN id_external_employee BIGINT UNSIGNED");
                 echo "Changed id_external_employee column type to BIGINT UNSIGNED\n";
             }
-
+            
             // Get all foreign keys for rekam_medis_emergency
             $foreignKeys = DB::select("
-                SELECT CONSTRAINT_NAME
-                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                WHERE TABLE_SCHEMA = DATABASE()
-                AND TABLE_NAME = 'rekam_medis_emergency'
+                SELECT CONSTRAINT_NAME 
+                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = 'rekam_medis_emergency' 
                 AND REFERENCED_TABLE_NAME = 'external_employees'
             ");
-
+            
             // Drop existing foreign keys if any
             if (!empty($foreignKeys)) {
                 foreach ($foreignKeys as $foreignKey) {
@@ -80,46 +80,46 @@ return new class extends Migration
                     DB::statement("ALTER TABLE rekam_medis_emergency DROP FOREIGN KEY {$foreignKey->CONSTRAINT_NAME}");
                 }
             }
-
+            
             // Add correct foreign key
             echo "Adding correct foreign key to external_employees.id\n";
             DB::statement("
-                ALTER TABLE rekam_medis_emergency
-                ADD CONSTRAINT rekam_medis_emergency_id_external_employee_foreign
-                FOREIGN KEY (id_external_employee) REFERENCES external_employees(id_external_employee)
+                ALTER TABLE rekam_medis_emergency 
+                ADD CONSTRAINT rekam_medis_emergency_id_external_employee_foreign 
+                FOREIGN KEY (id_external_employee) REFERENCES external_employees(id) 
                 ON UPDATE CASCADE ON DELETE RESTRICT
             ");
 
             // 2. Hapus kolom id_keluhan dari tabel rekam_medis_emergency jika ada
             echo "Checking for id_keluhan column in rekam_medis_emergency...\n";
             $columnExists = DB::select("
-                SELECT COLUMN_NAME
-                FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE()
-                AND TABLE_NAME = 'rekam_medis_emergency'
+                SELECT COLUMN_NAME 
+                FROM INFORMATION_SCHEMA.COLUMNS 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = 'rekam_medis_emergency' 
                 AND COLUMN_NAME = 'id_keluhan'
             ");
-
+            
             if (!empty($columnExists)) {
                 echo "Dropping id_keluhan column from rekam_medis_emergency\n";
-
+                
                 // Drop foreign key first if exists
                 $keluhanForeignKeys = DB::select("
-                    SELECT CONSTRAINT_NAME
-                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                    WHERE TABLE_SCHEMA = DATABASE()
-                    AND TABLE_NAME = 'rekam_medis_emergency'
-                    AND COLUMN_NAME = 'id_keluhan'
+                    SELECT CONSTRAINT_NAME 
+                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'rekam_medis_emergency' 
+                    AND COLUMN_NAME = 'id_keluhan' 
                     AND REFERENCED_TABLE_NAME = 'keluhan'
                 ");
-
+                
                 if (!empty($keluhanForeignKeys)) {
                     foreach ($keluhanForeignKeys as $foreignKey) {
                         echo "Dropping foreign key: {$foreignKey->CONSTRAINT_NAME}\n";
                         DB::statement("ALTER TABLE rekam_medis_emergency DROP FOREIGN KEY {$foreignKey->CONSTRAINT_NAME}");
                     }
                 }
-
+                
                 // Drop column
                 DB::statement("ALTER TABLE rekam_medis_emergency DROP COLUMN id_keluhan");
             }
@@ -133,7 +133,7 @@ return new class extends Migration
                 AND TABLE_NAME = 'keluhan'
                 AND COLUMN_NAME = 'id_emergency'
             ");
-
+            
             // Get the type of id_emergency in rekam_medis_emergency
             $emergencyColumnType = DB::select("
                 SELECT DATA_TYPE, COLUMN_TYPE
@@ -142,13 +142,13 @@ return new class extends Migration
                 AND TABLE_NAME = 'rekam_medis_emergency'
                 AND COLUMN_NAME = 'id_emergency'
             ")[0];
-
+            
             echo "rekam_medis_emergency.id_emergency type: {$emergencyColumnType->COLUMN_TYPE}\n";
-
+            
             if (empty($emergencyColumnExists)) {
                 echo "Adding id_emergency column to keluhan with type {$emergencyColumnType->COLUMN_TYPE}\n";
                 DB::statement("ALTER TABLE keluhan ADD COLUMN id_emergency {$emergencyColumnType->COLUMN_TYPE} NULL AFTER id_rekam");
-
+                
                 // Add foreign key
                 echo "Adding foreign key to rekam_medis_emergency\n";
                 DB::statement("
@@ -161,7 +161,7 @@ return new class extends Migration
                 // Check if column type needs to be updated
                 if ($emergencyColumnExists[0]->DATA_TYPE !== $emergencyColumnType->DATA_TYPE) {
                     echo "Updating id_emergency column type to {$emergencyColumnType->COLUMN_TYPE}\n";
-
+                    
                     // Drop foreign key first if exists
                     $keluhanForeignKeys = DB::select("
                         SELECT CONSTRAINT_NAME
@@ -171,17 +171,17 @@ return new class extends Migration
                         AND COLUMN_NAME = 'id_emergency'
                         AND REFERENCED_TABLE_NAME = 'rekam_medis_emergency'
                     ");
-
+                    
                     if (!empty($keluhanForeignKeys)) {
                         foreach ($keluhanForeignKeys as $foreignKey) {
                             echo "Dropping foreign key: {$foreignKey->CONSTRAINT_NAME}\n";
                             DB::statement("ALTER TABLE keluhan DROP FOREIGN KEY {$foreignKey->CONSTRAINT_NAME}");
                         }
                     }
-
+                    
                     // Update column type to match rekam_medis_emergency.id_emergency
                     DB::statement("ALTER TABLE keluhan MODIFY COLUMN id_emergency {$emergencyColumnType->COLUMN_TYPE} NULL");
-
+                    
                     // Re-add foreign key
                     echo "Re-adding foreign key to rekam_medis_emergency\n";
                     DB::statement("
@@ -202,11 +202,11 @@ return new class extends Migration
                 AND TABLE_NAME = 'keluhan'
                 AND COLUMN_NAME = 'id_diagnosa_emergency'
             ");
-
+            
             if (empty($diagnosaColumnExists)) {
                 echo "Adding id_diagnosa_emergency column to keluhan\n";
                 DB::statement("ALTER TABLE keluhan ADD COLUMN id_diagnosa_emergency INT UNSIGNED NULL AFTER id_diagnosa");
-
+                
                 // Add foreign key
                 echo "Adding foreign key to diagnosa_emergency\n";
                 DB::statement("
@@ -220,12 +220,12 @@ return new class extends Migration
             // 4. Buat pivot table diagnosa_emergency_obat
             echo "Checking for diagnosa_emergency_obat table...\n";
             $tableExists = DB::select("
-                SELECT TABLE_NAME
-                FROM INFORMATION_SCHEMA.TABLES
-                WHERE TABLE_SCHEMA = DATABASE()
+                SELECT TABLE_NAME 
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_SCHEMA = DATABASE() 
                 AND TABLE_NAME = 'diagnosa_emergency_obat'
             ");
-
+            
             if (empty($tableExists)) {
                 echo "Creating diagnosa_emergency_obat pivot table\n";
                 DB::statement("
@@ -292,25 +292,25 @@ return new class extends Migration
 
             // 4. Kembalikan foreign key lama di rekam_medis_emergency
             $foreignKeys = DB::select("
-                SELECT CONSTRAINT_NAME
-                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                WHERE TABLE_SCHEMA = DATABASE()
-                AND TABLE_NAME = 'rekam_medis_emergency'
-                AND COLUMN_NAME = 'id_external_employee'
+                SELECT CONSTRAINT_NAME 
+                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = 'rekam_medis_emergency' 
+                AND COLUMN_NAME = 'id_external_employee' 
                 AND REFERENCED_TABLE_NAME = 'external_employees'
             ");
-
+            
             if (!empty($foreignKeys)) {
                 foreach ($foreignKeys as $foreignKey) {
                     DB::statement("ALTER TABLE rekam_medis_emergency DROP FOREIGN KEY {$foreignKey->CONSTRAINT_NAME}");
                 }
             }
-
+            
             // Kembalikan ke foreign key lama (salah)
             DB::statement("
-                ALTER TABLE rekam_medis_emergency
-                ADD CONSTRAINT rekam_medis_emergency_id_external_employee_foreign
-                FOREIGN KEY (id_external_employee) REFERENCES external_employees(id_external_employee)
+                ALTER TABLE rekam_medis_emergency 
+                ADD CONSTRAINT rekam_medis_emergency_id_external_employee_foreign 
+                FOREIGN KEY (id_external_employee) REFERENCES external_employees(id_external_employee) 
                 ON UPDATE CASCADE ON DELETE RESTRICT
             ");
             echo "Restored original foreign key\n";
