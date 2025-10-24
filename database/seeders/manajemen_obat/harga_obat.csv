@@ -1,90 +1,178 @@
-NamaObat;HargaObat;Periode
-Allopurinol;410;08-25
-Ambeven;"2.130,00";08-25
-Ambroxol;"334,29";08-25
-Amlodipin 10Mg;"1.030,00";08-25
-Amlodipin 5Mg;"628,42";08-25
-Amoxicilin;830;08-25
-Anastan;630;08-25
-Antasida Doen Syrup 60 ml;"8.300,00";08-25
-Antasida Doen Tablet;"335,29";08-25
-Asam Mefenamat;530;08-25
-Attapulgite;"662,5";08-25
-Berlosid;530;08-25
-Bioplacenton;"36.300,00";08-25
-Brochifar;"1.039,62";08-25
-Bronchosal;430;08-25
-Calortusin;-;08-25
-Cargesic;"670,946";08-25
-Cefadroxil;-;08-25
-Cefixime;"1.766,67";08-25
-Cetirizine;"534,286";08-25
-Cipropluxacin;730;08-25
-Coparcetin;-;08-25
-Coparcetin Syrup;"13.300,00";08-25
-Cotrimoxazole;530;08-25
-CTM;330;08-25
-Dexamethasone;"353,53";08-25
-Diatabs;"1.051,92";08-25
-Dobrizol;"1.233,15";08-25
-Emturnas;-;08-25
-Erlamol;"13.300,00";08-25
-Erlamycetin T.T;"17.300,00";08-25
-Fargetix;630;08-25
-Fasidol;"540,45";08-25
-Flucadex;"1.037,50";08-25
-Flutamol;"1.030,86";08-25
-Flutop Syrup;"13.300,00";08-25
-Genoint S.K;"10.300,00";08-25
-Genoint S.M;"17.300,00";08-25
-Genoint T.M;"17.300,00";08-25
-Gentamicin;"6.300,00";08-25
-Grantusif;"834,29";08-25
-Gratheos;"631,765";08-25
-Hansaplast;500;08-25
-hCG Test;-;08-25
-Histigo;-;08-25
-Hydrocortisone;"7.300,00";08-25
- Hypafix ;-;08-25
-Insto Regular;"17.300,00";08-25
-Kassa Steril;-;08-25
-Ketoconazole;-;08-25
-Lansoprazol ;"1.040,00";08-25
-Lodecon;-;08-25
-Loperamide;-;08-25
-Lostacef;"1.230,00";08-25
-Metformin ;"525,385";08-25
-Methylprednisolone;"534,468";08-25
-Metoclopramide;650;08-25
-Miconazole Cream;"6.300,00";08-25
-Microgynon;"26.300,00";08-25
-Molacort;-;08-25
-Natrium Diklofenak;"531,11";08-25
-Neurodex;"856,28";08-25
-Novagesic;"531,11";08-25
-Novamox;-;08-25
-O2;"25.000,00";08-25
-Octenilin;"43.300,00";08-25
-Panadol Biru;"1.560,00";08-25
-Panadol Extra;"1.663,33";08-25
-Paracetamol;330;08-25
-Paracetamol Syrup 60 ml;"8.300,00";08-25
-Pehacain;-;08-25
-Piroxicam;332;08-25
-Ranitidin;"545,83";08-25
-Salbutamol 4Mg;-;08-25
-Salbutamol Inject;-;08-25
-Samtacid;530;08-25
-Scopma Plus;"1.627,72";08-25
-Simvastatin 10 mg;530;08-25
-Softex;"1.000,00";08-25
-Spuit 3 Cc;-;08-25
-Stick Asam Urat;-;08-25
-Stick Glukosa;-;08-25
-Stick Kolesterol;-;08-25
-Ternix Hijau;"13.300,00";08-25
-Triclofem;"15.300,00";08-25
-Ventasal Inject;"15.300,00";08-25
-Vit C;"541,86";08-25
-Vosea;532;08-25
-Zink Tab;"1.030,00";08-25
+NamaObat                 ; HargaObat ; Periode
+Allopurinol              ; 410       ; 08-25
+Ambroxol                 ; 334,29    ; 08-25
+Amlodipin 10Mg           ; 1.030,00  ; 08-25
+Amlodipin 5Mg            ; 628,42    ; 08-25
+Amoxicilin               ; 830       ; 08-25
+Anastan                  ; 630       ; 08-25
+Antasida Doen Syrup 60 ml; 8.300,00  ; 08-25
+Antasida Doen Tablet     ; 335,29    ; 08-25
+Asam Mefenamat           ; 530       ; 08-25
+Attapulgite              ; 662,5     ; 08-25
+Berlosid                 ; 530       ; 08-25
+Bioplacenton             ; 36.300,00 ; 08-25
+Brochifar                ; 1.039,62  ; 08-25
+Bronchosal               ; 430       ; 08-25
+Calortusin               ; -         ; 08-25
+Cargesic                 ; 670,946   ; 08-25
+Cefadroxil               ; -         ; 08-25
+Cefixime                 ; 1.766,67  ; 08-25
+Cetirizine               ; 534,286   ; 08-25
+Cipropluxacin            ; 730       ; 08-25
+Coparcetin               ; -         ; 08-25
+Coparcetin Syrup         ; 13.300,00 ; 08-25
+Cotrimoxazole            ; 530       ; 08-25
+CTM                      ; 330       ; 08-25
+Dexamethasone            ; 353,53    ; 08-25
+Diatabs                  ; 1.051,92  ; 08-25
+Dobrizol                 ; 1.233,15  ; 08-25
+Emturnas                 ; -         ; 08-25
+Erlamol                  ; 13.300,00 ; 08-25
+Erlamycetin T.T          ; 17.300,00 ; 08-25
+Fargetix                 ; 630       ; 08-25
+Fasidol                  ; 540,45    ; 08-25
+Flucadex                 ; 1.037,50  ; 08-25
+Flutamol                 ; 1.030,86  ; 08-25
+Flutop Syrup             ; 13.300,00 ; 08-25
+Genoint S.K              ; 10.300,00 ; 08-25
+Genoint S.M              ; 17.300,00 ; 08-25
+Genoint T.M              ; 17.300,00 ; 08-25
+Gentamicin               ; 6.300,00  ; 08-25
+Grantusif                ; 834,29    ; 08-25
+Gratheos                 ; 631,765   ; 08-25
+Hansaplast               ; 500       ; 08-25
+hCG Test                 ; -         ; 08-25
+Histigo                  ; -         ; 08-25
+Hydrocortisone           ; 7.300,00  ; 08-25
+Hypafix                  ; -         ; 08-25
+Insto Regular            ; 17.300,00 ; 08-25
+Kassa Steril             ; -         ; 08-25
+Ketoconazole             ; -         ; 08-25
+Lansoprazol              ; 1.040,00  ; 08-25
+Lodecon                  ; -         ; 08-25
+Loperamide               ; -         ; 08-25
+Lostacef                 ; 1.230,00  ; 08-25
+Metformin                ; 525,385   ; 08-25
+Methylprednisolone       ; 534,468   ; 08-25
+Metoclopramide           ; 650       ; 08-25
+Miconazole Cream         ; 6.300,00  ; 08-25
+Microgynon               ; 26.300,00 ; 08-25
+Molacort                 ; -         ; 08-25
+Natrium Diklofenak       ; 531,11    ; 08-25
+Neurodex                 ; 856,28    ; 08-25
+Novagesic                ; 531,11    ; 08-25
+Novamox                  ; -         ; 08-25
+O2                       ; 25.000,00 ; 08-25
+Octenilin                ; 43.300,00 ; 08-25
+Panadol Biru             ; 1.560,00  ; 08-25
+Panadol Extra            ; 1.663,33  ; 08-25
+Paracetamol              ; 330       ; 08-25
+Paracetamol Syrup 60 ml  ; 8.300,00  ; 08-25
+Pehacain                 ; -         ; 08-25
+Piroxicam                ; 332       ; 08-25
+Ranitidin                ; 545,83    ; 08-25
+Salbutamol 4Mg           ; -         ; 08-25
+Salbutamol Inject        ; -         ; 08-25
+Samtacid                 ; 530       ; 08-25
+Scopma Plus              ; 1.627,72  ; 08-25
+Simvastatin 10 mg        ; 530       ; 08-25
+Softex                   ; 1.000,00  ; 08-25
+Spuit 3 Cc               ; -         ; 08-25
+Stick Asam Urat          ; -         ; 08-25
+Stick Glukosa            ; -         ; 08-25
+Stick Kolesterol         ; -         ; 08-25
+Ternix Hijau             ; 13.300,00 ; 08-25
+Triclofem                ; 15.300,00 ; 08-25
+Ventasal Inject          ; 15.300,00 ; 08-25
+Vit C                    ; 541,86    ; 08-25
+Vosea                    ; 532       ; 08-25
+Zink Tab                 ; 1.030,00  ; 08-25
+Allopurinol              ; 410,000   ; 09-25
+Ambeven                  ; 2.130,000 ; 09-25
+Ambroxol                 ; 334,091   ; 09-25
+Amlodipin 10Mg           ; 1.030,000 ; 09-25
+Amlodipin 5Mg            ; 648,333   ; 09-25
+Amoxicilin               ; 830,000   ; 09-25
+Anastan                  ; 635,584   ; 09-25
+Antasida Doen Syrup 60 ml; 8.300,000 ; 09-25
+Antasida Doen Tablet     ; 331,833   ; 09-25
+Asam Mefenamat           ; 530,000   ; 09-25
+Attapulgite              ; 662,500   ; 09-25
+Berlosid                 ; 530,000   ; 09-25
+Bioplacenton             ; 36.300,000; 09-25
+Brochifar                ; 1.030,000 ; 09-25
+Bronchosal               ; 430,000   ; 09-25
+Calortusin               ; -         ; 09-25
+Cargesic                 ; 670,946   ; 09-25
+Cefadroxil               ; -         ; 09-25
+Cefixime                 ; 1.730,000 ; 09-25
+Cetirizine               ; 531,915   ; 09-25
+Cipropluxacin            ; 730,000   ; 09-25
+Coparcetin               ; 1.033,214 ; 09-25
+Coparcetin Syrup         ; 13.300,000; 09-25
+Cotrimoxazole            ; 530,000   ; 09-25
+CTM                      ; 330,000   ; 09-25
+Dexamethasone            ; 334,286   ; 09-25
+Diatabs                  ; 1.048,750 ; 09-25
+Dobrizol                 ; 1.235,556 ; 09-25
+Emturnas                 ; 533,103   ; 09-25
+Erlamol                  ; 13.300,000; 09-25
+Erlamycetin T.T          ; 17.300,000; 09-25
+Fargetix                 ; 630,000   ; 09-25
+Fasidol                  ; 540,450   ; 09-25
+Flucadex                 ; 1.031,714 ; 09-25
+Flutamol                 ; 1.030,857 ; 09-25
+Flutop Syrup             ; 13.300,000; 09-25
+Genoint S.K              ; 10.300,000; 09-25
+Genoint S.M              ; 17.300,000; 09-25
+Genoint T.M              ; 17.300,000; 09-25
+Gentamicin               ; 6.300,000 ; 09-25
+Grantusif                ; 834,290   ; 09-25
+Gratheos                 ; 630,000   ; 09-25
+Hansaplast               ; 500,000   ; 09-25
+hCG Test                 ; -         ; 09-25
+Histigo                  ; -         ; 09-25
+Hydrocortisone           ; 7.300,000 ; 09-25
+Hypafix                  ; -         ; 09-25
+Insto Regular            ; 17.300,000; 09-25
+Kassa Steril             ; -         ; 09-25
+Ketoconazole             ; -         ; 09-25
+Lansoprazol              ; 1.092,308 ; 09-25
+Lodecon                  ; -         ; 09-25
+Loperamide               ; -         ; 09-25
+Lostacef                 ; 1.230,000 ; 09-25
+Metformin                ; 520,000   ; 09-25
+Methylprednisolone       ; 534,859   ; 09-25
+Metoclopramide           ; 5.300,000 ; 09-25
+Miconazole Cream         ; 6.300,000 ; 09-25
+Microgynon               ; 26.300,000; 09-25
+Molacort                 ; 332,000   ; 09-25
+Natrium Diklofenak       ; 534,694   ; 09-25
+Neurodex                 ; 855,263   ; 09-25
+Novagesic                ; 531,110   ; 09-25
+Novamox                  ; 830,000   ; 09-25
+O2                       ; 25.000,000; 09-25
+Octenilin                ; 43.300,000; 09-25
+Panadol Biru             ; 1.636,364 ; 09-25
+Panadol Extra            ; 1.661,722 ; 09-25
+Paracetamol              ; 330,000   ; 09-25
+Paracetamol Syrup 60 ml  ; 8.300,000 ; 09-25
+Pehacain                 ; 10.300,000; 09-25
+Piroxicam                ; 333,333   ; 09-25
+Ranitidin                ; 538,571   ; 09-25
+Salbutamol 4Mg           ; 330,000   ; 09-25
+Salbutamol Inject        ; -         ; 09-25
+Samtacid                 ; 530,000   ; 09-25
+Scopma Plus              ; 1.545,000 ; 09-25
+Simvastatin 10 mg        ; 530,000   ; 09-25
+Softex                   ; 1.000,000 ; 09-25
+Spuit 3 Cc               ; -         ; 09-25
+Stick Asam Urat          ; -         ; 09-25
+Stick Glukosa            ; -         ; 09-25
+Stick Kolesterol         ; -         ; 09-25
+Ternix Hijau             ; 13.300,000; 09-25
+Triclofem                ; 15.300,000; 09-25
+Ventasal Inject          ; 15.300,000; 09-25
+Vit C                    ; 537,091   ; 09-25
+Vosea                    ; 538,710   ; 09-25
+Zink Tab                 ; 1.030,000 ; 09-25

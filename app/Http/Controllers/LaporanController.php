@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HargaObatPerBulan;
+use App\Models\Keluhan;
 use App\Models\Kunjungan;
 use App\Models\RekamMedis;
-use App\Models\Keluhan;
-use App\Models\HargaObatPerBulan;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\RekamMedisEmergency;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class LaporanController extends Controller
 {
@@ -55,14 +55,21 @@ class LaporanController extends Controller
     private function getChartPemeriksaan($tahun)
     {
         // Single query untuk semua bulan menggunakan raw expression
-        $monthlyData = RekamMedis::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
+        $monthlyDataReguler = RekamMedis::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
+            ->whereYear('tanggal_periksa', $tahun)
+            ->groupByRaw('MONTH(tanggal_periksa)')
+            ->pluck('count', 'month')
+            ->toArray();
+
+        $monthlyDataEmergency = RekamMedisEmergency::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
             ->whereYear('tanggal_periksa', $tahun)
             ->groupByRaw('MONTH(tanggal_periksa)')
             ->pluck('count', 'month')
             ->toArray();
 
         // Format data untuk chart (12 bulan)
-        $chartData = [];
+        $chartDataReguler = [];
+        $chartDataEmergency = [];
         $chartDataTotal = [];
         for ($i = 1; $i <= 12; $i++) {
             $reguler = $monthlyDataReguler[$i] ?? 0;
@@ -75,7 +82,7 @@ class LaporanController extends Controller
         return [
             'reguler' => $chartDataReguler,
             'emergency' => $chartDataEmergency,
-            'total' => $chartDataTotal
+            'total' => $chartDataTotal,
         ];
     }
 
@@ -86,7 +93,7 @@ class LaporanController extends Controller
     {
         // Get all keluhan with rekamMedis for the specified year
         $keluhanData = Keluhan::with(['rekamMedis:id_rekam,tanggal_periksa'])
-            ->whereHas('rekamMedis', function($query) use ($tahun) {
+            ->whereHas('rekamMedis', function ($query) use ($tahun) {
                 $query->whereYear('tanggal_periksa', $tahun);
             })
             ->whereNotNull('id_obat')
@@ -98,13 +105,13 @@ class LaporanController extends Controller
             $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
             $obatPeriods[] = [
                 'id_obat' => $keluhan->id_obat,
-                'periode' => $periode
+                'periode' => $periode,
             ];
         }
 
         // Get unique combinations to avoid duplicates
         $uniqueObatPeriods = collect($obatPeriods)->unique(function ($item) {
-            return $item['id_obat'] . '_' . $item['periode'];
+            return $item['id_obat'].'_'.$item['periode'];
         })->values()->toArray();
 
         // Use the bulk fallback method for optimized performance
@@ -127,7 +134,7 @@ class LaporanController extends Controller
         foreach ($keluhanData as $keluhan) {
             $month = $keluhan->rekamMedis->tanggal_periksa->format('n');
             $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
-            $key = $keluhan->id_obat . '_' . $periode;
+            $key = $keluhan->id_obat.'_'.$periode;
 
             // Get harga obat from our pre-fetched map
             $hargaObat = $hargaObatMap[$key] ?? null;
@@ -142,8 +149,8 @@ class LaporanController extends Controller
         $chartDataEmergency = [];
         $chartDataTotal = [];
         for ($i = 1; $i <= 12; $i++) {
-            $reguler = $monthlyDataReguler[$i] ?? 0;
-            $emergency = $monthlyDataEmergency[$i] ?? 0;
+            $reguler = $monthlyData[$i] ?? 0;
+            $emergency = 0; // Emergency data not calculated in this method
             $chartDataReguler[] = $reguler;
             $chartDataEmergency[] = $emergency;
             $chartDataTotal[] = $reguler + $emergency;
@@ -152,7 +159,7 @@ class LaporanController extends Controller
         return [
             'reguler' => $chartDataReguler,
             'emergency' => $chartDataEmergency,
-            'total' => $chartDataTotal
+            'total' => $chartDataTotal,
         ];
     }
 
@@ -163,8 +170,8 @@ class LaporanController extends Controller
     {
         // Parse periode format MM-YY to get month and year
         if (preg_match('/^(\d{2})-(\d{2})$/', $periode, $matches)) {
-            $month = (int)$matches[1];
-            $year = (int)$matches[2] + 2000; // Convert YY to YYYY
+            $month = (int) $matches[1];
+            $year = (int) $matches[2] + 2000; // Convert YY to YYYY
         } else {
             // Default to current month if format is invalid
             $month = Carbon::now()->month;
@@ -173,18 +180,18 @@ class LaporanController extends Controller
 
         // Optimized query with specific columns and eager loading
         $rekamMedisQuery = RekamMedis::with([
-                'keluarga' => function($query) {
-                    $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan')
-                          ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan'])
-                          ->with(['hubungan:kode_hubungan,hubungan']);
-                },
-                'keluhans' => function($query) {
-                    $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat')
-                          ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
-                          ->with(['obat:id_obat,nama_obat']);
-                },
-                'user:id_user,username,nama_lengkap'
-            ])
+            'keluarga' => function ($query) {
+                $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan')
+                    ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan'])
+                    ->with(['hubungan:kode_hubungan,hubungan']);
+            },
+            'keluhans' => function ($query) {
+                $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat')
+                    ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
+                    ->with(['obat:id_obat,nama_obat']);
+            },
+            'user:id_user,username,nama_lengkap',
+        ])
             ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
             ->whereMonth('tanggal_periksa', $month)
             ->whereYear('tanggal_periksa', $year)
@@ -201,7 +208,7 @@ class LaporanController extends Controller
                 if ($keluhan->id_obat) {
                     $obatPeriods[] = [
                         'id_obat' => $keluhan->id_obat,
-                        'periode' => $periode
+                        'periode' => $periode,
                     ];
                 }
             }
@@ -211,10 +218,10 @@ class LaporanController extends Controller
         $hargaObatMap = [];
         $fallbackNotifications = [];
 
-        if (!empty($obatPeriods)) {
+        if (! empty($obatPeriods)) {
             // Get unique combinations to avoid duplicates
             $uniqueObatPeriods = collect($obatPeriods)->unique(function ($item) {
-                return $item['id_obat'] . '_' . $item['periode'];
+                return $item['id_obat'].'_'.$item['periode'];
             })->values()->toArray();
 
             // Use the new bulk fallback method for optimized performance
@@ -232,7 +239,7 @@ class LaporanController extends Controller
                             'nama_obat' => $result['harga']->obat->nama_obat ?? 'Unknown',
                             'target_periode' => explode('_', $key)[1],
                             'source_periode' => $result['sumber_periode'],
-                            'fallback_depth' => $result['fallback_depth']
+                            'fallback_depth' => $result['fallback_depth'],
                         ];
                     }
                 }
@@ -244,7 +251,7 @@ class LaporanController extends Controller
         $kunjunganKeyMap = [];
 
         foreach ($rekamMedisData as $rekamMedis) {
-            $key = $rekamMedis->id_keluarga . '_' . $rekamMedis->tanggal_periksa->format('Y-m-d');
+            $key = $rekamMedis->id_keluarga.'_'.$rekamMedis->tanggal_periksa->format('Y-m-d');
             // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
             $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
             $bulan = $rekamMedis->tanggal_periksa->format('m');
@@ -255,14 +262,14 @@ class LaporanController extends Controller
                 'id_keluarga' => $rekamMedis->id_keluarga,
                 'tanggal_kunjungan' => $rekamMedis->tanggal_periksa,
                 'kode_transaksi' => $kodeTransaksi,
-                'created_at' => now()
+                'created_at' => now(),
             ];
 
             $kunjunganKeyMap[$key] = $kodeTransaksi;
         }
 
         // Bulk upsert all kunjungan records at once
-        if (!empty($kunjunganUpsertData)) {
+        if (! empty($kunjunganUpsertData)) {
             Kunjungan::upsert($kunjunganUpsertData, ['id_keluarga', 'tanggal_kunjungan'], ['kode_transaksi']);
         }
 
@@ -270,47 +277,49 @@ class LaporanController extends Controller
         $kunjunganKeys = array_keys($kunjunganKeyMap);
         $kunjunganConditions = [];
         foreach ($kunjunganKeys as $key) {
-            list($idKeluarga, $tanggal) = explode('_', $key);
+            [$idKeluarga, $tanggal] = explode('_', $key);
             $kunjunganConditions[] = "(id_keluarga = {$idKeluarga} AND DATE(tanggal_kunjungan) = '{$tanggal}')";
         }
 
         $kunjunganIdMap = [];
-        if (!empty($kunjunganConditions)) {
-            $kunjunganRecords = Kunjungan::where(function($query) use ($kunjunganKeys) {
+        if (! empty($kunjunganConditions)) {
+            $kunjunganRecords = Kunjungan::where(function ($query) use ($kunjunganKeys) {
                 foreach ($kunjunganKeys as $key) {
-                    list($idKeluarga, $tanggal) = explode('_', $key);
-                    $query->orWhere(function($q) use ($idKeluarga, $tanggal) {
+                    [$idKeluarga, $tanggal] = explode('_', $key);
+                    $query->orWhere(function ($q) use ($idKeluarga, $tanggal) {
                         $q->where('id_keluarga', $idKeluarga)
-                          ->whereDate('tanggal_kunjungan', $tanggal);
+                            ->whereDate('tanggal_kunjungan', $tanggal);
                     });
                 }
             })->get();
 
             foreach ($kunjunganRecords as $record) {
-                $key = $record->id_keluarga . '_' . $record->tanggal;
+                $key = $record->id_keluarga.'_'.$record->tanggal;
                 $kunjunganIdMap[$key] = $record->id_kunjungan;
             }
         }
 
-        $result = $rekamMedisData->getCollection()->map(function($rekamMedis) use ($kunjunganIdMap, $kunjunganKeyMap, $hargaObatMap) {
+        $result = $rekamMedisData->getCollection()->map(function ($rekamMedis) use ($kunjunganIdMap, $kunjunganKeyMap, $hargaObatMap) {
             // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
             $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
             $bulan = $rekamMedis->tanggal_periksa->format('m');
             $tahun = $rekamMedis->tanggal_periksa->format('Y');
 
             // Get kode_transaksi from map
-            $kunjunganKey = $rekamMedis->id_keluarga . '_' . $rekamMedis->tanggal_periksa->format('Y-m-d');
+            $kunjunganKey = $rekamMedis->id_keluarga.'_'.$rekamMedis->tanggal_periksa->format('Y-m-d');
             $kodeTransaksi = $kunjunganKeyMap[$kunjunganKey] ?? "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
 
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedis->keluhans;
             $periode = $rekamMedis->tanggal_periksa->format('m-y');
 
-            $totalBiaya = $keluhans->sum(function($keluhan) use ($periode, $hargaObatMap) {
-                if (!$keluhan->id_obat) return 0;
+            $totalBiaya = $keluhans->sum(function ($keluhan) use ($periode, $hargaObatMap) {
+                if (! $keluhan->id_obat) {
+                    return 0;
+                }
 
                 // Get harga obat from our pre-fetched map
-                $key = $keluhan->id_obat . '_' . $periode;
+                $key = $keluhan->id_obat.'_'.$periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
 
                 return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
@@ -325,7 +334,7 @@ class LaporanController extends Controller
             return [
                 'id_kunjungan' => $kunjunganId,
                 'kode_transaksi' => $kodeTransaksi,
-                'no_rm' => ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->kode_hubungan ?? ''),
+                'no_rm' => ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '').'-'.($rekamMedis->keluarga->kode_hubungan ?? ''),
                 'nama_pasien' => $rekamMedis->keluarga->nama_keluarga,
                 'hubungan' => $rekamMedis->keluarga->hubungan->hubungan ?? '-',
                 'nik_karyawan' => $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-',
@@ -334,7 +343,7 @@ class LaporanController extends Controller
                 'diagnosa' => $diagnosaList ?: '-',
                 'obat' => $obatList ?: '-',
                 'total_biaya' => $totalBiaya,
-                'id_rekam' => $rekamMedis->id_rekam
+                'id_rekam' => $rekamMedis->id_rekam,
             ];
         })->filter();
 
@@ -343,7 +352,7 @@ class LaporanController extends Controller
 
         return [
             'data' => $rekamMedisData,
-            'fallbackNotifications' => $fallbackNotifications
+            'fallbackNotifications' => $fallbackNotifications,
         ];
     }
 
@@ -352,7 +361,7 @@ class LaporanController extends Controller
      */
     private function getTransaksiStats($bulan, $tahun)
     {
-        $totalPemeriksaan = RekamMedis::whereMonth('tanggal_periksa', $bulan)
+        $totalPemeriksaanReguler = RekamMedis::whereMonth('tanggal_periksa', $bulan)
             ->whereYear('tanggal_periksa', $tahun)
             ->count();
 
@@ -364,9 +373,9 @@ class LaporanController extends Controller
 
         // Get all keluhan with rekamMedis for the specified month and year
         $keluhanData = Keluhan::with(['rekamMedis:id_rekam,tanggal_periksa'])
-            ->whereHas('rekamMedis', function($query) use ($bulan, $tahun) {
+            ->whereHas('rekamMedis', function ($query) use ($bulan, $tahun) {
                 $query->whereMonth('tanggal_periksa', $bulan)
-                      ->whereYear('tanggal_periksa', $tahun);
+                    ->whereYear('tanggal_periksa', $tahun);
             })
             ->whereNotNull('id_obat')
             ->get();
@@ -377,13 +386,13 @@ class LaporanController extends Controller
             $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
             $obatPeriods[] = [
                 'id_obat' => $keluhan->id_obat,
-                'periode' => $periode
+                'periode' => $periode,
             ];
         }
 
         // Get unique combinations to avoid duplicates
         $uniqueObatPeriods = collect($obatPeriods)->unique(function ($item) {
-            return $item['id_obat'] . '_' . $item['periode'];
+            return $item['id_obat'].'_'.$item['periode'];
         })->values()->toArray();
 
         // Use the bulk fallback method for optimized performance
@@ -401,7 +410,7 @@ class LaporanController extends Controller
         $totalBiaya = 0;
         foreach ($keluhanData as $keluhan) {
             $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
-            $key = $keluhan->id_obat . '_' . $periode;
+            $key = $keluhan->id_obat.'_'.$periode;
 
             // Get harga obat from our pre-fetched map
             $hargaObat = $hargaObatMap[$key] ?? null;
@@ -415,7 +424,7 @@ class LaporanController extends Controller
             'total_pemeriksaan' => $totalPemeriksaan,
             'total_biaya' => $totalBiaya ?? 0,
             'bulan_nama' => $this->getBulanNama($bulan),
-            'tahun' => $tahun
+            'tahun' => $tahun,
         ];
     }
 
@@ -425,20 +434,20 @@ class LaporanController extends Controller
     public function detailTransaksi($id)
     {
         $rekamMedis = RekamMedis::with([
-                'keluarga' => function($query) {
-                    $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan', 'tanggal_lahir')
-                          ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen'])
-                          ->with(['karyawan.departemen:id_departemen,nama_departemen'])
-                          ->with(['hubungan:kode_hubungan,hubungan']);
-                },
-                'keluhans' => function($query) {
-                    $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
-                          ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
-                          ->with(['obat:id_obat,nama_obat,id_satuan'])
-                          ->with(['obat.satuanObat:id_satuan,nama_satuan']);
-                },
-                'user:id_user,username,nama_lengkap'
-            ])
+            'keluarga' => function ($query) {
+                $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan', 'tanggal_lahir')
+                    ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen'])
+                    ->with(['karyawan.departemen:id_departemen,nama_departemen'])
+                    ->with(['hubungan:kode_hubungan,hubungan']);
+            },
+            'keluhans' => function ($query) {
+                $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
+                    ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
+                    ->with(['obat:id_obat,nama_obat,id_satuan'])
+                    ->with(['obat.satuanObat:id_satuan,nama_satuan']);
+            },
+            'user:id_user,username,nama_lengkap',
+        ])
             ->findOrFail($id);
 
         // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
@@ -451,15 +460,15 @@ class LaporanController extends Controller
         $kunjungan = Kunjungan::firstOrCreate(
             [
                 'id_keluarga' => $rekamMedis->id_keluarga,
-                'tanggal_kunjungan' => $rekamMedis->tanggal_periksa
+                'tanggal_kunjungan' => $rekamMedis->tanggal_periksa,
             ],
             [
-                'kode_transaksi' => $kodeTransaksi
+                'kode_transaksi' => $kodeTransaksi,
             ]
         );
 
         // Add custom attributes to kunjungan object to match format in kunjungan page
-        $kunjungan->no_rm = ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->kode_hubungan ?? '');
+        $kunjungan->no_rm = ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '').'-'.($rekamMedis->keluarga->kode_hubungan ?? '');
         $kunjungan->nama_pasien = $rekamMedis->keluarga->nama_keluarga ?? '-';
         $kunjungan->hubungan = $rekamMedis->keluarga->hubungan->hubungan ?? '-';
 
@@ -471,13 +480,13 @@ class LaporanController extends Controller
         $hargaObatMap = [];
         $fallbackNotifications = [];
 
-        if (!empty($obatIds)) {
+        if (! empty($obatIds)) {
             // Prepare obat periods for bulk processing
             $obatPeriods = [];
             foreach ($obatIds as $idObat) {
                 $obatPeriods[] = [
                     'id_obat' => $idObat,
-                    'periode' => $periode
+                    'periode' => $periode,
                 ];
             }
 
@@ -497,7 +506,7 @@ class LaporanController extends Controller
                             'nama_obat' => $result['harga']->obat->nama_obat ?? 'Unknown',
                             'target_periode' => $periode,
                             'source_periode' => $result['sumber_periode'],
-                            'fallback_depth' => $result['fallback_depth']
+                            'fallback_depth' => $result['fallback_depth'],
                         ];
                     }
                 }
@@ -505,28 +514,32 @@ class LaporanController extends Controller
         }
 
         // Calculate total biaya using pre-fetched harga data
-        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) use ($hargaObatMap) {
-            if (!$keluhan->id_obat) return 0;
+        $totalBiaya = $rekamMedis->keluhans->sum(function ($keluhan) use ($hargaObatMap) {
+            if (! $keluhan->id_obat) {
+                return 0;
+            }
 
             $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
+
             return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
         });
 
         // Group keluhan by diagnosa, only include those with obat
         $keluhanByDiagnosa = $rekamMedis->keluhans
-            ->filter(function($keluhan) {
+            ->filter(function ($keluhan) {
                 return $keluhan->id_obat !== null && $keluhan->obat !== null;
             })
-            ->groupBy(function($keluhan) {
+            ->groupBy(function ($keluhan) {
                 return $keluhan->diagnosa->nama_diagnosa ?? 'Unknown';
             })
-            ->map(function($keluhans) use ($hargaObatMap) {
+            ->map(function ($keluhans) use ($hargaObatMap) {
                 // Attach harga information to each keluhan using pre-fetched data
-                return $keluhans->map(function($keluhan) use ($hargaObatMap) {
+                return $keluhans->map(function ($keluhan) use ($hargaObatMap) {
                     $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
 
                     // Add harga_satuan attribute to keluhan object
                     $keluhan->harga_satuan = $hargaObat->harga_per_satuan ?? 0;
+
                     return $keluhan;
                 });
             });
@@ -546,17 +559,17 @@ class LaporanController extends Controller
     public function detailTransaksiEmergency($id)
     {
         $rekamMedisEmergency = RekamMedisEmergency::with([
-                'externalEmployee' => function($query) {
-                    $query->select('id', 'nik_employee', 'nama_employee', 'alamat');
-                },
-                'keluhans' => function($query) {
-                    $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai')
-                          ->with(['diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency'])
-                          ->with(['obat:id_obat,nama_obat,id_satuan'])
-                          ->with(['obat.satuanObat:id_satuan,nama_satuan']);
-                },
-                'user:id_user,username,nama_lengkap'
-            ])
+            'externalEmployee' => function ($query) {
+                $query->select('id', 'nik_employee', 'nama_employee', 'alamat');
+            },
+            'keluhans' => function ($query) {
+                $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai')
+                    ->with(['diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency'])
+                    ->with(['obat:id_obat,nama_obat,id_satuan'])
+                    ->with(['obat.satuanObat:id_satuan,nama_satuan']);
+            },
+            'user:id_user,username,nama_lengkap',
+        ])
             ->findOrFail($id);
 
         // Generate kode_transaksi format: 2(No Running)/NDL/BJM/MM/YYYY
@@ -578,13 +591,13 @@ class LaporanController extends Controller
         $hargaObatMap = [];
         $fallbackNotifications = [];
 
-        if (!empty($obatIds)) {
+        if (! empty($obatIds)) {
             // Prepare obat periods for bulk processing
             $obatPeriods = [];
             foreach ($obatIds as $idObat) {
                 $obatPeriods[] = [
                     'id_obat' => $idObat,
-                    'periode' => $periode
+                    'periode' => $periode,
                 ];
             }
 
@@ -604,7 +617,7 @@ class LaporanController extends Controller
                             'nama_obat' => $result['harga']->obat->nama_obat ?? 'Unknown',
                             'target_periode' => $periode,
                             'source_periode' => $result['sumber_periode'],
-                            'fallback_depth' => $result['fallback_depth']
+                            'fallback_depth' => $result['fallback_depth'],
                         ];
                     }
                 }
@@ -612,28 +625,32 @@ class LaporanController extends Controller
         }
 
         // Calculate total biaya using pre-fetched harga data
-        $totalBiaya = $rekamMedisEmergency->keluhans->sum(function($keluhan) use ($hargaObatMap) {
-            if (!$keluhan->id_obat) return 0;
+        $totalBiaya = $rekamMedisEmergency->keluhans->sum(function ($keluhan) use ($hargaObatMap) {
+            if (! $keluhan->id_obat) {
+                return 0;
+            }
 
             $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
+
             return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
         });
 
         // Group keluhan by diagnosa, only include those with obat
         $keluhanByDiagnosa = $rekamMedisEmergency->keluhans
-            ->filter(function($keluhan) {
+            ->filter(function ($keluhan) {
                 return $keluhan->id_obat !== null && $keluhan->obat !== null;
             })
-            ->groupBy(function($keluhan) {
+            ->groupBy(function ($keluhan) {
                 return $keluhan->diagnosaEmergency->nama_diagnosa_emergency ?? 'Unknown';
             })
-            ->map(function($keluhans) use ($hargaObatMap) {
+            ->map(function ($keluhans) use ($hargaObatMap) {
                 // Attach harga information to each keluhan using pre-fetched data
-                return $keluhans->map(function($keluhan) use ($hargaObatMap) {
+                return $keluhans->map(function ($keluhan) use ($hargaObatMap) {
                     $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
 
                     // Add harga_satuan attribute to keluhan object
                     $keluhan->harga_satuan = $hargaObat->harga_per_satuan ?? 0;
+
                     return $keluhan;
                 });
             });
@@ -653,17 +670,17 @@ class LaporanController extends Controller
     public function cetakDetailTransaksiEmergency($id)
     {
         $rekamMedisEmergency = RekamMedisEmergency::with([
-                'externalEmployee' => function($query) {
-                    $query->select('id', 'nik_employee', 'nama_employee', 'alamat');
-                },
-                'keluhans' => function($query) {
-                    $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai')
-                          ->with(['diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency'])
-                          ->with(['obat:id_obat,nama_obat,id_satuan'])
-                          ->with(['obat.satuanObat:id_satuan,nama_satuan']);
-                },
-                'user:id_user,username,nama_lengkap'
-            ])
+            'externalEmployee' => function ($query) {
+                $query->select('id', 'nik_employee', 'nama_employee', 'alamat');
+            },
+            'keluhans' => function ($query) {
+                $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai')
+                    ->with(['diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency'])
+                    ->with(['obat:id_obat,nama_obat,id_satuan'])
+                    ->with(['obat.satuanObat:id_satuan,nama_satuan']);
+            },
+            'user:id_user,username,nama_lengkap',
+        ])
             ->findOrFail($id);
 
         // Generate kode_transaksi format: 2(No Running)/NDL/BJM/MM/YYYY
@@ -685,13 +702,13 @@ class LaporanController extends Controller
         $hargaObatMap = [];
         $fallbackNotifications = [];
 
-        if (!empty($obatIds)) {
+        if (! empty($obatIds)) {
             // Prepare obat periods for bulk processing
             $obatPeriods = [];
             foreach ($obatIds as $idObat) {
                 $obatPeriods[] = [
                     'id_obat' => $idObat,
-                    'periode' => $periode
+                    'periode' => $periode,
                 ];
             }
 
@@ -711,7 +728,7 @@ class LaporanController extends Controller
                             'nama_obat' => $result['harga']->obat->nama_obat ?? 'Unknown',
                             'target_periode' => $periode,
                             'source_periode' => $result['sumber_periode'],
-                            'fallback_depth' => $result['fallback_depth']
+                            'fallback_depth' => $result['fallback_depth'],
                         ];
                     }
                 }
@@ -719,28 +736,32 @@ class LaporanController extends Controller
         }
 
         // Calculate total biaya using pre-fetched harga data
-        $totalBiaya = $rekamMedisEmergency->keluhans->sum(function($keluhan) use ($hargaObatMap) {
-            if (!$keluhan->id_obat) return 0;
+        $totalBiaya = $rekamMedisEmergency->keluhans->sum(function ($keluhan) use ($hargaObatMap) {
+            if (! $keluhan->id_obat) {
+                return 0;
+            }
 
             $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
+
             return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
         });
 
         // Group keluhan by diagnosa, only include those with obat
         $keluhanByDiagnosa = $rekamMedisEmergency->keluhans
-            ->filter(function($keluhan) {
+            ->filter(function ($keluhan) {
                 return $keluhan->id_obat !== null && $keluhan->obat !== null;
             })
-            ->groupBy(function($keluhan) {
+            ->groupBy(function ($keluhan) {
                 return $keluhan->diagnosaEmergency->nama_diagnosa_emergency ?? 'Unknown';
             })
-            ->map(function($keluhans) use ($hargaObatMap) {
+            ->map(function ($keluhans) use ($hargaObatMap) {
                 // Attach harga information to each keluhan using pre-fetched data
-                return $keluhans->map(function($keluhan) use ($hargaObatMap) {
+                return $keluhans->map(function ($keluhan) use ($hargaObatMap) {
                     $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
 
                     // Add harga_satuan attribute to keluhan object
                     $keluhan->harga_satuan = $hargaObat->harga_per_satuan ?? 0;
+
                     return $keluhan;
                 });
             });
@@ -759,7 +780,8 @@ class LaporanController extends Controller
 
         // Download PDF - replace "/" with "-" to avoid filename error
         $safeFilename = str_replace('/', '-', $kodeTransaksi);
-        return $pdf->download('Detail_Transaksi_Emergency_' . $safeFilename . '.pdf');
+
+        return $pdf->download('Detail_Transaksi_Emergency_'.$safeFilename.'.pdf');
     }
 
     /**
@@ -768,20 +790,20 @@ class LaporanController extends Controller
     public function cetakDetailTransaksi($id)
     {
         $rekamMedis = RekamMedis::with([
-                'keluarga' => function($query) {
-                    $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan', 'tanggal_lahir', 'alamat')
-                          ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen'])
-                          ->with(['karyawan.departemen:id_departemen,nama_departemen'])
-                          ->with(['hubungan:kode_hubungan,hubungan']);
-                },
-                'keluhans' => function($query) {
-                    $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
-                          ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
-                          ->with(['obat:id_obat,nama_obat,id_satuan'])
-                          ->with(['obat.satuanObat:id_satuan,nama_satuan']);
-                },
-                'user:id_user,username,nama_lengkap'
-            ])
+            'keluarga' => function ($query) {
+                $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan', 'tanggal_lahir', 'alamat')
+                    ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen'])
+                    ->with(['karyawan.departemen:id_departemen,nama_departemen'])
+                    ->with(['hubungan:kode_hubungan,hubungan']);
+            },
+            'keluhans' => function ($query) {
+                $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
+                    ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
+                    ->with(['obat:id_obat,nama_obat,id_satuan'])
+                    ->with(['obat.satuanObat:id_satuan,nama_satuan']);
+            },
+            'user:id_user,username,nama_lengkap',
+        ])
             ->findOrFail($id);
 
         // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
@@ -794,15 +816,15 @@ class LaporanController extends Controller
         $kunjungan = Kunjungan::firstOrCreate(
             [
                 'id_keluarga' => $rekamMedis->id_keluarga,
-                'tanggal_kunjungan' => $rekamMedis->tanggal_periksa
+                'tanggal_kunjungan' => $rekamMedis->tanggal_periksa,
             ],
             [
-                'kode_transaksi' => $kodeTransaksi
+                'kode_transaksi' => $kodeTransaksi,
             ]
         );
 
         // Add custom attributes to kunjungan object to match format in kunjungan page
-        $kunjungan->no_rm = ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->kode_hubungan ?? '');
+        $kunjungan->no_rm = ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '').'-'.($rekamMedis->keluarga->kode_hubungan ?? '');
         $kunjungan->nama_pasien = $rekamMedis->keluarga->nama_keluarga ?? '-';
         $kunjungan->hubungan = $rekamMedis->keluarga->hubungan->hubungan ?? '-';
 
@@ -814,13 +836,13 @@ class LaporanController extends Controller
         $hargaObatMap = [];
         $fallbackNotifications = [];
 
-        if (!empty($obatIds)) {
+        if (! empty($obatIds)) {
             // Prepare obat periods for bulk processing
             $obatPeriods = [];
             foreach ($obatIds as $idObat) {
                 $obatPeriods[] = [
                     'id_obat' => $idObat,
-                    'periode' => $periode
+                    'periode' => $periode,
                 ];
             }
 
@@ -840,7 +862,7 @@ class LaporanController extends Controller
                             'nama_obat' => $result['harga']->obat->nama_obat ?? 'Unknown',
                             'target_periode' => $periode,
                             'source_periode' => $result['sumber_periode'],
-                            'fallback_depth' => $result['fallback_depth']
+                            'fallback_depth' => $result['fallback_depth'],
                         ];
                     }
                 }
@@ -848,28 +870,32 @@ class LaporanController extends Controller
         }
 
         // Calculate total biaya using pre-fetched harga data
-        $totalBiaya = $rekamMedis->keluhans->sum(function($keluhan) use ($hargaObatMap) {
-            if (!$keluhan->id_obat) return 0;
+        $totalBiaya = $rekamMedis->keluhans->sum(function ($keluhan) use ($hargaObatMap) {
+            if (! $keluhan->id_obat) {
+                return 0;
+            }
 
             $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
+
             return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
         });
 
         // Group keluhan by diagnosa, only include those with obat
         $keluhanByDiagnosa = $rekamMedis->keluhans
-            ->filter(function($keluhan) {
+            ->filter(function ($keluhan) {
                 return $keluhan->id_obat !== null && $keluhan->obat !== null;
             })
-            ->groupBy(function($keluhan) {
+            ->groupBy(function ($keluhan) {
                 return $keluhan->diagnosa->nama_diagnosa ?? 'Unknown';
             })
-            ->map(function($keluhans) use ($hargaObatMap) {
+            ->map(function ($keluhans) use ($hargaObatMap) {
                 // Attach harga information to each keluhan using pre-fetched data
-                return $keluhans->map(function($keluhan) use ($hargaObatMap) {
+                return $keluhans->map(function ($keluhan) use ($hargaObatMap) {
                     $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
 
                     // Add harga_satuan attribute to keluhan object
                     $keluhan->harga_satuan = $hargaObat->harga_per_satuan ?? 0;
+
                     return $keluhan;
                 });
             });
@@ -888,7 +914,8 @@ class LaporanController extends Controller
 
         // Download PDF - replace "/" with "-" to avoid filename error
         $safeFilename = str_replace('/', '-', $kodeTransaksi);
-        return $pdf->download('Detail_Transaksi_' . $safeFilename . '.pdf');
+
+        return $pdf->download('Detail_Transaksi_'.$safeFilename.'.pdf');
     }
 
     /**
@@ -918,7 +945,7 @@ class LaporanController extends Controller
             '9' => 'September',
             '10' => 'Oktober',
             '11' => 'November',
-            '12' => 'Desember'
+            '12' => 'Desember',
         ];
 
         return $bulanNama[$bulan] ?? 'Unknown';
