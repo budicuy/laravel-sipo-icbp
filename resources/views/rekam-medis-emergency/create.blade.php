@@ -858,6 +858,7 @@ function clearValidationErrors() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
+<<<<<<< HEAD
     // Preserve token session when validation errors occur
     @if($errors->any())
         // If there are validation errors, ensure token is still in session
@@ -869,6 +870,8 @@ document.addEventListener('DOMContentLoaded', function() {
             showNotification('Token emergency Anda masih aktif. Silakan perbaiki kesalahan dan coba lagi.', 'info');
         }, 1000);
     @endif
+=======
+>>>>>>> f4794cd429d33da2afdec023af14015e3c34f646
     // Add real-time validation for critical fields
     document.getElementById('search_karyawan').addEventListener('blur', function() {
         const idExternalEmployee = document.getElementById('id_external_employee').value;

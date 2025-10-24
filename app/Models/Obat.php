@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Log;
 class Obat extends Model
 {
     protected $table = 'obat';
+
     protected $primaryKey = 'id_obat';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -18,6 +20,9 @@ class Obat extends Model
         'stok_awal',
         'tanggal_update',
     ];
+
+    // Properties yang akan di-append tanpa memanggil accessor
+    // protected $appends = ['sisa_stok']; // Dinonaktifkan karena sudah dihitung di controller
 
     protected $casts = [
         'tanggal_update' => 'datetime',
@@ -85,7 +90,7 @@ class Obat extends Model
 
         static::saving(function ($obat) {
             // Update tanggal_update only if not already set
-            if (!$obat->tanggal_update) {
+            if (! $obat->tanggal_update) {
                 $obat->tanggal_update = now();
             }
         });
@@ -95,7 +100,7 @@ class Obat extends Model
             Log::info('Obat created successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
-                'id_satuan' => $obat->id_satuan
+                'id_satuan' => $obat->id_satuan,
             ]);
         });
 
@@ -103,17 +108,27 @@ class Obat extends Model
             Log::info('Obat updated successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
-                'id_satuan' => $obat->id_satuan
+                'id_satuan' => $obat->id_satuan,
             ]);
         });
     }
 
     /**
      * Menghitung sisa stok saat ini
+     *
+     * Catatan: Accessor ini telah dihapus untuk menghindari N+1 query.
+     * Gunakan StokBulanan::getSisaStokSaatIniForMultiple() untuk multiple obat.
      */
     public function getSisaStokAttribute()
     {
-        return StokBulanan::getSisaStokSaatIni($this->id_obat);
+        // Jika sisa_stok sudah diset di controller, gunakan nilai tersebut
+        if (isset($this->attributes['sisa_stok'])) {
+            return $this->attributes['sisa_stok'];
+        }
+
+        // Jangan panggil method yang menyebabkan N+1 query
+        // Kembalikan nilai default 0
+        return 0;
     }
 
     /**
