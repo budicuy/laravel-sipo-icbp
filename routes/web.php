@@ -173,10 +173,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/external-employee', [ExternalEmployeeController::class, 'index'])->name('external-employee.index');
     Route::get('/external-employee/create', [ExternalEmployeeController::class, 'create'])->name('external-employee.create');
     Route::post('/external-employee', [ExternalEmployeeController::class, 'store'])->name('external-employee.store');
-    Route::get('/external-employee/{id}', [ExternalEmployeeController::class, 'show'])->name('external-employee.show');
-    Route::get('/external-employee/{id}/edit', [ExternalEmployeeController::class, 'edit'])->name('external-employee.edit');
-    Route::put('/external-employee/{id}', [ExternalEmployeeController::class, 'update'])->name('external-employee.update');
-    Route::delete('/external-employee/{id}', [ExternalEmployeeController::class, 'destroy'])->name('external-employee.destroy');
+    Route::get('/external-employee/{id_external_employee}', [ExternalEmployeeController::class, 'show'])->name('external-employee.show');
+    Route::get('/external-employee/{id_external_employee}/edit', [ExternalEmployeeController::class, 'edit'])->name('external-employee.edit');
+    Route::put('/external-employee/{id_external_employee}', [ExternalEmployeeController::class, 'update'])->name('external-employee.update');
+    Route::delete('/external-employee/{id_external_employee}', [ExternalEmployeeController::class, 'destroy'])->name('external-employee.destroy');
     Route::post('/external-employee/import', [ExternalEmployeeController::class, 'import'])->name('external-employee.import');
     Route::get('/external-employee/export', [ExternalEmployeeController::class, 'export'])->name('external-employee.export');
     Route::post('/external-employee/bulk-delete', [ExternalEmployeeController::class, 'bulkDelete'])->name('external-employee.bulkDelete');
