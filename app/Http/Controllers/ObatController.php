@@ -7,35 +7,36 @@ use App\Models\SatuanObat;
 use App\Models\StokObat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+
 
 class ObatController extends Controller
 {
     public function index(Request $request)
     {
         $query = Obat::with([
-            'satuanObat:id_satuan,nama_satuan',
+            'satuanObat:id_satuan,nama_satuan'
         ]);
 
         // Search functionality
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('nama_obat', 'like', '%'.$search.'%')
-                    ->orWhere('keterangan', 'like', '%'.$search.'%')
-                    ->orWhere('bin', 'like', '%'.$search.'%')
+                $q->where('nama_obat', 'like', '%' . $search . '%')
+                    ->orWhere('keterangan', 'like', '%' . $search . '%')
                     ->orWhereHas('satuanObat', function ($q) use ($search) {
-                        $q->where('nama_satuan', 'like', '%'.$search.'%');
+                        $q->where('nama_satuan', 'like', '%' . $search . '%');
                     });
             });
         }
+
 
         // Filter by satuan obat
         if ($request->has('satuan_obat') && $request->satuan_obat != '') {
@@ -46,12 +47,12 @@ class ObatController extends Controller
         $sortField = $request->get('sort', 'id_obat');
         $sortDirection = $request->get('direction', 'desc');
 
-        if (in_array($sortField, ['nama_obat', 'satuan_obat', 'bin', 'keterangan', 'tanggal_update'])) {
+        if (in_array($sortField, ['nama_obat', 'satuan_obat', 'keterangan', 'tanggal_update'])) {
             // Handle sorting for related fields
             if ($sortField === 'satuan_obat') {
                 $query->join('satuan_obat', 'obat.id_satuan', '=', 'satuan_obat.id_satuan')
-                    ->orderBy('satuan_obat.nama_satuan', $sortDirection)
-                    ->select('obat.*');
+                      ->orderBy('satuan_obat.nama_satuan', $sortDirection)
+                      ->select('obat.*');
             } else {
                 $query->orderBy($sortField, $sortDirection);
             }
@@ -77,7 +78,6 @@ class ObatController extends Controller
         $satuanObats = Cache::remember('satuan_obats_all', 60, function () {
             return SatuanObat::get();
         });
-
         return view('obat.create', compact('satuanObats'));
     }
 
@@ -88,14 +88,12 @@ class ObatController extends Controller
             'keterangan' => 'nullable|string',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
             'stok_awal' => 'required|integer|min:0',
-            'bin' => 'nullable|string|max:50',
         ], [
             'nama_obat.required' => 'Nama obat wajib diisi',
             'nama_obat.unique' => 'Nama obat sudah terdaftar',
             'id_satuan.required' => 'Satuan obat wajib dipilih',
             'stok_awal.required' => 'Stok awal wajib diisi',
             'stok_awal.min' => 'Stok awal tidak boleh negatif',
-            'bin.max' => 'Lokasi/bin maksimal 50 karakter',
         ]);
 
         // Start transaction
@@ -129,9 +127,8 @@ class ObatController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error creating obat: '.$e->getMessage());
-
-            return back()->with('error', 'Gagal menambahkan data obat: '.$e->getMessage())->withInput();
+            Log::error('Error creating obat: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menambahkan data obat: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -141,7 +138,6 @@ class ObatController extends Controller
         $satuanObats = Cache::remember('satuan_obats_all', 60, function () {
             return SatuanObat::get();
         });
-
         return view('obat.edit', compact('obat', 'satuanObats'));
     }
 
@@ -150,15 +146,13 @@ class ObatController extends Controller
         $obat = Obat::findOrFail($id);
 
         $validated = $request->validate([
-            'nama_obat' => 'required|string|max:100|unique:obat,nama_obat,'.$id.',id_obat',
+            'nama_obat' => 'required|string|max:100|unique:obat,nama_obat,' . $id . ',id_obat',
             'keterangan' => 'nullable|string',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
-            'bin' => 'nullable|string|max:50',
         ], [
             'nama_obat.required' => 'Nama obat wajib diisi',
             'nama_obat.unique' => 'Nama obat sudah terdaftar',
             'id_satuan.required' => 'Satuan obat wajib dipilih',
-            'bin.max' => 'Lokasi/bin maksimal 50 karakter',
         ]);
 
         // Jangan update stok_awal saat edit
@@ -196,12 +190,12 @@ class ObatController extends Controller
         // Clear cache
         Cache::forget('satuan_obats_all');
 
-        return response()->json(['success' => true, 'message' => count($ids).' data obat berhasil dihapus']);
+        return response()->json(['success' => true, 'message' => count($ids) . ' data obat berhasil dihapus']);
     }
 
     public function downloadTemplate()
     {
-        $spreadsheet = new Spreadsheet;
+        $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Import Obat');
 
@@ -213,11 +207,11 @@ class ObatController extends Controller
             ->setDescription('Template untuk import data obat');
 
         // Header columns
-        $headers = ['Nama Obat', 'Satuan', 'Stok Awal', 'Bin/Lokasi', 'Keterangan'];
+        $headers = ['Nama Obat', 'Satuan', 'Keterangan'];
         $column = 'A';
 
         foreach ($headers as $header) {
-            $sheet->setCellValue($column.'1', $header);
+            $sheet->setCellValue($column . '1', $header);
             $column++;
         }
 
@@ -244,7 +238,7 @@ class ObatController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A1:E1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:F1')->applyFromArray($headerStyle);
 
         // Get reference data for dropdowns
         $satuanObats = SatuanObat::pluck('nama_satuan')->toArray();
@@ -252,9 +246,7 @@ class ObatController extends Controller
         // Add sample data
         $sheet->setCellValue('A2', 'Paracetamol');
         $sheet->setCellValue('B2', 'Tablet');
-        $sheet->setCellValue('C2', '100');
-        $sheet->setCellValue('D2', 'Rak A-1');
-        $sheet->setCellValue('E2', 'Obat untuk menurunkan demam dan meredakan nyeri');
+        $sheet->setCellValue('C2', 'Obat untuk menurunkan demam dan meredakan nyeri');
 
         // Style sample data
         $dataStyle = [
@@ -269,14 +261,12 @@ class ObatController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A2:E2')->applyFromArray($dataStyle);
+        $sheet->getStyle('A2:F2')->applyFromArray($dataStyle);
 
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(30);
         $sheet->getColumnDimension('B')->setWidth(15);
-        $sheet->getColumnDimension('C')->setWidth(12);
-        $sheet->getColumnDimension('D')->setWidth(20);
-        $sheet->getColumnDimension('E')->setWidth(50);
+        $sheet->getColumnDimension('C')->setWidth(50);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -285,20 +275,18 @@ class ObatController extends Controller
         // Add notes
         $sheet->setCellValue('A4', 'CATATAN:');
         $sheet->setCellValue('A5', '• Nama Obat wajib diisi dan harus unik');
-        $sheet->setCellValue('A6', '• Satuan: '.implode(', ', $satuanObats));
-        $sheet->setCellValue('A7', '• Stok Awal: Angka (opsional)');
-        $sheet->setCellValue('A8', '• Bin/Lokasi: Lokasi penyimpanan obat (opsional)');
+        $sheet->setCellValue('A6', '• Satuan: ' . implode(', ', $satuanObats));
 
         $sheet->getStyle('A4')->getFont()->setBold(true);
         $sheet->getStyle('A5:A8')->getFont()->setItalic(true)->setSize(10);
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'template_obat_'.date('Y-m-d').'.xlsx';
+        $filename = 'template_obat_' . date('Y-m-d') . '.xlsx';
 
         // Set headers for download
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="'.$filename.'"');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
 
         $writer->save('php://output');
@@ -312,21 +300,21 @@ class ObatController extends Controller
     {
         // Build query with same filters as index
         $query = Obat::with([
-            'satuanObat:id_satuan,nama_satuan',
+            'satuanObat:id_satuan,nama_satuan'
         ]);
 
         // Apply search filter
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('nama_obat', 'like', '%'.$search.'%')
-                    ->orWhere('keterangan', 'like', '%'.$search.'%')
-                    ->orWhere('bin', 'like', '%'.$search.'%')
+                $q->where('nama_obat', 'like', '%' . $search . '%')
+                    ->orWhere('keterangan', 'like', '%' . $search . '%')
                     ->orWhereHas('satuanObat', function ($q) use ($search) {
-                        $q->where('nama_satuan', 'like', '%'.$search.'%');
+                        $q->where('nama_satuan', 'like', '%' . $search . '%');
                     });
             });
         }
+
 
         // Apply satuan obat filter
         if ($request->has('satuan_obat') && $request->satuan_obat != '') {
@@ -337,11 +325,11 @@ class ObatController extends Controller
         $sortField = $request->get('sort', 'nama_obat');
         $sortDirection = $request->get('direction', 'asc');
 
-        if (in_array($sortField, ['nama_obat', 'satuan_obat', 'bin', 'keterangan', 'tanggal_update'])) {
+        if (in_array($sortField, ['nama_obat', 'satuan_obat', 'keterangan', 'tanggal_update'])) {
             if ($sortField === 'satuan_obat') {
                 $query->join('satuan_obat', 'obat.id_satuan', '=', 'satuan_obat.id_satuan')
-                    ->orderBy('satuan_obat.nama_satuan', $sortDirection)
-                    ->select('obat.*');
+                      ->orderBy('satuan_obat.nama_satuan', $sortDirection)
+                      ->select('obat.*');
             } else {
                 $query->orderBy($sortField, $sortDirection);
             }
@@ -353,7 +341,7 @@ class ObatController extends Controller
         $obats = $query->get();
 
         // Create spreadsheet
-        $spreadsheet = new Spreadsheet;
+        $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Data Obat');
 
@@ -366,12 +354,12 @@ class ObatController extends Controller
 
         // Header columns
         $headers = [
-            'No', 'Nama Obat', 'Satuan', 'Stok Awal', 'Bin/Lokasi', 'Keterangan', 'Tanggal Update',
+            'No', 'Nama Obat', 'Satuan', 'Keterangan', 'Tanggal Update'
         ];
 
         $column = 'A';
         foreach ($headers as $header) {
-            $sheet->setCellValue($column.'1', $header);
+            $sheet->setCellValue($column . '1', $header);
             $column++;
         }
 
@@ -399,20 +387,18 @@ class ObatController extends Controller
         ];
 
         $lastColumn = chr(ord('A') + count($headers) - 1);
-        $sheet->getStyle('A1:'.$lastColumn.'1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray($headerStyle);
 
         // Fill data
         $row = 2;
         $no = 1;
 
         foreach ($obats as $obat) {
-            $sheet->setCellValue('A'.$row, $no);
-            $sheet->setCellValue('B'.$row, $obat->nama_obat);
-            $sheet->setCellValue('C'.$row, $obat->satuanObat->nama_satuan ?? '-');
-            $sheet->setCellValue('D'.$row, $obat->stok_awal ?? 0);
-            $sheet->setCellValue('E'.$row, $obat->bin ?? '-');
-            $sheet->setCellValue('F'.$row, $obat->keterangan ?? '-');
-            $sheet->setCellValue('G'.$row, $obat->tanggal_update ? $obat->tanggal_update->format('d-m-Y') : '-');
+            $sheet->setCellValue('A' . $row, $no);
+            $sheet->setCellValue('B' . $row, $obat->nama_obat);
+            $sheet->setCellValue('C' . $row, $obat->satuanObat->nama_satuan ?? '-');
+            $sheet->setCellValue('D' . $row, $obat->keterangan ?? '-');
+            $sheet->setCellValue('E' . $row, $obat->tanggal_update ? $obat->tanggal_update->format('d-m-Y') : '-');
 
             // Style data rows
             $dataStyle = [
@@ -427,7 +413,7 @@ class ObatController extends Controller
                 ],
             ];
 
-            $sheet->getStyle('A'.$row.':'.$lastColumn.$row)->applyFromArray($dataStyle);
+            $sheet->getStyle('A' . $row . ':' . $lastColumn . $row)->applyFromArray($dataStyle);
 
             $row++;
             $no++;
@@ -437,10 +423,8 @@ class ObatController extends Controller
         $sheet->getColumnDimension('A')->setWidth(5);
         $sheet->getColumnDimension('B')->setWidth(30);
         $sheet->getColumnDimension('C')->setWidth(15);
-        $sheet->getColumnDimension('D')->setWidth(12);
-        $sheet->getColumnDimension('E')->setWidth(20);
-        $sheet->getColumnDimension('F')->setWidth(50);
-        $sheet->getColumnDimension('G')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(50);
+        $sheet->getColumnDimension('E')->setWidth(15);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -475,10 +459,10 @@ class ObatController extends Controller
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'data_obat_'.date('Y-m-d_H-i-s').'.xlsx';
+        $filename = 'data_obat_' . date('Y-m-d_H-i-s') . '.xlsx';
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="'.$filename.'"');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
 
         $writer->save('php://output');
@@ -508,7 +492,7 @@ class ObatController extends Controller
             // Log informasi awal
             Log::info('Starting import obat process', [
                 'file_name' => $file->getClientOriginalName(),
-                'highest_row' => $highestRow,
+                'highest_row' => $highestRow
             ]);
 
             // Get reference data
@@ -517,7 +501,7 @@ class ObatController extends Controller
 
             // Log reference data
             Log::info('Reference data loaded', [
-                'satuan_obat_count' => count($satuanObats),
+                'satuan_obat_count' => count($satuanObats)
             ]);
 
             // Skip header row, start from row 2
@@ -528,11 +512,9 @@ class ObatController extends Controller
 
             for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
                 // Read cell values
-                $namaObat = trim($sheet->getCell('A'.$rowNumber)->getValue() ?? '');
-                $satuan = trim($sheet->getCell('B'.$rowNumber)->getValue() ?? '');
-                $stokAwal = trim($sheet->getCell('C'.$rowNumber)->getValue() ?? '');
-                $bin = trim($sheet->getCell('D'.$rowNumber)->getValue() ?? '');
-                $keterangan = trim($sheet->getCell('E'.$rowNumber)->getValue() ?? '');
+                $namaObat = trim($sheet->getCell('A' . $rowNumber)->getValue() ?? '');
+                $satuan = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
+                $keterangan = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? '');
 
                 // Skip empty rows
                 if (empty($namaObat)) {
@@ -542,37 +524,32 @@ class ObatController extends Controller
                 // Validate required fields
                 if (empty($namaObat)) {
                     $errors[] = "Baris $rowNumber: Nama Obat tidak boleh kosong";
-
                     continue;
                 }
 
                 if (empty($satuan)) {
                     $errors[] = "Baris $rowNumber: Satuan tidak boleh kosong";
-
                     continue;
                 }
 
                 // Validate nama obat length
                 if (strlen($namaObat) > 100) {
                     $errors[] = "Baris $rowNumber: Nama Obat maksimal 100 karakter";
-
                     continue;
                 }
 
                 // Validate satuan exists in database
-                if (! isset($satuanObatNames[$satuan])) {
-                    $errors[] = "Baris $rowNumber: Satuan '$satuan' tidak valid. Pilihan yang tersedia: ".implode(', ', array_keys($satuanObatNames));
-
+                if (!isset($satuanObatNames[$satuan])) {
+                    $errors[] = "Baris $rowNumber: Satuan '$satuan' tidak valid. Pilihan yang tersedia: " . implode(', ', array_keys($satuanObatNames));
                     continue;
                 }
+
 
                 // Prepare data
                 $data = [
                     'nama_obat' => $namaObat,
-                    'keterangan' => ! empty($keterangan) ? $keterangan : null,
+                    'keterangan' => !empty($keterangan) ? $keterangan : null,
                     'id_satuan' => $satuanObatNames[$satuan],
-                    'stok_awal' => ! empty($stokAwal) ? (int) $stokAwal : 0,
-                    'bin' => ! empty($bin) ? $bin : null,
                     'tanggal_update' => now(),
                 ];
 
@@ -591,11 +568,11 @@ class ObatController extends Controller
                         'row' => $rowNumber,
                         'nama_obat' => $namaObat,
                         'exists' => $exists,
-                        'obat_id' => $obat->id_obat,
+                        'obat_id' => $obat->id_obat
                     ]);
 
                     // If this is a new obat, create initial stok bulanan entry
-                    if (! $exists) {
+                    if (!$exists) {
                         $currentPeriode = now()->format('m-y');
 
                         // Get stok awal from previous month (will be 0 for new obat)
@@ -612,7 +589,7 @@ class ObatController extends Controller
 
                         Log::info('Stok bulanan created for new obat', [
                             'obat_id' => $obat->id_obat,
-                            'periode' => $currentPeriode,
+                            'periode' => $currentPeriode
                         ]);
                     }
 
@@ -622,12 +599,11 @@ class ObatController extends Controller
                         $created++;
                     }
                 } catch (\Exception $e) {
-                    Log::error('Error processing obat at row '.$rowNumber, [
+                    Log::error('Error processing obat at row ' . $rowNumber, [
                         'error' => $e->getMessage(),
-                        'nama_obat' => $namaObat,
+                        'nama_obat' => $namaObat
                     ]);
-                    $errors[] = "Baris $rowNumber: ".$e->getMessage();
-
+                    $errors[] = "Baris $rowNumber: " . $e->getMessage();
                     continue;
                 }
             }
@@ -638,7 +614,7 @@ class ObatController extends Controller
             Log::info('Import transaction committed', [
                 'created' => $created,
                 'updated' => $updated,
-                'errors_count' => count($errors),
+                'errors_count' => count($errors)
             ]);
 
             $message = "Import selesai: $created data baru ditambahkan, $updated data diperbarui";
@@ -647,9 +623,9 @@ class ObatController extends Controller
             if ($hasErrors) {
                 $errorMessage = implode(', ', array_slice($errors, 0, 10));
                 if (count($errors) > 10) {
-                    $errorMessage .= ' ... dan '.(count($errors) - 10).' error lainnya';
+                    $errorMessage .= ' ... dan ' . (count($errors) - 10) . ' error lainnya';
                 }
-                $message .= '. Error: '.$errorMessage;
+                $message .= '. Error: ' . $errorMessage;
             }
 
             // Clear cache
@@ -663,8 +639,8 @@ class ObatController extends Controller
                     'data' => [
                         'created' => $created,
                         'updated' => $updated,
-                        'errors' => $errors,
-                    ],
+                        'errors' => $errors
+                    ]
                 ]);
             }
 
@@ -678,18 +654,19 @@ class ObatController extends Controller
             // Rollback transaction
             DB::rollBack();
 
-            Log::error('Error importing obat: '.$e->getMessage());
-            Log::error('Stack trace: '.$e->getTraceAsString());
+            Log::error('Error importing obat: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
             // Return JSON response for AJAX requests
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal import data: '.$e->getMessage(),
+                    'message' => 'Gagal import data: ' . $e->getMessage()
                 ], 500);
             }
 
-            return back()->with('error', 'Gagal import data: '.$e->getMessage());
+            return back()->with('error', 'Gagal import data: ' . $e->getMessage());
         }
     }
+
 }

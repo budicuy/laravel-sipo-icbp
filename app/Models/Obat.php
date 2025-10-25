@@ -18,9 +18,11 @@ class Obat extends Model
         'keterangan',
         'id_satuan',
         'stok_awal',
-        'bin',
         'tanggal_update',
     ];
+
+    // Properties yang akan di-append tanpa memanggil accessor
+    // protected $appends = ['sisa_stok']; // Dinonaktifkan karena sudah dihitung di controller
 
     protected $casts = [
         'tanggal_update' => 'datetime',
@@ -113,10 +115,20 @@ class Obat extends Model
 
     /**
      * Menghitung sisa stok saat ini
+     *
+     * Catatan: Accessor ini telah dihapus untuk menghindari N+1 query.
+     * Gunakan StokBulanan::getSisaStokSaatIniForMultiple() untuk multiple obat.
      */
     public function getSisaStokAttribute()
     {
-        return StokBulanan::getSisaStokSaatIni($this->id_obat);
+        // Jika sisa_stok sudah diset di controller, gunakan nilai tersebut
+        if (isset($this->attributes['sisa_stok'])) {
+            return $this->attributes['sisa_stok'];
+        }
+
+        // Jangan panggil method yang menyebabkan N+1 query
+        // Kembalikan nilai default 0
+        return 0;
     }
 
     /**

@@ -421,11 +421,9 @@
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">NIK</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Karyawan</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Kode RM</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Pasien</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Diagnosa</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Terapi</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Obat</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Anamnesa</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Keluhan</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Catatan</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
                             <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Detail</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Petugas Medis</th>
@@ -439,7 +437,9 @@
                                 {{ $rekamMedisEmergency->firstItem() + $index }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                                {{ is_string($rm->tanggal_periksa) ? $rm->tanggal_periksa : $rm->tanggal_periksa->format('d-m-Y') }}
+                                {{ $rm->tanggal_periksa ? $rm->tanggal_periksa->format('d-m-Y') : '-' }}
+                                <br>
+                                <small class="text-gray-500">{{ $rm->tanggal_periksa ? \Carbon\Carbon::parse($rm->tanggal_periksa)->locale('id')->translatedFormat('l') : '-' }}</small>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                 {{ $rm->waktu_periksa ? $rm->waktu_periksa->format('H:i') : '-' }}
@@ -453,10 +453,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
                                 {{ $rm->externalEmployee->kode_rm ?? '-' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                                {{ $rm->externalEmployee->nama_employee ?? '-' }}
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
                                 @php
                                     $uniqueDiagnosaEmergency = [];
                                     foreach($rm->keluhans as $keluhan) {
@@ -468,53 +465,19 @@
                                         }
                                     }
                                 @endphp
-                                {{ !empty($uniqueDiagnosaEmergency) ? implode(', ', $uniqueDiagnosaEmergency) : '-' }}
+                                <div class="truncate" title="{{ implode(', ', $uniqueDiagnosaEmergency) ?? '-' }}">
+                                    {{ !empty($uniqueDiagnosaEmergency) ? implode(', ', $uniqueDiagnosaEmergency) : '-' }}
+                                </div>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                                @php
-                                    $uniqueTerapi = [];
-                                    foreach($rm->keluhans as $keluhan) {
-                                        if (!in_array($keluhan->terapi, $uniqueTerapi)) {
-                                            $uniqueTerapi[] = $keluhan->terapi;
-                                        }
-                                    }
-                                @endphp
-                                @foreach($uniqueTerapi as $terapi)
-                                    <span class="px-2 py-1
-                                        @if($terapi == 'Obat') bg-purple-100 text-purple-800
-                                        @elseif($terapi == 'Lab') bg-orange-100 text-orange-800
-                                        @else bg-green-100 text-green-800
-                                        @endif
-                                        rounded-full text-xs font-medium mr-1">
-                                        {{ $terapi }}
-                                    </span>
-                                @endforeach
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
+                                <div class="truncate" title="{{ $rm->keluhan }}">
+                                    {{ $rm->keluhan ?: '-' }}
+                                </div>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                                @php
-                                    $uniqueObat = [];
-                                    foreach($rm->keluhans as $keluhan) {
-                                        if($keluhan->obat) {
-                                            $obatName = $keluhan->obat->nama_obat;
-                                            if (!in_array($obatName, $uniqueObat)) {
-                                                $uniqueObat[] = $obatName;
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                {{ !empty($uniqueObat) ? implode(', ', $uniqueObat) : '-' }}
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
-                                @php
-                                    $keteranganText = '';
-                                    foreach($rm->keluhans as $keluhan) {
-                                        if(!empty($keluhan->keterangan)) {
-                                            $keteranganText = $keluhan->keterangan;
-                                            break;
-                                        }
-                                    }
-                                @endphp
-                                {{ !empty($keteranganText) ? Str::limit($keteranganText, 50) : '-' }}
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200 max-w-xs">
+                                <div class="truncate" title="{{ $rm->catatan }}">
+                                    {{ $rm->catatan ?: '-' }}
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                 <div class="status-dropdown" data-id="{{ $rm->id_emergency }}">
@@ -560,7 +523,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="16" class="px-6 py-8 text-center text-gray-500">
+                            <td colspan="13" class="px-6 py-8 text-center text-gray-500">
                                 <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
@@ -982,7 +945,7 @@ function showAddModal() {
                         </svg>
                         Rekam Medis Reguler
                     </button>
-                    <button onclick="window.location.href='{{ route('token-emergency.validate.form') }}'"
+                    <button onclick="window.location.href='{{ route('token-emergency.validate') }}'" 
                             class="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />

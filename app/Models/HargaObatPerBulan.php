@@ -21,8 +21,8 @@ class HargaObatPerBulan extends Model
 
     protected $casts = [
         'jumlah_per_kemasan' => 'integer',
-        'harga_per_satuan' => 'decimal:3',
-        'harga_per_kemasan' => 'decimal:3',
+        'harga_per_satuan' => 'decimal:2',
+        'harga_per_kemasan' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

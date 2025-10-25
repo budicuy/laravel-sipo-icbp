@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
 use App\Models\RekamMedis;
-use App\Models\RekamMedisEmergency;
 use App\Models\Kunjungan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,24 +18,12 @@ class DashboardController extends Controller
     public function getStatistics()
     {
         // Realtime statistics (no cache untuk data yang harus up-to-date)
-        $totalRekamMedisReguler = RekamMedis::count();
-        $totalRekamMedisEmergency = RekamMedisEmergency::count();
-        
-        $kunjunganHariIniReguler = RekamMedis::whereDate('tanggal_periksa', now()->toDateString())->count();
-        $kunjunganHariIniEmergency = RekamMedisEmergency::whereDate('tanggal_periksa', now()->toDateString())->count();
-        
-        $onProgressReguler = RekamMedis::where('status', 'On Progress')->count();
-        $onProgressEmergency = RekamMedisEmergency::where('status', 'On Progress')->count();
-        
-        $closeReguler = RekamMedis::where('status', 'Close')->count();
-        $closeEmergency = RekamMedisEmergency::where('status', 'Close')->count();
-
         $statistics = [
             'total_karyawan' => Karyawan::count(),
-            'total_rekam_medis' => $totalRekamMedisReguler + $totalRekamMedisEmergency,
-            'kunjungan_hari_ini' => $kunjunganHariIniReguler + $kunjunganHariIniEmergency,
-            'on_progress' => $onProgressReguler + $onProgressEmergency,
-            'close' => $closeReguler + $closeEmergency,
+            'total_rekam_medis' => RekamMedis::count(),
+            'kunjungan_hari_ini' => RekamMedis::whereDate('tanggal_periksa', now()->toDateString())->count(),
+            'on_progress' => RekamMedis::where('status', 'On Progress')->count(),
+            'close' => RekamMedis::where('status', 'Close')->count(),
         ];
 
         return response()->json($statistics);
@@ -75,17 +62,8 @@ class DashboardController extends Controller
         $endDate = $startDate->copy()->endOfMonth();
         $daysInMonth = $startDate->daysInMonth;
 
-        // Single query dengan GROUP BY untuk semua hari dalam sebulan (Reguler)
-        $dailyVisitsReguler = RekamMedis::selectRaw('DAY(tanggal_periksa) as day, COUNT(*) as count')
-            ->whereMonth('tanggal_periksa', $month)
-            ->whereYear('tanggal_periksa', $year)
-            ->groupBy(DB::raw('DAY(tanggal_periksa)'))
-            ->orderBy('day')
-            ->pluck('count', 'day')
-            ->toArray();
-            
-        // Single query dengan GROUP BY untuk semua hari dalam sebulan (Emergency)
-        $dailyVisitsEmergency = RekamMedisEmergency::selectRaw('DAY(tanggal_periksa) as day, COUNT(*) as count')
+        // Single query dengan GROUP BY untuk semua hari dalam sebulan
+        $dailyVisits = RekamMedis::selectRaw('DAY(tanggal_periksa) as day, COUNT(*) as count')
             ->whereMonth('tanggal_periksa', $month)
             ->whereYear('tanggal_periksa', $year)
             ->groupBy(DB::raw('DAY(tanggal_periksa)'))
@@ -96,7 +74,7 @@ class DashboardController extends Controller
         // Build array dengan 0 untuk hari yang tidak ada kunjungan
         $dailyData = [];
         for ($day = 1; $day <= $daysInMonth; $day++) {
-            $dailyData[] = ($dailyVisitsReguler[$day] ?? 0) + ($dailyVisitsEmergency[$day] ?? 0);
+            $dailyData[] = $dailyVisits[$day] ?? 0;
         }
 
         return [
@@ -113,16 +91,8 @@ class DashboardController extends Controller
         $startDate = Carbon::create($year, $month, 1);
         $endDate = $startDate->copy()->endOfMonth();
 
-        // Single query dengan GROUP BY untuk semua minggu dalam sebulan (Reguler)
-        $weeklyVisitsReguler = RekamMedis::selectRaw('WEEK(tanggal_periksa, 1) as week, COUNT(*) as count')
-            ->whereBetween('tanggal_periksa', [$startDate->toDateString(), $endDate->toDateString()])
-            ->groupBy(DB::raw('WEEK(tanggal_periksa, 1)'))
-            ->orderBy('week')
-            ->pluck('count', 'week')
-            ->toArray();
-            
-        // Single query dengan GROUP BY untuk semua minggu dalam sebulan (Emergency)
-        $weeklyVisitsEmergency = RekamMedisEmergency::selectRaw('WEEK(tanggal_periksa, 1) as week, COUNT(*) as count')
+        // Single query dengan GROUP BY untuk semua minggu dalam sebulan
+        $weeklyVisits = RekamMedis::selectRaw('WEEK(tanggal_periksa, 1) as week, COUNT(*) as count')
             ->whereBetween('tanggal_periksa', [$startDate->toDateString(), $endDate->toDateString()])
             ->groupBy(DB::raw('WEEK(tanggal_periksa, 1)'))
             ->orderBy('week')
@@ -139,7 +109,7 @@ class DashboardController extends Controller
             $weekEnd = $weekStart->copy()->endOfWeek()->min($endDate);
             $weekNumber = $weekStart->weekOfYear;
 
-            $count = ($weeklyVisitsReguler[$weekNumber] ?? 0) + ($weeklyVisitsEmergency[$weekNumber] ?? 0);
+            $count = $weeklyVisits[$weekNumber] ?? 0;
 
             $weeklyLabels[] = $weekStart->format('d M') . ' - ' . $weekEnd->format('d M');
             $weeklyCounts[] = $count;
@@ -161,16 +131,8 @@ class DashboardController extends Controller
         $monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-        // Single query dengan GROUP BY untuk semua bulan dalam setahun (Reguler)
-        $monthlyVisitsReguler = RekamMedis::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
-            ->whereYear('tanggal_periksa', $year)
-            ->groupBy(DB::raw('MONTH(tanggal_periksa)'))
-            ->orderBy('month')
-            ->pluck('count', 'month')
-            ->toArray();
-            
-        // Single query dengan GROUP BY untuk semua bulan dalam setahun (Emergency)
-        $monthlyVisitsEmergency = RekamMedisEmergency::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
+        // Single query dengan GROUP BY untuk semua bulan dalam setahun
+        $monthlyVisits = RekamMedis::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
             ->whereYear('tanggal_periksa', $year)
             ->groupBy(DB::raw('MONTH(tanggal_periksa)'))
             ->orderBy('month')
@@ -180,7 +142,7 @@ class DashboardController extends Controller
         // Build array dengan 0 untuk bulan yang tidak ada kunjungan
         $data = [];
         for ($month = 1; $month <= 12; $month++) {
-            $data[] = ($monthlyVisitsReguler[$month] ?? 0) + ($monthlyVisitsEmergency[$month] ?? 0);
+            $data[] = $monthlyVisits[$month] ?? 0;
         }
 
         return [

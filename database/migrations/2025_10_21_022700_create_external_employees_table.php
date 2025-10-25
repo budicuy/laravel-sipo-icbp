@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('external_employees', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_external_employee');
             $table->string('nik_employee', 20)->unique();
             $table->string('nama_employee');
             $table->string('kode_rm');
@@ -30,7 +30,7 @@ return new class extends Migration
 
             $table->foreign('id_vendor')->references('id_vendor')->on('vendors')->onDelete('cascade');
             $table->foreign('id_kategori')->references('id_kategori')->on('kategoris')->onDelete('cascade');
-            
+
             $table->index('nik_employee');
             $table->index('nama_employee');
             $table->index('id_vendor');

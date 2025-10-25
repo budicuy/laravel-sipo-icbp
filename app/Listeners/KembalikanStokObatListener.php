@@ -2,12 +2,12 @@
 
 namespace App\Listeners;
 
-use App\Events\RekamMedisCreated;
+use App\Events\RekamMedisDeleted;
 use App\Models\Keluhan;
 use App\Models\StokBulanan;
 use Illuminate\Support\Facades\Log;
 
-class KurangiStokObatListener
+class KembalikanStokObatListener
 {
     /**
      * Create the event listener.
@@ -20,7 +20,7 @@ class KurangiStokObatListener
     /**
      * Handle the event.
      */
-    public function handle(RekamMedisCreated $event): void
+    public function handle(RekamMedisDeleted $event): void
     {
         $rekamMedis = $event->rekamMedis;
 
@@ -50,7 +50,7 @@ class KurangiStokObatListener
                 $jumlahObat = $keluhan->jumlah_obat;
 
                 // Log untuk debugging
-                Log::info('Memproses pengurangan stok obat', [
+                Log::info('Memproses pengembalian stok obat', [
                     'id_rekam' => $rekamMedis->id_rekam,
                     'id_keluhan' => $keluhan->id_keluhan,
                     'id_obat' => $obatId,
@@ -59,29 +59,40 @@ class KurangiStokObatListener
                     'bulan' => $bulan,
                 ]);
 
-                // Cari atau buat record di tabel StokBulanan
-                $stokBulanan = StokBulanan::getOrCreate($obatId, $tahun, $bulan);
+                // Cari record di tabel StokBulanan
+                $stokBulanan = StokBulanan::where('obat_id', $obatId)
+                    ->where('tahun', $tahun)
+                    ->where('bulan', $bulan)
+                    ->first();
 
-                // Tambahkan nilai jumlah_obat ke kolom stok_pakai
-                $stokBulanan->stok_pakai += $jumlahObat;
-                $stokBulanan->save();
+                if ($stokBulanan) {
+                    // Kurangi nilai stok_pakai (kembalikan stok)
+                    $stokBulanan->stok_pakai = max(0, $stokBulanan->stok_pakai - $jumlahObat);
+                    $stokBulanan->save();
 
-                Log::info('Stok obat berhasil dikurangi', [
-                    'id_obat' => $obatId,
-                    'tahun' => $tahun,
-                    'bulan' => $bulan,
-                    'jumlah_dikurangi' => $jumlahObat,
-                    'total_stok_pakai' => $stokBulanan->stok_pakai,
-                ]);
+                    Log::info('Stok obat berhasil dikembalikan', [
+                        'id_obat' => $obatId,
+                        'tahun' => $tahun,
+                        'bulan' => $bulan,
+                        'jumlah_dikembalikan' => $jumlahObat,
+                        'total_stok_pakai' => $stokBulanan->stok_pakai,
+                    ]);
+                } else {
+                    Log::warning('Tidak ditemukan record stok bulanan untuk obat', [
+                        'id_obat' => $obatId,
+                        'tahun' => $tahun,
+                        'bulan' => $bulan,
+                    ]);
+                }
             }
 
-            Log::info('Proses pengurangan stok obat selesai', [
+            Log::info('Proses pengembalian stok obat selesai', [
                 'id_rekam' => $rekamMedis->id_rekam,
                 'total_keluhan' => $keluhans->count(),
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error dalam KurangiStokObatListener', [
+            Log::error('Error dalam KembalikanStokObatListener', [
                 'id_rekam' => $rekamMedis->id_rekam,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),

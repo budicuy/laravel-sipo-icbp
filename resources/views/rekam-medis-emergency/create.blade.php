@@ -254,7 +254,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <input type="time" id="waktu_periksa" name="waktu_periksa" value="{{ old('waktu_periksa', \Carbon\Carbon::now('Asia/Makassar')->format('H:i:s')) }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                            <input type="time" id="waktu_periksa" name="waktu_periksa" value="{{ old('waktu_periksa', \Carbon\Carbon::now('Asia/Makassar')->format('H:i')) }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                             @error('waktu_periksa')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -858,17 +858,6 @@ function clearValidationErrors() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Preserve token session when validation errors occur
-    @if($errors->any())
-        // If there are validation errors, ensure token is still in session
-        // This prevents the token from being lost when form validation fails
-        console.log('Validation errors detected, preserving token session');
-        
-        // Show notification that token is still active
-        setTimeout(() => {
-            showNotification('Token emergency Anda masih aktif. Silakan perbaiki kesalahan dan coba lagi.', 'info');
-        }, 1000);
-    @endif
     // Add real-time validation for critical fields
     document.getElementById('search_karyawan').addEventListener('blur', function() {
         const idExternalEmployee = document.getElementById('id_external_employee').value;
@@ -923,20 +912,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const employees = @json($externalEmployees);
         const selectedEmployee = employees.find(emp => emp.id == idEmployee); // Use primary key 'id' instead of 'id_external_employee'
         if (selectedEmployee) {
-            selectKaryawanFromSearch({
-                getAttribute: (attr) => {
-                    switch(attr) {
-                        case 'data-id': return selectedEmployee.id;
-                        case 'data-nik': return selectedEmployee.nik_employee;
-                        case 'data-nama': return selectedEmployee.nama_employee;
-                        case 'data-vendor': return selectedEmployee.vendor ? selectedEmployee.vendor.nama_vendor : 'Tidak ada vendor';
-                        case 'data-kategori': return selectedEmployee.kategori ? selectedEmployee.kategori.nama_kategori : 'Tidak ada kategori';
-                        case 'data-kode-rm': return selectedEmployee.kode_rm || '';
-                        case 'data-jenis-kelamin': return selectedEmployee.jenis_kelamin;
-                        default: return '';
-                    }
-                }
-            });
+            selectKaryawan(selectedEmployee);
         }
     }
 
@@ -966,58 +942,6 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function() {
         formChanged = false;
     });
-    
-    // Function to show notification (if not already defined)
-    if (typeof showNotification === 'undefined') {
-        function showNotification(message, type) {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full`;
-
-            // Set styling based on type
-            if (type === 'success') {
-                notification.classList.add('bg-green-500', 'text-white');
-            } else if (type === 'error') {
-                notification.classList.add('bg-red-500', 'text-white');
-            } else if (type === 'info') {
-                notification.classList.add('bg-blue-500', 'text-white');
-            }
-
-            notification.innerHTML = `
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        ${type === 'success'
-                            ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
-                            : type === 'error'
-                            ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
-                            : '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>'
-                        }
-                    </svg>
-                    <span>${message}</span>
-                </div>
-            `;
-
-            // Add to document
-            document.body.appendChild(notification);
-
-            // Animate in
-            setTimeout(() => {
-                notification.classList.remove('translate-x-full');
-                notification.classList.add('translate-x-0');
-            }, 100);
-
-            // Remove after 5 seconds for info, 3 seconds for others
-            const removeTime = type === 'info' ? 5000 : 3000;
-            setTimeout(() => {
-                notification.classList.add('translate-x-full');
-                setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                }, 300);
-            }, removeTime);
-        }
-    }
 });
 </script>
 @endpush

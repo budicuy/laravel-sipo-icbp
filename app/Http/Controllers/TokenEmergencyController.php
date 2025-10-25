@@ -73,14 +73,6 @@ class TokenEmergencyController extends Controller
     }
 
     /**
-     * Show token validation form
-     */
-    public function showValidateForm()
-    {
-        return view('token-emergency.validate');
-    }
-
-    /**
      * Clear token from session (logout from emergency mode)
      */
     public function clearToken()
@@ -127,15 +119,18 @@ class TokenEmergencyController extends Controller
             ], 403);
         }
 
-        // DON'T mark token as used here - just validate and store in session
-        // Token will be marked as used when actually creating the emergency record
-        
+        // Mark token as used
+        $existingToken->status = TokenEmergency::STATUS_USED;
+        $existingToken->used_at = now();
+        $existingToken->used_by = $currentUserId;
+        $existingToken->save();
+
         // Store valid token in session
         session(['valid_emergency_token' => $existingToken->token]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Token berhasil divalidasi. Silakan lanjutkan membuat rekam medis emergency.'
+            'message' => 'Token berhasil divalidasi.'
         ]);
     }
 

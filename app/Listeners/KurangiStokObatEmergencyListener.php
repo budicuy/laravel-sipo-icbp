@@ -2,12 +2,12 @@
 
 namespace App\Listeners;
 
-use App\Events\RekamMedisCreated;
+use App\Events\RekamMedisEmergencyCreated;
 use App\Models\Keluhan;
 use App\Models\StokBulanan;
 use Illuminate\Support\Facades\Log;
 
-class KurangiStokObatListener
+class KurangiStokObatEmergencyListener
 {
     /**
      * Create the event listener.
@@ -20,27 +20,27 @@ class KurangiStokObatListener
     /**
      * Handle the event.
      */
-    public function handle(RekamMedisCreated $event): void
+    public function handle(RekamMedisEmergencyCreated $event): void
     {
-        $rekamMedis = $event->rekamMedis;
+        $rekamMedisEmergency = $event->rekamMedisEmergency;
 
         try {
-            // Ambil semua data keluhan yang terkait dengan RekamMedis tersebut
-            $keluhans = Keluhan::where('id_rekam', $rekamMedis->id_rekam)
+            // Ambil semua data keluhan yang terkait dengan RekamMedisEmergency tersebut
+            $keluhans = Keluhan::where('id_emergency', $rekamMedisEmergency->id_emergency)
                 ->whereNotNull('id_obat')
                 ->where('jumlah_obat', '>', 0)
                 ->get();
 
             if ($keluhans->isEmpty()) {
-                Log::info('Tidak ada keluhan dengan obat untuk rekam medis ini', [
-                    'id_rekam' => $rekamMedis->id_rekam,
+                Log::info('Tidak ada keluhan dengan obat untuk rekam medis emergency ini', [
+                    'id_emergency' => $rekamMedisEmergency->id_emergency,
                 ]);
 
                 return;
             }
 
-            // Dapatkan tahun dan bulan dari tanggal periksa rekam medis
-            $tanggalPeriksa = $rekamMedis->tanggal_periksa;
+            // Dapatkan tahun dan bulan dari tanggal periksa rekam medis emergency
+            $tanggalPeriksa = $rekamMedisEmergency->tanggal_periksa;
             $tahun = $tanggalPeriksa->year;
             $bulan = $tanggalPeriksa->month;
 
@@ -50,8 +50,8 @@ class KurangiStokObatListener
                 $jumlahObat = $keluhan->jumlah_obat;
 
                 // Log untuk debugging
-                Log::info('Memproses pengurangan stok obat', [
-                    'id_rekam' => $rekamMedis->id_rekam,
+                Log::info('Memproses pengurangan stok obat emergency', [
+                    'id_emergency' => $rekamMedisEmergency->id_emergency,
                     'id_keluhan' => $keluhan->id_keluhan,
                     'id_obat' => $obatId,
                     'jumlah_obat' => $jumlahObat,
@@ -66,7 +66,7 @@ class KurangiStokObatListener
                 $stokBulanan->stok_pakai += $jumlahObat;
                 $stokBulanan->save();
 
-                Log::info('Stok obat berhasil dikurangi', [
+                Log::info('Stok obat emergency berhasil dikurangi', [
                     'id_obat' => $obatId,
                     'tahun' => $tahun,
                     'bulan' => $bulan,
@@ -75,14 +75,14 @@ class KurangiStokObatListener
                 ]);
             }
 
-            Log::info('Proses pengurangan stok obat selesai', [
-                'id_rekam' => $rekamMedis->id_rekam,
+            Log::info('Proses pengurangan stok obat emergency selesai', [
+                'id_emergency' => $rekamMedisEmergency->id_emergency,
                 'total_keluhan' => $keluhans->count(),
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error dalam KurangiStokObatListener', [
-                'id_rekam' => $rekamMedis->id_rekam,
+            Log::error('Error dalam KurangiStokObatEmergencyListener', [
+                'id_emergency' => $rekamMedisEmergency->id_emergency,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
