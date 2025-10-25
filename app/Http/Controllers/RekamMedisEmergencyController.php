@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\RekamMedisEmergencyDeleted;
-use App\Http\Requests\RekamMedisEmergencyStoreRequest;
-use App\Http\Requests\RekamMedisEmergencyUpdateRequest;
-use App\Models\Diagnosa;
-use App\Models\DiagnosaEmergency;
-use App\Models\ExternalEmployee;
-use App\Models\Keluhan;
 use App\Models\RekamMedisEmergency;
+use App\Models\ExternalEmployee;
+use App\Models\DiagnosaEmergency;
+use App\Models\Diagnosa;
+use App\Models\Keluhan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -45,7 +42,7 @@ class RekamMedisEmergencyController extends Controller
 
         // Pagination
         $perPage = $request->input('per_page', 50);
-        if (! in_array($perPage, [50, 100, 200])) {
+        if (!in_array($perPage, [50, 100, 200])) {
             $perPage = 50;
         }
 
@@ -60,8 +57,8 @@ class RekamMedisEmergencyController extends Controller
     public function create()
     {
         // Check if user has valid token
-        if (! session('valid_emergency_token')) {
-            return redirect()->route('token-emergency.validate')
+        if (!session('valid_emergency_token')) {
+            return redirect()->route('token-emergency.validate.form')
                 ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
         }
 
@@ -76,34 +73,72 @@ class RekamMedisEmergencyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(RekamMedisEmergencyStoreRequest $request)
+    public function store(Request $request)
     {
-        $validated = $request->validated();
+        // Check if user has valid token
+        if (!session('valid_emergency_token')) {
+            return redirect()->route('token-emergency.validate.form')
+                ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
+        }
+
+        $validated = $request->validate([
+            'external_employee_id' => 'required|exists:external_employees,id',
+            'tanggal_periksa' => 'required|date',
+            'waktu_periksa' => 'nullable|date_format:H:i:s',
+            'status' => 'required|in:On Progress,Close',
+            'keluhan' => 'required|string',
+            'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
+            'terapi' => 'required|string',
+            'catatan' => 'nullable|string',
+            'obat_list' => 'nullable|array',
+            'obat_list.*.id_obat' => 'required|exists:obat,id_obat',
+            'obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
+            'obat_list.*.aturan_pakai' => 'nullable|string',
+        ]);
 
         try {
             // Get and use the token
             $currentUserId = Auth::id();
-            $token = \App\Models\TokenEmergency::isValidTokenForUser(session('valid_emergency_token'), $currentUserId);
+            $token = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))
+                ->where('status', \App\Models\TokenEmergency::STATUS_AVAILABLE)
+                ->first();
 
-            if (! $token) {
+            if (!$token) {
                 // Check if token exists but is not available for this user
                 $existingToken = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))->first();
                 if ($existingToken) {
                     if ($existingToken->status !== \App\Models\TokenEmergency::STATUS_AVAILABLE) {
-                        return redirect()->route('token-emergency.validate')
-                            ->with('error', 'Token sudah digunakan atau kadaluarsa.');
-                    } elseif (! $existingToken->canBeUsedBy($currentUserId)) {
-                        return redirect()->route('token-emergency.validate')
+                        // Clear invalid token from session
+                        session()->forget('valid_emergency_token');
+                        return redirect()->route('token-emergency.validate.form')
+                            ->with('error', 'Token sudah digunakan atau kadaluarsa. Silakan masukkan token baru.');
+                    } else if (!$existingToken->canBeUsedBy($currentUserId)) {
+                        // Clear invalid token from session
+                        session()->forget('valid_emergency_token');
+                        return redirect()->route('token-emergency.validate.form')
                             ->with('error', 'Token ini bukan milik Anda dan tidak dapat digunakan.');
                     }
                 }
 
-                return redirect()->route('token-emergency.validate')
-                    ->with('error', 'Token tidak valid.');
+                // Clear invalid token from session
+                session()->forget('valid_emergency_token');
+                return redirect()->route('token-emergency.validate.form')
+                    ->with('error', 'Token tidak valid. Silakan masukkan token kembali.');
+            }
+
+            // Check if token can be used by current user
+            if (!$token->canBeUsedBy($currentUserId)) {
+                // Clear invalid token from session
+                session()->forget('valid_emergency_token');
+                return redirect()->route('token-emergency.validate.form')
+                    ->with('error', 'Token ini bukan milik Anda dan tidak dapat digunakan.');
             }
 
             // Use the token (mark as used)
-            $token->useToken($currentUserId);
+            $token->status = \App\Models\TokenEmergency::STATUS_USED;
+            $token->used_at = now();
+            $token->used_by = $currentUserId;
+            $token->save();
 
             // Add additional data
             $validated['id_user'] = Auth::id();
@@ -155,18 +190,29 @@ class RekamMedisEmergencyController extends Controller
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollback();
+                // If there's an error, restore the token availability
+                $token->status = 'available';
+                $token->used_at = null;
+                $token->id_user = null;
+                $token->save();
                 throw $e;
             }
-
-            // Dispatch event untuk mengurangi stok obat otomatis
-            RekamMedisEmergencyCreated::dispatch($rekamMedisEmergency);
 
             // Clear token from session after successful use
             session()->forget('valid_emergency_token');
 
-            return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil ditambahkan! Token telah digunakan.');
+            return redirect()->route('rekam-medis.index', ['tab' => 'emergency'])->with('success', 'Data rekam medis emergency berhasil ditambahkan! Token telah digunakan.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // On validation error, keep token in session so user can retry
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput()
+                ->with('error', 'Mohon perbaiki kesalahan pada form. Token Anda masih aktif.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: '.$e->getMessage());
+            // On other errors, keep token in session so user can retry
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal menyimpan data: ' . $e->getMessage() . ' Token Anda masih aktif, silakan coba lagi.');
         }
     }
 
@@ -176,7 +222,6 @@ class RekamMedisEmergencyController extends Controller
     public function show($id)
     {
         $rekamMedisEmergency = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap', 'externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
-
         return view('rekam-medis-emergency.detail', compact('rekamMedisEmergency'));
     }
 
@@ -185,11 +230,17 @@ class RekamMedisEmergencyController extends Controller
      */
     public function edit($id)
     {
-        $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
+        // Check if user has valid token for editing emergency records
+        if (!session('valid_emergency_token')) {
+            return redirect()->route('token-emergency.validate.form')
+                ->with('error', 'Token emergency diperlukan untuk mengedit rekam medis emergency.');
+        }
 
+        $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
+        
         // Get data for dropdowns with relationships
         $externalEmployees = ExternalEmployee::with(['vendor', 'kategori'])->aktif()->get();
-        $diagnosaEmergency = DiagnosaEmergency::all();
+        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get();
         $diagnosas = Diagnosa::all();
 
         return view('rekam-medis-emergency.edit', compact('rekamMedisEmergency', 'externalEmployees', 'diagnosaEmergency', 'diagnosas'));
@@ -198,14 +249,38 @@ class RekamMedisEmergencyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(RekamMedisEmergencyUpdateRequest $request, $id)
+    public function update(Request $request, $id)
     {
+        // Check if user has valid token for editing emergency records
+        if (!session('valid_emergency_token')) {
+            return redirect()->route('token-emergency.validate.form')
+                ->with('error', 'Token emergency diperlukan untuk mengedit rekam medis emergency.');
+        }
+
         $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
-        $validated = $request->validated();
+
+        $validated = $request->validate([
+            'external_employee_id' => 'required|exists:external_employees,id',
+            'tanggal_periksa' => 'required|date',
+            'waktu_periksa' => 'nullable|date_format:H:i:s',
+            'status' => 'required|in:On Progress,Close',
+            'keluhan' => 'required|string',
+            'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
+            'terapi' => 'required|string',
+            'catatan' => 'nullable|string',
+        ]);
 
         try {
-            // Simpan keluhan lama untuk perbandingan stok
-            $oldKeluhans = $rekamMedisEmergency->keluhans()->get();
+            // Verify token is still valid (but don't consume it for edits)
+            $currentUserId = Auth::id();
+            $token = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))->first();
+            
+            if (!$token || !$token->canBeUsedBy($currentUserId)) {
+                // Clear invalid token from session
+                session()->forget('valid_emergency_token');
+                return redirect()->route('token-emergency.validate.form')
+                    ->with('error', 'Token tidak valid atau sudah kadaluarsa. Silakan masukkan token kembali.');
+            }
 
             DB::beginTransaction();
             try {
@@ -244,12 +319,9 @@ class RekamMedisEmergencyController extends Controller
                 throw $e;
             }
 
-            // Dispatch event untuk menyesuaikan stok obat otomatis
-            RekamMedisEmergencyUpdated::dispatch($rekamMedisEmergency, $oldKeluhans);
-
-            return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil diperbarui! Stok obat telah disesuaikan.');
+            return redirect()->route('rekam-medis.index', ['tab' => 'emergency'])->with('success', 'Data rekam medis emergency berhasil diperbarui!');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: '.$e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: ' . $e->getMessage());
         }
     }
 
@@ -259,13 +331,9 @@ class RekamMedisEmergencyController extends Controller
     public function destroy($id)
     {
         $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
-
-        // Dispatch event untuk mengembalikan stok obat otomatis
-        RekamMedisEmergencyDeleted::dispatch($rekamMedisEmergency);
-
         $rekamMedisEmergency->delete();
 
-        return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil dihapus! Stok obat telah dikembalikan.');
+        return redirect()->route('rekam-medis.index', ['tab' => 'emergency'])->with('success', 'Data rekam medis emergency berhasil dihapus!');
     }
 
     /**
@@ -277,9 +345,6 @@ class RekamMedisEmergencyController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|in:On Progress,Close',
-        ], [
-            'status.required' => 'Status harus dipilih',
-            'status.in' => 'Status harus "On Progress" atau "Close"',
         ]);
 
         try {
@@ -295,56 +360,56 @@ class RekamMedisEmergencyController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui status: '.$e->getMessage(),
+                'message' => 'Gagal memperbarui status: ' . $e->getMessage(),
             ], 500);
         }
     }
-
+    
     /**
      * Get obat by diagnosa emergency ID
      */
     public function getObatByDiagnosa(Request $request)
     {
         $diagnosaId = $request->get('diagnosa_id');
-
-        if (! $diagnosaId) {
+        
+        if (!$diagnosaId) {
             return response()->json([]);
         }
-
+        
         $diagnosa = DiagnosaEmergency::with('obats')->find($diagnosaId);
-
-        if (! $diagnosa) {
+        
+        if (!$diagnosa) {
             return response()->json([]);
         }
-
-        $obats = $diagnosa->obats->map(function ($obat) {
+        
+        $obats = $diagnosa->obats->map(function($obat) {
             return [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
             ];
         });
-
+        
         return response()->json($obats);
     }
-
+    
     /**
      * Get all diagnosa emergency with their obat
      */
     public function getDiagnosaWithObat()
     {
-        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get()->map(function ($diagnosa) {
+        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get()->map(function($diagnosa) {
             return [
                 'id_diagnosa_emergency' => $diagnosa->id_diagnosa_emergency,
                 'nama_diagnosa_emergency' => $diagnosa->nama_diagnosa_emergency,
-                'obats' => $diagnosa->obats->map(function ($obat) {
+                'obats' => $diagnosa->obats->map(function($obat) {
                     return [
                         'id_obat' => $obat->id_obat,
                         'nama_obat' => $obat->nama_obat,
                     ];
-                }),
+                })
             ];
         });
-
+        
         return response()->json($diagnosaEmergency);
     }
 }

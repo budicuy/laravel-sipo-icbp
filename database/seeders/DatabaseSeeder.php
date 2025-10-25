@@ -29,6 +29,8 @@ class DatabaseSeeder extends Seeder
             KategoriSeeder::class,
             ExternalEmployeeSeeder::class,
             DiagnosaEmergencyObatSeeder::class, // Tambahkan seeder untuk pivot table
+            StokObatSeeder::class, // Seeder untuk data stok obat
+            TokenEmergencySeeder::class, // Seeder untuk token emergency
         ]);
 
         // Tabel users belum ada, komentari dulu

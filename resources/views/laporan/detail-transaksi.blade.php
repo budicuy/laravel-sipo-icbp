@@ -13,7 +13,7 @@
     <div class="mb-6">
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center gap-3">
-                <a href="{{ route('laporan.transaksi') }}" class="inline-flex items-center px-3 py-2 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-all shadow-sm border border-gray-200">
+                <a href="{{ route('laporan.transaksi') }}?bulan={{ request('bulan') }}&tahun={{ request('tahun') }}&periode={{ request('periode') }}&search={{ request('search') }}&per_page={{ request('per_page') }}" class="inline-flex items-center px-3 py-2 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-all shadow-sm border border-gray-200">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>

@@ -13,79 +13,32 @@ class DiagnosaEmergency extends Model
     protected $primaryKey = 'id_diagnosa_emergency';
     public $incrementing = true;
     protected $keyType = 'int';
-
     protected $fillable = [
         'nama_diagnosa_emergency',
         'deskripsi',
     ];
 
     /**
-     * Relasi ke tabel keluhan emergency (jika ada)
-     */
-    public function keluhans()
-    {
-        return $this->hasMany(Keluhan::class, 'id_diagnosa', 'id_diagnosa_emergency');
-    }
-
-    /**
-     * Relasi many-to-many dengan tabel obat
+     * Get the obats for the diagnosa.
      */
     public function obats()
     {
-        return $this->belongsToMany(
-            Obat::class,
-            'diagnosa_emergency_obat',
-            'id_diagnosa_emergency',
-            'id_obat'
-        )->withTimestamps();
+        return $this->belongsToMany(Obat::class, 'diagnosa_emergency_obat', 'id_diagnosa_emergency', 'id_obat');
     }
 
     /**
-     * Scope untuk pencarian diagnosa
+     * Get the keluhans for the diagnosa.
      */
-    public function scopeSearch($query, $search)
+    public function keluhans()
     {
-        if ($search) {
-            $query->where('nama_diagnosa_emergency', 'like', "%{$search}%")
-                  ->orWhere('deskripsi', 'like', "%{$search}%");
-        }
-        return $query;
+        return $this->hasMany(Keluhan::class, 'id_diagnosa_emergency', 'id_diagnosa_emergency');
     }
 
     /**
-     * Scope untuk mendapatkan diagnosa dengan obat tertentu
+     * Get the route key for the model.
      */
-    public function scopeWithObat($query, $obatId)
+    public function getRouteKeyName()
     {
-        return $query->whereHas('obats', function($q) use ($obatId) {
-            $q->where('obat.id_obat', $obatId);
-        });
-    }
-
-    /**
-     * Method untuk attach obat ke diagnosa emergency
-     */
-    public function attachObat($obatId, $attributes = [])
-    {
-        return $this->obats()->attach($obatId, $attributes);
-    }
-
-    /**
-     * Method untuk detach obat dari diagnosa emergency
-     */
-    public function detachObat($obatId = null)
-    {
-        if ($obatId) {
-            return $this->obats()->detach($obatId);
-        }
-        return $this->obats()->detach();
-    }
-
-    /**
-     * Method untuk sync obat ke diagnosa emergency
-     */
-    public function syncObat($obatIds)
-    {
-        return $this->obats()->sync($obatIds);
+        return 'id_diagnosa_emergency';
     }
 }

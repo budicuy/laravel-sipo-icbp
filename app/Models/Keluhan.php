@@ -19,6 +19,8 @@ class Keluhan extends Model
         'jumlah_obat',
         'aturan_pakai',
         'id_keluarga',
+        'id_emergency',
+        'id_diagnosa_emergency',
     ];
 
     // Properties that should be ignored when saving to database
@@ -205,6 +207,7 @@ class Keluhan extends Model
             'Obat' => 'Terapi Obat',
             'Lab' => 'Pemeriksaan Laboratorium',
             'Istirahat' => 'Istirahat',
+            'Emergency' => 'Tindakan Emergency',
         ];
 
         return $descriptions[$this->terapi] ?? $this->terapi;
