@@ -15,6 +15,9 @@ return new class extends Migration
         // Hapus tabel stok_bulanan lama
         Schema::dropIfExists('stok_bulanan');
 
+        // Hapus tabel stok_obat jika sudah ada untuk menghindari error
+        Schema::dropIfExists('stok_obat');
+
         // Buat tabel stok_obat baru dengan sistem revisi
         Schema::create('stok_obat', function (Blueprint $table) {
             $table->id('id_stok_obat');
@@ -41,10 +44,10 @@ return new class extends Migration
             $table->index('is_initial_stok');
         });
 
-        // Hapus procedure jika sudah ada, lalu buat baru
+        // Buat procedure untuk menghitung stok pakai otomatis dari tabel keluhan
+        // Hapus procedure jika sudah ada untuk menghindari error
         DB::unprepared('DROP PROCEDURE IF EXISTS calculate_stok_pakai');
 
-        // Buat trigger untuk menghitung stok pakai otomatis dari tabel keluhan
         DB::unprepared('
             CREATE PROCEDURE calculate_stok_pakai(IN p_periode VARCHAR(7), IN p_id_obat INT)
             BEGIN
