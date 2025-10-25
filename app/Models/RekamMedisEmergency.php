@@ -10,8 +10,11 @@ class RekamMedisEmergency extends Model
     use HasFactory;
 
     protected $table = 'rekam_medis_emergency';
+
     protected $primaryKey = 'id_emergency';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
 
     protected $fillable = [
@@ -26,7 +29,7 @@ class RekamMedisEmergency extends Model
 
     protected $casts = [
         'tanggal_periksa' => 'date',
-        'waktu_periksa' => 'datetime:H:i:s',
+        'waktu_periksa' => 'datetime:H:i',
         'status' => 'string',
     ];
 
@@ -100,7 +103,7 @@ class RekamMedisEmergency extends Model
             'jumlah_obat' => 0, // Default to 0
             'aturan_pakai' => null,
         ], $data);
-        
+
         return $this->keluhans()->create($keluhanData);
     }
 
@@ -131,6 +134,7 @@ class RekamMedisEmergency extends Model
         if ($endDate) {
             $query->where('tanggal_periksa', '<=', $endDate);
         }
+
         return $query;
     }
 
@@ -140,12 +144,13 @@ class RekamMedisEmergency extends Model
     public function scopeSearch($query, $search)
     {
         if ($search) {
-            $query->whereHas('externalEmployee', function($sub) use ($search) {
+            $query->whereHas('externalEmployee', function ($sub) use ($search) {
                 $sub->where('nama_employee', 'like', "%{$search}%")
                     ->orWhere('nik_employee', 'like', "%{$search}%")
                     ->orWhere('kode_rm', 'like', "%{$search}%");
             });
         }
+
         return $query;
     }
 

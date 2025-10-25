@@ -87,10 +87,13 @@ class ObatController extends Controller
             'nama_obat' => 'required|string|max:100|unique:obat,nama_obat',
             'keterangan' => 'nullable|string',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
+            'stok_awal' => 'required|integer|min:0',
         ], [
             'nama_obat.required' => 'Nama obat wajib diisi',
             'nama_obat.unique' => 'Nama obat sudah terdaftar',
             'id_satuan.required' => 'Satuan obat wajib dipilih',
+            'stok_awal.required' => 'Stok awal wajib diisi',
+            'stok_awal.min' => 'Stok awal tidak boleh negatif',
         ]);
 
         // Start transaction
@@ -151,6 +154,9 @@ class ObatController extends Controller
             'nama_obat.unique' => 'Nama obat sudah terdaftar',
             'id_satuan.required' => 'Satuan obat wajib dipilih',
         ]);
+
+        // Jangan update stok_awal saat edit
+        unset($validated['stok_awal']);
 
         $obat->update($validated);
 

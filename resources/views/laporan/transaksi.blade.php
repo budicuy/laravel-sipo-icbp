@@ -80,8 +80,8 @@
     </div>
 
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Total Pemeriksaan Reguler -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Total Pemeriksaan -->
             <div class="relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl p-6 text-white">
                 <!-- Decorative circles -->
                 <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full"></div>
@@ -91,37 +91,14 @@
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
                             <div class="w-2 h-2 bg-blue-200 rounded-full animate-pulse"></div>
-                            <p class="text-blue-100 text-sm font-medium">Pemeriksaan Reguler</p>
+                            <p class="text-blue-100 text-sm font-medium">Total Pemeriksaan</p>
                         </div>
-                        <h3 class="text-5xl font-bold mb-1">{{ $stats['total_pemeriksaan_reguler'] ?? 0 }}</h3>
+                        <h3 class="text-5xl font-bold mb-1">{{ $stats['total_pemeriksaan'] }}</h3>
                         <p class="text-blue-200 text-xs">{{ $stats['bulan_nama'] }} {{ $stats['tahun'] }}</p>
                     </div>
                     <div class="bg-white rounded-2xl p-5 shadow-2xl">
                         <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Pemeriksaan Emergency -->
-            <div class="relative overflow-hidden bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-xl p-6 text-white">
-                <!-- Decorative circles -->
-                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-white opacity-10 rounded-full"></div>
-                <div class="absolute bottom-0 left-0 -mb-8 -ml-8 w-32 h-32 bg-white opacity-5 rounded-full"></div>
-
-                <div class="relative flex items-center justify-between">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="w-2 h-2 bg-red-200 rounded-full animate-pulse"></div>
-                            <p class="text-red-100 text-sm font-medium">Pemeriksaan Emergency</p>
-                        </div>
-                        <h3 class="text-5xl font-bold mb-1">{{ $stats['total_pemeriksaan_emergency'] ?? 0 }}</h3>
-                        <p class="text-red-200 text-xs">{{ $stats['bulan_nama'] }} {{ $stats['tahun'] }}</p>
-                    </div>
-                    <div class="bg-white rounded-2xl p-5 shadow-2xl">
-                        <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
                 </div>
@@ -283,7 +260,6 @@
                         <thead>
                             <tr class="bg-gradient-to-r from-gray-800 to-gray-900">
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No Registrasi</th>
-                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Tipe</th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No RM</th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Nama Pasien</th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Hubungan</th>
@@ -302,26 +278,13 @@
                                     <span class="text-sm font-semibold text-blue-600">{{ $item['kode_transaksi'] }}</span>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
-                                    @if($item['tipe'] == 'Emergency')
-                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Emergency</span>
-                                    @else
-                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Reguler</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-4 whitespace-nowrap">
                                     <span class="text-sm text-gray-900">{{ $item['no_rm'] }}</span>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
                                     <div class="flex items-center gap-2">
-                                        @if($item['tipe'] == 'Emergency')
-                                            <div class="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                                {{ substr($item['nama_pasien'], 0, 1) }}
-                                            </div>
-                                        @else
-                                            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                                {{ substr($item['nama_pasien'], 0, 1) }}
-                                            </div>
-                                        @endif
+                                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                            {{ substr($item['nama_pasien'], 0, 1) }}
+                                        </div>
                                         <span class="text-sm font-medium text-gray-900">{{ $item['nama_pasien'] }}</span>
                                     </div>
                                 </td>
@@ -358,28 +321,18 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
-                                    @if($item['tipe'] == 'Emergency')
-                                        <a href="{{ route('laporan.detail-emergency', $item['id_rekam']) }}" class="inline-flex items-center px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition-all">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                            Detail
-                                        </a>
-                                    @else
-                                        <a href="{{ route('laporan.detail', $item['id_rekam']) }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all">
-                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                            Detail
-                                        </a>
-                                    @endif
+                                    <a href="{{ route('laporan.detail', $item['id_rekam']) }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        Detail
+                                    </a>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="11" class="px-4 py-8 text-center text-gray-500">
+                                <td colspan="10" class="px-4 py-8 text-center text-gray-500">
                                     <div class="flex flex-col items-center">
                                         <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -518,6 +471,18 @@
                     tension: 0.4,
                     pointRadius: 4,
                     pointHoverRadius: 6
+                },
+                {
+                    label: 'Total Pemeriksaan',
+                    data: chartPemeriksaanData.total,
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderDash: [5, 5]
                 }
             ]
         },
@@ -526,14 +491,13 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: true,
-                    position: 'top'
+                    display: false
                 },
                 tooltip: {
                     enabled: true,
                     callbacks: {
                         label: function(context) {
-                            return context.dataset.label + ': ' + Math.round(context.parsed.y);
+                            return 'Pemeriksaan: ' + Math.round(context.parsed.y);
                         }
                     }
                 }
@@ -563,44 +527,30 @@
         type: 'line',
         data: {
             labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
-            datasets: [
-                {
-                    label: 'Biaya Reguler',
-                    data: chartBiayaData.reguler,
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    borderColor: 'rgba(59, 130, 246, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                },
-                {
-                    label: 'Biaya Emergency',
-                    data: chartBiayaData.emergency,
-                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                    borderColor: 'rgba(239, 68, 68, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }
-            ]
+            datasets: [{
+                label: 'Total Biaya',
+                data: chartBiayaData,
+                backgroundColor: 'rgba(248, 113, 113, 0.2)',
+                borderColor: 'rgba(248, 113, 113, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: true,
-                    position: 'top'
+                    display: false
                 },
                 tooltip: {
                     enabled: true,
                     callbacks: {
                         label: function(context) {
-                            return context.dataset.label + ': Rp ' + context.parsed.y.toLocaleString('id-ID');
+                            return 'Biaya: Rp ' + context.parsed.y.toLocaleString('id-ID');
                         }
                     }
                 }

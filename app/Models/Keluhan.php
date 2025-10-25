@@ -12,9 +12,7 @@ class Keluhan extends Model
 
     protected $fillable = [
         'id_rekam',
-        'id_emergency', // Kolom untuk relasi dengan rekam_medis_emergency
         'id_diagnosa',
-        'id_diagnosa_emergency', // Kolom untuk relasi langsung dengan diagnosa_emergency
         'terapi',
         'keterangan',
         'id_obat',
@@ -22,6 +20,60 @@ class Keluhan extends Model
         'aturan_pakai',
         'id_keluarga',
     ];
+
+    // Properties that should be ignored when saving to database
+    protected $guarded = [];
+
+    /**
+     * Get the attributes that should be converted to dates.
+     */
+    public function getDates()
+    {
+        return ['created_at'];
+    }
+
+    /**
+     * Override save method to handle dynamic attributes
+     */
+    public function save(array $options = [])
+    {
+        // Remove attributes that don't exist in the table before saving
+        $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing($this->getTable());
+
+        foreach ($this->attributes as $key => $value) {
+            if (!in_array($key, $tableColumns)) {
+                unset($this->attributes[$key]);
+            }
+        }
+
+        return parent::save($options);
+    }
+
+    /**
+     * Create a new model instance that is existing.
+     * This method is overridden to handle dynamic fillable attributes.
+     */
+    public function newInstance($attributes = [], $exists = false)
+    {
+        $model = parent::newInstance($attributes, $exists);
+
+        // Check if emergency columns exist and add them to fillable
+        try {
+            $schema = \Illuminate\Support\Facades\Schema::getColumnListing('keluhan');
+
+            if (in_array('id_emergency', $schema) && !in_array('id_emergency', $model->fillable)) {
+                $model->fillable[] = 'id_emergency';
+            }
+
+            if (in_array('id_diagnosa_emergency', $schema) && !in_array('id_diagnosa_emergency', $model->fillable)) {
+                $model->fillable[] = 'id_diagnosa_emergency';
+            }
+        } catch (\Exception $e) {
+            // Ignore errors during schema inspection
+        }
+
+        return $model;
+    }
 
     protected $casts = [
         'tanggal_periksa' => 'date',
@@ -121,7 +173,8 @@ class Keluhan extends Model
      */
     public function setIdRekamAttribute($value)
     {
-        if ($value) {
+        // Only set id_emergency to null if the column exists in the table
+        if ($value && \Illuminate\Support\Facades\Schema::hasColumn($this->getTable(), 'id_emergency')) {
             $this->attributes['id_emergency'] = null;
         }
         $this->attributes['id_rekam'] = $value;

@@ -8,15 +8,21 @@ use Illuminate\Support\Facades\Log;
 class Obat extends Model
 {
     protected $table = 'obat';
+
     protected $primaryKey = 'id_obat';
+
     public $timestamps = false;
 
     protected $fillable = [
         'nama_obat',
         'keterangan',
         'id_satuan',
+        'stok_awal',
         'tanggal_update',
     ];
+
+    // Properties yang akan di-append tanpa memanggil accessor
+    // protected $appends = ['sisa_stok']; // Dinonaktifkan karena sudah dihitung di controller
 
     protected $casts = [
         'tanggal_update' => 'datetime',
@@ -57,10 +63,16 @@ class Obat extends Model
         return $this->hasMany(Keluhan::class, 'id_obat', 'id_obat');
     }
 
-    // Relasi ke Stok Bulanan
-    public function stokBulanans()
+    // Relasi ke Stok Bulanan (lama)
+    public function stokObats()
     {
         return $this->hasMany(StokObat::class, 'id_obat', 'id_obat');
+    }
+
+    // Relasi ke Stok Bulanan (baru)
+    public function stokBulanans()
+    {
+        return $this->hasMany(StokBulanan::class, 'obat_id', 'id_obat');
     }
 
     // Relasi ke Harga Obat Per Bulan
@@ -78,7 +90,7 @@ class Obat extends Model
 
         static::saving(function ($obat) {
             // Update tanggal_update only if not already set
-            if (!$obat->tanggal_update) {
+            if (! $obat->tanggal_update) {
                 $obat->tanggal_update = now();
             }
         });
@@ -88,7 +100,7 @@ class Obat extends Model
             Log::info('Obat created successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
-                'id_satuan' => $obat->id_satuan
+                'id_satuan' => $obat->id_satuan,
             ]);
         });
 
@@ -96,8 +108,34 @@ class Obat extends Model
             Log::info('Obat updated successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
-                'id_satuan' => $obat->id_satuan
+                'id_satuan' => $obat->id_satuan,
             ]);
         });
+    }
+
+    /**
+     * Menghitung sisa stok saat ini
+     *
+     * Catatan: Accessor ini telah dihapus untuk menghindari N+1 query.
+     * Gunakan StokBulanan::getSisaStokSaatIniForMultiple() untuk multiple obat.
+     */
+    public function getSisaStokAttribute()
+    {
+        // Jika sisa_stok sudah diset di controller, gunakan nilai tersebut
+        if (isset($this->attributes['sisa_stok'])) {
+            return $this->attributes['sisa_stok'];
+        }
+
+        // Jangan panggil method yang menyebabkan N+1 query
+        // Kembalikan nilai default 0
+        return 0;
+    }
+
+    /**
+     * Mendapatkan riwayat stok bulanan
+     */
+    public function getRiwayatStok($limit = 12)
+    {
+        return StokBulanan::getRiwayatStok($this->id_obat, $limit);
     }
 }
