@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Log;
 class Obat extends Model
 {
     protected $table = 'obat';
+
     protected $primaryKey = 'id_obat';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -16,6 +18,7 @@ class Obat extends Model
         'keterangan',
         'id_satuan',
         'stok_awal',
+        'bin',
         'tanggal_update',
     ];
 
@@ -85,7 +88,7 @@ class Obat extends Model
 
         static::saving(function ($obat) {
             // Update tanggal_update only if not already set
-            if (!$obat->tanggal_update) {
+            if (! $obat->tanggal_update) {
                 $obat->tanggal_update = now();
             }
         });
@@ -95,7 +98,7 @@ class Obat extends Model
             Log::info('Obat created successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
-                'id_satuan' => $obat->id_satuan
+                'id_satuan' => $obat->id_satuan,
             ]);
         });
 
@@ -103,7 +106,7 @@ class Obat extends Model
             Log::info('Obat updated successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
-                'id_satuan' => $obat->id_satuan
+                'id_satuan' => $obat->id_satuan,
             ]);
         });
     }
