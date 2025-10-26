@@ -1075,6 +1075,31 @@ class LaporanController extends Controller
         // Get all transaction data without pagination
         $allTransaksiData = $this->getAllTransaksiDataForExport($month, $year, $search);
         
+        // Validate data before export
+        if (empty($allTransaksiData)) {
+            return redirect()->back()->with('error', 'Tidak ada data transaksi untuk periode yang dipilih.');
+        }
+        
+        // Log data for debugging
+        \Log::info('Export Data Count', [
+            'month' => $month,
+            'year' => $year,
+            'search' => $search,
+            'total_records' => count($allTransaksiData),
+            'sample_data' => $allTransaksiData->take(3)->toArray() // Log first 3 records for debugging
+        ]);
+        
+        // Log sample data structure to verify 'tanggal' field
+        if (count($allTransaksiData) > 0) {
+            $firstRecord = $allTransaksiData->first();
+            \Log::info('Sample Data Structure', [
+                'first_record' => $firstRecord,
+                'tanggal_field' => $firstRecord['tanggal'] ?? 'NOT_FOUND',
+                'tanggal_type' => gettype($firstRecord['tanggal'] ?? null),
+                'all_keys' => array_keys($firstRecord)
+            ]);
+        }
+        
         // Create a new Excel file with proper filename format
         $filename = 'LAPORAN_TRANSAKSI_POLIKLINIK_' . date('Ymd') . '.xlsx';
         
@@ -1190,7 +1215,27 @@ class LaporanController extends Controller
             $sheet->setCellValue('F' . $row, $item['hubungan']);
             $sheet->setCellValue('G' . $row, $item['nik_karyawan']);
             $sheet->setCellValue('H' . $row, $item['nama_karyawan']);
-            $sheet->setCellValue('I' . $row, $item['tanggal']);
+            // PASTIKAN KOLOM I BERISI TANGGAL PERIKSA
+            $tanggalValue = isset($item['tanggal']) ? $item['tanggal'] : '-';
+            if ($tanggalValue !== '-') {
+                // Validasi format tanggal dan konversi jika perlu
+                try {
+                    if (is_string($tanggalValue)) {
+                        // Coba parse tanggal dari format d-m-Y
+                        $carbonDate = \Carbon\Carbon::createFromFormat('d-m-Y', $tanggalValue);
+                        $tanggalValue = $carbonDate->format('d-m-Y');
+                    }
+                } catch (\Exception $e) {
+                    // Jika gagal parse, coba format lain atau gunakan default
+                    try {
+                        $carbonDate = new \Carbon\Carbon($tanggalValue);
+                        $tanggalValue = $carbonDate->format('d-m-Y');
+                    } catch (\Exception $e2) {
+                        $tanggalValue = '-';
+                    }
+                }
+            }
+            $sheet->setCellValue('I' . $row, $tanggalValue);
             
             // Add diagnoses (up to 3) - use "-" for empty values
             if (isset($item['diagnosa_list']) && is_array($item['diagnosa_list'])) {
@@ -1482,18 +1527,18 @@ class LaporanController extends Controller
             
             foreach ($keluhans as $keluhan) {
                 if (!$keluhan->id_obat) continue;
-
+                
                 // Get harga obat from our pre-fetched map
                 $key = $keluhan->id_obat . '_' . $periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
-                $hargaSatuan = $hargaObat->harga_per_satuan ?? 0;
+                $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
                 $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
                 
                 $totalBiaya += $subtotal;
                 
-                // Store obat details for export
+                // Store obat details for export with proper null checks
                 $obatDetails[] = [
-                    'nama_obat' => $keluhan->obat->nama_obat ?? '',
+                    'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
                     'jumlah_obat' => $keluhan->jumlah_obat,
                     'harga_satuan' => $hargaSatuan,
                     'subtotal' => $subtotal
@@ -1510,7 +1555,7 @@ class LaporanController extends Controller
                 'hubungan' => $rekamMedis->keluarga->hubungan->hubungan ?? '-',
                 'nik_karyawan' => $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-',
                 'nama_karyawan' => $rekamMedis->keluarga->karyawan->nama_karyawan ?? '-',
-                'tanggal' => $rekamMedis->tanggal_periksa->format('d-m-Y'),
+                'tanggal' => $rekamMedis->tanggal_periksa ? $rekamMedis->tanggal_periksa->format('d-m-Y') : '-',
                 'diagnosa_list' => $diagnosaList,
                 'total_biaya' => $totalBiaya,
                 'id_rekam' => $rekamMedis->id_rekam,
@@ -1536,18 +1581,18 @@ class LaporanController extends Controller
             
             foreach ($keluhans as $keluhan) {
                 if (!$keluhan->id_obat) continue;
-
+                
                 // Get harga obat from our pre-fetched map
                 $key = $keluhan->id_obat . '_' . $periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
-                $hargaSatuan = $hargaObat->harga_per_satuan ?? 0;
+                $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
                 $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
                 
                 $totalBiaya += $subtotal;
                 
-                // Store obat details for export
+                // Store obat details for export with proper null checks
                 $obatDetails[] = [
-                    'nama_obat' => $keluhan->obat->nama_obat ?? '',
+                    'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
                     'jumlah_obat' => $keluhan->jumlah_obat,
                     'harga_satuan' => $hargaSatuan,
                     'subtotal' => $subtotal
@@ -1564,7 +1609,7 @@ class LaporanController extends Controller
                 'hubungan' => 'External Employee',
                 'nik_karyawan' => $rekamMedisEmergency->externalEmployee->nik_employee ?? '-',
                 'nama_karyawan' => $rekamMedisEmergency->externalEmployee->nama_employee ?? '-',
-                'tanggal' => $rekamMedisEmergency->tanggal_periksa->format('d-m-Y'),
+                'tanggal' => $rekamMedisEmergency->tanggal_periksa ? $rekamMedisEmergency->tanggal_periksa->format('d-m-Y') : '-',
                 'diagnosa_list' => $diagnosaList,
                 'total_biaya' => $totalBiaya,
                 'id_rekam' => $rekamMedisEmergency->id_emergency,

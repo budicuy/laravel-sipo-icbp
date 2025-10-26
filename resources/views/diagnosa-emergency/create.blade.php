@@ -81,7 +81,7 @@
                         <div class="border border-gray-300 rounded-lg p-4 max-h-64 overflow-y-auto">
                             @foreach($obats as $obat)
                                 <div class="flex items-center mb-2">
-                                    <input type="checkbox" id="obat_{{ $obat->id_obat }}" name="obat_ids[]" value="{{ $obat->id_obat }}" class="rounded border-gray-300 text-red-600 focus:ring-red-500 mr-3" {{ in_array($obat->id_obat, old('obat_ids', [])) ? 'checked' : '' }}>
+                                    <input type="checkbox" id="obat_{{ $obat->id_obat }}" name="obat_rekomendasi[]" value="{{ $obat->id_obat }}" class="rounded border-gray-300 text-red-600 focus:ring-red-500 mr-3" {{ in_array($obat->id_obat, old('obat_rekomendasi', [])) ? 'checked' : '' }}>
                                     <label for="obat_{{ $obat->id_obat }}" class="text-sm text-gray-700">
                                         {{ $obat->nama_obat }}
                                         @if($obat->keterangan)
