@@ -142,6 +142,7 @@
                                 Daftar Rekam Medis
                             </a>
                         </li>
+
                         @if (auth()->user()->role === 'User')
                             <li>
                                 <a href="{{ route('token-emergency.my-tokens') }}"
