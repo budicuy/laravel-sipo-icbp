@@ -56,6 +56,7 @@
                     </button>
                 </div>
 
+                @if(auth()->user()->role === 'Super Admin')
                 <div class="flex items-end">
                     <a href="{{ route('monitoring.harga.export', ['months' => $months]) }}" class="w-full px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,6 +65,7 @@
                         Export CSV
                     </a>
                 </div>
+                @endif
             </div>
         </form>
     </div>
