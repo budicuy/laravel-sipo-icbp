@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
+use App\Models\Kunjungan;
 use App\Models\RekamMedis;
 use App\Models\RekamMedisEmergency;
-use App\Models\Kunjungan;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -141,7 +141,7 @@ class DashboardController extends Controller
 
             $count = ($weeklyVisitsReguler[$weekNumber] ?? 0) + ($weeklyVisitsEmergency[$weekNumber] ?? 0);
 
-            $weeklyLabels[] = $weekStart->format('d M') . ' - ' . $weekEnd->format('d M');
+            $weeklyLabels[] = $weekStart->format('d M').' - '.$weekEnd->format('d M');
             $weeklyCounts[] = $count;
 
             $currentDate = $weekEnd->copy()->addDay();
@@ -159,7 +159,7 @@ class DashboardController extends Controller
     private function getMonthlyVisits($year)
     {
         $monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
         // Single query dengan GROUP BY untuk semua bulan dalam setahun (Reguler)
         $monthlyVisitsReguler = RekamMedis::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')

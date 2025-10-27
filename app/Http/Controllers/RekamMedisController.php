@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Events\RekamMedisCreated;
-use App\Events\RekamMedisUpdated;
 use App\Events\RekamMedisDeleted;
+use App\Events\RekamMedisUpdated;
 use App\Models\Diagnosa;
 use App\Models\Karyawan;
 use App\Models\Keluarga;

@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Karyawan;
 use App\Models\Departemen;
+use App\Models\Karyawan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class KaryawanController extends Controller
 {
@@ -48,10 +48,10 @@ class KaryawanController extends Controller
         $sortDirection = $request->input('direction', 'asc');
 
         // Validate sort field and direction
-        if (!in_array($sortField, $allowedSorts)) {
+        if (! in_array($sortField, $allowedSorts)) {
             $sortField = 'id_karyawan';
         }
-        if (!in_array($sortDirection, ['asc', 'desc'])) {
+        if (! in_array($sortDirection, ['asc', 'desc'])) {
             $sortDirection = 'asc';
         }
 
@@ -61,11 +61,12 @@ class KaryawanController extends Controller
         $perPage = $request->input('per_page', 50);
 
         // Validate per_page to only allow specific values
-        if (!in_array($perPage, [50, 100, 150, 200])) {
+        if (! in_array($perPage, [50, 100, 150, 200])) {
             $perPage = 50;
         }
 
         $karyawans = $query->paginate($perPage)->appends($request->except('page'));
+
         return view('karyawan.index', compact('karyawans', 'departemens'));
     }
 
@@ -74,22 +75,23 @@ class KaryawanController extends Controller
         $departemens = Cache::remember('departemens_all', 60, function () {
             return Departemen::orderBy('nama_departemen')->get();
         });
+
         return view('karyawan.create', compact('departemens'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nik' => ['required','numeric','min:1','max:999999999999999','unique:karyawan,nik_karyawan'],
-            'nama' => ['required','string','max:100'],
-            'tanggal_lahir' => ['required','date'],
-            'jenis_kelamin' => ['required', Rule::in(['L', 'P', 'J', 'Laki - Laki','Perempuan'])],
-            'alamat' => ['required','string'],
-            'no_hp' => ['required','regex:/^08\d+$/'],
-            'departemen' => ['required','integer','exists:departemen,id_departemen'],
-            'foto' => ['nullable','image','max:30'],
-            'email' => ['nullable','email','max:100'],
-            'bpjs_id' => ['nullable','string','max:50','regex:/^[0-9]+$/'],
+            'nik' => ['required', 'numeric', 'min:1', 'max:999999999999999', 'unique:karyawan,nik_karyawan'],
+            'nama' => ['required', 'string', 'max:100'],
+            'tanggal_lahir' => ['required', 'date'],
+            'jenis_kelamin' => ['required', Rule::in(['L', 'P', 'J', 'Laki - Laki', 'Perempuan'])],
+            'alamat' => ['required', 'string'],
+            'no_hp' => ['required', 'regex:/^08\d+$/'],
+            'departemen' => ['required', 'integer', 'exists:departemen,id_departemen'],
+            'foto' => ['nullable', 'image', 'max:30'],
+            'email' => ['nullable', 'email', 'max:100'],
+            'bpjs_id' => ['nullable', 'string', 'max:50', 'regex:/^[0-9]+$/'],
         ], [
             'nik.required' => 'NIK karyawan wajib diisi',
             'nik.numeric' => 'NIK karyawan hanya boleh berisi angka',
@@ -145,22 +147,23 @@ class KaryawanController extends Controller
         $departemens = Cache::remember('departemens_all', 60, function () {
             return Departemen::orderBy('nama_departemen')->get();
         });
-        return view('karyawan.edit', compact('karyawan','departemens'));
+
+        return view('karyawan.edit', compact('karyawan', 'departemens'));
     }
 
     public function update(Request $request, Karyawan $karyawan)
     {
         $validated = $request->validate([
-            'nik' => ['required','numeric','min:1','max:999999999999999', Rule::unique('karyawan','nik_karyawan')->ignore($karyawan->id_karyawan, 'id_karyawan')],
-            'nama' => ['required','string','max:100'],
-            'tanggal_lahir' => ['required','date'],
-            'jenis_kelamin' => ['required', Rule::in(['L', 'P', 'J', 'Laki - Laki','Perempuan'])],
-            'alamat' => ['required','string'],
-            'no_hp' => ['required','regex:/^08\d+$/'],
-            'departemen' => ['required','integer','exists:departemen,id_departemen'],
-            'foto' => ['nullable','image','max:30'],
-            'email' => ['nullable','email','max:100'],
-            'bpjs_id' => ['nullable','string','max:50','regex:/^[0-9]+$/'],
+            'nik' => ['required', 'numeric', 'min:1', 'max:999999999999999', Rule::unique('karyawan', 'nik_karyawan')->ignore($karyawan->id_karyawan, 'id_karyawan')],
+            'nama' => ['required', 'string', 'max:100'],
+            'tanggal_lahir' => ['required', 'date'],
+            'jenis_kelamin' => ['required', Rule::in(['L', 'P', 'J', 'Laki - Laki', 'Perempuan'])],
+            'alamat' => ['required', 'string'],
+            'no_hp' => ['required', 'regex:/^08\d+$/'],
+            'departemen' => ['required', 'integer', 'exists:departemen,id_departemen'],
+            'foto' => ['nullable', 'image', 'max:30'],
+            'email' => ['nullable', 'email', 'max:100'],
+            'bpjs_id' => ['nullable', 'string', 'max:50', 'regex:/^[0-9]+$/'],
             'status' => ['required', Rule::in(['aktif', 'nonaktif'])],
         ], [
             'nik.required' => 'NIK karyawan wajib diisi',
@@ -232,7 +235,7 @@ class KaryawanController extends Controller
 
     public function downloadTemplate()
     {
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Import');
 
@@ -248,7 +251,7 @@ class KaryawanController extends Controller
         $column = 'A';
 
         foreach ($headers as $header) {
-            $sheet->setCellValue($column . '1', $header);
+            $sheet->setCellValue($column.'1', $header);
             $column++;
         }
 
@@ -381,11 +384,11 @@ class KaryawanController extends Controller
         // Add departments data
         $row = 2;
         foreach ($departemens as $index => $dept) {
-            $departemenSheet->setCellValue('A' . $row, $index + 1);
-            $departemenSheet->setCellValue('B' . $row, $dept->nama_departemen);
+            $departemenSheet->setCellValue('A'.$row, $index + 1);
+            $departemenSheet->setCellValue('B'.$row, $dept->nama_departemen);
 
             // Style data rows
-            $departemenSheet->getStyle('A' . $row . ':B' . $row)->applyFromArray([
+            $departemenSheet->getStyle('A'.$row.':B'.$row)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -408,23 +411,23 @@ class KaryawanController extends Controller
         $departemenSheet->getRowDimension(1)->setRowHeight(25);
 
         // Add note in department sheet
-        $departemenSheet->setCellValue('A' . ($row + 1), 'CATATAN:');
-        $departemenSheet->setCellValue('A' . ($row + 2), '• Salin nama departemen yang sesuai ke kolom Departemen di sheet "Template Import"');
-        $departemenSheet->setCellValue('A' . ($row + 3), '• Nama departemen harus sama persis dengan yang ada di daftar');
+        $departemenSheet->setCellValue('A'.($row + 1), 'CATATAN:');
+        $departemenSheet->setCellValue('A'.($row + 2), '• Salin nama departemen yang sesuai ke kolom Departemen di sheet "Template Import"');
+        $departemenSheet->setCellValue('A'.($row + 3), '• Nama departemen harus sama persis dengan yang ada di daftar');
 
-        $departemenSheet->getStyle('A' . ($row + 1))->getFont()->setBold(true);
-        $departemenSheet->getStyle('A' . ($row + 2) . ':A' . ($row + 3))->getFont()->setItalic(true)->setSize(10);
+        $departemenSheet->getStyle('A'.($row + 1))->getFont()->setBold(true);
+        $departemenSheet->getStyle('A'.($row + 2).':A'.($row + 3))->getFont()->setItalic(true)->setSize(10);
 
         // Set active sheet back to first sheet
         $spreadsheet->setActiveSheetIndex(0);
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'template_karyawan_' . date('Y-m-d') . '.xlsx';
+        $filename = 'template_karyawan_'.date('Y-m-d').'.xlsx';
 
         // Set headers for download
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Content-Disposition: attachment;filename="'.$filename.'"');
         header('Cache-Control: max-age=0');
 
         $writer->save('php://output');
@@ -456,12 +459,12 @@ class KaryawanController extends Controller
             for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
 
                 // Read cell values - use getValue() then convert to string to preserve leading zeros
-                $nikCell = $sheet->getCell('A' . $rowNumber)->getValue();
-                $nik = $nikCell !== null ? trim((string)$nikCell) : '';
+                $nikCell = $sheet->getCell('A'.$rowNumber)->getValue();
+                $nik = $nikCell !== null ? trim((string) $nikCell) : '';
 
-                $nama = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
+                $nama = trim($sheet->getCell('B'.$rowNumber)->getValue() ?? '');
                 // Handle tanggal lahir - konversi dari format Excel ke database format
-                $tanggalLahirCell = $sheet->getCell('C' . $rowNumber);
+                $tanggalLahirCell = $sheet->getCell('C'.$rowNumber);
                 $tanggalLahirValue = $tanggalLahirCell->getValue();
                 $tanggalLahir = null;
 
@@ -482,6 +485,7 @@ class KaryawanController extends Controller
                         } catch (\Exception $e) {
                             // Jika konversi gagal, catat error
                             $errors[] = "Baris $rowNumber: Format tanggal lahir tidak valid";
+
                             continue;
                         }
                     }
@@ -494,24 +498,25 @@ class KaryawanController extends Controller
                         } catch (\Exception $e) {
                             // Jika konversi gagal, catat error
                             $errors[] = "Baris $rowNumber: Format tanggal lahir tidak valid. Gunakan format YYYY-MM-DD";
+
                             continue;
                         }
                     }
 
                     $tanggalLahir = trim($tanggalLahir ?? '');
                 }
-                $jenisKelamin = strtoupper(trim($sheet->getCell('D' . $rowNumber)->getValue() ?? ''));
-                $alamat = trim($sheet->getCell('E' . $rowNumber)->getValue() ?? '');
+                $jenisKelamin = strtoupper(trim($sheet->getCell('D'.$rowNumber)->getValue() ?? ''));
+                $alamat = trim($sheet->getCell('E'.$rowNumber)->getValue() ?? '');
 
-                $noHpCell = $sheet->getCell('F' . $rowNumber)->getValue();
-                $noHp = $noHpCell !== null ? trim((string)$noHpCell) : '';
+                $noHpCell = $sheet->getCell('F'.$rowNumber)->getValue();
+                $noHp = $noHpCell !== null ? trim((string) $noHpCell) : '';
 
-                $departemenName = trim($sheet->getCell('G' . $rowNumber)->getValue() ?? '');
-                $email = trim($sheet->getCell('H' . $rowNumber)->getValue() ?? '');
+                $departemenName = trim($sheet->getCell('G'.$rowNumber)->getValue() ?? '');
+                $email = trim($sheet->getCell('H'.$rowNumber)->getValue() ?? '');
 
                 // For BPJS ID, convert to string to preserve leading zeros
-                $bpjsIdCell = $sheet->getCell('I' . $rowNumber)->getValue();
-                $bpjsId = $bpjsIdCell !== null ? trim((string)$bpjsIdCell) : '';
+                $bpjsIdCell = $sheet->getCell('I'.$rowNumber)->getValue();
+                $bpjsId = $bpjsIdCell !== null ? trim((string) $bpjsIdCell) : '';
 
                 // Skip empty rows
                 if (empty($nik) && empty($nama)) {
@@ -521,67 +526,78 @@ class KaryawanController extends Controller
                 // Validate NIK
                 if (strlen($nik) < 1 || strlen($nik) > 15) {
                     $errors[] = "Baris $rowNumber: NIK minimal 1 dan maksimal 15 karakter";
+
                     continue;
                 }
 
                 // Validate required fields
                 if (empty($nama)) {
                     $errors[] = "Baris $rowNumber: Nama tidak boleh kosong";
+
                     continue;
                 }
 
                 // Validate jenis kelamin
-                if (!in_array($jenisKelamin, ['L', 'J', 'P', 'LAKI - LAKI', 'PEREMPUAN'])) {
+                if (! in_array($jenisKelamin, ['L', 'J', 'P', 'LAKI - LAKI', 'PEREMPUAN'])) {
                     $errors[] = "Baris $rowNumber: Jenis kelamin harus 'L', 'J', atau 'P'";
+
                     continue;
                 }
 
                 // Validate no HP
-                if (!preg_match('/^08\d+$/', $noHp)) {
+                if (! preg_match('/^08\d+$/', $noHp)) {
                     $errors[] = "Baris $rowNumber: No HP harus diawali dengan 08";
+
                     continue;
                 }
 
                 // Validate email
-                if (!empty($email) && strlen($email) > 100) {
+                if (! empty($email) && strlen($email) > 100) {
                     $errors[] = "Baris $rowNumber: Email maksimal 100 karakter";
+
                     continue;
                 }
 
                 // Validate BPJS ID
-                if (!empty($bpjsId) && strlen($bpjsId) > 50) {
+                if (! empty($bpjsId) && strlen($bpjsId) > 50) {
                     $errors[] = "Baris $rowNumber: BPJS ID maksimal 50 karakter";
+
                     continue;
                 }
 
                 // Validate BPJS ID harus angka
-                if (!empty($bpjsId) && !preg_match('/^[0-9]+$/', $bpjsId)) {
+                if (! empty($bpjsId) && ! preg_match('/^[0-9]+$/', $bpjsId)) {
                     $errors[] = "Baris $rowNumber: BPJS ID hanya boleh berisi angka";
+
                     continue;
                 }
 
                 // Validate tanggal lahir
                 if (empty($tanggalLahir)) {
                     $errors[] = "Baris $rowNumber: Tanggal lahir tidak boleh kosong";
+
                     continue;
                 }
 
                 // Pastikan format tanggal valid
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalLahir)) {
+                if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalLahir)) {
                     $errors[] = "Baris $rowNumber: Format tanggal lahir harus YYYY-MM-DD";
+
                     continue;
                 }
 
                 // Validasi tanggal dengan checkdate
                 $dateParts = explode('-', $tanggalLahir);
-                if (!checkdate($dateParts[1], $dateParts[2], $dateParts[0])) {
+                if (! checkdate($dateParts[1], $dateParts[2], $dateParts[0])) {
                     $errors[] = "Baris $rowNumber: Tanggal lahir tidak valid";
+
                     continue;
                 }
 
                 // Get or create departemen
                 if (empty($departemenName)) {
                     $errors[] = "Baris $rowNumber: Departemen tidak boleh kosong";
+
                     continue;
                 }
 
@@ -601,8 +617,8 @@ class KaryawanController extends Controller
                         'no_hp' => $noHp,
                         'id_departemen' => $departemen->id_departemen,
                         'foto' => null,
-                        'email' => !empty($email) ? $email : null,
-                        'bpjs_id' => !empty($bpjsId) ? $bpjsId : null,
+                        'email' => ! empty($email) ? $email : null,
+                        'bpjs_id' => ! empty($bpjsId) ? $bpjsId : null,
                         'status' => $exists ? Karyawan::where('nik_karyawan', $nik)->first()->status : 'aktif',
                     ]
                 );
@@ -620,9 +636,9 @@ class KaryawanController extends Controller
             if ($hasErrors) {
                 $errorMessage = implode('<br>', array_slice($errors, 0, 10)); // Show first 10 errors
                 if (count($errors) > 10) {
-                    $errorMessage .= '<br>... dan ' . (count($errors) - 10) . ' error lainnya';
+                    $errorMessage .= '<br>... dan '.(count($errors) - 10).' error lainnya';
                 }
-                $message .= '<br><br>Error:<br>' . $errorMessage;
+                $message .= '<br><br>Error:<br>'.$errorMessage;
             }
 
             // Return JSON response for AJAX requests
@@ -633,8 +649,8 @@ class KaryawanController extends Controller
                     'data' => [
                         'created' => $created,
                         'updated' => $updated,
-                        'errors' => $errors
-                    ]
+                        'errors' => $errors,
+                    ],
                 ]);
             }
 
@@ -649,11 +665,11 @@ class KaryawanController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal import data: ' . $e->getMessage()
+                    'message' => 'Gagal import data: '.$e->getMessage(),
                 ], 500);
             }
 
-            return back()->with('error', 'Gagal import data: ' . $e->getMessage());
+            return back()->with('error', 'Gagal import data: '.$e->getMessage());
         }
     }
 
@@ -661,7 +677,7 @@ class KaryawanController extends Controller
     {
         $request->validate([
             'ids' => ['required', 'array'],
-            'ids.*' => ['integer', 'exists:karyawan,id_karyawan']
+            'ids.*' => ['integer', 'exists:karyawan,id_karyawan'],
         ]);
 
         $ids = $request->input('ids');
@@ -696,17 +712,13 @@ class KaryawanController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Foto berhasil dihapus'
+                'message' => 'Foto berhasil dihapus',
             ]);
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'Tidak ada foto untuk dihapus'
+            'message' => 'Tidak ada foto untuk dihapus',
         ], 404);
     }
-
-
 }
-
-

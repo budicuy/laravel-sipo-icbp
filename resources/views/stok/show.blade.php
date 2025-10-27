@@ -91,72 +91,79 @@
         </div>
 
         <!-- Form Tambah Stok Masuk -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-            <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
-                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    Tambah Stok Masuk
-                </h2>
-            </div>
-            <div class="p-6">
-                <form action="{{ route('stok.masuk.store') }}" method="POST">
-                    @csrf
-                    <input type="hidden" name="obat_id" value="{{ $obat->id_obat }}">
+        @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+                <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Tambah Stok Masuk
+                    </h2>
+                </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label for="jumlah_stok_masuk" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Stok
-                                Masuk</label>
-                            <div class="relative">
-                                <input type="number"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-16"
-                                    id="jumlah_stok_masuk" name="jumlah_stok_masuk" min="1" required
-                                    placeholder="Masukkan jumlah stok masuk">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-sm text-gray-500">{{ $obat->satuanObat->nama_satuan ?? '' }}</span>
+
+                <div class="p-6">
+                    <form action="{{ route('stok.masuk.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="obat_id" value="{{ $obat->id_obat }}">
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="jumlah_stok_masuk" class="block text-sm font-medium text-gray-700 mb-2">Jumlah
+                                    Stok
+                                    Masuk</label>
+                                <div class="relative">
+                                    <input type="number"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-16"
+                                        id="jumlah_stok_masuk" name="jumlah_stok_masuk" min="1" required
+                                        placeholder="Masukkan jumlah stok masuk">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <span
+                                            class="text-sm text-gray-500">{{ $obat->satuanObat->nama_satuan ?? '' }}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div>
-                            <label for="periode" class="block text-sm font-medium text-gray-700 mb-2">Pilih
-                                Periode:</label>
-                            <input type="month" name="periode" id="periode" value="{{ now()->format('Y-m') }}"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                required>
-                        </div>
-                        <div class="flex items-end">
-                            <button type="submit"
-                                class="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l3 3m-3-3v12" />
-                                </svg>
-                                Tambah Stok
-                            </button>
-                        </div>
-                    </div>
-
-                    @if ($stokBulananIni && $stokBulananIni->stok_masuk > 0)
-                        <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <div class="flex">
-                                <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <div class="text-sm text-blue-800">
-                                    Stok masuk bulan ini ({{ date('F Y') }}):
-                                    <strong>{{ number_format($stokBulananIni->stok_masuk) }}
-                                        {{ $obat->satuanObat->nama_satuan ?? '' }}</strong>
-                                </div>
+                            <div>
+                                <label for="periode" class="block text-sm font-medium text-gray-700 mb-2">Pilih
+                                    Periode:</label>
+                                <input type="month" name="periode" id="periode" value="{{ now()->format('Y-m') }}"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required>
+                            </div>
+                            <div class="flex items-end">
+                                <button type="submit"
+                                    class="w-full px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l3 3m-3-3v12" />
+                                    </svg>
+                                    Tambah Stok
+                                </button>
                             </div>
                         </div>
-                    @endif
-                </form>
+
+                        @if ($stokBulananIni && $stokBulananIni->stok_masuk > 0)
+                            <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="flex">
+                                    <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div class="text-sm text-blue-800">
+                                        Stok masuk bulan ini ({{ date('F Y') }}):
+                                        <strong>{{ number_format($stokBulananIni->stok_masuk) }}
+                                            {{ $obat->satuanObat->nama_satuan ?? '' }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </form>
+                </div>
             </div>
-        </div>
+        @endif
 
         <!-- Riwayat Stok Bulanan -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
@@ -393,26 +400,6 @@
                 @endif
 
             </div>
-        </div>
-
-        <!-- Aksi -->
-        <div class="flex gap-3 mt-6">
-            <a href="{{ route('stok.index') }}"
-                class="inline-flex items-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-all">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Kembali ke Daftar Stok
-            </a>
-            <a href="{{ route('obat.edit', $obat->id_obat) }}"
-                class="inline-flex items-center px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-all">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828L8.586-8.586z" />
-                </svg>
-                Edit Obat
-            </a>
         </div>
     </div>
     </div>
