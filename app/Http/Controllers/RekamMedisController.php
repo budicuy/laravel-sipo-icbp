@@ -487,10 +487,10 @@ class RekamMedisController extends Controller
         try {
             // Load rekam medis dengan relasi keluhans
             $rekamMedis = RekamMedis::with(['keluhans'])->findOrFail($id);
-            
+
             // Trigger event SEBELUM delete agar data keluhans masih bisa diakses
             event(new RekamMedisDeleted($rekamMedis));
-            
+
             // Delete rekam medis (akan cascade delete keluhan juga jika ada foreign key cascade)
             $rekamMedis->delete();
 

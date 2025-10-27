@@ -24,33 +24,43 @@
 
         <!-- Enhanced Error Messages -->
         @if ($errors->any())
-            <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md" id="error-container">
+            <div class="mb-6 bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 p-5 rounded-lg shadow-md" id="error-container">
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
                                 d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                                 clip-rule="evenodd" />
                         </svg>
                     </div>
                     <div class="ml-3 flex-1">
-                        <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
-                        <div class="mt-2">
+                        <h3 class="text-base font-bold text-red-800">
+                            Terdapat {{ $errors->count() }} kesalahan yang perlu diperbaiki
+                        </h3>
+                        <div class="mt-3 text-sm text-red-700 space-y-2">
                             @foreach ($errors->all() as $error)
-                                <div class="flex items-center py-1">
-                                    <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <div class="flex items-start py-1">
+                                    <svg class="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd"
                                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    <span class="text-sm text-red-700">{{ $error }}</span>
+                                    <span class="leading-relaxed">{{ $error }}</span>
                                 </div>
                             @endforeach
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-red-200">
+                            <p class="text-xs text-red-600 italic flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                                Silakan periksa dan perbaiki semua field yang ditandai dengan border merah di bawah ini.
+                            </p>
                         </div>
                     </div>
                     <div class="ml-auto pl-3">
                         <button onclick="document.getElementById('error-container').style.display='none'"
-                            class="text-red-400 hover:text-red-600">
+                            class="text-red-400 hover:text-red-600 transition-colors">
                             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"
                                     d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -279,10 +289,15 @@
                                 </div>
                                 <input type="date" id="tanggal_periksa" name="tanggal_periksa"
                                     value="{{ old('tanggal_periksa', date('Y-m-d')) }}"
-                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                                    class="w-full pl-10 pr-4 py-2.5 border @error('tanggal_periksa') border-red-500 bg-red-50 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                                     required>
                                 @error('tanggal_periksa')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    <div class="mt-2 flex items-start">
+                                        <svg class="w-5 h-5 text-red-500 mr-1.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <p class="text-sm text-red-600 font-medium">{{ $message }}</p>
+                                    </div>
                                 @enderror
                             </div>
                         </div>
@@ -360,7 +375,7 @@
                             </label>
                             <div class="relative">
                                 <select id="id_diagnosa_emergency" name="id_diagnosa_emergency"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none bg-white"
+                                    class="w-full px-4 py-2.5 border @error('id_diagnosa_emergency') border-red-500 bg-red-50 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none bg-white"
                                     required onchange="loadObatByDiagnosaEmergency(this.value)">
                                     <option value="">-- Pilih Diagnosa Emergency --</option>
                                     @foreach ($diagnosaEmergency as $diagnosa)
@@ -380,7 +395,12 @@
                                 </div>
                             </div>
                             @error('id_diagnosa_emergency')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <div class="mt-2 flex items-start">
+                                    <svg class="w-5 h-5 text-red-500 mr-1.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <p class="text-sm text-red-600 font-medium">{{ $message }}</p>
+                                </div>
                             @enderror
                         </div>
 
@@ -391,13 +411,13 @@
                             </label>
                             <div class="relative">
                                 <select id="terapi" name="terapi"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none bg-white"
+                                    class="w-full px-4 py-2.5 border @error('terapi') border-red-500 bg-red-50 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 appearance-none bg-white"
                                     required onchange="toggleObatSection()">
                                     <option value="">-- Pilih Terapi --</option>
-                                    <option value="Obat">Obat</option>
-                                    <option value="Lab">Lab</option>
-                                    <option value="Istirahat">Istirahat</option>
-                                    <option value="Emergency">Emergency</option>
+                                    <option value="Obat" {{ old('terapi') == 'Obat' ? 'selected' : '' }}>Obat</option>
+                                    <option value="Lab" {{ old('terapi') == 'Lab' ? 'selected' : '' }}>Lab</option>
+                                    <option value="Istirahat" {{ old('terapi') == 'Istirahat' ? 'selected' : '' }}>Istirahat</option>
+                                    <option value="Emergency" {{ old('terapi') == 'Emergency' ? 'selected' : '' }}>Emergency</option>
                                 </select>
                                 <div
                                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
@@ -408,7 +428,12 @@
                                 </div>
                             </div>
                             @error('terapi')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <div class="mt-2 flex items-start">
+                                    <svg class="w-5 h-5 text-red-500 mr-1.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <p class="text-sm text-red-600 font-medium">{{ $message }}</p>
+                                </div>
                             @enderror
                         </div>
 
@@ -418,10 +443,15 @@
                                 Keluhan <span class="text-red-500">*</span>
                             </label>
                             <textarea id="keluhan" name="keluhan" rows="4"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-                                placeholder="Deskripsikan keluhan pasien secara detail..." required>{{ old('keluhan') }}</textarea>
+                                class="w-full px-4 py-2.5 border @error('keluhan') border-red-500 bg-red-50 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                                placeholder="Deskripsikan keluhan pasien secara detail (minimal 10 karakter)..." required>{{ old('keluhan') }}</textarea>
                             @error('keluhan')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <div class="mt-2 flex items-start">
+                                    <svg class="w-5 h-5 text-red-500 mr-1.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <p class="text-sm text-red-600 font-medium">{{ $message }}</p>
+                                </div>
                             @enderror
                         </div>
 

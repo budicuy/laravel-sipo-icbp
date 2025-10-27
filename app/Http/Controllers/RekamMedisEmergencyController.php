@@ -95,41 +95,60 @@ class RekamMedisEmergencyController extends Controller
         }
 
         $validated = $request->validate([
-            'external_employee_id' => 'required|numeric|exists:external_employees,id_external_employee',
-            'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i',
+            'external_employee_id' => 'required|exists:external_employees,id_external_employee',
+            'tanggal_periksa' => 'required|date|before_or_equal:today',
+            'waktu_periksa' => 'nullable|date_format:H:i:s',
             'status' => 'required|in:On Progress,Close',
-            'keluhan' => 'required|string',
+            'keluhan' => 'required|string|min:10|max:1000',
             'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
-            'terapi' => 'required|string',
-            'catatan' => 'nullable|string',
-            'obat_list' => 'nullable|array',
-            'obat_list.*.id_obat' => 'required|exists:obat,id_obat',
-            'obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
-            'obat_list.*.aturan_pakai' => 'nullable|string',
+            'terapi' => 'required|in:Obat,Lab,Istirahat,Emergency',
+            'catatan' => 'nullable|string|max:2000',
+            // Obat list validation
+            'obat_list' => 'sometimes|array|min:1',
+            'obat_list.*.id_obat' => 'required_with:obat_list|exists:obats,id_obat',
+            'obat_list.*.jumlah' => 'required_with:obat_list|integer|min:1|max:100',
         ], [
-            'external_employee_id.required' => 'Karyawan external harus dipilih',
-            'external_employee_id.numeric' => 'ID karyawan tidak valid',
-            'external_employee_id.exists' => 'Karyawan external tidak ditemukan',
-            'tanggal_periksa.required' => 'Tanggal periksa harus diisi',
-            'tanggal_periksa.date' => 'Tanggal periksa harus berupa tanggal yang valid (format: YYYY-MM-DD)',
-            'waktu_periksa.date_format' => 'Waktu periksa harus dalam format HH:MM (contoh: 14:30)',
-            'status.required' => 'Status rekam medis harus dipilih',
-            'status.in' => 'Status harus "On Progress" atau "Close"',
-            'keluhan.required' => 'Keluhan harus diisi',
-            'keluhan.string' => 'Keluhan harus berupa teks',
-            'id_diagnosa_emergency.required' => 'Diagnosa emergency harus dipilih',
-            'id_diagnosa_emergency.exists' => 'Diagnosa emergency tidak ditemukan',
-            'terapi.required' => 'Terapi harus dipilih',
-            'terapi.string' => 'Terapi harus berupa teks',
-            'catatan.string' => 'Catatan harus berupa teks',
-            'obat_list.array' => 'Format daftar obat tidak valid',
-            'obat_list.*.id_obat.required' => 'ID obat harus dipilih',
-            'obat_list.*.id_obat.exists' => 'Obat tidak ditemukan',
-            'obat_list.*.jumlah_obat.integer' => 'Jumlah obat harus berupa angka',
-            'obat_list.*.jumlah_obat.min' => 'Jumlah obat minimal 1',
-            'obat_list.*.jumlah_obat.max' => 'Jumlah obat maksimal 10000',
-            'obat_list.*.aturan_pakai.string' => 'Aturan pakai harus berupa teks',
+            // External Employee
+            'external_employee_id.required' => 'Karyawan emergency harus dipilih.',
+            'external_employee_id.exists' => 'Karyawan emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+            
+            // Tanggal Periksa
+            'tanggal_periksa.required' => 'Tanggal periksa wajib diisi.',
+            'tanggal_periksa.date' => 'Format tanggal periksa tidak valid. Harap gunakan format tanggal yang benar (YYYY-MM-DD).',
+            'tanggal_periksa.before_or_equal' => 'Tanggal periksa tidak boleh melebihi tanggal hari ini.',
+            
+            // Waktu Periksa
+            'waktu_periksa.date_format' => 'Format waktu periksa tidak valid. Harap gunakan format HH:MM:SS (contoh: 14:30:00).',
+            
+            // Status
+            'status.required' => 'Status rekam medis harus dipilih.',
+            'status.in' => 'Status yang dipilih tidak valid. Pilihan yang tersedia: On Progress atau Close.',
+            
+            // Keluhan
+            'keluhan.required' => 'Keluhan pasien wajib diisi untuk melanjutkan.',
+            'keluhan.min' => 'Keluhan pasien terlalu singkat. Minimal 10 karakter untuk memberikan deskripsi yang memadai.',
+            'keluhan.max' => 'Keluhan pasien terlalu panjang. Maksimal 1000 karakter.',
+            
+            // Diagnosa Emergency
+            'id_diagnosa_emergency.required' => 'Diagnosa emergency harus dipilih.',
+            'id_diagnosa_emergency.exists' => 'Diagnosa emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+            
+            // Terapi
+            'terapi.required' => 'Jenis terapi harus dipilih.',
+            'terapi.in' => 'Jenis terapi yang dipilih tidak valid. Pilihan yang tersedia: Obat, Lab, Istirahat, atau Emergency.',
+            
+            // Catatan
+            'catatan.max' => 'Catatan terlalu panjang. Maksimal 2000 karakter.',
+            
+            // Obat List
+            'obat_list.array' => 'Format data obat tidak valid. Harap refresh halaman dan coba lagi.',
+            'obat_list.min' => 'Minimal harus ada 1 obat yang dipilih jika terapi menggunakan obat.',
+            'obat_list.*.id_obat.required_with' => 'Setiap baris obat harus memilih nama obat yang valid.',
+            'obat_list.*.id_obat.exists' => 'Salah satu obat yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+            'obat_list.*.jumlah.required_with' => 'Jumlah obat wajib diisi untuk setiap obat yang dipilih.',
+            'obat_list.*.jumlah.integer' => 'Jumlah obat harus berupa angka bulat.',
+            'obat_list.*.jumlah.min' => 'Jumlah obat minimal adalah 1.',
+            'obat_list.*.jumlah.max' => 'Jumlah obat maksimal adalah 100 per item.',
         ]);
 
         try {
@@ -296,14 +315,46 @@ class RekamMedisEmergencyController extends Controller
         $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
 
         $validated = $request->validate([
-            'external_employee_id' => 'required|exists:external_employees,id',
-            'tanggal_periksa' => 'required|date',
+            'external_employee_id' => 'required|exists:external_employees,id_external_employee',
+            'tanggal_periksa' => 'required|date|before_or_equal:today',
             'waktu_periksa' => 'nullable|date_format:H:i:s',
             'status' => 'required|in:On Progress,Close',
-            'keluhan' => 'required|string',
+            'keluhan' => 'required|string|min:10|max:1000',
             'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
-            'terapi' => 'required|string',
-            'catatan' => 'nullable|string',
+            'terapi' => 'required|in:Obat,Lab,Istirahat,Emergency',
+            'catatan' => 'nullable|string|max:2000',
+        ], [
+            // External Employee
+            'external_employee_id.required' => 'Karyawan emergency harus dipilih.',
+            'external_employee_id.exists' => 'Karyawan emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+            
+            // Tanggal Periksa
+            'tanggal_periksa.required' => 'Tanggal periksa wajib diisi.',
+            'tanggal_periksa.date' => 'Format tanggal periksa tidak valid. Harap gunakan format tanggal yang benar (YYYY-MM-DD).',
+            'tanggal_periksa.before_or_equal' => 'Tanggal periksa tidak boleh melebihi tanggal hari ini.',
+            
+            // Waktu Periksa
+            'waktu_periksa.date_format' => 'Format waktu periksa tidak valid. Harap gunakan format HH:MM:SS (contoh: 14:30:00).',
+            
+            // Status
+            'status.required' => 'Status rekam medis harus dipilih.',
+            'status.in' => 'Status yang dipilih tidak valid. Pilihan yang tersedia: On Progress atau Close.',
+            
+            // Keluhan
+            'keluhan.required' => 'Keluhan pasien wajib diisi untuk melanjutkan.',
+            'keluhan.min' => 'Keluhan pasien terlalu singkat. Minimal 10 karakter untuk memberikan deskripsi yang memadai.',
+            'keluhan.max' => 'Keluhan pasien terlalu panjang. Maksimal 1000 karakter.',
+            
+            // Diagnosa Emergency
+            'id_diagnosa_emergency.required' => 'Diagnosa emergency harus dipilih.',
+            'id_diagnosa_emergency.exists' => 'Diagnosa emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+            
+            // Terapi
+            'terapi.required' => 'Jenis terapi harus dipilih.',
+            'terapi.in' => 'Jenis terapi yang dipilih tidak valid. Pilihan yang tersedia: Obat, Lab, Istirahat, atau Emergency.',
+            
+            // Catatan
+            'catatan.max' => 'Catatan terlalu panjang. Maksimal 2000 karakter.',
         ]);
 
         try {

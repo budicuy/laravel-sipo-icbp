@@ -24,52 +24,44 @@
         <form action="{{ route('rekam-medis-emergency.update', $rekamMedisEmergency->id_emergency) }}" method="POST">
             @csrf
             @method('PUT')
+            
+            <!-- Hidden input untuk external_employee_id -->
+            <input type="hidden" name="external_employee_id" value="{{ $rekamMedisEmergency->id_external_employee }}">
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- External Employee -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Pilih Karyawan External <span class="text-red-500">*</span>
-                    </label>
-                    <select name="id_external_employee" id="id_external_employee" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                            onchange="updateEmployeeInfo()">
-                        <option value="">-- Pilih Karyawan External --</option>
-                        @foreach($externalEmployees as $employee)
-                            <option value="{{ $employee->id }}"
-                                    data-nik="{{ $employee->nik_employee }}"
-                                    data-nama="{{ $employee->nama_employee }}"
-                                    data-rm="{{ $employee->kode_rm }}"
-                                    data-jk="{{ $employee->jenis_kelamin }}"
-                                    {{ old('id_external_employee', $rekamMedisEmergency->id_external_employee) == $employee->id ? 'selected' : '' }}>
-                                {{ $employee->nama_employee }} - {{ $employee->nik_employee }} - {{ $employee->kode_rm }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('id_external_employee')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Employee Info Display -->
-                <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg" id="employeeInfo">
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">Informasi Karyawan:</h3>
+                <!-- Employee Info Display (Read-only) -->
+                <div class="md:col-span-2 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 p-5 rounded-lg">
+                    <div class="flex items-center gap-2 mb-3">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <h3 class="text-sm font-semibold text-gray-800">Informasi Karyawan Emergency</h3>
+                    </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
-                            <span class="text-gray-500">NIK:</span>
-                            <p class="font-medium" id="displayNik">{{ $rekamMedisEmergency->externalEmployee->nik_employee ?? '-' }}</p>
+                            <span class="text-gray-600 block mb-1">NIK Karyawan:</span>
+                            <p class="font-semibold text-gray-900">{{ $rekamMedisEmergency->externalEmployee->nik_employee ?? '-' }}</p>
                         </div>
                         <div>
-                            <span class="text-gray-500">Nama:</span>
-                            <p class="font-medium" id="displayNama">{{ $rekamMedisEmergency->externalEmployee->nama_employee ?? '-' }}</p>
+                            <span class="text-gray-600 block mb-1">Nama Lengkap:</span>
+                            <p class="font-semibold text-gray-900">{{ $rekamMedisEmergency->externalEmployee->nama_employee ?? '-' }}</p>
                         </div>
                         <div>
-                            <span class="text-gray-500">No RM:</span>
-                            <p class="font-medium" id="displayRm">{{ $rekamMedisEmergency->externalEmployee->kode_rm ?? '-' }}</p>
+                            <span class="text-gray-600 block mb-1">No. Rekam Medis:</span>
+                            <p class="font-semibold text-gray-900">{{ $rekamMedisEmergency->externalEmployee->kode_rm ?? '-' }}</p>
                         </div>
                         <div>
-                            <span class="text-gray-500">Jenis Kelamin:</span>
-                            <p class="font-medium" id="displayJk">{{ $rekamMedisEmergency->externalEmployee->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</p>
+                            <span class="text-gray-600 block mb-1">Jenis Kelamin:</span>
+                            <p class="font-semibold text-gray-900">{{ $rekamMedisEmergency->externalEmployee->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</p>
                         </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-red-200">
+                        <p class="text-xs text-gray-600 italic">
+                            <svg class="w-4 h-4 inline text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                            Data karyawan tidak dapat diubah saat edit. Jika perlu mengubah karyawan, silakan buat rekam medis baru.
+                        </p>
                     </div>
                 </div>
 
@@ -118,10 +110,15 @@
                         Keluhan <span class="text-red-500">*</span>
                     </label>
                     <textarea name="keluhan" rows="3" required
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                              placeholder="Deskripsikan keluhan pasien">{{ old('keluhan', $rekamMedisEmergency->keluhan) }}</textarea>
+                              class="w-full px-4 py-2 border @error('keluhan') border-red-500 bg-red-50 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                              placeholder="Deskripsikan keluhan pasien (minimal 10 karakter)">{{ old('keluhan', $rekamMedisEmergency->keluhan) }}</textarea>
                     @error('keluhan')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <div class="mt-2 flex items-start">
+                            <svg class="w-5 h-5 text-red-500 mr-1.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <p class="text-sm text-red-600 font-medium">{{ $message }}</p>
+                        </div>
                     @enderror
                 </div>
 
@@ -131,7 +128,7 @@
                         Diagnosa Emergency <span class="text-red-500">*</span>
                     </label>
                     <select name="id_diagnosa_emergency" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            class="w-full px-4 py-2 border @error('id_diagnosa_emergency') border-red-500 bg-red-50 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         <option value="">-- Pilih Diagnosa Emergency --</option>
                         @foreach($diagnosaEmergency as $diagnosa)
                             <option value="{{ $diagnosa->id_diagnosa_emergency }}"
@@ -141,7 +138,12 @@
                         @endforeach
                     </select>
                     @error('id_diagnosa_emergency')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <div class="mt-2 flex items-start">
+                            <svg class="w-5 h-5 text-red-500 mr-1.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <p class="text-sm text-red-600 font-medium">{{ $message }}</p>
+                        </div>
                     @enderror
                 </div>
 
@@ -151,7 +153,7 @@
                         Terapi <span class="text-red-500">*</span>
                     </label>
                     <select name="terapi" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            class="w-full px-4 py-2 border @error('terapi') border-red-500 bg-red-50 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         <option value="">-- Pilih Terapi --</option>
                         <option value="Obat" {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Obat' ? 'selected' : '' }}>Obat</option>
                         <option value="Lab" {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Lab' ? 'selected' : '' }}>Lab</option>
@@ -159,7 +161,12 @@
                         <option value="Emergency" {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Emergency' ? 'selected' : '' }}>Emergency</option>
                     </select>
                     @error('terapi')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <div class="mt-2 flex items-start">
+                            <svg class="w-5 h-5 text-red-500 mr-1.5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <p class="text-sm text-red-600 font-medium">{{ $message }}</p>
+                        </div>
                     @enderror
                 </div>
 
@@ -198,108 +205,9 @@
 
 @push('scripts')
 <script>
-let searchTimeout;
-
-// Function to update employee info when selection changes
-function updateEmployeeInfo() {
-    const selectElement = document.getElementById('id_external_employee');
-    const selectedOption = selectElement.options[selectElement.selectedIndex];
-    
-    if (selectElement.value) {
-        document.getElementById('displayNik').textContent = selectedOption.getAttribute('data-nik');
-        document.getElementById('displayNama').textContent = selectedOption.getAttribute('data-nama');
-        document.getElementById('displayRm').textContent = selectedOption.getAttribute('data-rm');
-        document.getElementById('displayJk').textContent = selectedOption.getAttribute('data-jk') === 'L' ? 'Laki-laki' : 'Perempuan';
-    } else {
-        document.getElementById('displayNik').textContent = '-';
-        document.getElementById('displayNama').textContent = '-';
-        document.getElementById('displayRm').textContent = '-';
-        document.getElementById('displayJk').textContent = '-';
-    }
-}
-
-    clearTimeout(searchTimeout);
-    const searchValue = this.value.trim();
-
-    if (searchValue.length < 2) {
-        document.getElementById('karyawan_search_results').classList.add('hidden');
-        return;
-    }
-
-    searchTimeout = setTimeout(function() {
-        // Filter local data instead of AJAX for now
-        const employees = @json($externalEmployees);
-        const filteredEmployees = employees.filter(employee =>
-            employee.nik_employee.toLowerCase().includes(searchValue.toLowerCase()) ||
-            employee.nama_employee.toLowerCase().includes(searchValue.toLowerCase())
-        );
-
-        const resultsDiv = document.getElementById('karyawan_search_results');
-
-        if (filteredEmployees.length === 0) {
-            resultsDiv.innerHTML = '<div class="px-4 py-3 text-gray-500 text-sm">Tidak ada karyawan external ditemukan</div>';
-        } else {
-            resultsDiv.innerHTML = filteredEmployees.map(employee => `
-                <div class="px-4 py-3 hover:bg-red-50 cursor-pointer border-b border-gray-100 transition-colors" onclick="selectKaryawan(${JSON.stringify(employee).replace(/"/g, '"')})">
-                    <div class="font-medium text-gray-900">${employee.nik_employee} - ${employee.nama_employee}</div>
-                    <div class="text-sm text-gray-600">Vendor: ${employee.vendor ? employee.vendor.nama_vendor : 'Tidak ada vendor'} | Kategori: ${employee.kategori ? employee.kategori.nama_kategori : 'Tidak ada kategori'}</div>
-                </div>
-            `).join('');
-        }
-
-        resultsDiv.classList.remove('hidden');
-    }, 300);
-});
-
-// Select karyawan external from dropdown
-function selectKaryawan(employee) {
-    console.log('Selecting employee:', employee); // Debug log
-    
-    // Set karyawan values
-    document.getElementById('id_external_employee').value = employee.id; // Use primary key 'id' instead of 'id_external_employee'
-    document.getElementById('search_karyawan').value = `${employee.nik_employee}-${employee.nama_employee}`;
-
-    // Update info karyawan
-    document.getElementById('info_nik').textContent = employee.nik_employee;
-    document.getElementById('info_nama').textContent = employee.nama_employee;
-    document.getElementById('info_vendor').textContent = employee.vendor ? employee.vendor.nama_vendor : 'Tidak ada vendor';
-    document.getElementById('info_jk').textContent = employee.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan';
-    
-    // Update form fields
-    document.getElementById('kode_rm').value = employee.kode_rm || '';
-    document.getElementById('nama_pasien').value = employee.nama_employee;
-    document.getElementById('hubungan').value = 'Emergency';
-    document.getElementById('jenis_kelamin').value = employee.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan';
-
-    // Clear any validation errors
-    clearFieldError(document.getElementById('search_karyawan'));
-
-    // Hide results
-    document.getElementById('karyawan_search_results').classList.add('hidden');
-    
-    console.log('Employee selected successfully'); // Debug log
-}
-
-// Hide search results when clicking outside
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('#search_karyawan') && !e.target.closest('#karyawan_search_results')) {
-        document.getElementById('karyawan_search_results').classList.add('hidden');
-    }
-});
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    // Pre-fill with existing employee data
-    const idEmployee = document.getElementById('id_external_employee').value;
-    if (idEmployee) {
-        updateEmployeeInfo();
-    }
-
-    // Add change event listener to update employee info when selection changes
-    document.getElementById('id_external_employee').addEventListener('change', function() {
-        updateEmployeeInfo();
-    });
-});
+// Note: Employee selection removed from edit page
+// Employee information is now read-only and cannot be changed during edit
+// If you need to change the employee, please create a new emergency medical record
 </script>
 @endpush
 @endsection
