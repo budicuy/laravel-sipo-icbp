@@ -108,8 +108,7 @@
                                         class="btn btn-warning">
                                         <i class="fas fa-edit"></i> Edit Data
                                     </a>
-                                    <form
-                                        action="{{ route('external-employee.destroy', $externalEmployee->id) }}"
+                                    <form action="{{ route('external-employee.destroy', $externalEmployee->id) }}"
                                         method="POST" style="display: inline;">
                                         @csrf
                                         @method('DELETE')
