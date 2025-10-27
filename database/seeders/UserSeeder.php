@@ -48,6 +48,24 @@ class UserSeeder extends Seeder
                 'nama_lengkap' => 'Ani Wijaya',
                 'role' => 'User',
             ],
+                        [
+                'username' => 'didisuryadi',
+                'password' => Hash::make('didisuryadi'),
+                'nama_lengkap' => 'Didi Suryadi',
+                'role' => 'User',
+            ],
+                        [
+                'username' => 'faridwajidi',
+                'password' => Hash::make('faridwajidi'),
+                'nama_lengkap' => 'Farid Wajidi',
+                'role' => 'User',
+            ],
+                        [
+                'username' => 'ellienm',
+                'password' => Hash::make('ellienm'),
+                'nama_lengkap' => 'Ellien M',
+                'role' => 'User',
+            ],
         ];
 
         // Using Eloquent create method with mass assignment
