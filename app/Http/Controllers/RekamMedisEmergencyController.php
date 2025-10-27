@@ -7,6 +7,9 @@ use App\Models\ExternalEmployee;
 use App\Models\DiagnosaEmergency;
 use App\Models\Diagnosa;
 use App\Models\Keluhan;
+use App\Events\RekamMedisEmergencyCreated;
+use App\Events\RekamMedisEmergencyUpdated;
+use App\Events\RekamMedisEmergencyDeleted;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -81,19 +84,76 @@ class RekamMedisEmergencyController extends Controller
                 ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
         }
 
+        // Validate that external_employee_id is not undefined or empty
+        if (empty($request->input('external_employee_id')) || $request->input('external_employee_id') === 'undefined') {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['external_employee_id' => 'Silakan pilih karyawan external terlebih dahulu'])
+                ->with('error', 'Silakan pilih karyawan external sebelum mengirimkan form.');
+        }
+
+        // Clean up waktu_periksa - convert empty string to null
+        if (empty($request->input('waktu_periksa'))) {
+            $request->merge(['waktu_periksa' => null]);
+        }
+
         $validated = $request->validate([
-            'external_employee_id' => 'required|exists:external_employees,id',
-            'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i:s',
+            'external_employee_id' => 'required|exists:external_employees,id_external_employee',
+            'tanggal_periksa' => 'required|date|before_or_equal:today',
+            'waktu_periksa' => 'nullable|date_format:H:i',
             'status' => 'required|in:On Progress,Close',
-            'keluhan' => 'required|string',
+            'keluhan' => 'required|string|min:10|max:1000',
             'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
-            'terapi' => 'required|string',
-            'catatan' => 'nullable|string',
-            'obat_list' => 'nullable|array',
-            'obat_list.*.id_obat' => 'required|exists:obat,id_obat',
-            'obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
-            'obat_list.*.aturan_pakai' => 'nullable|string',
+            'terapi' => 'required|in:Obat,Lab,Istirahat,Emergency',
+            'catatan' => 'nullable|string|max:2000',
+            // Obat list validation
+            'obat_list' => 'sometimes|array|min:1',
+            'obat_list.*.id_obat' => 'required_with:obat_list|exists:obat,id_obat',
+            'obat_list.*.jumlah_obat' => 'required_with:obat_list|integer|min:1|max:100',
+            'obat_list.*.aturan_pakai' => 'nullable|string|max:500',
+        ], [
+            // External Employee
+            'external_employee_id.required' => 'Karyawan emergency harus dipilih.',
+            'external_employee_id.exists' => 'Karyawan emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+
+            // Tanggal Periksa
+            'tanggal_periksa.required' => 'Tanggal periksa wajib diisi.',
+            'tanggal_periksa.date' => 'Format tanggal periksa tidak valid. Harap gunakan format tanggal yang benar (YYYY-MM-DD).',
+            'tanggal_periksa.before_or_equal' => 'Tanggal periksa tidak boleh melebihi tanggal hari ini.',
+
+            // Waktu Periksa
+            'waktu_periksa.date_format' => 'Format waktu periksa tidak valid. Harap gunakan format HH:MM (contoh: 14:30).',
+
+            // Status
+            'status.required' => 'Status rekam medis harus dipilih.',
+            'status.in' => 'Status yang dipilih tidak valid. Pilihan yang tersedia: On Progress atau Close.',
+
+            // Keluhan
+            'keluhan.required' => 'Keluhan pasien wajib diisi untuk melanjutkan.',
+            'keluhan.min' => 'Keluhan pasien terlalu singkat. Minimal 10 karakter untuk memberikan deskripsi yang memadai.',
+            'keluhan.max' => 'Keluhan pasien terlalu panjang. Maksimal 1000 karakter.',
+
+            // Diagnosa Emergency
+            'id_diagnosa_emergency.required' => 'Diagnosa emergency harus dipilih.',
+            'id_diagnosa_emergency.exists' => 'Diagnosa emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+
+            // Terapi
+            'terapi.required' => 'Jenis terapi harus dipilih.',
+            'terapi.in' => 'Jenis terapi yang dipilih tidak valid. Pilihan yang tersedia: Obat, Lab, Istirahat, atau Emergency.',
+
+            // Catatan
+            'catatan.max' => 'Catatan terlalu panjang. Maksimal 2000 karakter.',
+
+            // Obat List
+            'obat_list.array' => 'Format data obat tidak valid. Harap refresh halaman dan coba lagi.',
+            'obat_list.min' => 'Minimal harus ada 1 obat yang dipilih jika terapi menggunakan obat.',
+            'obat_list.*.id_obat.required_with' => 'Setiap baris obat harus memilih nama obat yang valid.',
+            'obat_list.*.id_obat.exists' => 'Salah satu obat yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+            'obat_list.*.jumlah_obat.required_with' => 'Jumlah obat wajib diisi untuk setiap obat yang dipilih.',
+            'obat_list.*.jumlah_obat.integer' => 'Jumlah obat harus berupa angka bulat.',
+            'obat_list.*.jumlah_obat.min' => 'Jumlah obat minimal adalah 1.',
+            'obat_list.*.jumlah_obat.max' => 'Jumlah obat maksimal adalah 100 per item.',
+            'obat_list.*.aturan_pakai.max' => 'Aturan pakai maksimal 500 karakter.',
         ]);
 
         try {
@@ -187,6 +247,9 @@ class RekamMedisEmergencyController extends Controller
                     ]));
                 }
 
+                // Dispatch event untuk mengurangi stok obat
+                event(new RekamMedisEmergencyCreated($rekamMedisEmergency));
+
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollback();
@@ -237,7 +300,7 @@ class RekamMedisEmergencyController extends Controller
         }
 
         $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
-        
+
         // Get data for dropdowns with relationships
         $externalEmployees = ExternalEmployee::with(['vendor', 'kategori'])->aktif()->get();
         $diagnosaEmergency = DiagnosaEmergency::with('obats')->get();
@@ -260,21 +323,68 @@ class RekamMedisEmergencyController extends Controller
         $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
 
         $validated = $request->validate([
-            'external_employee_id' => 'required|exists:external_employees,id',
-            'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i:s',
+            'external_employee_id' => 'required|exists:external_employees,id_external_employee',
+            'tanggal_periksa' => 'required|date|before_or_equal:today',
+            'waktu_periksa' => 'nullable|date_format:H:i',
             'status' => 'required|in:On Progress,Close',
-            'keluhan' => 'required|string',
+            'keluhan' => 'required|string|min:10|max:1000',
             'id_diagnosa_emergency' => 'required|exists:diagnosa_emergency,id_diagnosa_emergency',
-            'terapi' => 'required|string',
-            'catatan' => 'nullable|string',
+            'terapi' => 'required|in:Obat,Lab,Istirahat,Emergency',
+            'catatan' => 'nullable|string|max:2000',
+            // Obat list validation - for update
+            'obat_list' => 'sometimes|array',
+            'obat_list.*.id_obat' => 'required_with:obat_list|exists:obat,id_obat',
+            'obat_list.*.jumlah_obat' => 'required_with:obat_list|integer|min:1|max:100',
+            'obat_list.*.aturan_pakai' => 'nullable|string|max:500',
+        ], [
+            // External Employee
+            'external_employee_id.required' => 'Karyawan emergency harus dipilih.',
+            'external_employee_id.exists' => 'Karyawan emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+
+            // Tanggal Periksa
+            'tanggal_periksa.required' => 'Tanggal periksa wajib diisi.',
+            'tanggal_periksa.date' => 'Format tanggal periksa tidak valid. Harap gunakan format tanggal yang benar (YYYY-MM-DD).',
+            'tanggal_periksa.before_or_equal' => 'Tanggal periksa tidak boleh melebihi tanggal hari ini.',
+
+            // Waktu Periksa
+            'waktu_periksa.date_format' => 'Format waktu periksa tidak valid. Harap gunakan format HH:MM (contoh: 14:30).',
+
+            // Status
+            'status.required' => 'Status rekam medis harus dipilih.',
+            'status.in' => 'Status yang dipilih tidak valid. Pilihan yang tersedia: On Progress atau Close.',
+
+            // Keluhan
+            'keluhan.required' => 'Keluhan pasien wajib diisi untuk melanjutkan.',
+            'keluhan.min' => 'Keluhan pasien terlalu singkat. Minimal 10 karakter untuk memberikan deskripsi yang memadai.',
+            'keluhan.max' => 'Keluhan pasien terlalu panjang. Maksimal 1000 karakter.',
+
+            // Diagnosa Emergency
+            'id_diagnosa_emergency.required' => 'Diagnosa emergency harus dipilih.',
+            'id_diagnosa_emergency.exists' => 'Diagnosa emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+
+            // Terapi
+            'terapi.required' => 'Jenis terapi harus dipilih.',
+            'terapi.in' => 'Jenis terapi yang dipilih tidak valid. Pilihan yang tersedia: Obat, Lab, Istirahat, atau Emergency.',
+
+            // Catatan
+            'catatan.max' => 'Catatan terlalu panjang. Maksimal 2000 karakter.',
+
+            // Obat List - for update
+            'obat_list.array' => 'Format data obat tidak valid. Harap refresh halaman dan coba lagi.',
+            'obat_list.*.id_obat.required_with' => 'Setiap baris obat harus memilih nama obat yang valid.',
+            'obat_list.*.id_obat.exists' => 'Salah satu obat yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
+            'obat_list.*.jumlah_obat.required_with' => 'Jumlah obat wajib diisi untuk setiap obat yang dipilih.',
+            'obat_list.*.jumlah_obat.integer' => 'Jumlah obat harus berupa angka bulat.',
+            'obat_list.*.jumlah_obat.min' => 'Jumlah obat minimal adalah 1.',
+            'obat_list.*.jumlah_obat.max' => 'Jumlah obat maksimal adalah 100 per item.',
+            'obat_list.*.aturan_pakai.max' => 'Aturan pakai maksimal 500 karakter.',
         ]);
 
         try {
             // Verify token is still valid (but don't consume it for edits)
             $currentUserId = Auth::id();
             $token = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))->first();
-            
+
             if (!$token || !$token->canBeUsedBy($currentUserId)) {
                 // Clear invalid token from session
                 session()->forget('valid_emergency_token');
@@ -284,6 +394,12 @@ class RekamMedisEmergencyController extends Controller
 
             DB::beginTransaction();
             try {
+                // Simpan old keluhans untuk listener
+                $oldKeluhans = $rekamMedisEmergency->keluhans()
+                    ->whereNotNull('id_obat')
+                    ->where('jumlah_obat', '>', 0)
+                    ->get();
+
                 // Update emergency medical record
                 $rekamMedisEmergency->update([
                     'id_external_employee' => $validated['external_employee_id'],
@@ -294,24 +410,41 @@ class RekamMedisEmergencyController extends Controller
                     'catatan' => $validated['catatan'],
                 ]);
 
-                // Update or create keluhan record
-                $existingKeluhan = $rekamMedisEmergency->keluhans()->first();
-                if ($existingKeluhan) {
-                    // Update existing keluhan
-                    $existingKeluhan->update([
-                        'id_diagnosa' => null, // Set to null for emergency records
-                        'id_diagnosa_emergency' => $validated['id_diagnosa_emergency'],
-                        'terapi' => $validated['terapi'],
-                        'keterangan' => $validated['keluhan'],
-                    ]);
+                // Delete old keluhans first
+                $rekamMedisEmergency->keluhans()->delete();
+
+                // Prepare keluhan base data
+                $keluhanBaseData = [
+                    'id_emergency' => $rekamMedisEmergency->id_emergency,
+                    'id_rekam' => null, // Set to null for emergency records
+                    'id_diagnosa' => null, // Set to null for emergency records
+                    'id_diagnosa_emergency' => $validated['id_diagnosa_emergency'],
+                    'terapi' => $validated['terapi'],
+                    'keterangan' => $validated['keluhan'],
+                    'id_keluarga' => null, // Emergency records don't use keluarga
+                ];
+
+                // Check if there are obat_list (multiple obat)
+                if (isset($validated['obat_list']) && is_array($validated['obat_list'])) {
+                    // Save multiple keluhan entries, one for each obat
+                    foreach ($validated['obat_list'] as $obatData) {
+                        Keluhan::create(array_merge($keluhanBaseData, [
+                            'id_obat' => $obatData['id_obat'],
+                            'jumlah_obat' => $obatData['jumlah_obat'] ?? 0,
+                            'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
+                        ]));
+                    }
                 } else {
-                    // Create new keluhan using the model method
-                    $rekamMedisEmergency->createKeluhan([
-                        'id_diagnosa_emergency' => $validated['id_diagnosa_emergency'],
-                        'terapi' => $validated['terapi'],
-                        'keterangan' => $validated['keluhan'],
-                    ]);
+                    // No obat selected, save keluhan without obat
+                    Keluhan::create(array_merge($keluhanBaseData, [
+                        'id_obat' => null,
+                        'jumlah_obat' => 0,
+                        'aturan_pakai' => null,
+                    ]));
                 }
+
+                // Dispatch event untuk menyesuaikan stok obat
+                event(new RekamMedisEmergencyUpdated($rekamMedisEmergency, $oldKeluhans));
 
                 DB::commit();
             } catch (\Exception $e) {
@@ -330,10 +463,19 @@ class RekamMedisEmergencyController extends Controller
      */
     public function destroy($id)
     {
-        $rekamMedisEmergency = RekamMedisEmergency::findOrFail($id);
-        $rekamMedisEmergency->delete();
+        try {
+            $rekamMedisEmergency = RekamMedisEmergency::with('keluhans')->findOrFail($id);
 
-        return redirect()->route('rekam-medis.index', ['tab' => 'emergency'])->with('success', 'Data rekam medis emergency berhasil dihapus!');
+            // Dispatch event SEBELUM delete untuk mengembalikan stok
+            event(new RekamMedisEmergencyDeleted($rekamMedisEmergency));
+
+            // Delete emergency medical record
+            $rekamMedisEmergency->delete();
+
+            return redirect()->route('rekam-medis.index', ['tab' => 'emergency'])->with('success', 'Data rekam medis emergency berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -364,34 +506,34 @@ class RekamMedisEmergencyController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Get obat by diagnosa emergency ID
      */
     public function getObatByDiagnosa(Request $request)
     {
         $diagnosaId = $request->get('diagnosa_id');
-        
+
         if (!$diagnosaId) {
             return response()->json([]);
         }
-        
+
         $diagnosa = DiagnosaEmergency::with('obats')->find($diagnosaId);
-        
+
         if (!$diagnosa) {
             return response()->json([]);
         }
-        
+
         $obats = $diagnosa->obats->map(function($obat) {
             return [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
             ];
         });
-        
+
         return response()->json($obats);
     }
-    
+
     /**
      * Get all diagnosa emergency with their obat
      */
@@ -409,7 +551,7 @@ class RekamMedisEmergencyController extends Controller
                 })
             ];
         });
-        
+
         return response()->json($diagnosaEmergency);
     }
 }

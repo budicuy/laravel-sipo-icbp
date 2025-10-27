@@ -1,27 +1,26 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DiagnosaController;
+use App\Http\Controllers\DiagnosaEmergencyController;
+use App\Http\Controllers\ExternalEmployeeController;
+use App\Http\Controllers\HargaObatController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KeluargaController;
-use App\Http\Controllers\DiagnosaController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\KunjunganController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\MonitoringHargaController;
 use App\Http\Controllers\ObatController;
-use App\Http\Controllers\StokObatController;
+use App\Http\Controllers\RekamMedisController;
+use App\Http\Controllers\RekamMedisEmergencyController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\StokMasukController;
-use App\Http\Controllers\HargaObatController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MonitoringHargaController;
-use App\Http\Controllers\RekamMedisEmergencyController;
-use App\Http\Controllers\ExternalEmployeeController;
 use App\Http\Controllers\TokenEmergencyController;
-use App\Http\Controllers\DiagnosaEmergencyController;
+use App\Http\Controllers\UserController;
 use App\Models\Obat;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -49,7 +48,7 @@ Route::middleware('auth')->group(function () {
 
     // Karyawan Resource Routes
     Route::resource('karyawan', KaryawanController::class)->parameters([
-        'karyawan' => 'karyawan'
+        'karyawan' => 'karyawan',
     ]);
 
     // Keluarga Routes - Custom routes BEFORE resource routes
@@ -60,7 +59,7 @@ Route::middleware('auth')->group(function () {
 
     // Keluarga Resource Routes
     Route::resource('keluarga', KeluargaController::class)->parameters([
-        'keluarga' => 'id_keluarga'
+        'keluarga' => 'id_keluarga',
     ]);
 
     // Obat Routes - Custom routes BEFORE resource routes
@@ -71,29 +70,8 @@ Route::middleware('auth')->group(function () {
 
     // Obat Resource Routes
     Route::resource('obat', ObatController::class)->parameters([
-        'obat' => 'id_obat'
+        'obat' => 'id_obat',
     ]);
-
-    // Stok Obat Routes - Sistem Revisi Baru
-    Route::get('/stok-obat', [StokObatController::class, 'index'])->name('stok-obat.index');
-    Route::get('/stok-obat/create', [StokObatController::class, 'create'])->name('stok-obat.create');
-    Route::post('/stok-obat', [StokObatController::class, 'store'])->name('stok-obat.store');
-    Route::get('/stok-obat/{id}/edit', [StokObatController::class, 'edit'])->name('stok-obat.edit');
-    Route::put('/stok-obat/{id}', [StokObatController::class, 'update'])->name('stok-obat.update');
-    Route::delete('/stok-obat/{id}', [StokObatController::class, 'destroy'])->name('stok-obat.destroy');
-    Route::post('/stok-obat/bulk-delete', [StokObatController::class, 'bulkDelete'])->name('stok-obat.bulkDelete');
-
-    // Additional routes for new stok system
-    Route::post('/stok-obat/update-stok-pakai', [StokObatController::class, 'updateStokPakai'])->name('stok-obat.update-stok-pakai');
-    Route::post('/stok-obat/generate-stok-awal', [StokObatController::class, 'generateStokAwal'])->name('stok-obat.generate-stok-awal');
-
-    // API Route untuk preview stok
-    Route::get('/api/stok-obat/preview', [StokObatController::class, 'previewStok'])->name('api.stok-obat.preview');
-
-    // Legacy routes (dapat dihapus jika tidak diperlukan)
-    Route::get('/stok-obat/export', [StokObatController::class, 'export'])->name('stok-obat.export');
-    Route::get('/stok-obat/template', [StokObatController::class, 'downloadTemplate'])->name('stok-obat.template');
-    Route::post('/stok-obat/import', [StokObatController::class, 'import'])->name('stok-obat.import');
 
     // Sistem Stok Baru (Automated)
     Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
@@ -123,7 +101,7 @@ Route::middleware('auth')->group(function () {
 
     // Diagnosa Resource Routes
     Route::resource('diagnosa', DiagnosaController::class)->parameters([
-        'diagnosa' => 'id_diagnosa'
+        'diagnosa' => 'id_diagnosa',
     ]);
 
     // Diagnosa Emergency Routes - Custom routes BEFORE resource routes
@@ -131,23 +109,23 @@ Route::middleware('auth')->group(function () {
 
     // Diagnosa Emergency Resource Routes
     Route::resource('diagnosa-emergency', DiagnosaEmergencyController::class)->parameters([
-        'diagnosa-emergency' => 'id_diagnosa_emergency'
+        'diagnosa-emergency' => 'id_diagnosa_emergency',
     ]);
-    
+
     // API Route for Obat Search
     Route::get('/api/obat/search', function (Request $request) {
         $search = $request->get('q');
-        $obats = Obat::where('nama_obat', 'like', '%' . $search . '%')
+        $obats = Obat::where('nama_obat', 'like', '%'.$search.'%')
             ->select(['id_obat', 'nama_obat', 'deskripsi_obat'])
             ->limit(10)
             ->get();
-            
+
         return response()->json($obats);
     })->name('api.obat.search');
 
     // User Routes - Resource Routes
     Route::resource('user', UserController::class)->parameters([
-        'user' => 'id_user'
+        'user' => 'id_user',
     ]);
 
     // Kunjungan Routes
@@ -167,7 +145,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/rekam-medis/store-emergency', [RekamMedisController::class, 'storeEmergency'])->name('rekam-medis.storeEmergency');
     // Rekam Medis Resource Routes
     Route::resource('rekam-medis', RekamMedisController::class)->parameters([
-        'rekam-medis' => 'id_rekam'
+        'rekam-medis' => 'id_rekam',
     ]);
 
     // Token Emergency Routes

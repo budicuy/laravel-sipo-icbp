@@ -43,7 +43,7 @@ class RekamMedisEmergency extends Model
      */
     public function externalEmployee()
     {
-        return $this->belongsTo(ExternalEmployee::class, 'id_external_employee', 'id');
+        return $this->belongsTo(ExternalEmployee::class, 'id_external_employee', 'id_external_employee');
     }
 
     /**
@@ -100,7 +100,7 @@ class RekamMedisEmergency extends Model
             'jumlah_obat' => 0, // Default to 0
             'aturan_pakai' => null,
         ], $data);
-        
+
         return $this->keluhans()->create($keluhanData);
     }
 
