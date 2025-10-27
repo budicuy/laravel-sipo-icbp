@@ -26,6 +26,9 @@ class Keluhan extends Model
     // Properties that should be ignored when saving to database
     protected $guarded = [];
 
+    // Static cache for table columns to prevent repeated schema queries
+    protected static $tableColumnsCache = null;
+
     /**
      * Get the attributes that should be converted to dates.
      */
@@ -35,12 +38,23 @@ class Keluhan extends Model
     }
 
     /**
+     * Get cached table columns to prevent N+1 schema queries
+     */
+    protected function getTableColumns()
+    {
+        if (static::$tableColumnsCache === null) {
+            static::$tableColumnsCache = \Illuminate\Support\Facades\Schema::getColumnListing($this->getTable());
+        }
+        return static::$tableColumnsCache;
+    }
+
+    /**
      * Override save method to handle dynamic attributes
      */
     public function save(array $options = [])
     {
         // Remove attributes that don't exist in the table before saving
-        $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing($this->getTable());
+        $tableColumns = $this->getTableColumns();
 
         foreach ($this->attributes as $key => $value) {
             if (!in_array($key, $tableColumns)) {
@@ -59,9 +73,9 @@ class Keluhan extends Model
     {
         $model = parent::newInstance($attributes, $exists);
 
-        // Check if emergency columns exist and add them to fillable
+        // Check if emergency columns exist and add them to fillable (using cache)
         try {
-            $schema = \Illuminate\Support\Facades\Schema::getColumnListing('keluhan');
+            $schema = $this->getTableColumns();
 
             if (in_array('id_emergency', $schema) && !in_array('id_emergency', $model->fillable)) {
                 $model->fillable[] = 'id_emergency';
@@ -175,9 +189,12 @@ class Keluhan extends Model
      */
     public function setIdRekamAttribute($value)
     {
-        // Only set id_emergency to null if the column exists in the table
-        if ($value && \Illuminate\Support\Facades\Schema::hasColumn($this->getTable(), 'id_emergency')) {
-            $this->attributes['id_emergency'] = null;
+        // Only set id_emergency to null if the column exists in the table (using cache)
+        if ($value) {
+            $tableColumns = $this->getTableColumns();
+            if (in_array('id_emergency', $tableColumns)) {
+                $this->attributes['id_emergency'] = null;
+            }
         }
         $this->attributes['id_rekam'] = $value;
     }
