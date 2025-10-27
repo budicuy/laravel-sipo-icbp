@@ -63,7 +63,7 @@ class LaporanController extends Controller
             ->groupByRaw('MONTH(tanggal_periksa)')
             ->pluck('count', 'month')
             ->toArray();
-            
+
         // Query untuk data emergency
         $monthlyDataEmergency = RekamMedisEmergency::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
             ->whereYear('tanggal_periksa', $tahun)
@@ -102,7 +102,7 @@ class LaporanController extends Controller
             })
             ->whereNotNull('id_obat')
             ->get();
-            
+
         // Get all keluhan with rekamMedisEmergency for the specified year
         $keluhanDataEmergency = Keluhan::with(['rekamMedisEmergency:id_emergency,tanggal_periksa'])
             ->whereHas('rekamMedisEmergency', function($query) use ($tahun) {
@@ -120,7 +120,7 @@ class LaporanController extends Controller
                 'periode' => $periode
             ];
         }
-        
+
         // Collect all unique obat IDs and periods for emergency
         $obatPeriodsEmergency = [];
         foreach ($keluhanDataEmergency as $keluhan) {
@@ -135,7 +135,7 @@ class LaporanController extends Controller
         $uniqueObatPeriodsReguler = collect($obatPeriodsReguler)->unique(function ($item) {
             return $item['id_obat'] . '_' . $item['periode'];
         })->values()->toArray();
-        
+
         // Get unique combinations to avoid duplicates for emergency
         $uniqueObatPeriodsEmergency = collect($obatPeriodsEmergency)->unique(function ($item) {
             return $item['id_obat'] . '_' . $item['periode'];
@@ -143,7 +143,7 @@ class LaporanController extends Controller
 
         // Use the bulk fallback method for optimized performance for reguler
         $hargaObatResultsReguler = HargaObatPerBulan::getBulkHargaObatWithFallback($uniqueObatPeriodsReguler);
-        
+
         // Use the bulk fallback method for optimized performance for emergency
         $hargaObatResultsEmergency = HargaObatPerBulan::getBulkHargaObatWithFallback($uniqueObatPeriodsEmergency);
 
@@ -154,7 +154,7 @@ class LaporanController extends Controller
                 $hargaObatMapReguler[$key] = $result['harga'];
             }
         }
-        
+
         // Create a lookup map for emergency
         $hargaObatMapEmergency = [];
         foreach ($hargaObatResultsEmergency as $key => $result) {
@@ -181,7 +181,7 @@ class LaporanController extends Controller
                 $monthlyDataReguler[$month] += $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
             }
         }
-        
+
         // Group by month and calculate total using pre-fetched harga for emergency
         $monthlyDataEmergency = [];
         for ($i = 1; $i <= 12; $i++) {
@@ -237,7 +237,7 @@ class LaporanController extends Controller
 
         // Get all transaction data first to apply proper filtering
         $allTransaksiData = $this->getAllTransaksiDataForExport($month, $year, $search);
-        
+
         // Create a LengthAwarePaginator
         $currentPage = request()->get('page', 1);
         $offset = ($currentPage - 1) * $perPage;
@@ -359,7 +359,7 @@ class LaporanController extends Controller
 
             $totalBiaya = 0;
             $obatDetails = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (!$keluhan->id_obat) continue;
 
@@ -368,9 +368,9 @@ class LaporanController extends Controller
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat->harga_per_satuan ?? 0;
                 $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
-                
+
                 $totalBiaya += $subtotal;
-                
+
                 // Store obat details for export
                 $obatDetails[] = [
                     'nama_obat' => $keluhan->obat->nama_obat ?? '',
@@ -402,7 +402,7 @@ class LaporanController extends Controller
                 'tipe' => 'Reguler'
             ];
         })->filter();
-        
+
         // Process emergency data
         $resultEmergency = $rekamMedisEmergencyData->map(function($rekamMedisEmergency) use ($hargaObatMap) {
             // Generate kode_transaksi format: 2(No Running)/NDL/BJM/MM/YYYY
@@ -417,7 +417,7 @@ class LaporanController extends Controller
 
             $totalBiaya = 0;
             $obatDetails = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (!$keluhan->id_obat) continue;
 
@@ -426,9 +426,9 @@ class LaporanController extends Controller
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat->harga_per_satuan ?? 0;
                 $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
-                
+
                 $totalBiaya += $subtotal;
-                
+
                 // Store obat details for export
                 $obatDetails[] = [
                     'nama_obat' => $keluhan->obat->nama_obat ?? '',
@@ -460,7 +460,7 @@ class LaporanController extends Controller
 
         // Combine results
         $allResults = $resultReguler->concat($resultEmergency);
-        
+
         // Sort by date descending
         $allResults = $allResults->sortByDesc(function($item) {
             return \Carbon\Carbon::createFromFormat('d-m-Y', $item['tanggal']);
@@ -483,11 +483,11 @@ class LaporanController extends Controller
         $totalPemeriksaanReguler = RekamMedis::whereMonth('tanggal_periksa', $bulan)
             ->whereYear('tanggal_periksa', $tahun)
             ->count();
-            
+
         $totalPemeriksaanEmergency = RekamMedisEmergency::whereMonth('tanggal_periksa', $bulan)
             ->whereYear('tanggal_periksa', $tahun)
             ->count();
-            
+
         $totalPemeriksaan = $totalPemeriksaanReguler + $totalPemeriksaanEmergency;
 
         // Get all keluhan with rekamMedis for the specified month and year
@@ -498,7 +498,7 @@ class LaporanController extends Controller
             })
             ->whereNotNull('id_obat')
             ->get();
-            
+
         // Get all keluhan with rekamMedisEmergency for the specified month and year
         $keluhanDataEmergency = Keluhan::with(['rekamMedisEmergency:id_emergency,tanggal_periksa'])
             ->whereHas('rekamMedisEmergency', function($query) use ($bulan, $tahun) {
@@ -517,7 +517,7 @@ class LaporanController extends Controller
                 'periode' => $periode
             ];
         }
-        
+
         foreach ($keluhanDataEmergency as $keluhan) {
             $periode = $keluhan->rekamMedisEmergency->tanggal_periksa->format('m-y');
             $obatPeriods[] = [
@@ -555,7 +555,7 @@ class LaporanController extends Controller
                 $totalBiaya += $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
             }
         }
-        
+
         foreach ($keluhanDataEmergency as $keluhan) {
             $periode = $keluhan->rekamMedisEmergency->tanggal_periksa->format('m-y');
             $key = $keluhan->id_obat . '_' . $periode;
@@ -706,7 +706,7 @@ class LaporanController extends Controller
     {
         $rekamMedisEmergency = RekamMedisEmergency::with([
                 'externalEmployee' => function($query) {
-                    $query->select('id', 'nik_employee', 'nama_employee', 'alamat');
+                    $query->select('id_external_employee', 'nik_employee', 'nama_employee', 'alamat');
                 },
                 'keluhans' => function($query) {
                     $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai')
@@ -813,7 +813,7 @@ class LaporanController extends Controller
     {
         $rekamMedisEmergency = RekamMedisEmergency::with([
                 'externalEmployee' => function($query) {
-                    $query->select('id', 'nik_employee', 'nama_employee', 'alamat');
+                    $query->select('id_external_employee', 'nik_employee', 'nama_employee', 'alamat');
                 },
                 'keluhans' => function($query) {
                     $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai')
@@ -1061,7 +1061,7 @@ class LaporanController extends Controller
             $bulan = $request->get('bulan', date('m'));
             $periode = $request->get('periode', Carbon::now()->format('m-y'));
             $search = $request->get('search', '');
-        
+
         // Parse periode format MM-YY to get month and year
         if (preg_match('/^(\d{2})-(\d{2})$/', $periode, $matches)) {
             $month = (int)$matches[1];
@@ -1071,15 +1071,15 @@ class LaporanController extends Controller
             $month = Carbon::now()->month;
             $year = Carbon::now()->year;
         }
-        
+
         // Get all transaction data without pagination
         $allTransaksiData = $this->getAllTransaksiDataForExport($month, $year, $search);
-        
+
         // Validate data before export
         if (empty($allTransaksiData)) {
             return redirect()->back()->with('error', 'Tidak ada data transaksi untuk periode yang dipilih.');
         }
-        
+
         // Log data for debugging
         \Log::info('Export Data Count', [
             'month' => $month,
@@ -1088,7 +1088,7 @@ class LaporanController extends Controller
             'total_records' => count($allTransaksiData),
             'sample_data' => $allTransaksiData->take(3)->toArray() // Log first 3 records for debugging
         ]);
-        
+
         // Log sample data structure to verify 'tanggal' field
         if (count($allTransaksiData) > 0) {
             $firstRecord = $allTransaksiData->first();
@@ -1099,18 +1099,18 @@ class LaporanController extends Controller
                 'all_keys' => array_keys($firstRecord)
             ]);
         }
-        
+
         // Create a new Excel file with proper filename format
         $filename = 'LAPORAN_TRANSAKSI_POLIKLINIK_' . date('Ymd') . '.xlsx';
-        
+
         // Create a new PHPExcel object
         $objPHPExcel = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $objPHPExcel->getProperties()->setTitle("Laporan Transaksi");
-        
+
         // Set active sheet
         $sheet = $objPHPExcel->getActiveSheet();
         $sheet->setTitle("Laporan Transaksi");
-        
+
         // Set headers according to exact requirements
         $sheet->setCellValue('A1', 'No');
         $sheet->setCellValue('B1', 'No Registrasi');
@@ -1146,7 +1146,7 @@ class LaporanController extends Controller
         $sheet->setCellValue('AF1', 'Subtotal');
         $sheet->setCellValue('AG1', 'Total Biaya');
         $totalCol = 'AG';
-        
+
         // Style the header row
         $headerStyle = [
             'font' => [
@@ -1166,7 +1166,7 @@ class LaporanController extends Controller
             ]
         ];
         $sheet->getStyle('A1:' . $totalCol . '1')->applyFromArray($headerStyle);
-        
+
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(5);
         $sheet->getColumnDimension('B')->setWidth(20);
@@ -1180,37 +1180,37 @@ class LaporanController extends Controller
         $sheet->getColumnDimension('J')->setWidth(25);
         $sheet->getColumnDimension('K')->setWidth(25);
         $sheet->getColumnDimension('L')->setWidth(25);
-        
+
         // Set widths for obat columns
         $obatColumns = ['M', 'Q', 'U', 'Y', 'AC'];
         foreach ($obatColumns as $col) {
             $sheet->getColumnDimension($col)->setWidth(25);
         }
-        
+
         // Set widths for jumlah, harga, subtotal columns
         $detailColumns = ['N', 'O', 'P', 'R', 'S', 'T', 'V', 'W', 'X', 'Z', 'AA', 'AB', 'AD', 'AE', 'AF'];
         foreach ($detailColumns as $col) {
             $sheet->getColumnDimension($col)->setWidth(15);
         }
-        
+
         $sheet->getColumnDimension('AG')->setWidth(15);
-        
+
         // Add data rows
         $row = 2;
         $totalBiaya = 0;
-        
+
         foreach ($allTransaksiData as $index => $item) {
             $sheet->setCellValue('A' . $row, $index + 1);
             $sheet->setCellValue('B' . $row, $item['kode_transaksi']);
             $sheet->setCellValue('C' . $row, $item['tipe']);
-            
+
             // Special handling for emergency patients - add "F" to NO RM
             $noRmValue = $item['no_rm'];
             if ($item['tipe'] == 'Emergency') {
                 $noRmValue = $noRmValue . ' (F)';
             }
             $sheet->setCellValue('D' . $row, $noRmValue);
-            
+
             $sheet->setCellValue('E' . $row, $item['nama_pasien']);
             $sheet->setCellValue('F' . $row, $item['hubungan']);
             $sheet->setCellValue('G' . $row, $item['nik_karyawan']);
@@ -1236,7 +1236,7 @@ class LaporanController extends Controller
                 }
             }
             $sheet->setCellValue('I' . $row, $tanggalValue);
-            
+
             // Add diagnoses (up to 3) - use "-" for empty values
             if (isset($item['diagnosa_list']) && is_array($item['diagnosa_list'])) {
                 for ($i = 0; $i < 3; $i++) {
@@ -1249,7 +1249,7 @@ class LaporanController extends Controller
                 $sheet->setCellValue('K' . $row, '-');
                 $sheet->setCellValue('L' . $row, '-');
             }
-            
+
             // Add medicines (up to 5) with details - use "-" for empty values
             if (isset($item['obat_details']) && is_array($item['obat_details'])) {
                 for ($i = 0; $i < 5; $i++) {
@@ -1258,7 +1258,7 @@ class LaporanController extends Controller
                     $jumlahCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(13 + ($i * 4)); // N=13, R=17, V=21, Z=25, AD=29
                     $hargaCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(14 + ($i * 4)); // O=14, S=18, W=22, AA=26, AE=30
                     $subtotalCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(15 + ($i * 4)); // P=15, T=19, X=23, AB=27, AF=31
-                    
+
                     if (isset($item['obat_details'][$i])) {
                         $obat = $item['obat_details'][$i];
                         $sheet->setCellValue($obatCol . $row, $obat['nama_obat']);
@@ -1280,20 +1280,20 @@ class LaporanController extends Controller
                     $jumlahCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(13 + ($i * 4)); // N=13, R=17, V=21, Z=25, AD=29
                     $hargaCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(14 + ($i * 4)); // O=14, S=18, W=22, AA=26, AE=30
                     $subtotalCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(15 + ($i * 4)); // P=15, T=19, X=23, AB=27, AF=31
-                    
+
                     $sheet->setCellValue($obatCol . $row, '-');
                     $sheet->setCellValue($jumlahCol . $row, '-');
                     $sheet->setCellValue($hargaCol . $row, '-');
                     $sheet->setCellValue($subtotalCol . $row, '-');
                 }
             }
-            
+
             // Add total biaya
             $sheet->setCellValue('AG' . $row, $item['total_biaya']);
-            
+
             // Accumulate total biaya
             $totalBiaya += $item['total_biaya'];
-            
+
             // Style data rows
             $dataStyle = [
                 'borders' => [
@@ -1303,23 +1303,23 @@ class LaporanController extends Controller
                 ],
             ];
             $sheet->getStyle('A' . $row . ':' . $totalCol . $row)->applyFromArray($dataStyle);
-            
+
             // Format currency columns
             $currencyColumns = ['O', 'P', 'S', 'T', 'W', 'X', 'AA', 'AB', 'AE', 'AF', 'AG'];
             foreach ($currencyColumns as $col) {
                 $sheet->getStyle($col . $row)->getNumberFormat()->setFormatCode('#,##0');
             }
-            
+
             $row++;
         }
-        
+
         // Add total row
         $sheet->setCellValue('A' . $row, 'TOTAL');
         $lastColIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($totalCol);
         $lastColLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($lastColIndex - 1);
         $sheet->mergeCells('A' . $row . ':' . $lastColLetter . $row);
         $sheet->setCellValue($totalCol . $row, $totalBiaya);
-        
+
         // Style total row
         $totalStyle = [
             'font' => [
@@ -1340,14 +1340,14 @@ class LaporanController extends Controller
         ];
         $sheet->getStyle('A' . $row . ':' . $totalCol . $row)->applyFromArray($totalStyle);
         $sheet->getStyle($totalCol . $row)->getNumberFormat()->setFormatCode('#,##0');
-        
+
         // Add summary section
         $summaryRow = $row + 2;
         $sheet->setCellValue('A' . $summaryRow, 'RINGKASAN LAPORAN TRANSAKSI');
         $lastColIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($totalCol);
         $lastColLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($lastColIndex - 1);
         $sheet->mergeCells('A' . $summaryRow . ':' . $lastColLetter . $summaryRow);
-        
+
         $summaryStyle = [
             'font' => [
                 'bold' => true,
@@ -1358,46 +1358,46 @@ class LaporanController extends Controller
             ],
         ];
         $sheet->getStyle('A' . $summaryRow . ':' . $totalCol . $summaryRow)->applyFromArray($summaryStyle);
-        
+
         $summaryRow++;
         $sheet->setCellValue('A' . $summaryRow, 'Periode:');
         $sheet->setCellValue('B' . $summaryRow, $month . ' - ' . $year);
-        
+
         $summaryRow++;
         $sheet->setCellValue('A' . $summaryRow, 'Total Transaksi:');
         $sheet->setCellValue('B' . $summaryRow, count($allTransaksiData));
-        
+
         $summaryRow++;
         $sheet->setCellValue('A' . $summaryRow, 'Total Biaya:');
         $sheet->setCellValue('B' . $summaryRow, 'Rp ' . number_format($totalBiaya, 0, ',', '.'));
-        
+
         // Create the Excel file
         $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($objPHPExcel, 'Xlsx');
         // Save to temporary file
         $tempFile = tempnam(sys_get_temp_dir(), 'laporan_transaksi_');
         $writer->save($tempFile);
-        
+
             // Return file download response
             return response()->download($tempFile, $filename, [
                 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'
             ])->deleteFileAfterSend(true);
-            
+
         } catch (\PhpOffice\PhpSpreadsheet\Exception $e) {
             // Log the error for debugging
             \Log::error('Excel export error: ' . $e->getMessage());
-            
+
             // Return user-friendly error message
             return redirect()->back()->with('error', 'Terjadi kesalahan saat mengekspor data ke Excel. Silakan coba lagi atau hubungi administrator.');
         } catch (\Exception $e) {
             // Log the error for debugging
             \Log::error('General export error: ' . $e->getMessage());
-            
+
             // Return user-friendly error message
             return redirect()->back()->with('error', 'Terjadi kesalahan saat mengekspor data. Silakan coba lagi atau hubungi administrator.');
         }
     }
-    
+
     /**
      * Get all transaction data for export (without pagination)
      */
@@ -1425,7 +1425,7 @@ class LaporanController extends Controller
         // Optimized query with specific columns and eager loading for emergency
         $rekamMedisEmergencyQuery = RekamMedisEmergency::with([
                 'externalEmployee' => function($query) {
-                    $query->select('id', 'nik_employee', 'nama_employee');
+                    $query->select('id_external_employee', 'nik_employee', 'nama_employee');
                 },
                 'keluhans' => function($query) {
                     $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat')
@@ -1442,7 +1442,7 @@ class LaporanController extends Controller
         // Apply search filter if provided
         if (!empty($search)) {
             $searchTerm = '%' . $search . '%';
-            
+
             // Filter reguler records
             $rekamMedisQuery->whereHas('keluarga', function($query) use ($searchTerm) {
                 $query->where('nama_keluarga', 'like', $searchTerm)
@@ -1452,7 +1452,7 @@ class LaporanController extends Controller
                                        ->orWhere('nama_karyawan', 'like', $searchTerm);
                       });
             });
-            
+
             // Filter emergency records
             $rekamMedisEmergencyQuery->whereHas('externalEmployee', function($query) use ($searchTerm) {
                 $query->where('nama_employee', 'like', $searchTerm)
@@ -1477,7 +1477,7 @@ class LaporanController extends Controller
                 }
             }
         }
-        
+
         foreach ($rekamMedisEmergencyData as $rekamMedisEmergency) {
             $periode = $rekamMedisEmergency->tanggal_periksa->format('m-y');
             foreach ($rekamMedisEmergency->keluhans as $keluhan) {
@@ -1524,18 +1524,18 @@ class LaporanController extends Controller
 
             $totalBiaya = 0;
             $obatDetails = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (!$keluhan->id_obat) continue;
-                
+
                 // Get harga obat from our pre-fetched map
                 $key = $keluhan->id_obat . '_' . $periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
                 $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
-                
+
                 $totalBiaya += $subtotal;
-                
+
                 // Store obat details for export with proper null checks
                 $obatDetails[] = [
                     'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
@@ -1563,7 +1563,7 @@ class LaporanController extends Controller
                 'obat_details' => $obatDetails
             ];
         })->filter();
-        
+
         // Process emergency data
         $resultEmergency = $rekamMedisEmergencyData->map(function($rekamMedisEmergency) use ($hargaObatMap) {
             // Generate kode_transaksi format: 2(No Running)/NDL/BJM/MM/YYYY
@@ -1578,18 +1578,18 @@ class LaporanController extends Controller
 
             $totalBiaya = 0;
             $obatDetails = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (!$keluhan->id_obat) continue;
-                
+
                 // Get harga obat from our pre-fetched map
                 $key = $keluhan->id_obat . '_' . $periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
                 $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
-                
+
                 $totalBiaya += $subtotal;
-                
+
                 // Store obat details for export with proper null checks
                 $obatDetails[] = [
                     'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
@@ -1620,12 +1620,12 @@ class LaporanController extends Controller
 
         // Combine results
         $allResults = $resultReguler->concat($resultEmergency);
-        
+
         // Sort by date descending
         $allResults = $allResults->sortByDesc(function($item) {
             return \Carbon\Carbon::createFromFormat('d-m-Y', $item['tanggal']);
         })->values();
-        
+
         return $allResults;
     }
 

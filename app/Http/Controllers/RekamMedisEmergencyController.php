@@ -111,35 +111,35 @@ class RekamMedisEmergencyController extends Controller
             // External Employee
             'external_employee_id.required' => 'Karyawan emergency harus dipilih.',
             'external_employee_id.exists' => 'Karyawan emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
-            
+
             // Tanggal Periksa
             'tanggal_periksa.required' => 'Tanggal periksa wajib diisi.',
             'tanggal_periksa.date' => 'Format tanggal periksa tidak valid. Harap gunakan format tanggal yang benar (YYYY-MM-DD).',
             'tanggal_periksa.before_or_equal' => 'Tanggal periksa tidak boleh melebihi tanggal hari ini.',
-            
+
             // Waktu Periksa
             'waktu_periksa.date_format' => 'Format waktu periksa tidak valid. Harap gunakan format HH:MM:SS (contoh: 14:30:00).',
-            
+
             // Status
             'status.required' => 'Status rekam medis harus dipilih.',
             'status.in' => 'Status yang dipilih tidak valid. Pilihan yang tersedia: On Progress atau Close.',
-            
+
             // Keluhan
             'keluhan.required' => 'Keluhan pasien wajib diisi untuk melanjutkan.',
             'keluhan.min' => 'Keluhan pasien terlalu singkat. Minimal 10 karakter untuk memberikan deskripsi yang memadai.',
             'keluhan.max' => 'Keluhan pasien terlalu panjang. Maksimal 1000 karakter.',
-            
+
             // Diagnosa Emergency
             'id_diagnosa_emergency.required' => 'Diagnosa emergency harus dipilih.',
             'id_diagnosa_emergency.exists' => 'Diagnosa emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
-            
+
             // Terapi
             'terapi.required' => 'Jenis terapi harus dipilih.',
             'terapi.in' => 'Jenis terapi yang dipilih tidak valid. Pilihan yang tersedia: Obat, Lab, Istirahat, atau Emergency.',
-            
+
             // Catatan
             'catatan.max' => 'Catatan terlalu panjang. Maksimal 2000 karakter.',
-            
+
             // Obat List
             'obat_list.array' => 'Format data obat tidak valid. Harap refresh halaman dan coba lagi.',
             'obat_list.min' => 'Minimal harus ada 1 obat yang dipilih jika terapi menggunakan obat.',
@@ -327,32 +327,32 @@ class RekamMedisEmergencyController extends Controller
             // External Employee
             'external_employee_id.required' => 'Karyawan emergency harus dipilih.',
             'external_employee_id.exists' => 'Karyawan emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
-            
+
             // Tanggal Periksa
             'tanggal_periksa.required' => 'Tanggal periksa wajib diisi.',
             'tanggal_periksa.date' => 'Format tanggal periksa tidak valid. Harap gunakan format tanggal yang benar (YYYY-MM-DD).',
             'tanggal_periksa.before_or_equal' => 'Tanggal periksa tidak boleh melebihi tanggal hari ini.',
-            
+
             // Waktu Periksa
             'waktu_periksa.date_format' => 'Format waktu periksa tidak valid. Harap gunakan format HH:MM:SS (contoh: 14:30:00).',
-            
+
             // Status
             'status.required' => 'Status rekam medis harus dipilih.',
             'status.in' => 'Status yang dipilih tidak valid. Pilihan yang tersedia: On Progress atau Close.',
-            
+
             // Keluhan
             'keluhan.required' => 'Keluhan pasien wajib diisi untuk melanjutkan.',
             'keluhan.min' => 'Keluhan pasien terlalu singkat. Minimal 10 karakter untuk memberikan deskripsi yang memadai.',
             'keluhan.max' => 'Keluhan pasien terlalu panjang. Maksimal 1000 karakter.',
-            
+
             // Diagnosa Emergency
             'id_diagnosa_emergency.required' => 'Diagnosa emergency harus dipilih.',
             'id_diagnosa_emergency.exists' => 'Diagnosa emergency yang dipilih tidak valid atau tidak ditemukan dalam sistem.',
-            
+
             // Terapi
             'terapi.required' => 'Jenis terapi harus dipilih.',
             'terapi.in' => 'Jenis terapi yang dipilih tidak valid. Pilihan yang tersedia: Obat, Lab, Istirahat, atau Emergency.',
-            
+
             // Catatan
             'catatan.max' => 'Catatan terlalu panjang. Maksimal 2000 karakter.',
         ]);
