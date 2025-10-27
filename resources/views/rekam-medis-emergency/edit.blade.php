@@ -209,7 +209,8 @@
                         style="display: {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Obat' ? 'block' : 'none' }};">
                         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-4">
                             <div class="flex items-center gap-2 mb-3">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                                 </svg>
@@ -262,7 +263,8 @@
                                                     <label class="block text-xs font-medium text-gray-600 mb-1">
                                                         Jumlah <span class="text-red-500">*</span>
                                                     </label>
-                                                    <input type="number" name="obat_list[{{ $index }}][jumlah_obat]"
+                                                    <input type="number"
+                                                        name="obat_list[{{ $index }}][jumlah_obat]"
                                                         value="{{ $obat['jumlah_obat'] }}" min="1" max="100"
                                                         required
                                                         class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -294,7 +296,8 @@
                                                             {{ $obat['aturan_pakai'] == '3 x sehari sesudah makan' ? 'selected' : '' }}>
                                                             3 x sehari sesudah makan</option>
                                                         <option value="1 x pakai"
-                                                            {{ $obat['aturan_pakai'] == '1 x pakai' ? 'selected' : '' }}>1 x pakai
+                                                            {{ $obat['aturan_pakai'] == '1 x pakai' ? 'selected' : '' }}>1
+                                                            x pakai
                                                         </option>
                                                     </select>
                                                 </div>
@@ -302,7 +305,8 @@
                                         </div>
                                     @endforeach
                                 @else
-                                    <p class="text-sm text-gray-500 italic text-center py-4">Pilih diagnosa emergency terlebih
+                                    <p class="text-sm text-gray-500 italic text-center py-4">Pilih diagnosa emergency
+                                        terlebih
                                         dahulu untuk menampilkan obat yang sesuai.</p>
                                 @endif
                             </div>

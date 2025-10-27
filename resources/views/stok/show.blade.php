@@ -97,7 +97,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    Tambah Stok Masuk Bulan Ini
+                    Tambah Stok Masuk
                 </h2>
             </div>
             <div class="p-6">
@@ -112,11 +112,19 @@
                             <div class="relative">
                                 <input type="number"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 pr-16"
-                                    id="jumlah_stok_masuk" name="jumlah_stok_masuk" min="1" required>
+                                    id="jumlah_stok_masuk" name="jumlah_stok_masuk" min="1" required
+                                    placeholder="Masukkan jumlah stok masuk">
                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                     <span class="text-sm text-gray-500">{{ $obat->satuanObat->nama_satuan ?? '' }}</span>
                                 </div>
                             </div>
+                        </div>
+                        <div>
+                            <label for="periode" class="block text-sm font-medium text-gray-700 mb-2">Pilih
+                                Periode:</label>
+                            <input type="month" name="periode" id="periode" value="{{ now()->format('Y-m') }}"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                required>
                         </div>
                         <div class="flex items-end">
                             <button type="submit"
@@ -127,12 +135,6 @@
                                 </svg>
                                 Tambah Stok
                             </button>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Periode Saat Ini:</label>
-                            <div class="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg">
-                                <span class="text-sm font-bold text-gray-900">{{ date('F Y') }}</span>
-                            </div>
                         </div>
                     </div>
 
@@ -145,7 +147,8 @@
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <div class="text-sm text-blue-800">
-                                    Stok masuk untuk bulan ini: <strong>{{ number_format($stokBulananIni->stok_masuk) }}
+                                    Stok masuk bulan ini ({{ date('F Y') }}):
+                                    <strong>{{ number_format($stokBulananIni->stok_masuk) }}
                                         {{ $obat->satuanObat->nama_satuan ?? '' }}</strong>
                                 </div>
                             </div>
@@ -165,7 +168,7 @@
                     </svg>
                     History Stok Obat Per Bulan
                 </h2>
-                <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm text-white font-medium">
+                <span class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-sm text-purple-600 font-medium">
                     {{ $riwayatStok->count() }} periode
                 </span>
             </div>
@@ -183,113 +186,13 @@
                     </div>
                 </div>
 
-                @forelse($riwayatStok as $index => $stok)
-                    @php
-                        // Hitung stok akhir bulanan dengan rumus: stok_awal + total_stok_masuk - total_stok_pakai
-                        $totalStokMasuk = \App\Models\StokBulanan::where('obat_id', $obat->id_obat)
-                            ->where(function ($query) use ($stok) {
-                                $query->where('tahun', '<', $stok->tahun)->orWhere(function ($query) use ($stok) {
-                                    $query->where('tahun', $stok->tahun)->where('bulan', '<=', $stok->bulan);
-                                });
-                            })
-                            ->sum('stok_masuk');
-
-                        $totalStokPakai = \App\Models\StokBulanan::where('obat_id', $obat->id_obat)
-                            ->where(function ($query) use ($stok) {
-                                $query->where('tahun', '<', $stok->tahun)->orWhere(function ($query) use ($stok) {
-                                    $query->where('tahun', $stok->tahun)->where('bulan', '<=', $stok->bulan);
-                                });
-                            })
-                            ->sum('stok_pakai');
-
-                        $stokAkhirBulanan = $obat->stok_awal + $totalStokMasuk - $totalStokPakai;
-                    @endphp
-
-                    <div
-                        class="border rounded-xl overflow-hidden mb-4 {{ $stokAkhirBulanan <= 0 ? 'border-red-300' : ($stokAkhirBulanan <= 10 ? 'border-yellow-300' : 'border-gray-200') }}">
-                        <div
-                            class="p-4 {{ $stokAkhirBulanan <= 0 ? 'bg-red-600 text-white' : ($stokAkhirBulanan <= 10 ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-800') }} flex justify-between items-center">
-                            <h3 class="font-bold text-lg">{{ $stok->periode }}</h3>
-                            <div>
-                                <span
-                                    class="px-3 py-1 {{ $stokAkhirBulanan <= 0 ? 'bg-white text-red-600' : ($stokAkhirBulanan <= 10 ? 'bg-gray-800 text-white' : 'bg-indigo-600 text-white') }} rounded-full text-sm font-medium">
-                                    Sisa: {{ number_format($stokAkhirBulanan) }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="p-4">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                    <div class="text-2xl font-bold text-green-600">{{ number_format($stok->stok_masuk) }}
-                                    </div>
-                                    <div class="text-sm text-gray-600">Stok Masuk</div>
-                                </div>
-                                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                    <div class="text-2xl font-bold text-red-600">{{ number_format($stok->stok_pakai) }}
-                                    </div>
-                                    <div class="text-sm text-gray-600">Stok Pakai</div>
-                                </div>
-                                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                    <div
-                                        class="text-2xl font-bold {{ $stokAkhirBulanan <= 0 ? 'text-red-600' : ($stokAkhirBulanan <= 10 ? 'text-yellow-600' : 'text-green-600') }}">
-                                        {{ number_format($stokAkhirBulanan) }}
-                                    </div>
-                                    <div class="text-sm text-gray-600">Stok Akhir</div>
-                                </div>
-                                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                                    <div>
-                                        @if ($stok->stok_masuk > 0)
-                                            <span
-                                                class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Stok
-                                                Ditambah</span>
-                                        @endif
-                                        @if ($stok->stok_pakai > 0)
-                                            <span
-                                                class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Stok
-                                                Terpakai</span>
-                                        @endif
-                                        @if ($stok->stok_masuk == 0 && $stok->stok_pakai == 0)
-                                            <span class="text-gray-500 text-sm">Tidak ada aktivitas</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Progress bar untuk visualisasi stok -->
-                            <div class="mt-4">
-                                <div class="w-full bg-gray-200 rounded-full h-6">
-                                    <div class="bg-green-500 h-6 rounded-l-full"
-                                        style="width: {{ $stok->stok_masuk > 0 ? min(($stok->stok_masuk / max($stok->stok_masuk, $stok->stok_pakai, 1)) * 100, 100) : 0 }}%"
-                                        title="Stok Masuk: {{ number_format($stok->stok_masuk) }}">
-                                    </div>
-                                    <div class="bg-red-500 h-6 rounded-r-full"
-                                        style="width: {{ $stok->stok_pakai > 0 ? min(($stok->stok_pakai / max($stok->stok_masuk, $stok->stok_pakai, 1)) * 100, 100) : 0 }}%"
-                                        title="Stok Pakai: {{ number_format($stok->stok_pakai) }}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-center py-12">
-                        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada riwayat stok untuk obat ini</h3>
-                        <p class="text-gray-600">Riwayat stok akan muncul setelah ada aktivitas stok masuk atau stok pakai
-                        </p>
-                    </div>
-                @endforelse
-
                 @if ($riwayatStok->count() > 0)
-                    <div class="mt-8">
+                    <div class="mt-8 mb-5">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                             <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v8m5-4h.01M9 16h.01" />
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0h2a2 2 0 012 2h2a2 2 0 012-2V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
                             Ringkasan Stok
                         </h3>
@@ -300,7 +203,7 @@
                                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                         </svg>
                                     </div>
                                     <div class="ml-4">
@@ -316,7 +219,7 @@
                                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l3 3m-3-3v12" />
+                                                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                     </div>
                                     <div class="ml-4">
@@ -332,7 +235,7 @@
                                         <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l3 3m-3-3v12" />
+                                                d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                     </div>
                                     <div class="ml-4">
@@ -349,7 +252,7 @@
                                         <svg class="w-6 h-6 {{ $sisaStok <= 0 ? 'text-red-600' : ($sisaStok <= 10 ? 'text-yellow-600' : 'text-green-600') }}"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v8m5-4h.01M9 16h.01" />
+                                                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                                         </svg>
                                     </div>
                                     <div class="ml-4">
@@ -359,20 +262,45 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                @endif
 
-                        <!-- Chart untuk visualisasi trend stok -->
-                        <div class="mt-8">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Trend Stok (6 Bulan Terakhir)</h3>
-                            <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
-                                @php
-                                    $lastSixMonths = $riwayatStok->take(6)->reverse();
-                                    $maxStok = max($obat->stok_awal, $sisaStok, 1);
-                                @endphp
-
-                                @foreach ($lastSixMonths as $stok)
+                @if ($riwayatStok->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        No
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Periode
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Stok Masuk
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Stok Pakai
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Stok Akhir
+                                    </th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach ($riwayatStok as $index => $stok)
                                     @php
-                                        // Hitung stok akhir untuk setiap bulan
-                                        $totalMasuk = \App\Models\StokBulanan::where('obat_id', $obat->id_obat)
+                                        // Hitung stok akhir bulanan dengan rumus: stok_awal + total_stok_masuk - total_stok_pakai
+                                        $totalStokMasuk = \App\Models\StokBulanan::where('obat_id', $obat->id_obat)
                                             ->where(function ($query) use ($stok) {
                                                 $query
                                                     ->where('tahun', '<', $stok->tahun)
@@ -384,7 +312,7 @@
                                             })
                                             ->sum('stok_masuk');
 
-                                        $totalPakai = \App\Models\StokBulanan::where('obat_id', $obat->id_obat)
+                                        $totalStokPakai = \App\Models\StokBulanan::where('obat_id', $obat->id_obat)
                                             ->where(function ($query) use ($stok) {
                                                 $query
                                                     ->where('tahun', '<', $stok->tahun)
@@ -396,27 +324,74 @@
                                             })
                                             ->sum('stok_pakai');
 
-                                        $stokAkhir = $obat->stok_awal + $totalMasuk - $totalPakai;
+                                        $stokAkhirBulanan = $obat->stok_awal + $totalStokMasuk - $totalStokPakai;
                                     @endphp
-
-                                    <div class="text-center">
-                                        <div class="text-sm text-gray-600 mb-2">
-                                            {{ \Carbon\Carbon::parse($stok->tahun . '-' . $stok->bulan . '-01')->format('M') }}
-                                        </div>
-                                        <div class="h-32 bg-gray-100 rounded-lg relative">
-                                            <div class="absolute bottom-0 left-0 right-0 {{ $stokAkhir <= 0 ? 'bg-red-500' : ($stokAkhir <= 10 ? 'bg-yellow-500' : 'bg-green-500') }} rounded-b-lg"
-                                                style="height: {{ ($stokAkhir / $maxStok) * 100 }}%"
-                                                title="{{ $stok->periode }}: {{ number_format($stokAkhir) }}">
+                                    <tr
+                                        class="hover:bg-gray-50 {{ $stokAkhirBulanan <= 0 ? 'bg-red-50' : ($stokAkhirBulanan <= 10 ? 'bg-yellow-50' : '') }}">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ $index + 1 }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">{{ $stok->periode }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <div class="text-sm font-bold text-green-600">
+                                                {{ number_format($stok->stok_masuk) }}
                                             </div>
-                                        </div>
-                                        <div class="text-sm font-medium text-gray-900 mt-2">
-                                            {{ number_format($stokAkhir) }}</div>
-                                    </div>
+                                            <div class="text-xs text-gray-500">{{ $obat->satuanObat->nama_satuan ?? '' }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <div class="text-sm font-bold text-red-600">
+                                                {{ number_format($stok->stok_pakai) }}
+                                            </div>
+                                            <div class="text-xs text-gray-500">{{ $obat->satuanObat->nama_satuan ?? '' }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <div
+                                                class="text-sm font-bold {{ $stokAkhirBulanan <= 0 ? 'text-red-600' : ($stokAkhirBulanan <= 10 ? 'text-yellow-600' : 'text-green-600') }}">
+                                                {{ number_format($stokAkhirBulanan) }}
+                                            </div>
+                                            <div class="text-xs text-gray-500">{{ $obat->satuanObat->nama_satuan ?? '' }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            @if ($stokAkhirBulanan <= 0)
+                                                <span
+                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    Habis
+                                                </span>
+                                            @elseif($stokAkhirBulanan <= 10)
+                                                <span
+                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    Rendah
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Tersedia
+                                                </span>
+                                            @endif
+                                        </td>
+                                    </tr>
                                 @endforeach
-                            </div>
-                        </div>
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-12">
+                        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada riwayat stok untuk obat ini</h3>
+                        <p class="text-gray-600">Riwayat stok akan muncul setelah ada aktivitas stok masuk atau stok pakai
+                        </p>
                     </div>
                 @endif
+
             </div>
         </div>
 

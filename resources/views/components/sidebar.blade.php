@@ -142,41 +142,6 @@
                                 Daftar Rekam Medis
                             </a>
                         </li>
-                        @if (auth()->user()->role === 'Super Admin')
-                            <li>
-                                <a href="{{ route('token-emergency.index') }}"
-                                    class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.index') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                    Kelola Token Emergency
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('token-emergency.monitoring') }}"
-                                    class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.monitoring*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                    Monitoring Token
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('token-emergency.pending-requests') }}"
-                                    class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.pending-requests*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                    Permintaan Token
-                                    @php
-                                        $pendingRequestsCount = \App\Models\TokenRequest::getPendingRequestsCount();
-                                    @endphp
-                                    @if ($pendingRequestsCount > 0)
-                                        <span
-                                            class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                                            {{ $pendingRequestsCount }}
-                                        </span>
-                                    @endif
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('token-emergency.audit-trail') }}"
-                                    class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.audit-trail*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                    Riwayat Token
-                                </a>
-                            </li>
-                        @endif
                         @if (auth()->user()->role === 'User')
                             <li>
                                 <a href="{{ route('token-emergency.my-tokens') }}"
