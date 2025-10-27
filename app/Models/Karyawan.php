@@ -25,6 +25,7 @@ class Karyawan extends Model
         'foto',
         'email',
         'bpjs_id',
+        'status',
     ];
 
     protected $casts = [

@@ -229,7 +229,7 @@
         </div>
     </div>
 
-    <!-- Enhanced Medical History Section -->
+    <!-- Enhanced Medical Record Detail Section -->
     <div class="bg-white rounded-2xl shadow-lg modern-card mb-8 overflow-hidden">
         <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 lg:px-8 py-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -241,162 +241,205 @@
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-2xl lg:text-3xl font-bold text-white drop-shadow-md">Riwayat Kunjungan Medis</h2>
-                        <p class="text-green-100 text-sm lg:text-base mt-1">Catatan pemeriksaan dan treatment pasien</p>
+                        <h2 class="text-2xl lg:text-3xl font-bold text-white drop-shadow-md">Detail Pemeriksaan</h2>
+                        <p class="text-green-100 text-sm lg:text-base mt-1">Catatan pemeriksaan dan treatment</p>
                     </div>
                 </div>
                 <div class="bg-green-800 px-5 py-2.5 rounded-full shadow-lg border-2 border-white">
-                    <span class="text-white font-bold text-lg">{{ $riwayatKunjungan->count() }} Kunjungan</span>
+                    <span class="text-white font-bold text-lg">{{ $rekamMedis->tanggal_periksa->format('d M Y') }}</span>
                 </div>
             </div>
         </div>
 
         <div class="p-6 lg:p-8">
-            @forelse($riwayatKunjungan as $index => $kunjungan)
-            <div class="timeline-item mb-8 last:mb-0">
-                <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-6 pb-4 border-b border-blue-200">
-                        <div class="flex items-center gap-4 mb-4 lg:mb-0">
-                            <div class="bg-blue-600 text-white px-4 py-2 rounded-full font-bold">
-                                Kunjungan #{{ $riwayatKunjungan->count() - $index }}
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="bg-white p-2 rounded-lg shadow-sm">
-                                    <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div class="data-label">Tanggal Periksa</div>
-                                    <div class="data-value text-lg">{{ $kunjungan->tanggal_periksa->format('d F Y') }}</div>
-                                </div>
-                            </div>
+            <!-- Visit Information -->
+            <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                            </svg>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="bg-white p-2 rounded-lg shadow-sm">
-                                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="data-label">Dokter</div>
-                                <div class="data-value">{{ $kunjungan->user->nama_lengkap ?? '-' }}</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="bg-white p-2 rounded-lg shadow-sm">
-                                <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="data-label">Status</div>
-                                <div>
-                                    <span class="px-3 py-1
-                                        @if($kunjungan->status == 'On Progress') bg-yellow-100 text-yellow-800
-                                        @elseif($kunjungan->status == 'Close') bg-green-100 text-green-800
-                                        @endif
-                                        rounded-full text-sm font-semibold">
-                                        {{ $kunjungan->status ?? 'On Progress' }}
-                                    </span>
-                                </div>
-                            </div>
+                        <div>
+                            <div class="data-label">Tanggal Periksa</div>
+                            <div class="data-value text-lg">{{ $rekamMedis->tanggal_periksa->format('d F Y') }}</div>
                         </div>
                     </div>
-
-                    <div class="space-y-4">
-                        @foreach($kunjungan->keluhans as $keluhanIndex => $keluhan)
-                        <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-                            <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-4">
-                                <div class="flex items-center gap-3 mb-3 lg:mb-0">
-                                    <div class="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm">
-                                        {{ $keluhanIndex + 1 }}
-                                    </div>
-                                    <div>
-                                        <div class="data-label mb-1">Diagnosa</div>
-                                        <div class="data-value text-lg font-semibold">{{ $keluhan->diagnosa->nama_diagnosa ?? '-' }}</div>
-                                    </div>
-                                </div>
-                                <div class="status-badge px-3 py-1 rounded-full text-sm font-semibold
-                                    {{ $keluhan->terapi == 'Obat' ? 'bg-purple-100 text-purple-700' : '' }}
-                                    {{ $keluhan->terapi == 'Lab' ? 'bg-orange-100 text-orange-700' : '' }}
-                                    {{ $keluhan->terapi == 'Istirahat' ? 'bg-green-100 text-green-700' : '' }}">
-                                    {{ $keluhan->terapi }}
-                                </div>
-                            </div>
-
-                            @if($keluhan->keterangan)
-                            <div class="mb-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-                                <div class="flex items-start gap-2">
-                                    <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <div>
-                                        <div class="font-semibold text-blue-700 text-sm mb-1">Catatan Dokter</div>
-                                        <div class="text-gray-700">{{ $keluhan->keterangan }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            @endif
-
-                            @if($keluhan->obat)
-                            <div class="prescription-card bg-green-50 rounded-xl p-4">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="bg-green-600 p-2 rounded-lg">
-                                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"/>
-                                        </svg>
-                                    </div>
-                                    <div class="font-bold text-green-800 text-lg">Resep Obat</div>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <div class="bg-white p-3 rounded-lg">
-                                        <div class="data-label mb-1">Nama Obat</div>
-                                        <div class="data-value font-semibold">{{ $keluhan->obat->nama_obat }}</div>
-                                    </div>
-                                    @if($keluhan->jumlah_obat)
-                                    <div class="bg-white p-3 rounded-lg">
-                                        <div class="data-label mb-1">Jumlah</div>
-                                        <div class="data-value font-semibold">{{ $keluhan->jumlah_obat }} {{ $keluhan->obat->satuan_obat->satuan ?? '' }}</div>
-                                    </div>
-                                    @endif
-                                    @if($keluhan->aturan_pakai)
-                                    <div class="bg-white p-3 rounded-lg">
-                                        <div class="data-label mb-1">Aturan Pakai</div>
-                                        <div class="data-value font-semibold">{{ $keluhan->aturan_pakai }}</div>
-                                    </div>
-                                    @endif
-                                    @if($keluhan->waktu_pakai)
-                                    <div class="bg-white p-3 rounded-lg">
-                                        <div class="data-label mb-1">Durasi</div>
-                                        <div class="data-value font-semibold">{{ $keluhan->waktu_pakai }} Hari</div>
-                                    </div>
-                                    @endif
-                                </div>
-                            </div>
-                            @else
-                            <div class="text-center py-6 text-gray-400 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                                <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"/>
-                                </svg>
-                                <p class="font-medium">Tidak ada resep obat</p>
-                            </div>
-                            @endif
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                            </svg>
                         </div>
-                        @endforeach
+                        <div>
+                            <div class="data-label">Dokter Pemeriksa</div>
+                            <div class="data-value text-lg">{{ $rekamMedis->user->nama_lengkap ?? '-' }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="data-label">Status Pemeriksaan</div>
+                            <div>
+                                <span class="px-4 py-1.5
+                                    @if($rekamMedis->status == 'On Progress') bg-yellow-100 text-yellow-800
+                                    @elseif($rekamMedis->status == 'Close') bg-green-100 text-green-800
+                                    @endif
+                                    rounded-full text-sm font-bold inline-flex items-center gap-2">
+                                    @if($rekamMedis->status == 'On Progress')
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @else
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @endif
+                                    {{ $rekamMedis->status ?? 'On Progress' }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            @empty
-            <div class="empty-state">
-                <svg class="w-20 h-20 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                </svg>
-                <h3 class="text-xl font-semibold text-gray-600 mb-2">Belum Ada Riwayat Kunjungan</h3>
-                <p class="text-gray-500">Pasien ini belum memiliki catatan kunjungan medis</p>
+
+            <!-- Diagnosa & Treatment Cards -->
+            <div class="space-y-4">
+                @forelse($rekamMedis->keluhans as $keluhanIndex => $keluhan)
+                <div class="bg-white rounded-xl p-6 shadow-md border-2 border-gray-100 hover:border-blue-200 transition-all">
+                    <div class="flex flex-col lg:flex-row lg:items-start justify-between mb-5">
+                        <div class="flex items-start gap-4 mb-4 lg:mb-0">
+                            <div class="bg-gradient-to-br from-red-500 to-pink-600 text-white w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg">
+                                {{ $keluhanIndex + 1 }}
+                            </div>
+                            <div>
+                                <div class="data-label mb-2">Diagnosa</div>
+                                <div class="data-value text-xl font-bold text-gray-900">{{ $keluhan->diagnosa->nama_diagnosa ?? '-' }}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="status-badge px-4 py-2 rounded-xl text-sm font-bold shadow-sm
+                                {{ $keluhan->terapi == 'Obat' ? 'bg-purple-100 text-purple-700 border-2 border-purple-300' : '' }}
+                                {{ $keluhan->terapi == 'Lab' ? 'bg-orange-100 text-orange-700 border-2 border-orange-300' : '' }}
+                                {{ $keluhan->terapi == 'Istirahat' ? 'bg-green-100 text-green-700 border-2 border-green-300' : '' }}">
+                                <div class="flex items-center gap-2">
+                                    @if($keluhan->terapi == 'Obat')
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @elseif($keluhan->terapi == 'Lab')
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.993 1.993 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @else
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @endif
+                                    <span>{{ $keluhan->terapi }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if($keluhan->keterangan)
+                    <div class="mb-5 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-l-4 border-blue-500 shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <div class="bg-blue-500 p-2 rounded-lg mt-0.5">
+                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-bold text-blue-800 text-sm mb-2 flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Catatan Dokter
+                                </div>
+                                <div class="text-gray-800 leading-relaxed">{{ $keluhan->keterangan }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($keluhan->obat)
+                    <div class="prescription-card border-2 border-green-300 rounded-xl p-5 shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
+                        <div class="flex items-center gap-3 mb-5 pb-4 border-b-2 border-green-200">
+                            <div class="bg-gradient-to-br from-green-600 to-emerald-600 p-3 rounded-xl shadow-lg">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="data-label mb-1">Resep Obat</div>
+                                <div class="font-bold text-green-800 text-xl">{{ $keluhan->obat->nama_obat }}</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            @if($keluhan->jumlah_obat)
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-green-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <div class="data-label">Jumlah</div>
+                                </div>
+                                <div class="data-value text-2xl text-green-700">{{ $keluhan->jumlah_obat }} <span class="text-base">{{ $keluhan->obat->satuanObat->nama_satuan ?? '' }}</span></div>
+                            </div>
+                            @endif
+                            @if($keluhan->aturan_pakai)
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-green-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <div class="data-label">Aturan Pakai</div>
+                                </div>
+                                <div class="data-value text-lg text-green-700">{{ $keluhan->aturan_pakai }}</div>
+                            </div>
+                            @endif
+                            @if($keluhan->waktu_pakai)
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-green-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <div class="data-label">Durasi</div>
+                                </div>
+                                <div class="data-value text-2xl text-green-700">{{ $keluhan->waktu_pakai }} <span class="text-base">Hari</span></div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @else
+                    <div class="text-center py-8 text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                        <svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="font-semibold text-lg">Tidak ada resep obat</p>
+                        <p class="text-sm mt-1">Terapi tidak memerlukan obat</p>
+                    </div>
+                    @endif
+                </div>
+                @empty
+                <div class="empty-state py-12">
+                    <svg class="w-24 h-24 mx-auto mb-4 opacity-30" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-600 mb-2">Tidak Ada Data Diagnosa</h3>
+                    <p class="text-gray-500">Belum ada catatan diagnosa dan treatment untuk pemeriksaan ini</p>
+                </div>
+                @endforelse
             </div>
-            @endforelse
         </div>
     </div>
 
@@ -413,6 +456,14 @@
                 </a>
 
                 <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                    <a href="{{ route('rekam-medis.index', ['search' => $rekamMedis->keluarga->nama_keluarga ?? '']) }}"
+                       class="btn-modern w-full sm:w-auto px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl inline-flex items-center justify-center gap-3">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Riwayat Lengkap</span>
+                    </a>
+
                     <button onclick="window.print()"
                             class="btn-modern w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl inline-flex items-center justify-center gap-3">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
