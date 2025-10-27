@@ -16,6 +16,7 @@ class Obat extends Model
         'keterangan',
         'id_satuan',
         'stok_awal',
+        'lokasi',
         'tanggal_update',
     ];
 
