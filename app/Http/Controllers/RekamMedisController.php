@@ -325,8 +325,8 @@ class RekamMedisController extends Controller
                 return $rekamMedis;
             }, 3); // Retry up to 3 times on deadlock
 
-            // Dispatch event untuk mengurangi stok obat otomatis
-            RekamMedisCreated::dispatch($rekamMedis);
+            // Dispatch event untuk mengurangi stok obat otomatis AFTER transaction commits
+            event(new RekamMedisCreated($rekamMedis));
 
             return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil ditambahkan!');
         } catch (\Exception $e) {
@@ -413,10 +413,10 @@ class RekamMedisController extends Controller
 
         // Using Laravel 12's transaction method with automatic retry for better reliability
         try {
-            \Illuminate\Support\Facades\DB::transaction(function () use ($rekamMedis, $validated, $request) {
-                // Simpan keluhan lama untuk event listener (sebelum dihapus)
-                $oldKeluhans = $rekamMedis->keluhans()->get();
+            // Simpan keluhan lama untuk event listener (sebelum transaction dimulai)
+            $oldKeluhans = $rekamMedis->keluhans()->get();
 
+            \Illuminate\Support\Facades\DB::transaction(function () use ($rekamMedis, $validated, $request) {
                 // Update data rekam medis
                 $rekamMedis->update([
                     'id_keluarga' => $validated['id_keluarga'],
@@ -462,10 +462,12 @@ class RekamMedisController extends Controller
                         }
                     }
                 }
-
-                // Trigger event untuk adjust stok obat
-                event(new RekamMedisUpdated($rekamMedis, $oldKeluhans));
             }, 3); // Retry up to 3 times on deadlock
+
+            // Trigger event untuk adjust stok obat AFTER transaction commits
+            // Refresh the model to get the latest keluhans
+            $rekamMedis->refresh();
+            event(new RekamMedisUpdated($rekamMedis, $oldKeluhans));
 
             return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil diperbarui!');
         } catch (\Exception $e) {

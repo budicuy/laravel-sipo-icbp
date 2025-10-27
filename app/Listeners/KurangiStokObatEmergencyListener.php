@@ -79,15 +79,19 @@ class KurangiStokObatEmergencyListener
                 // Cari atau buat record di tabel StokBulanan dengan cache
                 $stokBulanan = $this->getOrCreateStokBulanan($obatId, $tahun, $bulan);
 
-                // Tambahkan nilai jumlah_obat ke kolom stok_pakai (hanya update di memori, belum save)
+                // Tambahkan nilai jumlah_obat ke kolom stok_pakai
                 $stokBulanan->stok_pakai += $totalJumlah;
                 
-                // Tandai sebagai dirty untuk di-save nanti
+                // Save immediately for regular operations
+                if (!self::$suspended) {
+                    $stokBulanan->save();
+                }
+                
                 // Update cache dengan instance terbaru
                 $cacheKey = "{$obatId}_{$tahun}_{$bulan}";
                 self::$stokCache[$cacheKey] = $stokBulanan;
 
-                Log::info('Stok obat emergency berhasil dikurangi (pending save)', [
+                Log::info('Stok obat emergency berhasil dikurangi', [
                     'id_obat' => $obatId,
                     'tahun' => $tahun,
                     'bulan' => $bulan,
