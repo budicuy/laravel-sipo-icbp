@@ -693,13 +693,13 @@ class KaryawanController extends Controller
         if ($karyawan->foto) {
             Storage::disk('public')->delete($karyawan->foto);
             $karyawan->update(['foto' => null]);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Foto berhasil dihapus'
             ]);
         }
-        
+
         return response()->json([
             'success' => false,
             'message' => 'Tidak ada foto untuk dihapus'

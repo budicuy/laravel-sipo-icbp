@@ -21,13 +21,13 @@ class DashboardController extends Controller
         // Realtime statistics (no cache untuk data yang harus up-to-date)
         $totalRekamMedisReguler = RekamMedis::count();
         $totalRekamMedisEmergency = RekamMedisEmergency::count();
-        
+
         $kunjunganHariIniReguler = RekamMedis::whereDate('tanggal_periksa', now()->toDateString())->count();
         $kunjunganHariIniEmergency = RekamMedisEmergency::whereDate('tanggal_periksa', now()->toDateString())->count();
-        
+
         $onProgressReguler = RekamMedis::where('status', 'On Progress')->count();
         $onProgressEmergency = RekamMedisEmergency::where('status', 'On Progress')->count();
-        
+
         $closeReguler = RekamMedis::where('status', 'Close')->count();
         $closeEmergency = RekamMedisEmergency::where('status', 'Close')->count();
 
@@ -83,7 +83,7 @@ class DashboardController extends Controller
             ->orderBy('day')
             ->pluck('count', 'day')
             ->toArray();
-            
+
         // Single query dengan GROUP BY untuk semua hari dalam sebulan (Emergency)
         $dailyVisitsEmergency = RekamMedisEmergency::selectRaw('DAY(tanggal_periksa) as day, COUNT(*) as count')
             ->whereMonth('tanggal_periksa', $month)
@@ -120,7 +120,7 @@ class DashboardController extends Controller
             ->orderBy('week')
             ->pluck('count', 'week')
             ->toArray();
-            
+
         // Single query dengan GROUP BY untuk semua minggu dalam sebulan (Emergency)
         $weeklyVisitsEmergency = RekamMedisEmergency::selectRaw('WEEK(tanggal_periksa, 1) as week, COUNT(*) as count')
             ->whereBetween('tanggal_periksa', [$startDate->toDateString(), $endDate->toDateString()])
@@ -168,7 +168,7 @@ class DashboardController extends Controller
             ->orderBy('month')
             ->pluck('count', 'month')
             ->toArray();
-            
+
         // Single query dengan GROUP BY untuk semua bulan dalam setahun (Emergency)
         $monthlyVisitsEmergency = RekamMedisEmergency::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
             ->whereYear('tanggal_periksa', $year)
