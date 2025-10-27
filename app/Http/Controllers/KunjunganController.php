@@ -49,15 +49,26 @@ class KunjunganController extends Controller
             $perPage = 50;
         }
 
-        $rekamMedis = $query->orderBy('tanggal_periksa', 'desc')->paginate($perPage)->appends($request->except('page'));
+        // Urutkan berdasarkan No RM (nik_karyawan + kode_hubungan) lalu tanggal descending
+        $rekamMedis = $query->get()->sortBy(function($rm) {
+            $noRM = ($rm->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rm->keluarga->kode_hubungan ?? '');
+            return $noRM . '_' . $rm->tanggal_periksa->format('Y-m-d');
+        })->values();
 
-        // Transform data ke format kunjungan
+        // Transform data ke format kunjungan dengan nomor registrasi per pasien per bulan
         $kunjungans = $rekamMedis->map(function($rm) {
-            // Generate nomor registrasi format: 1(No Running)/NDL/BJM/08/2025
-            $noRunning = str_pad($rm->id_rekam, 1, '0', STR_PAD_LEFT);
+            // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_bulan]/NDL/BJM/[bulan]/[tahun]
             $bulan = $rm->tanggal_periksa->format('m');
             $tahun = $rm->tanggal_periksa->format('Y');
-            $nomorRegistrasi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+            
+            // Hitung urutan kunjungan untuk pasien ini pada bulan dan tahun yang sama
+            $visitCount = RekamMedis::where('id_keluarga', $rm->id_keluarga)
+                ->whereMonth('tanggal_periksa', $bulan)
+                ->whereYear('tanggal_periksa', $tahun)
+                ->where('tanggal_periksa', '<=', $rm->tanggal_periksa)
+                ->count();
+            
+            $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
             return (object) [
                 'id_kunjungan' => $rm->id_rekam,
@@ -73,12 +84,21 @@ class KunjunganController extends Controller
             ];
         });
 
+        // Urutkan ulang berdasarkan No RM lalu tanggal descending untuk tampilan
+        $kunjungans = $kunjungans->sortByDesc(function($kunjungan) {
+            return $kunjungan->no_rm . '_' . $kunjungan->tanggal_kunjungan->format('Y-m-d');
+        })->values();
+
         // Buat paginator manual untuk data yang sudah di-transform
+        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage();
+        $offset = ($currentPage - 1) * $perPage;
+        $itemsForCurrentPage = $kunjungans->slice($offset, $perPage)->values();
+        
         $kunjunganCollection = new \Illuminate\Pagination\LengthAwarePaginator(
-            $kunjungans,
-            $rekamMedis->total(),
-            $rekamMedis->perPage(),
-            $rekamMedis->currentPage(),
+            $itemsForCurrentPage,
+            $kunjungans->count(),
+            $perPage,
+            $currentPage,
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
@@ -97,11 +117,18 @@ class KunjunganController extends Controller
             'keluhans.obat:id_obat,nama_obat'
         ])->findOrFail($id);
 
-        // Generate nomor registrasi format: 1(No Running)/NDL/BJM/08/2025
-        $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
+        // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_bulan]/NDL/BJM/[bulan]/[tahun]
         $bulan = $rekamMedis->tanggal_periksa->format('m');
         $tahun = $rekamMedis->tanggal_periksa->format('Y');
-        $nomorRegistrasi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+        
+        // Hitung urutan kunjungan untuk pasien ini pada bulan dan tahun yang sama
+        $visitCount = RekamMedis::where('id_keluarga', $rekamMedis->id_keluarga)
+            ->whereMonth('tanggal_periksa', $bulan)
+            ->whereYear('tanggal_periksa', $tahun)
+            ->where('tanggal_periksa', '<=', $rekamMedis->tanggal_periksa)
+            ->count();
+        
+        $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
         // Transform ke format kunjungan
         $kunjungan = (object) [
@@ -129,11 +156,18 @@ class KunjunganController extends Controller
         ->orderBy('tanggal_periksa', 'desc')
         ->get()
         ->map(function($rm) {
-            // Generate nomor registrasi format: 1(No Running)/NDL/BJM/08/2025
-            $noRunning = str_pad($rm->id_rekam, 1, '0', STR_PAD_LEFT);
+            // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_bulan]/NDL/BJM/[bulan]/[tahun]
             $bulan = $rm->tanggal_periksa->format('m');
             $tahun = $rm->tanggal_periksa->format('Y');
-            $nomorRegistrasi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+            
+            // Hitung urutan kunjungan untuk pasien ini pada bulan dan tahun yang sama
+            $visitCount = RekamMedis::where('id_keluarga', $rm->id_keluarga)
+                ->whereMonth('tanggal_periksa', $bulan)
+                ->whereYear('tanggal_periksa', $tahun)
+                ->where('tanggal_periksa', '<=', $rm->tanggal_periksa)
+                ->count();
+            
+            $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
             return (object) [
                 'id_kunjungan' => $rm->id_rekam,
