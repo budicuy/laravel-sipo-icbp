@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\RekamMedisCreated;
 use App\Events\RekamMedisUpdated;
+use App\Events\RekamMedisDeleted;
 use App\Models\Diagnosa;
 use App\Models\Karyawan;
 use App\Models\Keluarga;
@@ -470,7 +471,7 @@ class RekamMedisController extends Controller
                         }
                     }
                 }
-                
+
                 // Trigger event untuk adjust stok obat
                 event(new RekamMedisUpdated($rekamMedis, $oldKeluhans));
             }, 3); // Retry up to 3 times on deadlock
@@ -483,10 +484,20 @@ class RekamMedisController extends Controller
 
     public function destroy($id)
     {
-        $rekamMedis = RekamMedis::findOrFail($id);
-        $rekamMedis->delete();
+        try {
+            // Load rekam medis dengan relasi keluhans
+            $rekamMedis = RekamMedis::with(['keluhans'])->findOrFail($id);
+            
+            // Trigger event SEBELUM delete agar data keluhans masih bisa diakses
+            event(new RekamMedisDeleted($rekamMedis));
+            
+            // Delete rekam medis (akan cascade delete keluhan juga jika ada foreign key cascade)
+            $rekamMedis->delete();
 
-        return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil dihapus!');
+            return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->route('rekam-medis.index')->with('error', 'Gagal menghapus data: '.$e->getMessage());
+        }
     }
 
     // API untuk pencarian karyawan (AJAX)

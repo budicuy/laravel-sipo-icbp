@@ -25,8 +25,9 @@ class KembalikanStokObatListener
         $rekamMedis = $event->rekamMedis;
 
         try {
-            // Ambil semua data keluhan yang terkait dengan RekamMedis tersebut
-            $keluhans = Keluhan::where('id_rekam', $rekamMedis->id_rekam)
+            // Ambil keluhan dari relasi yang sudah di-eager load
+            // Karena event dipanggil SEBELUM delete, relasi masih tersedia
+            $keluhans = $rekamMedis->keluhans()
                 ->whereNotNull('id_obat')
                 ->where('jumlah_obat', '>', 0)
                 ->get();
