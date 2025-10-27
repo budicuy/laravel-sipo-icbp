@@ -1108,21 +1108,21 @@ class RekamMedisController extends Controller
             $currentDate = now();
             $currentYear = $currentDate->year;
             $currentMonth = $currentDate->month;
-            
+
             $stokBulanans = \App\Models\StokBulanan::where('tahun', $currentYear)
                 ->where('bulan', $currentMonth)
                 ->get();
-            
+
             // Populate cache di listener
             foreach ($stokBulanans as $stok) {
                 $cacheKey = "{$stok->obat_id}_{$stok->tahun}_{$stok->bulan}";
                 \App\Listeners\KurangiStokObatListener::warmCache($cacheKey, $stok);
             }
-            
+
             // SUSPEND event stok selama import untuk performa maksimal
             \App\Listeners\KurangiStokObatListener::setSuspended(true);
             \App\Listeners\KurangiStokObatEmergencyListener::setSuspended(true);
-            
+
             // Collect all created rekam medis IDs untuk bulk update di akhir
             $createdRekamMedisIds = [];
 
@@ -1711,7 +1711,7 @@ class RekamMedisController extends Controller
 
                 // Dispatch event untuk update stok (SUSPENDED selama import)
                 RekamMedisCreated::dispatch($rekamMedis);
-                
+
                 // Collect ID untuk bulk update stok nanti
                 $createdRekamMedisIds[] = $rekamMedis->id_rekam;
 
@@ -1721,10 +1721,10 @@ class RekamMedisController extends Controller
             // Re-enable events
             \App\Listeners\KurangiStokObatListener::setSuspended(false);
             \App\Listeners\KurangiStokObatEmergencyListener::setSuspended(false);
-            
+
             // Bulk update stok SEKALI SAJA untuk semua import
             $this->bulkUpdateStokObat($createdRekamMedisIds);
-            
+
             // Clear cache stok setelah semua selesai
             \App\Listeners\KurangiStokObatListener::clearCache();
             \App\Listeners\KurangiStokObatEmergencyListener::clearCache();
@@ -1762,7 +1762,7 @@ class RekamMedisController extends Controller
             // Re-enable events jika error
             \App\Listeners\KurangiStokObatListener::setSuspended(false);
             \App\Listeners\KurangiStokObatEmergencyListener::setSuspended(false);
-            
+
             // Return JSON response for AJAX requests
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -1774,7 +1774,7 @@ class RekamMedisController extends Controller
             return back()->with('error', 'Gagal import data: '.$e->getMessage());
         }
     }
-    
+
     /**
      * Bulk update stok obat untuk semua rekam medis yang di-import
      */
@@ -1783,7 +1783,7 @@ class RekamMedisController extends Controller
         if (empty($rekamMedisIds)) {
             return;
         }
-        
+
         try {
             // Get all keluhan dengan obat dalam 1 query
             $keluhans = \App\Models\Keluhan::whereIn('id_rekam', $rekamMedisIds)
@@ -1791,26 +1791,26 @@ class RekamMedisController extends Controller
                 ->where('jumlah_obat', '>', 0)
                 ->with('rekamMedis:id_rekam,tanggal_periksa')
                 ->get();
-            
+
             if ($keluhans->isEmpty()) {
                 return;
             }
-            
+
             // Group and aggregate by obat_id + tahun + bulan
             $stokAggregates = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (!$keluhan->rekamMedis) {
                     continue;
                 }
-                
+
                 $tanggalPeriksa = $keluhan->rekamMedis->tanggal_periksa;
                 $tahun = $tanggalPeriksa->year;
                 $bulan = $tanggalPeriksa->month;
                 $obatId = $keluhan->id_obat;
-                
+
                 $key = "{$obatId}_{$tahun}_{$bulan}";
-                
+
                 if (!isset($stokAggregates[$key])) {
                     $stokAggregates[$key] = [
                         'obat_id' => $obatId,
@@ -1819,10 +1819,10 @@ class RekamMedisController extends Controller
                         'total_jumlah' => 0,
                     ];
                 }
-                
+
                 $stokAggregates[$key]['total_jumlah'] += $keluhan->jumlah_obat;
             }
-            
+
             // Batch upsert dengan DB::raw untuk atomic operation
             foreach ($stokAggregates as $aggregate) {
                 \App\Models\StokBulanan::updateOrCreate(
@@ -1836,12 +1836,12 @@ class RekamMedisController extends Controller
                     ]
                 );
             }
-            
+
             \Log::info('Bulk stok update completed', [
                 'rekam_medis_count' => count($rekamMedisIds),
                 'stok_updates' => count($stokAggregates),
             ]);
-            
+
         } catch (\Exception $e) {
             \Log::error('Error in bulk stok update', [
                 'message' => $e->getMessage(),

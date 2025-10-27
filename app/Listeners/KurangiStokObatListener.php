@@ -15,7 +15,7 @@ class KurangiStokObatListener
      * Format: ['obat_id_tahun_bulan' => StokBulanan instance]
      */
     protected static $stokCache = [];
-    
+
     /**
      * Flag untuk suspend event selama bulk import
      */
@@ -38,7 +38,7 @@ class KurangiStokObatListener
         if (self::$suspended) {
             return;
         }
-        
+
         $rekamMedis = $event->rekamMedis;
 
         try {
@@ -81,12 +81,12 @@ class KurangiStokObatListener
 
                 // Tambahkan nilai jumlah_obat ke kolom stok_pakai
                 $stokBulanan->stok_pakai += $totalJumlah;
-                
+
                 // Save immediately for regular operations
                 if (!self::$suspended) {
                     $stokBulanan->save();
                 }
-                
+
                 // Update cache dengan instance terbaru
                 $cacheKey = "{$obatId}_{$tahun}_{$bulan}";
                 self::$stokCache[$cacheKey] = $stokBulanan;
@@ -178,7 +178,7 @@ class KurangiStokObatListener
                 $savedCount++;
             }
         }
-        
+
         if ($savedCount > 0) {
             Log::info('Batch save stok bulanan completed', [
                 'total_saved' => $savedCount

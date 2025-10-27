@@ -252,7 +252,7 @@ class RekamMedisEmergencyController extends Controller
                 }
 
                 DB::commit();
-                
+
                 // Dispatch event untuk mengurangi stok obat AFTER transaction commits
                 event(new RekamMedisEmergencyCreated($rekamMedisEmergency));
             } catch (\Exception $e) {
@@ -450,7 +450,7 @@ class RekamMedisEmergencyController extends Controller
                 }
 
                 DB::commit();
-                
+
                 // Dispatch event untuk menyesuaikan stok obat AFTER transaction commits
                 // Refresh the model to get the latest keluhans
                 $rekamMedisEmergency->refresh();
