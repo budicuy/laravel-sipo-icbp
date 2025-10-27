@@ -700,8 +700,8 @@
                             '<div class="px-4 py-3 text-gray-500 text-sm">Tidak ada karyawan external ditemukan</div>';
                     } else {
                         resultsDiv.innerHTML = filteredEmployees.map(employee => {
-                            // Use 'id_external_employee' as primary key (correct column name)
-                            const employeeId = employee.id_external_employee;
+                            // Use 'id' as primary key
+                            const employeeId = employee.id;
                             console.log('Employee ID being set:', employeeId, 'from employee:',
                                 employee); // Debug log
 
@@ -732,7 +732,7 @@
 
                 // Set karyawan values
                 document.getElementById('id_external_employee').value = employee
-                    .id_external_employee; // Use correct primary key 'id_external_employee'
+                    .id; // Use correct primary key 'id'
                 document.getElementById('search_karyawan').value = `${employee.nik_employee}-${employee.nama_employee}`;
 
                 // Update info karyawan
@@ -1082,14 +1082,14 @@
                 if (idEmployee) {
                     // Find the employee data from the externalEmployees array
                     const employees = @json($externalEmployees);
-                    const selectedEmployee = employees.find(emp => emp.id_external_employee ==
-                        idEmployee); // Use correct primary key 'id_external_employee'
+                    const selectedEmployee = employees.find(emp => emp.id ==
+                        idEmployee); // Use correct primary key 'id'
                     if (selectedEmployee) {
                         selectKaryawanFromSearch({
                             getAttribute: (attr) => {
                                 switch (attr) {
                                     case 'data-id':
-                                        return selectedEmployee.id_external_employee;
+                                        return selectedEmployee.id;
                                     case 'data-nik':
                                         return selectedEmployee.nik_employee;
                                     case 'data-nama':

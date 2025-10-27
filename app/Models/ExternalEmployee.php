@@ -11,7 +11,7 @@ class ExternalEmployee extends Model
 
     protected $table = 'external_employees';
 
-    protected $primaryKey = 'id_external_employee';
+    protected $primaryKey = 'id';
 
     public $incrementing = true;
 
@@ -52,7 +52,7 @@ class ExternalEmployee extends Model
      */
     public function rekamMedisEmergencies()
     {
-        return $this->hasMany(\App\Models\RekamMedisEmergency::class, 'id_external_employee', 'id_external_employee');
+        return $this->hasMany(\App\Models\RekamMedisEmergency::class, 'id_external_employee', 'id');
     }
 
     public function getJenisKelaminAttribute()

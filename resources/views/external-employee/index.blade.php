@@ -332,9 +332,9 @@
                         @forelse($externalEmployees as $employee)
                             <tr class="hover:bg-purple-50 transition-colors">
                                 <td class="px-4 py-4 whitespace-nowrap">
-                                    <input name="ids[]" value="{{ $employee->id_external_employee }}" type="checkbox"
+                                    <input name="ids[]" value="{{ $employee->id }}" type="checkbox"
                                         class="row-checkbox rounded border-gray-300 text-purple-600 focus:ring-2 focus:ring-purple-500"
-                                        data-id="{{ $employee->id_external_employee }}">
+                                        data-id="{{ $employee->id }}">
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {{ ($externalEmployees->currentPage() - 1) * $externalEmployees->perPage() + $loop->iteration }}
@@ -419,7 +419,7 @@
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm">
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('external-employee.edit', $employee->id_external_employee) }}"
+                                        <a href="{{ route('external-employee.edit', $employee->id) }}"
                                             class="inline-flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
                                             title="Edit">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -429,7 +429,7 @@
                                             </svg>
                                         </a>
                                         <form
-                                            action="{{ route('external-employee.destroy', $employee->id_external_employee) }}"
+                                            action="{{ route('external-employee.destroy', $employee->id) }}"
                                             method="POST" class="delete-form">
                                             @csrf
                                             @method('DELETE')

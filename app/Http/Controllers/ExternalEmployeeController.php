@@ -46,11 +46,11 @@ class ExternalEmployeeController extends Controller
         }
 
         // Apply sorting
-        $sortField = $request->get('sort', 'id_external_employee');
+        $sortField = $request->get('sort', 'id');
         $sortDirection = $request->get('direction', 'asc');
 
         // Validate sort field to prevent SQL injection
-        $allowedSortFields = ['id_external_employee', 'nik_employee', 'nama_employee', 'jenis_kelamin', 'id_vendor', 'id_kategori', 'no_hp', 'status', 'tanggal_lahir'];
+        $allowedSortFields = ['id', 'nik_employee', 'nama_employee', 'jenis_kelamin', 'id_vendor', 'id_kategori', 'no_hp', 'status', 'tanggal_lahir'];
         if (in_array($sortField, $allowedSortFields)) {
             $query->orderBy($sortField, $sortDirection);
         }
@@ -128,7 +128,7 @@ class ExternalEmployeeController extends Controller
         $externalEmployee = ExternalEmployee::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'nik_employee' => 'required|string|max:20|unique:external_employees,nik_employee,' . $id . ',id_external_employee',
+            'nik_employee' => 'required|string|max:20|unique:external_employees,nik_employee,' . $id . ',id',
             'nama_employee' => 'required|string|max:255',
             'kode_rm' => 'required|string|max:50',
             'tanggal_lahir' => 'required|date',

@@ -10,7 +10,7 @@
                     <div class="card-header">
                         <h3 class="card-title">Detail External Employee</h3>
                         <div class="card-tools">
-                            <a href="{{ route('external-employee.edit', $externalEmployee->id_external_employee) }}"
+                            <a href="{{ route('external-employee.edit', $externalEmployee->id) }}"
                                 class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
@@ -104,12 +104,12 @@
                         <div class="row mt-3">
                             <div class="col-12">
                                 <div class="btn-group">
-                                    <a href="{{ route('external-employee.edit', $externalEmployee->id_external_employee) }}"
+                                    <a href="{{ route('external-employee.edit', $externalEmployee->id) }}"
                                         class="btn btn-warning">
                                         <i class="fas fa-edit"></i> Edit Data
                                     </a>
                                     <form
-                                        action="{{ route('external-employee.destroy', $externalEmployee->id_external_employee) }}"
+                                        action="{{ route('external-employee.destroy', $externalEmployee->id) }}"
                                         method="POST" style="display: inline;">
                                         @csrf
                                         @method('DELETE')

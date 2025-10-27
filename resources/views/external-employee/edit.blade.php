@@ -27,7 +27,7 @@
             </div>
         </div>
 
-        <form action="{{ route('external-employee.update', $externalEmployee->id_external_employee) }}" method="POST"
+        <form action="{{ route('external-employee.update', $externalEmployee->id) }}" method="POST"
             enctype="multipart/form-data" id="formExternalEmployee">
             @csrf
             @method('PUT')
