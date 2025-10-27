@@ -91,11 +91,11 @@
 
                     <!-- Waktu Periksa -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
                             Waktu Periksa
                         </label>
                         <input type="time" name="waktu_periksa"
-                            value="{{ old('waktu_periksa', $rekamMedisEmergency->waktu_periksa ? $rekamMedisEmergency->waktu_periksa->format('H:i:s') : '') }}"
+                            value="{{ old('waktu_periksa', $rekamMedisEmergency->waktu_periksa ? $rekamMedisEmergency->waktu_periksa->format('H:i') : '') }}"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         @error('waktu_periksa')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -175,7 +175,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Terapi <span class="text-red-500">*</span>
                         </label>
-                        <select name="terapi" required
+                        <select name="terapi" id="terapi" required
                             class="w-full px-4 py-2 border @error('terapi') border-red-500 bg-red-50 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
                             <option value="">-- Pilih Terapi --</option>
                             <option value="Obat"
@@ -202,6 +202,111 @@
                                 <p class="text-sm text-red-600 font-medium">{{ $message }}</p>
                             </div>
                         @enderror
+                    </div>
+
+                    <!-- Obat Section (Conditional) -->
+                    <div class="md:col-span-2" id="obat-section"
+                        style="display: {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Obat' ? 'block' : 'none' }};">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-4">
+                            <div class="flex items-center gap-2 mb-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                </svg>
+                                <h3 class="text-sm font-semibold text-gray-800">Daftar Obat yang Direkomendasikan</h3>
+                            </div>
+
+                            <div id="obat-list-container" class="space-y-3">
+                                @php
+                                    $existingObats = old(
+                                        'obat_list',
+                                        $rekamMedisEmergency->keluhans
+                                            ->whereNotNull('id_obat')
+                                            ->map(function ($keluhan) {
+                                                return [
+                                                    'id_obat' => $keluhan->id_obat,
+                                                    'jumlah_obat' => $keluhan->jumlah_obat,
+                                                    'aturan_pakai' => $keluhan->aturan_pakai,
+                                                    'nama_obat' => $keluhan->obat->nama_obat ?? '',
+                                                ];
+                                            })
+                                            ->toArray(),
+                                    );
+                                @endphp
+
+                                @if (count($existingObats) > 0)
+                                    @foreach ($existingObats as $index => $obat)
+                                        <div class="obat-item bg-white border border-gray-200 rounded-lg p-4"
+                                            data-index="{{ $index }}">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div class="flex-1">
+                                                    <label class="text-sm font-semibold text-gray-700">Obat
+                                                        #{{ $index + 1 }}</label>
+                                                    <p class="text-xs text-gray-500 mt-1">{{ $obat['nama_obat'] }}</p>
+                                                </div>
+                                                <button type="button" onclick="removeObat(this)"
+                                                    class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded transition-colors">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                            <input type="hidden" name="obat_list[{{ $index }}][id_obat]"
+                                                value="{{ $obat['id_obat'] }}">
+
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-xs font-medium text-gray-600 mb-1">
+                                                        Jumlah <span class="text-red-500">*</span>
+                                                    </label>
+                                                    <input type="number" name="obat_list[{{ $index }}][jumlah_obat]"
+                                                        value="{{ $obat['jumlah_obat'] }}" min="1" max="100"
+                                                        required
+                                                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        placeholder="Qty">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-medium text-gray-600 mb-1">
+                                                        Aturan Pakai
+                                                    </label>
+                                                    <select name="obat_list[{{ $index }}][aturan_pakai]"
+                                                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                        <option value="">-- Pilih Aturan Pakai --</option>
+                                                        <option value="1 x sehari sebelum makan"
+                                                            {{ $obat['aturan_pakai'] == '1 x sehari sebelum makan' ? 'selected' : '' }}>
+                                                            1 x sehari sebelum makan</option>
+                                                        <option value="1 x sehari sesudah makan"
+                                                            {{ $obat['aturan_pakai'] == '1 x sehari sesudah makan' ? 'selected' : '' }}>
+                                                            1 x sehari sesudah makan</option>
+                                                        <option value="2 x sehari sebelum makan"
+                                                            {{ $obat['aturan_pakai'] == '2 x sehari sebelum makan' ? 'selected' : '' }}>
+                                                            2 x sehari sebelum makan</option>
+                                                        <option value="2 x sehari setelah makan"
+                                                            {{ $obat['aturan_pakai'] == '2 x sehari setelah makan' ? 'selected' : '' }}>
+                                                            2 x sehari setelah makan</option>
+                                                        <option value="3 x sehari sebelum makan"
+                                                            {{ $obat['aturan_pakai'] == '3 x sehari sebelum makan' ? 'selected' : '' }}>
+                                                            3 x sehari sebelum makan</option>
+                                                        <option value="3 x sehari sesudah makan"
+                                                            {{ $obat['aturan_pakai'] == '3 x sehari sesudah makan' ? 'selected' : '' }}>
+                                                            3 x sehari sesudah makan</option>
+                                                        <option value="1 x pakai"
+                                                            {{ $obat['aturan_pakai'] == '1 x pakai' ? 'selected' : '' }}>1 x pakai
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <p class="text-sm text-gray-500 italic text-center py-4">Pilih diagnosa emergency terlebih
+                                        dahulu untuk menampilkan obat yang sesuai.</p>
+                                @endif
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Catatan -->
@@ -239,9 +344,149 @@
 
     @push('scripts')
         <script>
-            // Note: Employee selection removed from edit page
-            // Employee information is now read-only and cannot be changed during edit
-            // If you need to change the employee, please create a new emergency medical record
+            let obatIndex = {{ count($existingObats ?? []) }};
+            let diagnosaObatMap = {};
+
+            // Load diagnosa with obat mapping
+            async function loadDiagnosaObatMapping() {
+                try {
+                    const response = await fetch('{{ route('rekam-medis-emergency.getDiagnosaWithObat') }}');
+                    const data = await response.json();
+
+                    data.forEach(diagnosa => {
+                        diagnosaObatMap[diagnosa.id_diagnosa_emergency] = diagnosa.obats;
+                    });
+                } catch (error) {
+                    console.error('Error loading diagnosa obat mapping:', error);
+                }
+            }
+
+            // Show/hide obat section based on terapi selection
+            document.getElementById('terapi').addEventListener('change', function() {
+                const obatSection = document.getElementById('obat-section');
+                if (this.value === 'Obat') {
+                    obatSection.style.display = 'block';
+                } else {
+                    obatSection.style.display = 'none';
+                }
+            });
+
+            // Handle diagnosa emergency change
+            document.querySelector('select[name="id_diagnosa_emergency"]').addEventListener('change', function() {
+                const diagnosaId = this.value;
+                const terapiSelect = document.getElementById('terapi');
+
+                if (diagnosaId && terapiSelect.value === 'Obat') {
+                    loadObatListForDiagnosa(diagnosaId);
+                }
+            });
+
+            // Load obat list based on diagnosa
+            async function loadObatListForDiagnosa(diagnosaId) {
+                const obatListContainer = document.getElementById('obat-list-container');
+
+                if (!diagnosaId) {
+                    obatListContainer.innerHTML =
+                        '<p class="text-sm text-gray-500 italic text-center py-4">Pilih diagnosa emergency terlebih dahulu untuk menampilkan obat yang sesuai.</p>';
+                    return;
+                }
+
+                obatListContainer.innerHTML = '<p class="text-sm text-gray-500 italic">Memuat daftar obat...</p>';
+
+                try {
+                    const obats = diagnosaObatMap[diagnosaId] || [];
+
+                    if (obats.length === 0) {
+                        obatListContainer.innerHTML =
+                            '<p class="text-sm text-gray-500 italic text-center py-4">Tidak ada obat yang terkait dengan diagnosa ini.</p>';
+                        return;
+                    }
+
+                    // Clear and rebuild obat list
+                    obatListContainer.innerHTML = '';
+                    obatIndex = 0;
+
+                    obats.forEach((obat, index) => {
+                        addObatItem(obat.id_obat, obat.nama_obat);
+                    });
+
+                } catch (error) {
+                    console.error('Error loading obat list:', error);
+                    obatListContainer.innerHTML =
+                        '<p class="text-sm text-red-500">Gagal memuat daftar obat. Silakan coba lagi.</p>';
+                }
+            }
+
+            // Add obat item to the list
+            function addObatItem(obatId, obatNama) {
+                const container = document.getElementById('obat-list-container');
+                const index = obatIndex++;
+
+                const obatHtml = `
+                <div class="obat-item bg-white border border-gray-200 rounded-lg p-4" data-index="${index}">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <label class="text-sm font-semibold text-gray-700">Obat #${index + 1}</label>
+                            <p class="text-xs text-gray-500 mt-1">${obatNama}</p>
+                        </div>
+                        <button type="button" onclick="removeObat(this)"
+                            class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <input type="hidden" name="obat_list[${index}][id_obat]" value="${obatId}">
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                Jumlah <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" name="obat_list[${index}][jumlah_obat]"
+                                value="1" min="1" max="100" required
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Qty">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                Aturan Pakai
+                            </label>
+                            <select name="obat_list[${index}][aturan_pakai]"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- Pilih Aturan Pakai --</option>
+                                <option value="1 x sehari sebelum makan">1 x sehari sebelum makan</option>
+                                <option value="1 x sehari sesudah makan">1 x sehari sesudah makan</option>
+                                <option value="2 x sehari sebelum makan">2 x sehari sebelum makan</option>
+                                <option value="2 x sehari setelah makan">2 x sehari setelah makan</option>
+                                <option value="3 x sehari sebelum makan">3 x sehari sebelum makan</option>
+                                <option value="3 x sehari sesudah makan">3 x sehari sesudah makan</option>
+                                <option value="1 x pakai">1 x pakai</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                container.insertAdjacentHTML('beforeend', obatHtml);
+            }
+
+            // Remove obat item
+            function removeObat(button) {
+                const obatItem = button.closest('.obat-item');
+                obatItem.remove();
+
+                // Renumber remaining items
+                document.querySelectorAll('.obat-item').forEach((item, idx) => {
+                    item.querySelector('label').textContent = `Obat #${idx + 1}`;
+                });
+            }
+
+            // Initialize on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                loadDiagnosaObatMapping();
+            });
         </script>
     @endpush
 @endsection

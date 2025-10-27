@@ -1645,6 +1645,9 @@ class RekamMedisController extends Controller
                 // Update jumlah_keluhan
                 $rekamMedis->update(['jumlah_keluhan' => $keluhanCount]);
 
+                // Dispatch event to trigger stock management
+                RekamMedisCreated::dispatch($rekamMedis);
+
                 $created++;
             }
 

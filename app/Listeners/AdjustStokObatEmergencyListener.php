@@ -90,10 +90,20 @@ class AdjustStokObatEmergencyListener
                             'total_stok_pakai' => $stokBulanan->stok_pakai,
                         ]);
                     } else {
-                        Log::warning('Tidak ditemukan record stok bulanan untuk obat emergency', [
+                        // Buat record baru jika tidak ada
+                        $stokBulanan = StokBulanan::create([
+                            'obat_id' => $obatId,
+                            'tahun' => $tahun,
+                            'bulan' => $bulan,
+                            'stok_masuk' => 0,
+                            'stok_pakai' => max(0, $selisih),
+                        ]);
+
+                        Log::info('Stok bulanan baru dibuat untuk emergency', [
                             'id_obat' => $obatId,
                             'tahun' => $tahun,
                             'bulan' => $bulan,
+                            'stok_pakai' => $stokBulanan->stok_pakai,
                         ]);
                     }
                 }
