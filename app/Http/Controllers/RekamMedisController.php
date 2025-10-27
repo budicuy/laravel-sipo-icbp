@@ -2,24 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RekamMedis;
-use App\Models\Keluarga;
-use App\Models\Karyawan;
-use App\Models\Keluhan;
-use App\Models\Diagnosa;
-use App\Models\Obat;
-use App\Models\User;
 use App\Events\RekamMedisCreated;
+use App\Events\RekamMedisUpdated;
+use App\Models\Diagnosa;
+use App\Models\Karyawan;
+use App\Models\Keluarga;
+use App\Models\Keluhan;
+use App\Models\Obat;
+use App\Models\RekamMedis;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use Carbon\Carbon;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class RekamMedisController extends Controller
 {
@@ -31,20 +30,20 @@ class RekamMedisController extends Controller
             'keluarga.hubungan:kode_hubungan,hubungan',
             'user:id_user,username,nama_lengkap',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
-            'keluhans.obat:id_obat,nama_obat'
+            'keluhans.obat:id_obat,nama_obat',
         ]);
 
         // Filter pencarian for regular records
         if ($request->filled('q')) {
             $q = $request->input('q');
             $query->where(function ($sub) use ($q) {
-                $sub->whereHas('keluarga', function($keluarga) use ($q) {
+                $sub->whereHas('keluarga', function ($keluarga) use ($q) {
                     $keluarga->where('nama_keluarga', 'like', "%$q%")
-                            ->orWhere('no_rm', 'like', "%$q%")
-                            ->orWhere('bpjs_id', 'like', "%$q%")
-                            ->orWhereHas('karyawan', function($karyawan) use ($q) {
-                                $karyawan->where('nik_karyawan', 'like', "%$q%");
-                            });
+                        ->orWhere('no_rm', 'like', "%$q%")
+                        ->orWhere('bpjs_id', 'like', "%$q%")
+                        ->orWhereHas('karyawan', function ($karyawan) use ($q) {
+                            $karyawan->where('nik_karyawan', 'like', "%$q%");
+                        });
                 });
             });
         }
@@ -65,7 +64,7 @@ class RekamMedisController extends Controller
 
         // Pagination for regular records
         $perPage = $request->input('per_page', 50);
-        if (!in_array($perPage, [50, 100, 200])) {
+        if (! in_array($perPage, [50, 100, 200])) {
             $perPage = 50;
         }
 
@@ -75,7 +74,7 @@ class RekamMedisController extends Controller
         $queryEmergency = \App\Models\RekamMedisEmergency::with([
             'user:id_user,username,nama_lengkap',
             'externalEmployee',
-            'keluhans.diagnosaEmergency'
+            'keluhans.diagnosaEmergency',
         ]);
 
         // Filter pencarian for emergency records
@@ -148,7 +147,7 @@ class RekamMedisController extends Controller
 
         // Pagination
         $perPage = $request->input('per_page', 50);
-        if (!in_array($perPage, [50, 100, 200])) {
+        if (! in_array($perPage, [50, 100, 200])) {
             $perPage = 50;
         }
 
@@ -165,7 +164,7 @@ class RekamMedisController extends Controller
     public function storeEmergency(Request $request)
     {
         // Check if user has valid token
-        if (!session('valid_emergency_token')) {
+        if (! session('valid_emergency_token')) {
             return redirect()->route('token-emergency.validate')
                 ->with('error', 'Token emergency diperlukan untuk membuat rekam medis emergency.');
         }
@@ -185,13 +184,13 @@ class RekamMedisController extends Controller
 
         try {
             // Using Laravel 12's transaction method with automatic retry for better reliability
-            $rekamMedisEmergency = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $request) {
+            $rekamMedisEmergency = \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
                 // Get and use the token
                 $token = \App\Models\TokenEmergency::where('token', session('valid_emergency_token'))
                     ->where('status', 'available')
                     ->first();
 
-                if (!$token) {
+                if (! $token) {
                     throw new \Exception('Token tidak valid atau sudah digunakan.');
                 }
 
@@ -222,7 +221,7 @@ class RekamMedisController extends Controller
 
             return redirect()->route('rekam-medis-emergency.index')->with('success', 'Data rekam medis emergency berhasil ditambahkan! Token telah digunakan.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: '.$e->getMessage());
         }
     }
 
@@ -230,19 +229,48 @@ class RekamMedisController extends Controller
     {
         $validated = $request->validate([
             'id_keluarga' => 'required|exists:keluarga,id_keluarga',
-            'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i:s',
+            'tanggal_periksa' => 'required|date|before_or_equal:today',
+            'waktu_periksa' => 'nullable|date_format:H:i',
             'status' => 'required|in:On Progress,Close',
             'jumlah_keluhan' => 'required|integer|min:1|max:3',
 
             // Validasi untuk setiap keluhan
             'keluhan.*.id_diagnosa' => 'required|exists:diagnosa,id_diagnosa',
             'keluhan.*.terapi' => 'required|in:Obat,Lab,Istirahat',
-            'keluhan.*.keterangan' => 'nullable|string',
+            'keluhan.*.keterangan' => 'nullable|string|max:1000',
             'keluhan.*.obat_list' => 'nullable|array',
             'keluhan.*.obat_list.*.id_obat' => 'required|exists:obat,id_obat',
             'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
-            'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string',
+            'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string|max:500',
+        ], [
+            // Custom error messages untuk Data Pasien
+            'id_keluarga.required' => 'Pasien harus dipilih. Silakan pilih karyawan terlebih dahulu, kemudian pilih anggota keluarga.',
+            'id_keluarga.exists' => 'Data pasien yang dipilih tidak valid. Silakan pilih ulang.',
+            'tanggal_periksa.required' => 'Tanggal periksa harus diisi.',
+            'tanggal_periksa.date' => 'Format tanggal periksa tidak valid.',
+            'tanggal_periksa.before_or_equal' => 'Tanggal periksa tidak boleh lebih dari hari ini.',
+            'waktu_periksa.date_format' => 'Format waktu periksa tidak valid. Gunakan format HH:MM.',
+            'status.required' => 'Status rekam medis harus dipilih.',
+            'status.in' => 'Status rekam medis harus "On Progress" atau "Close".',
+            'jumlah_keluhan.required' => 'Jumlah keluhan harus dipilih.',
+            'jumlah_keluhan.integer' => 'Jumlah keluhan harus berupa angka.',
+            'jumlah_keluhan.min' => 'Jumlah keluhan minimal 1.',
+            'jumlah_keluhan.max' => 'Jumlah keluhan maksimal 3.',
+
+            // Custom error messages untuk Diagnosa
+            'keluhan.*.id_diagnosa.required' => 'Diagnosa/Penyakit harus dipilih untuk setiap keluhan.',
+            'keluhan.*.id_diagnosa.exists' => 'Diagnosa yang dipilih tidak valid.',
+            'keluhan.*.terapi.required' => 'Jenis terapi harus dipilih untuk setiap keluhan.',
+            'keluhan.*.terapi.in' => 'Jenis terapi harus salah satu dari: Obat, Lab, atau Istirahat.',
+            'keluhan.*.keterangan.max' => 'Anamnesa/Keterangan maksimal 1000 karakter.',
+
+            // Custom error messages untuk Obat
+            'keluhan.*.obat_list.*.id_obat.required' => 'Obat harus dipilih jika ada dalam daftar resep.',
+            'keluhan.*.obat_list.*.id_obat.exists' => 'Obat yang dipilih tidak valid.',
+            'keluhan.*.obat_list.*.jumlah_obat.integer' => 'Jumlah obat harus berupa angka.',
+            'keluhan.*.obat_list.*.jumlah_obat.min' => 'Jumlah obat minimal 1.',
+            'keluhan.*.obat_list.*.jumlah_obat.max' => 'Jumlah obat maksimal 10000.',
+            'keluhan.*.obat_list.*.aturan_pakai.max' => 'Aturan pakai maksimal 500 karakter.',
         ]);
 
         // Using Laravel 12's transaction method with automatic retry for better reliability
@@ -300,7 +328,7 @@ class RekamMedisController extends Controller
 
             return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil ditambahkan!');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: '.$e->getMessage());
         }
     }
 
@@ -311,19 +339,19 @@ class RekamMedisController extends Controller
             'keluarga.hubungan:kode_hubungan,hubungan',
             'user:id_user,username,nama_lengkap',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
-            'keluhans.obat:id_obat,nama_obat'
+            'keluhans.obat:id_obat,nama_obat',
         ])->findOrFail($id);
 
         // Optimized query for riwayat kunjungan - select only needed columns
         $riwayatKunjungan = RekamMedis::with([
             'user:id_user,username,nama_lengkap',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
-            'keluhans.obat:id_obat,nama_obat'
+            'keluhans.obat:id_obat,nama_obat',
         ])
-        ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
-        ->where('id_keluarga', $rekamMedis->id_keluarga)
-        ->orderBy('tanggal_periksa', 'desc')
-        ->get();
+            ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
+            ->where('id_keluarga', $rekamMedis->id_keluarga)
+            ->orderBy('tanggal_periksa', 'desc')
+            ->get();
 
         return view('rekam-medis.detail', compact('rekamMedis', 'riwayatKunjungan'));
     }
@@ -332,7 +360,7 @@ class RekamMedisController extends Controller
     {
         $rekamMedis = RekamMedis::with([
             'keluhans.diagnosa',   // relasi diagnosa di tabel keluhans
-            'keluhans.obat'        // relasi obat (pivot diagnosa_obat)
+            'keluhans.obat',        // relasi obat (pivot diagnosa_obat)
         ])->findOrFail($id);
 
         $diagnosas = Diagnosa::orderBy('nama_diagnosa')->get();
@@ -341,31 +369,62 @@ class RekamMedisController extends Controller
         return view('rekam-medis.edit', compact('rekamMedis', 'diagnosas', 'obats'));
     }
 
-
     public function update(Request $request, $id)
     {
         $rekamMedis = RekamMedis::findOrFail($id);
 
         $validated = $request->validate([
             'id_keluarga' => 'required|exists:keluarga,id_keluarga',
-            'tanggal_periksa' => 'required|date',
-            'waktu_periksa' => 'nullable|date_format:H:i:s',
+            'tanggal_periksa' => 'required|date|before_or_equal:today',
+            'waktu_periksa' => 'nullable|date_format:H:i',
             'status' => 'required|in:On Progress,Close',
             'jumlah_keluhan' => 'required|integer|min:1|max:3',
 
             // Validasi untuk setiap keluhan
             'keluhan.*.id_diagnosa' => 'required|exists:diagnosa,id_diagnosa',
             'keluhan.*.terapi' => 'required|in:Obat,Lab,Istirahat',
-            'keluhan.*.keterangan' => 'nullable|string',
+            'keluhan.*.keterangan' => 'nullable|string|max:1000',
             'keluhan.*.obat_list' => 'nullable|array',
             'keluhan.*.obat_list.*.id_obat' => 'required|exists:obat,id_obat',
             'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
-            'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string',
+            'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string|max:500',
+        ], [
+            // Custom error messages untuk Data Pasien
+            'id_keluarga.required' => 'Pasien harus dipilih. Silakan pilih karyawan terlebih dahulu, kemudian pilih anggota keluarga.',
+            'id_keluarga.exists' => 'Data pasien yang dipilih tidak valid. Silakan pilih ulang.',
+            'tanggal_periksa.required' => 'Tanggal periksa harus diisi.',
+            'tanggal_periksa.date' => 'Format tanggal periksa tidak valid.',
+            'tanggal_periksa.before_or_equal' => 'Tanggal periksa tidak boleh lebih dari hari ini.',
+            'waktu_periksa.date_format' => 'Format waktu periksa tidak valid. Gunakan format HH:MM.',
+            'status.required' => 'Status rekam medis harus dipilih.',
+            'status.in' => 'Status rekam medis harus "On Progress" atau "Close".',
+            'jumlah_keluhan.required' => 'Jumlah keluhan harus dipilih.',
+            'jumlah_keluhan.integer' => 'Jumlah keluhan harus berupa angka.',
+            'jumlah_keluhan.min' => 'Jumlah keluhan minimal 1.',
+            'jumlah_keluhan.max' => 'Jumlah keluhan maksimal 3.',
+
+            // Custom error messages untuk Diagnosa
+            'keluhan.*.id_diagnosa.required' => 'Diagnosa/Penyakit harus dipilih untuk setiap keluhan.',
+            'keluhan.*.id_diagnosa.exists' => 'Diagnosa yang dipilih tidak valid.',
+            'keluhan.*.terapi.required' => 'Jenis terapi harus dipilih untuk setiap keluhan.',
+            'keluhan.*.terapi.in' => 'Jenis terapi harus salah satu dari: Obat, Lab, atau Istirahat.',
+            'keluhan.*.keterangan.max' => 'Anamnesa/Keterangan maksimal 1000 karakter.',
+
+            // Custom error messages untuk Obat
+            'keluhan.*.obat_list.*.id_obat.required' => 'Obat harus dipilih jika ada dalam daftar resep.',
+            'keluhan.*.obat_list.*.id_obat.exists' => 'Obat yang dipilih tidak valid.',
+            'keluhan.*.obat_list.*.jumlah_obat.integer' => 'Jumlah obat harus berupa angka.',
+            'keluhan.*.obat_list.*.jumlah_obat.min' => 'Jumlah obat minimal 1.',
+            'keluhan.*.obat_list.*.jumlah_obat.max' => 'Jumlah obat maksimal 10000.',
+            'keluhan.*.obat_list.*.aturan_pakai.max' => 'Aturan pakai maksimal 500 karakter.',
         ]);
 
         // Using Laravel 12's transaction method with automatic retry for better reliability
         try {
             \Illuminate\Support\Facades\DB::transaction(function () use ($rekamMedis, $validated, $request) {
+                // Simpan keluhan lama untuk event listener (sebelum dihapus)
+                $oldKeluhans = $rekamMedis->keluhans()->get();
+
                 // Update data rekam medis
                 $rekamMedis->update([
                     'id_keluarga' => $validated['id_keluarga'],
@@ -411,11 +470,14 @@ class RekamMedisController extends Controller
                         }
                     }
                 }
+                
+                // Trigger event untuk adjust stok obat
+                event(new RekamMedisUpdated($rekamMedis, $oldKeluhans));
             }, 3); // Retry up to 3 times on deadlock
 
             return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil diperbarui!');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data: '.$e->getMessage());
         }
     }
 
@@ -434,13 +496,13 @@ class RekamMedisController extends Controller
 
         $karyawans = Karyawan::with(['departemen:id_departemen,nama_departemen'])
             ->select('id_karyawan', 'nik_karyawan', 'nama_karyawan', 'id_departemen', 'foto')
-            ->where(function($query) use ($search) {
+            ->where(function ($query) use ($search) {
                 $query->where('nik_karyawan', 'like', "%{$search}%")
-                      ->orWhere('nama_karyawan', 'like', "%{$search}%");
+                    ->orWhere('nama_karyawan', 'like', "%{$search}%");
             })
             ->limit(10)
             ->get()
-            ->map(function($karyawan) {
+            ->map(function ($karyawan) {
                 return [
                     'id_karyawan' => $karyawan->id_karyawan,
                     'nik_karyawan' => $karyawan->nik_karyawan,
@@ -464,11 +526,11 @@ class RekamMedisController extends Controller
             ->get()
             ->map(function ($keluarga) {
                 return [
-                    'id_keluarga'    => $keluarga->id_keluarga,
-                    'nama_keluarga'  => $keluarga->nama_keluarga,
-                    'kode_hubungan'  => $keluarga->kode_hubungan, // <- INI jadi sumber nilai NO RM
-                    'hubungan'       => $keluarga->hubungan->hubungan ?? '-',
-                    'jenis_kelamin'  => $keluarga->jenis_kelamin,
+                    'id_keluarga' => $keluarga->id_keluarga,
+                    'nama_keluarga' => $keluarga->nama_keluarga,
+                    'kode_hubungan' => $keluarga->kode_hubungan, // <- INI jadi sumber nilai NO RM
+                    'hubungan' => $keluarga->hubungan->hubungan ?? '-',
+                    'jenis_kelamin' => $keluarga->jenis_kelamin,
                 ];
             });
 
@@ -482,32 +544,32 @@ class RekamMedisController extends Controller
 
         $pasiens = Keluarga::with([
             'karyawan:id_karyawan,nik_karyawan',
-            'hubungan:kode_hubungan,hubungan'
+            'hubungan:kode_hubungan,hubungan',
         ])
-        ->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'bpjs_id', 'kode_hubungan', 'jenis_kelamin', 'tanggal_lahir')
-        ->where(function($query) use ($search) {
-            $query->where('nama_keluarga', 'like', "%{$search}%")
-                  ->orWhere('bpjs_id', 'like', "%{$search}%")
-                  ->orWhere('no_rm', 'like', "%{$search}%")
-                  ->orWhereHas('karyawan', function($karyawan) use ($search) {
-                      $karyawan->where('nik_karyawan', 'like', "%{$search}%");
-                  });
-        })
-        ->limit(10)
-        ->get()
-        ->map(function($keluarga) {
-            return [
-                'id' => $keluarga->id_keluarga,
-                'no_rm' => $keluarga->no_rm,
-                'nama' => $keluarga->nama_keluarga,
-                'bpjs_id' => $keluarga->bpjs_id,
-                'nik_karyawan' => $keluarga->karyawan->nik_karyawan ?? '',
-                'kode_hubungan' => $keluarga->kode_hubungan,
-                'hubungan' => $keluarga->hubungan->hubungan ?? '',
-                'jenis_kelamin' => $keluarga->jenis_kelamin,
-                'tanggal_lahir' => $keluarga->tanggal_lahir ? $keluarga->tanggal_lahir->format('d/m/Y') : '',
-            ];
-        });
+            ->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'bpjs_id', 'kode_hubungan', 'jenis_kelamin', 'tanggal_lahir')
+            ->where(function ($query) use ($search) {
+                $query->where('nama_keluarga', 'like', "%{$search}%")
+                    ->orWhere('bpjs_id', 'like', "%{$search}%")
+                    ->orWhere('no_rm', 'like', "%{$search}%")
+                    ->orWhereHas('karyawan', function ($karyawan) use ($search) {
+                        $karyawan->where('nik_karyawan', 'like', "%{$search}%");
+                    });
+            })
+            ->limit(10)
+            ->get()
+            ->map(function ($keluarga) {
+                return [
+                    'id' => $keluarga->id_keluarga,
+                    'no_rm' => $keluarga->no_rm,
+                    'nama' => $keluarga->nama_keluarga,
+                    'bpjs_id' => $keluarga->bpjs_id,
+                    'nik_karyawan' => $keluarga->karyawan->nik_karyawan ?? '',
+                    'kode_hubungan' => $keluarga->kode_hubungan,
+                    'hubungan' => $keluarga->hubungan->hubungan ?? '',
+                    'jenis_kelamin' => $keluarga->jenis_kelamin,
+                    'tanggal_lahir' => $keluarga->tanggal_lahir ? $keluarga->tanggal_lahir->format('d/m/Y') : '',
+                ];
+            });
 
         return response()->json($pasiens);
     }
@@ -519,17 +581,17 @@ class RekamMedisController extends Controller
     {
         $diagnosaId = $request->get('diagnosa_id');
 
-        if (!$diagnosaId) {
+        if (! $diagnosaId) {
             return response()->json([]);
         }
 
         $diagnosa = Diagnosa::with('obats')->find($diagnosaId);
 
-        if (!$diagnosa) {
+        if (! $diagnosa) {
             return response()->json([]);
         }
 
-        $obats = $diagnosa->obats->map(function($obat) {
+        $obats = $diagnosa->obats->map(function ($obat) {
             return [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
@@ -563,7 +625,7 @@ class RekamMedisController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui status: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui status: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -573,7 +635,7 @@ class RekamMedisController extends Controller
      */
     public function downloadTemplate()
     {
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Import Rekam Medis');
 
@@ -590,12 +652,12 @@ class RekamMedisController extends Controller
             'G=Diagnosa 1', 'H=Keluhan 1', 'I=Obat 1-1', 'J=Qty', 'K=Obat 1-2', 'L=Qty', 'M=Obat 1-3', 'N=Qty',
             'O=Diagnosa 2', 'P=Keluhan 2', 'Q=Obat 2-1', 'R=Qty', 'S=Obat 2-2', 'T=Qty', 'U=Obat 2-3', 'V=Qty',
             'W=Diagnosa 3', 'X=Keluhan 3', 'Y=Obat 3-1', 'Z=Qty', 'AA=Obat 3-2', 'AB=Qty', 'AC=Obat 3-3', 'AD=Qty',
-            'AE=Petugas', 'AF=Status'
+            'AE=Petugas', 'AF=Status',
         ];
 
         $column = 'A';
         foreach ($headers as $header) {
-            $sheet->setCellValue($column . '1', $header);
+            $sheet->setCellValue($column.'1', $header);
             $column++;
         }
 
@@ -835,9 +897,9 @@ class RekamMedisController extends Controller
 
         $row = 3;
         foreach ($karyawans as $karyawan) {
-            $referenceSheet->setCellValue('A' . $row, $karyawan->nik_karyawan);
-            $referenceSheet->setCellValue('B' . $row, $karyawan->nama_karyawan);
-            $referenceSheet->setCellValue('C' . $row, $karyawan->departemen->nama_departemen ?? '');
+            $referenceSheet->setCellValue('A'.$row, $karyawan->nik_karyawan);
+            $referenceSheet->setCellValue('B'.$row, $karyawan->nama_karyawan);
+            $referenceSheet->setCellValue('C'.$row, $karyawan->departemen->nama_departemen ?? '');
             $row++;
         }
 
@@ -853,8 +915,8 @@ class RekamMedisController extends Controller
 
         $row = 3;
         foreach ($diagnosas as $diagnosa) {
-            $referenceSheet->setCellValue('E' . $row, $diagnosa->id_diagnosa);
-            $referenceSheet->setCellValue('F' . $row, $diagnosa->nama_diagnosa);
+            $referenceSheet->setCellValue('E'.$row, $diagnosa->id_diagnosa);
+            $referenceSheet->setCellValue('F'.$row, $diagnosa->nama_diagnosa);
             $row++;
         }
 
@@ -870,8 +932,8 @@ class RekamMedisController extends Controller
 
         $row = 3;
         foreach ($obats as $obat) {
-            $referenceSheet->setCellValue('H' . $row, $obat->id_obat);
-            $referenceSheet->setCellValue('I' . $row, $obat->nama_obat);
+            $referenceSheet->setCellValue('H'.$row, $obat->id_obat);
+            $referenceSheet->setCellValue('I'.$row, $obat->nama_obat);
             $row++;
         }
 
@@ -889,11 +951,11 @@ class RekamMedisController extends Controller
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
-        $filename = 'template_rekam_medis_' . date('Y-m-d') . '.xlsx';
+        $filename = 'template_rekam_medis_'.date('Y-m-d').'.xlsx';
 
         // Set headers for download
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Content-Disposition: attachment;filename="'.$filename.'"');
         header('Cache-Control: max-age=0');
 
         $writer->save('php://output');
@@ -905,7 +967,7 @@ class RekamMedisController extends Controller
      */
     private function getCellValue($sheet, $column, $row, $dataType = 'string')
     {
-        $cell = $sheet->getCell($column . $row);
+        $cell = $sheet->getCell($column.$row);
         $value = null;
 
         try {
@@ -915,13 +977,13 @@ class RekamMedisController extends Controller
                         $value = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($cell->getValue())->format('Y-m-d');
                     } else {
                         $rawValue = trim($cell->getValue() ?? '');
-                        if (!empty($rawValue)) {
+                        if (! empty($rawValue)) {
                             // Handle DD/MM/YYYY or DD-MM-YYYY format
                             if (preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/', $rawValue, $matches)) {
                                 $day = $matches[1];
                                 $month = $matches[2];
                                 $year = $matches[3];
-                                $value = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                                $value = $year.'-'.str_pad($month, 2, '0', STR_PAD_LEFT).'-'.str_pad($day, 2, '0', STR_PAD_LEFT);
                             }
                             // Handle Excel serial date format
                             elseif (is_numeric($rawValue)) {
@@ -945,7 +1007,7 @@ class RekamMedisController extends Controller
                     // Method 2: Check if it's a numeric value (for raw Excel time format)
                     elseif (is_numeric($excelValue)) {
                         // Excel menyimpan waktu sebagai pecahan hari (misal 0.572916 = 13:45)
-                        $seconds = (float)$excelValue * 24 * 60 * 60;
+                        $seconds = (float) $excelValue * 24 * 60 * 60;
                         $value = gmdate('H:i:s', $seconds);
                     }
                     // Method 3: Handle text format time (e.g., "09:15:00", "9.30", "09:30")
@@ -961,7 +1023,7 @@ class RekamMedisController extends Controller
                         // Replace various separators with colon
                         $rawTime = str_replace(['.', ',', ' '], ':', $rawTime);
 
-                        if (!empty($rawTime)) {
+                        if (! empty($rawTime)) {
                             $timeObject = \Carbon\Carbon::parse($rawTime);
                             $value = $timeObject->format('H:i:s');
                         }
@@ -990,7 +1052,7 @@ class RekamMedisController extends Controller
                     break;
             }
         } catch (\Exception $e) {
-            \Log::error("Error reading cell {$column}{$row}: " . $e->getMessage());
+            \Log::error("Error reading cell {$column}{$row}: ".$e->getMessage());
             $value = null;
         }
 
@@ -1050,7 +1112,7 @@ class RekamMedisController extends Controller
             }
 
             // Debug: Log the detected format
-            \Log::info("Detected Excel format: " . ($isMultiDiagnosaFormat ? "Multiple Diagnoses" : "Single Diagnosa"));
+            \Log::info('Detected Excel format: '.($isMultiDiagnosaFormat ? 'Multiple Diagnoses' : 'Single Diagnosa'));
 
             for ($rowNumber = 2; $rowNumber <= $highestRow; $rowNumber++) {
                 if ($isMultiDiagnosaFormat) {
@@ -1087,7 +1149,7 @@ class RekamMedisController extends Controller
                     // AD: Qyt
                     // AE: Petugas
                     // AF: Status
-                    
+
                     // Read all columns using the helper function
                     $tanggalPeriksa = $this->getCellValue($sheet, 'A', $rowNumber, 'date');
                     $waktuPeriksa = $this->getCellValue($sheet, 'B', $rowNumber, 'time');
@@ -1095,7 +1157,7 @@ class RekamMedisController extends Controller
                     $namaKaryawan = $this->getCellValue($sheet, 'D', $rowNumber, 'string');
                     $kodeRM = $this->getCellValue($sheet, 'E', $rowNumber, 'string');
                     $namaPasien = $this->getCellValue($sheet, 'F', $rowNumber, 'string');
-                    
+
                     // Diagnosa 1 data
                     $diagnosa1 = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
                     $keluhan1 = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
@@ -1105,7 +1167,7 @@ class RekamMedisController extends Controller
                     $jumlahObat1_2 = $this->getCellValue($sheet, 'L', $rowNumber, 'number');
                     $obat1_3 = $this->getCellValue($sheet, 'M', $rowNumber, 'string');
                     $jumlahObat1_3 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
-                    
+
                     // Diagnosa 2 data
                     $diagnosa2 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
                     $keluhan2 = $this->getCellValue($sheet, 'P', $rowNumber, 'string');
@@ -1115,7 +1177,7 @@ class RekamMedisController extends Controller
                     $jumlahObat2_2 = $this->getCellValue($sheet, 'T', $rowNumber, 'number');
                     $obat2_3 = $this->getCellValue($sheet, 'U', $rowNumber, 'string');
                     $jumlahObat2_3 = $this->getCellValue($sheet, 'V', $rowNumber, 'number');
-                    
+
                     // Diagnosa 3 data
                     $diagnosa3 = $this->getCellValue($sheet, 'W', $rowNumber, 'string');
                     $keluhan3 = $this->getCellValue($sheet, 'X', $rowNumber, 'string');
@@ -1125,7 +1187,7 @@ class RekamMedisController extends Controller
                     $jumlahObat3_2 = $this->getCellValue($sheet, 'AB', $rowNumber, 'number');
                     $obat3_3 = $this->getCellValue($sheet, 'AC', $rowNumber, 'string');
                     $jumlahObat3_3 = $this->getCellValue($sheet, 'AD', $rowNumber, 'number');
-                    
+
                     $petugasKlinik = $this->getCellValue($sheet, 'AE', $rowNumber, 'string');
                     $status = $this->getCellValue($sheet, 'AF', $rowNumber, 'string');
 
@@ -1165,7 +1227,7 @@ class RekamMedisController extends Controller
                     // AD: Qyt
                     // AE: Petugas
                     // AF: Status
-                    
+
                     // Read all columns using the helper function
                     $tanggalPeriksa = $this->getCellValue($sheet, 'A', $rowNumber, 'date');
                     $waktuPeriksa = $this->getCellValue($sheet, 'B', $rowNumber, 'time');
@@ -1173,7 +1235,7 @@ class RekamMedisController extends Controller
                     $namaKaryawan = $this->getCellValue($sheet, 'D', $rowNumber, 'string');
                     $kodeRM = $this->getCellValue($sheet, 'E', $rowNumber, 'string');
                     $namaPasien = $this->getCellValue($sheet, 'F', $rowNumber, 'string');
-                    
+
                     // Diagnosa 1 data
                     $diagnosa1 = $this->getCellValue($sheet, 'G', $rowNumber, 'string');
                     $keluhan1 = $this->getCellValue($sheet, 'H', $rowNumber, 'string');
@@ -1183,7 +1245,7 @@ class RekamMedisController extends Controller
                     $jumlahObat1_2 = $this->getCellValue($sheet, 'L', $rowNumber, 'number');
                     $obat1_3 = $this->getCellValue($sheet, 'M', $rowNumber, 'string');
                     $jumlahObat1_3 = $this->getCellValue($sheet, 'N', $rowNumber, 'number');
-                    
+
                     // Diagnosa 2 data
                     $diagnosa2 = $this->getCellValue($sheet, 'O', $rowNumber, 'string');
                     $keluhan2 = $this->getCellValue($sheet, 'P', $rowNumber, 'string');
@@ -1193,7 +1255,7 @@ class RekamMedisController extends Controller
                     $jumlahObat2_2 = $this->getCellValue($sheet, 'T', $rowNumber, 'number');
                     $obat2_3 = $this->getCellValue($sheet, 'U', $rowNumber, 'string');
                     $jumlahObat2_3 = $this->getCellValue($sheet, 'V', $rowNumber, 'number');
-                    
+
                     // Diagnosa 3 data
                     $diagnosa3 = $this->getCellValue($sheet, 'W', $rowNumber, 'string');
                     $keluhan3 = $this->getCellValue($sheet, 'X', $rowNumber, 'string');
@@ -1203,7 +1265,7 @@ class RekamMedisController extends Controller
                     $jumlahObat3_2 = $this->getCellValue($sheet, 'AB', $rowNumber, 'number');
                     $obat3_3 = $this->getCellValue($sheet, 'AC', $rowNumber, 'string');
                     $jumlahObat3_3 = $this->getCellValue($sheet, 'AD', $rowNumber, 'number');
-                    
+
                     $petugasKlinik = $this->getCellValue($sheet, 'AE', $rowNumber, 'string');
                     $status = $this->getCellValue($sheet, 'AF', $rowNumber, 'string');
 
@@ -1219,26 +1281,30 @@ class RekamMedisController extends Controller
                 // Validate required fields
                 if (empty($tanggalPeriksa)) {
                     $errors[] = "Baris $rowNumber: Tanggal periksa tidak boleh kosong";
+
                     continue;
                 }
 
                 if (empty($nikKaryawan)) {
                     $errors[] = "Baris $rowNumber: NIK karyawan tidak boleh kosong";
+
                     continue;
                 }
 
                 if (empty($namaPasien)) {
                     $errors[] = "Baris $rowNumber: Nama pasien tidak boleh kosong";
+
                     continue;
                 }
 
                 if (empty($petugasKlinik)) {
                     $errors[] = "Baris $rowNumber: Petugas klinik tidak boleh kosong";
+
                     continue;
                 }
 
                 // Convert tanggal format to YYYY-MM-DD
-                if (!empty($tanggalPeriksa)) {
+                if (! empty($tanggalPeriksa)) {
                     // Remove any extra spaces
                     $tanggalPeriksa = trim($tanggalPeriksa);
 
@@ -1255,13 +1321,14 @@ class RekamMedisController extends Controller
                         $year = $matches[3];
 
                         // Validate date
-                        if (!checkdate($month, $day, $year)) {
+                        if (! checkdate($month, $day, $year)) {
                             $errors[] = "Baris $rowNumber: Tanggal '$tanggalPeriksa' tidak valid. Gunakan format DD/MM/YYYY";
+
                             continue;
                         }
 
                         // Convert to YYYY-MM-DD format
-                        $tanggalPeriksa = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                        $tanggalPeriksa = $year.'-'.str_pad($month, 2, '0', STR_PAD_LEFT).'-'.str_pad($day, 2, '0', STR_PAD_LEFT);
                     }
                     // Check if the format is YYYY-MM-DD (already in database format)
                     elseif (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $tanggalPeriksa, $matches)) {
@@ -1270,13 +1337,14 @@ class RekamMedisController extends Controller
                         $day = $matches[3];
 
                         // Validate date
-                        if (!checkdate($month, $day, $year)) {
+                        if (! checkdate($month, $day, $year)) {
                             $errors[] = "Baris $rowNumber: Tanggal '$tanggalPeriksa' tidak valid";
+
                             continue;
                         }
 
                         // Already in correct format, just ensure proper padding
-                        $tanggalPeriksa = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                        $tanggalPeriksa = $year.'-'.str_pad($month, 2, '0', STR_PAD_LEFT).'-'.str_pad($day, 2, '0', STR_PAD_LEFT);
                     }
                     // Check if the format is D/M/YYYY (with single digit day/month)
                     elseif (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $tanggalPeriksa, $matches)) {
@@ -1285,23 +1353,25 @@ class RekamMedisController extends Controller
                         $year = $matches[3];
 
                         // Validate date
-                        if (!checkdate($month, $day, $year)) {
+                        if (! checkdate($month, $day, $year)) {
                             $errors[] = "Baris $rowNumber: Tanggal '$tanggalPeriksa' tidak valid. Gunakan format DD/MM/YYYY";
+
                             continue;
                         }
 
                         // Convert to YYYY-MM-DD format
-                        $tanggalPeriksa = $year . '-' . str_pad($month, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
-                    }
-                    else {
+                        $tanggalPeriksa = $year.'-'.str_pad($month, 2, '0', STR_PAD_LEFT).'-'.str_pad($day, 2, '0', STR_PAD_LEFT);
+                    } else {
                         $errors[] = "Baris $rowNumber: Format tanggal '$tanggalPeriksa' tidak valid. Gunakan format DD/MM/YYYY";
+
                         continue;
                     }
                 }
 
                 // Validate status
-                if (!in_array($status, ['Close', 'On Progress', 'Reguler'])) {
+                if (! in_array($status, ['Close', 'On Progress', 'Reguler'])) {
                     $errors[] = "Baris $rowNumber: Status harus 'Close', 'On Progress', atau 'Reguler'";
+
                     continue;
                 }
 
@@ -1312,24 +1382,27 @@ class RekamMedisController extends Controller
 
                 // Find karyawan
                 $karyawan = Karyawan::where('nik_karyawan', $nikKaryawan)->first();
-                if (!$karyawan) {
+                if (! $karyawan) {
                     $errors[] = "Baris $rowNumber: Karyawan dengan NIK $nikKaryawan tidak ditemukan";
+
                     continue;
                 }
 
                 // Find user based on petugas klinik name
                 $user = User::where('nama_lengkap', $petugasKlinik)->first();
-                if (!$user) {
+                if (! $user) {
                     $errors[] = "Baris $rowNumber: User dengan nama '$petugasKlinik' tidak ditemukan";
+
                     continue;
                 }
 
                 // Find keluarga
                 $keluarga = Keluarga::where('id_karyawan', $karyawan->id_karyawan)
-                                    ->where('nama_keluarga', $namaPasien)
-                                    ->first();
-                if (!$keluarga) {
+                    ->where('nama_keluarga', $namaPasien)
+                    ->first();
+                if (! $keluarga) {
                     $errors[] = "Baris $rowNumber: Pasien $namaPasien tidak ditemukan untuk karyawan $nikKaryawan";
+
                     continue;
                 }
 
@@ -1344,7 +1417,7 @@ class RekamMedisController extends Controller
                 ]);
 
                 // Debug: Log the waktu_periksa value
-                \Log::info('Row ' . $rowNumber . ': waktu_periksa = ' . $waktuPeriksa);
+                \Log::info('Row '.$rowNumber.': waktu_periksa = '.$waktuPeriksa);
 
                 // Process data based on format
                 $keluhanCount = 0;
@@ -1353,7 +1426,7 @@ class RekamMedisController extends Controller
                     // Process multiple diagnoses format
 
                     // Process Diagnosa 1
-                    if (!empty($diagnosa1) && $diagnosa1 !== '-') {
+                    if (! empty($diagnosa1) && $diagnosa1 !== '-') {
                         $diagnosa1Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa1]);
                         $idDiagnosa1 = $diagnosa1Model->id_diagnosa;
 
@@ -1366,7 +1439,7 @@ class RekamMedisController extends Controller
 
                         $hasObat = false;
                         foreach ($obatList1 as $obatData) {
-                            if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
+                            if (! empty($obatData['nama']) && $obatData['nama'] !== '-') {
                                 $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
                                 if ($obatModel) {
                                     Keluhan::create([
@@ -1388,7 +1461,7 @@ class RekamMedisController extends Controller
                         }
 
                         // If no obat found but there's diagnosa, create keluhan without obat
-                        if (!$hasObat) {
+                        if (! $hasObat) {
                             Keluhan::create([
                                 'id_rekam' => $rekamMedis->id_rekam,
                                 'id_keluarga' => $keluarga->id_keluarga,
@@ -1404,7 +1477,7 @@ class RekamMedisController extends Controller
                     }
 
                     // Process Diagnosa 2
-                    if (!empty($diagnosa2) && $diagnosa2 !== '-') {
+                    if (! empty($diagnosa2) && $diagnosa2 !== '-') {
                         $diagnosa2Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa2]);
                         $idDiagnosa2 = $diagnosa2Model->id_diagnosa;
 
@@ -1416,7 +1489,7 @@ class RekamMedisController extends Controller
 
                         $hasObat = false;
                         foreach ($obatList2 as $obatData) {
-                            if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
+                            if (! empty($obatData['nama']) && $obatData['nama'] !== '-') {
                                 $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
                                 if ($obatModel) {
                                     Keluhan::create([
@@ -1438,7 +1511,7 @@ class RekamMedisController extends Controller
                         }
 
                         // If no obat found but there's diagnosa, create keluhan without obat
-                        if (!$hasObat) {
+                        if (! $hasObat) {
                             Keluhan::create([
                                 'id_rekam' => $rekamMedis->id_rekam,
                                 'id_keluarga' => $keluarga->id_keluarga,
@@ -1454,7 +1527,7 @@ class RekamMedisController extends Controller
                     }
 
                     // Process Diagnosa 3
-                    if (!empty($diagnosa3) && $diagnosa3 !== '-') {
+                    if (! empty($diagnosa3) && $diagnosa3 !== '-') {
                         $diagnosa3Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa3]);
                         $idDiagnosa3 = $diagnosa3Model->id_diagnosa;
 
@@ -1466,7 +1539,7 @@ class RekamMedisController extends Controller
 
                         $hasObat = false;
                         foreach ($obatList3 as $obatData) {
-                            if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
+                            if (! empty($obatData['nama']) && $obatData['nama'] !== '-') {
                                 $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
                                 if ($obatModel) {
                                     Keluhan::create([
@@ -1488,7 +1561,7 @@ class RekamMedisController extends Controller
                         }
 
                         // If no obat found but there's diagnosa, create keluhan without obat
-                        if (!$hasObat) {
+                        if (! $hasObat) {
                             Keluhan::create([
                                 'id_rekam' => $rekamMedis->id_rekam,
                                 'id_keluarga' => $keluarga->id_keluarga,
@@ -1504,10 +1577,10 @@ class RekamMedisController extends Controller
                     }
                 } else {
                     // Process single-diagnosa format (using only Diagnosa 1 columns)
-                    
+
                     // Find or create diagnosa
                     $idDiagnosa = null;
-                    if (!empty($diagnosa1) && $diagnosa1 !== '-') {
+                    if (! empty($diagnosa1) && $diagnosa1 !== '-') {
                         $diagnosaModel = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa1]);
                         $idDiagnosa = $diagnosaModel->id_diagnosa;
                     }
@@ -1521,7 +1594,7 @@ class RekamMedisController extends Controller
 
                     $hasObat = false;
                     foreach ($obatList as $obatData) {
-                        if (!empty($obatData['nama']) && $obatData['nama'] !== '-') {
+                        if (! empty($obatData['nama']) && $obatData['nama'] !== '-') {
                             $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
                             if ($obatModel) {
                                 Keluhan::create([
@@ -1543,7 +1616,7 @@ class RekamMedisController extends Controller
                     }
 
                     // If no obat found but there's diagnosa, create keluhan without obat
-                    if (!$hasObat && $idDiagnosa) {
+                    if (! $hasObat && $idDiagnosa) {
                         Keluhan::create([
                             'id_rekam' => $rekamMedis->id_rekam,
                             'id_keluarga' => $keluarga->id_keluarga,
@@ -1570,9 +1643,9 @@ class RekamMedisController extends Controller
             if ($hasErrors) {
                 $errorMessage = implode('<br>', array_slice($errors, 0, 10)); // Show first 10 errors
                 if (count($errors) > 10) {
-                    $errorMessage .= '<br>... dan ' . (count($errors) - 10) . ' error lainnya';
+                    $errorMessage .= '<br>... dan '.(count($errors) - 10).' error lainnya';
                 }
-                $message .= '<br><br>Error:<br>' . $errorMessage;
+                $message .= '<br><br>Error:<br>'.$errorMessage;
             }
 
             // Return JSON response for AJAX requests
@@ -1582,8 +1655,8 @@ class RekamMedisController extends Controller
                     'message' => $message,
                     'data' => [
                         'created' => $created,
-                        'errors' => $errors
-                    ]
+                        'errors' => $errors,
+                    ],
                 ]);
             }
 
@@ -1598,11 +1671,11 @@ class RekamMedisController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal import data: ' . $e->getMessage()
+                    'message' => 'Gagal import data: '.$e->getMessage(),
                 ], 500);
             }
 
-            return back()->with('error', 'Gagal import data: ' . $e->getMessage());
+            return back()->with('error', 'Gagal import data: '.$e->getMessage());
         }
     }
 }

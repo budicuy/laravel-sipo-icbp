@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Events\RekamMedisCreated;
+use App\Events\RekamMedisUpdated;
 use App\Listeners\KurangiStokObatListener;
+use App\Listeners\AdjustStokObatListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -23,6 +25,10 @@ class EventServiceProvider extends ServiceProvider
 
         RekamMedisCreated::class => [
             KurangiStokObatListener::class,
+        ],
+
+        RekamMedisUpdated::class => [
+            AdjustStokObatListener::class,
         ],
     ];
 
