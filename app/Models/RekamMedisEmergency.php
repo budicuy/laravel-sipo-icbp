@@ -43,7 +43,7 @@ class RekamMedisEmergency extends Model
      */
     public function externalEmployee()
     {
-        return $this->belongsTo(ExternalEmployee::class, 'id_external_employee', 'id');
+        return $this->belongsTo(ExternalEmployee::class, 'id_external_employee', 'id_external_employee');
     }
 
     /**
