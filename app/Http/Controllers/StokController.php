@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Obat;
 use App\Models\StokBulanan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class StokController extends Controller
 {
@@ -21,17 +20,21 @@ class StokController extends Controller
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('nama_obat', 'like', '%' . $search . '%')
-                  ->orWhere('keterangan', 'like', '%' . $search . '%');
+                $q->where('nama_obat', 'like', '%'.$search.'%')
+                    ->orWhere('keterangan', 'like', '%'.$search.'%');
             });
         }
 
         $obats = $query->get();
 
-        // Hitung sisa stok untuk setiap obat
-        $obatsWithStok = $obats->map(function ($obat) {
-            $sisaStok = StokBulanan::getSisaStokSaatIni($obat->id_obat);
-            $obat->sisa_stok = $sisaStok;
+        // Optimasi N+1: Hitung sisa stok untuk semua obat sekaligus
+        $obatIds = $obats->pluck('id_obat')->toArray();
+        $sisaStokMap = StokBulanan::getSisaStokSaatIniBatch($obatIds);
+
+        // Assign sisa stok ke setiap obat
+        $obatsWithStok = $obats->map(function ($obat) use ($sisaStokMap) {
+            $obat->sisa_stok = $sisaStokMap->get($obat->id_obat, 0);
+
             return $obat;
         });
 
@@ -80,13 +83,14 @@ class StokController extends Controller
     {
         // Ambil data Obat berdasarkan $obat_id
         $obat = Obat::with(['satuanObat:id_satuan,nama_satuan'])
-                   ->findOrFail($obat_id);
+            ->findOrFail($obat_id);
 
         // Tampilkan riwayat stok bulanan
         $riwayatStok = StokBulanan::getRiwayatStok($obat_id, 24); // 24 bulan terakhir
 
-        // Hitung sisa stok saat ini
-        $sisaStok = StokBulanan::getSisaStokSaatIni($obat_id);
+        // Hitung sisa stok saat ini menggunakan batch approach (untuk konsistensi)
+        $sisaStokMap = StokBulanan::getSisaStokSaatIniBatch([$obat_id]);
+        $sisaStok = $sisaStokMap->get($obat_id, 0);
 
         // Data untuk form stok masuk bulan ini
         $tahunSekarang = now()->year;
@@ -94,9 +98,9 @@ class StokController extends Controller
 
         // Cek apakah sudah ada stok bulanan untuk bulan ini
         $stokBulananIni = StokBulanan::where('obat_id', $obat_id)
-                                   ->where('tahun', $tahunSekarang)
-                                   ->where('bulan', $bulanSekarang)
-                                   ->first();
+            ->where('tahun', $tahunSekarang)
+            ->where('bulan', $bulanSekarang)
+            ->first();
 
         return view('stok.show', compact(
             'obat',
