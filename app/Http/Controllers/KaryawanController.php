@@ -31,6 +31,9 @@ class KaryawanController extends Controller
         if ($request->filled('jenis_kelamin')) {
             $query->where('jenis_kelamin', $request->input('jenis_kelamin'));
         }
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
         if ($request->filled('q')) {
             $q = $request->input('q');
             $query->where(function ($sub) use ($q) {
@@ -128,6 +131,7 @@ class KaryawanController extends Controller
             'foto' => $path,
             'email' => $validated['email'] ?? null,
             'bpjs_id' => $validated['bpjs_id'] ?? null,
+            'status' => 'aktif', // Default status aktif
         ]);
 
         // Clear cache
@@ -157,6 +161,7 @@ class KaryawanController extends Controller
             'foto' => ['nullable','image','max:30'],
             'email' => ['nullable','email','max:100'],
             'bpjs_id' => ['nullable','string','max:50','regex:/^[0-9]+$/'],
+            'status' => ['required', Rule::in(['aktif', 'nonaktif'])],
         ], [
             'nik.required' => 'NIK karyawan wajib diisi',
             'nik.numeric' => 'NIK karyawan hanya boleh berisi angka',
@@ -180,6 +185,8 @@ class KaryawanController extends Controller
             'email.max' => 'Email maksimal 100 karakter',
             'bpjs_id.regex' => 'BPJS ID hanya boleh berisi angka',
             'bpjs_id.max' => 'BPJS ID maksimal 50 karakter',
+            'status.required' => 'Status wajib dipilih',
+            'status.in' => 'Status harus aktif atau nonaktif',
         ]);
 
         $data = [
@@ -192,6 +199,7 @@ class KaryawanController extends Controller
             'id_departemen' => $validated['departemen'],
             'email' => $validated['email'] ?? null,
             'bpjs_id' => $validated['bpjs_id'] ?? null,
+            'status' => $validated['status'],
         ];
 
         if ($request->hasFile('foto')) {
@@ -595,6 +603,7 @@ class KaryawanController extends Controller
                         'foto' => null,
                         'email' => !empty($email) ? $email : null,
                         'bpjs_id' => !empty($bpjsId) ? $bpjsId : null,
+                        'status' => $exists ? Karyawan::where('nik_karyawan', $nik)->first()->status : 'aktif',
                     ]
                 );
 

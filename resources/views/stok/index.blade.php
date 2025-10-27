@@ -42,6 +42,68 @@
                 </div>
             </div>
 
+            @if ($obatsWithStok->count() > 0)
+                <div class="px-4 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v8m5-4h.01M9 16h.01" />
+                        </svg>
+                        Ringkasan Stok Obat
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-blue-100 rounded-lg">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-2xl font-bold text-gray-900">{{ $obatsWithStok->count() }}</div>
+                                    <div class="text-sm text-gray-600">Total Obat</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-red-100 rounded-lg">
+                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-2xl font-bold text-red-600">
+                                        {{ $obatsWithStok->where('sisa_stok', '<=', 0)->count() }}</div>
+                                    <div class="text-sm text-gray-600">Stok Habis</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-yellow-100 rounded-lg">
+                                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-2xl font-bold text-yellow-600">
+                                        {{ $obatsWithStok->where('sisa_stok', '>', 0)->where('sisa_stok', '<=', 10)->count() }}
+                                    </div>
+                                    <div class="text-sm text-gray-600">Stok Rendah</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Filter Section -->
             <div class="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-gray-200">
                 <div class="flex items-center gap-2 mb-4">
@@ -57,7 +119,8 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">Cari Nama Obat</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
@@ -266,70 +329,6 @@
                     </tbody>
                 </table>
             </div>
-
-
-            <!-- Summary -->
-            @if ($obatsWithStok->count() > 0)
-                <div class="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 border-t border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v8m5-4h.01M9 16h.01" />
-                        </svg>
-                        Ringkasan Stok Obat
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-                            <div class="flex items-center">
-                                <div class="p-3 bg-blue-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-2xl font-bold text-gray-900">{{ $obatsWithStok->count() }}</div>
-                                    <div class="text-sm text-gray-600">Total Obat</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-                            <div class="flex items-center">
-                                <div class="p-3 bg-red-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-2xl font-bold text-red-600">
-                                        {{ $obatsWithStok->where('sisa_stok', '<=', 0)->count() }}</div>
-                                    <div class="text-sm text-gray-600">Stok Habis</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-                            <div class="flex items-center">
-                                <div class="p-3 bg-yellow-100 rounded-lg">
-                                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-2xl font-bold text-yellow-600">
-                                        {{ $obatsWithStok->where('sisa_stok', '>', 0)->where('sisa_stok', '<=', 10)->count() }}
-                                    </div>
-                                    <div class="text-sm text-gray-600">Stok Rendah</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
         </div>
     </div>
     </div>

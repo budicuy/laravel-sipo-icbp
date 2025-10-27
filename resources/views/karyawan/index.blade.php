@@ -79,6 +79,17 @@
                         $departemens?->map(fn($dept) => ['value' => $dept->id_departemen, 'label' => $dept->nama_departemen])->toArray() ?? []
                     ),
                     'colSpan' => 'md:col-span-1'
+                ],
+                [
+                    'type' => 'select',
+                    'name' => 'status',
+                    'label' => 'Status',
+                    'options' => [
+                        ['value' => '', 'label' => '-- Semua Status --'],
+                        ['value' => 'aktif', 'label' => 'Aktif'],
+                        ['value' => 'nonaktif', 'label' => 'Nonaktif']
+                    ],
+                    'colSpan' => 'md:col-span-1'
                 ]
             ]"
         />
@@ -93,6 +104,9 @@
                     @endif
                     @if(request('jenis_kelamin'))
                         <input type="hidden" name="jenis_kelamin" value="{{ request('jenis_kelamin') }}">
+                    @endif
+                    @if(request('status'))
+                        <input type="hidden" name="status" value="{{ request('status') }}">
                     @endif
                     @if(request('q'))
                         <input type="hidden" name="q" value="{{ request('q') }}">
@@ -264,6 +278,7 @@
                                 </span>
                             </a>
                         </th>
+                        <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Status</th>
                         <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -311,6 +326,23 @@
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ $karyawan->email ?? '-' }}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ $karyawan->bpjs_id ?? '-' }}</td>
                         <td class="px-4 py-4 whitespace-nowrap">
+                            @if($karyawan->status === 'aktif')
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Aktif
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Nonaktif
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap">
                             <div class="flex items-center gap-1 text-sm text-gray-700">
                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -339,7 +371,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="11" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data</td>
+                        <td colspan="12" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data</td>
                     </tr>
                     @endforelse
                 </tbody>

@@ -32,7 +32,7 @@ class DashboardController extends Controller
         $closeEmergency = RekamMedisEmergency::where('status', 'Close')->count();
 
         $statistics = [
-            'total_karyawan' => Karyawan::count(),
+            'total_karyawan' => Karyawan::where('status', 'aktif')->count(),
             'total_rekam_medis' => $totalRekamMedisReguler + $totalRekamMedisEmergency,
             'kunjungan_hari_ini' => $kunjunganHariIniReguler + $kunjunganHariIniEmergency,
             'on_progress' => $onProgressReguler + $onProgressEmergency,
