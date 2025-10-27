@@ -18,12 +18,14 @@ class StokMasukController extends Controller
         $validated = $request->validate([
             'obat_id' => 'required|exists:obat,id_obat',
             'jumlah_stok_masuk' => 'required|integer|min:1',
+            'periode' => 'required|string',
         ], [
             'obat_id.required' => 'Obat wajib dipilih',
             'obat_id.exists' => 'Obat tidak ditemukan',
             'jumlah_stok_masuk.required' => 'Jumlah stok masuk wajib diisi',
             'jumlah_stok_masuk.integer' => 'Jumlah stok masuk harus berupa angka',
             'jumlah_stok_masuk.min' => 'Jumlah stok masuk minimal 1',
+            'periode.required' => 'Periode wajib dipilih',
         ]);
 
         try {
@@ -32,20 +34,21 @@ class StokMasukController extends Controller
             $obatId = $validated['obat_id'];
             $jumlahStokMasuk = $validated['jumlah_stok_masuk'];
 
-            // Dapatkan tahun dan bulan saat ini
-            $tahunSekarang = now()->year;
-            $bulanSekarang = now()->month;
+            // Parse periode dari format "YYYY-MM" (dari input type="month")
+            $periodeArray = explode('-', $validated['periode']);
+            $tahun = (int) $periodeArray[0];
+            $bulan = (int) $periodeArray[1];
 
             // Log untuk debugging
             Log::info('Menambah stok masuk', [
                 'obat_id' => $obatId,
                 'jumlah' => $jumlahStokMasuk,
-                'tahun' => $tahunSekarang,
-                'bulan' => $bulanSekarang
+                'tahun' => $tahun,
+                'bulan' => $bulan
             ]);
 
             // Cari atau buat record StokBulanan untuk obat_id, tahun, dan bulan tersebut
-            $stokBulanan = StokBulanan::getOrCreate($obatId, $tahunSekarang, $bulanSekarang);
+            $stokBulanan = StokBulanan::getOrCreate($obatId, $tahun, $bulan);
 
             // Tambahkan jumlah_stok_masuk ke kolom stok_masuk
             $stokBulanan->stok_masuk += $jumlahStokMasuk;
@@ -58,9 +61,10 @@ class StokMasukController extends Controller
 
             DB::commit();
 
+            $periodeName = \Carbon\Carbon::create($tahun, $bulan, 1)->locale('id')->isoFormat('MMMM YYYY');
+
             return redirect()->route('stok.show', $obatId)
-                           ->with('success', "Stok masuk sebanyak {$jumlahStokMasuk} berhasil ditambahkan untuk bulan " .
-                                   date('F Y', mktime(0, 0, 0, $bulanSekarang, 1, $tahunSekarang)));
+                           ->with('success', "Stok masuk sebanyak {$jumlahStokMasuk} berhasil ditambahkan untuk periode {$periodeName}");
 
         } catch (\Exception $e) {
             DB::rollBack();
