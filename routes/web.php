@@ -16,6 +16,7 @@ use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\RekamMedisEmergencyController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\StokMasukController;
+use App\Http\Controllers\SuratPengantarIstirahatController;
 use App\Http\Controllers\TokenEmergencyController;
 use App\Http\Controllers\UserController;
 use App\Models\Obat;
@@ -205,13 +206,22 @@ Route::middleware('auth')->group(function () {
     Route::post('/external-employee/bulk-delete', [ExternalEmployeeController::class, 'bulkDelete'])->name('external-employee.bulkDelete');
     Route::get('/external-employee/template', [ExternalEmployeeController::class, 'downloadTemplate'])->name('external-employee.template')->middleware('role:Super Admin');
 
-    // Surat Sakit Routes
+    // Surat Pengantar Istirahat Routes
+    Route::get('/surat-pengantar-istirahat/search-rekam-medis', [SuratPengantarIstirahatController::class, 'searchRekamMedis'])->name('surat-pengantar-istirahat.searchRekamMedis');
+    Route::get('/surat-pengantar-istirahat/get-rekam-medis-detail/{id_rekam}', [SuratPengantarIstirahatController::class, 'getRekamMedisDetail'])->name('surat-pengantar-istirahat.getRekamMedisDetail');
+    Route::get('/surat-pengantar-istirahat/{suratPengantarIstirahat}/cetak', [SuratPengantarIstirahatController::class, 'cetak'])->name('surat-pengantar-istirahat.cetak');
+
+    Route::resource('surat-pengantar-istirahat', SuratPengantarIstirahatController::class)->parameters([
+        'surat-pengantar-istirahat' => 'suratPengantarIstirahat',
+    ]);
+
+    // Surat Sakit Routes (Legacy - redirect to new Surat Pengantar Istirahat)
     Route::get('/surat-sakit', function () {
-        return view('surat-sakit.create');
+        return redirect()->route('surat-pengantar-istirahat.index');
     })->name('surat-sakit.create');
 
     Route::post('/surat-sakit', function () {
-        return redirect()->route('surat-sakit.create');
+        return redirect()->route('surat-pengantar-istirahat.create');
     })->name('surat-sakit.store');
 
     // Laporan Routes

@@ -219,13 +219,14 @@ class StokBulanan extends Model
     }
 
     /**
-     * Menghitung sisa stok saat ini untuk obat tertentu
+     * Menghitung sisa stok saat ini untuk obat tertentu (optimized)
      */
     public static function getSisaStokSaatIni($obatId)
     {
-        $now = now();
+        // Gunakan batch approach untuk konsistensi dan menghindari N+1
+        $result = self::getSisaStokSaatIniBatch([$obatId]);
 
-        return self::getSisaStokHingga($obatId, $now->year, $now->month);
+        return $result->get($obatId, 0);
     }
 
     /**
@@ -241,51 +242,34 @@ class StokBulanan extends Model
         $tahun = $now->year;
         $bulan = $now->month;
 
-        // Ambil stok awal untuk semua obat sekaligus
-        $stokAwalMap = Obat::whereIn('id_obat', $obatIds)
-            ->pluck('stok_awal', 'id_obat');
-
-        // Ambil total stok masuk untuk semua obat sekaligus
-        $stokMasukMap = self::whereIn('obat_id', $obatIds)
-            ->where(function ($query) use ($tahun, $bulan) {
-                $query->where('tahun', '<', $tahun)
-                    ->orWhere(function ($subQuery) use ($tahun, $bulan) {
-                        $subQuery->where('tahun', $tahun)
-                            ->where('bulan', '<=', $bulan);
+        // Single query approach untuk semua obat sekaligus
+        $results = DB::table('obat as o')
+            ->selectRaw('o.id_obat, o.stok_awal + COALESCE(SUM(sb.stok_masuk), 0) - COALESCE(SUM(sb.stok_pakai), 0) as sisa_stok')
+            ->leftJoin('stok_bulanans as sb', function ($join) use ($tahun, $bulan) {
+                $join->on('o.id_obat', '=', 'sb.obat_id')
+                    ->where(function ($query) use ($tahun, $bulan) {
+                        $query->where('sb.tahun', '<', $tahun)
+                            ->orWhere(function ($subQuery) use ($tahun, $bulan) {
+                                $subQuery->where('sb.tahun', $tahun)
+                                    ->where('sb.bulan', '<=', $bulan);
+                            });
                     });
             })
-            ->selectRaw('obat_id, sum(stok_masuk) as total_masuk')
-            ->groupBy('obat_id')
-            ->pluck('total_masuk', 'obat_id');
+            ->whereIn('o.id_obat', $obatIds)
+            ->groupBy('o.id_obat', 'o.stok_awal')
+            ->pluck('sisa_stok', 'id_obat');
 
-        // Ambil total stok pakai untuk semua obat sekaligus
-        $stokPakaiMap = self::whereIn('obat_id', $obatIds)
-            ->where(function ($query) use ($tahun, $bulan) {
-                $query->where('tahun', '<', $tahun)
-                    ->orWhere(function ($subQuery) use ($tahun, $bulan) {
-                        $subQuery->where('tahun', $tahun)
-                            ->where('bulan', '<=', $bulan);
-                    });
-            })
-            ->selectRaw('obat_id, sum(stok_pakai) as total_pakai')
-            ->groupBy('obat_id')
-            ->pluck('total_pakai', 'obat_id');
-
-        // Hitung sisa stok untuk setiap obat
+        // Pastikan semua obat ada di hasil (jika tidak ada stok bulanan)
         $result = collect();
         foreach ($obatIds as $obatId) {
-            $stokAwal = $stokAwalMap->get($obatId, 0);
-            $totalMasuk = $stokMasukMap->get($obatId, 0);
-            $totalPakai = $stokPakaiMap->get($obatId, 0);
-
-            $result->put($obatId, $stokAwal + $totalMasuk - $totalPakai);
+            $result->put($obatId, $results->get($obatId, 0));
         }
 
         return $result;
     }
 
     /**
-     * Mendapatkan riwayat stok bulanan untuk obat tertentu (optimized version)
+     * Mendapatkan riwayat stok bulanan untuk obat tertentu (fully optimized version)
      */
     public static function getRiwayatStok($obatId, $limit = 12)
     {
@@ -304,22 +288,47 @@ class StokBulanan extends Model
             ->where('id_obat', $obatId)
             ->value('stok_awal') ?? 0;
 
-        // Optimasi: Hitung semua stok akhir dengan single query approach
-        $result = $stokBulanan->map(function ($item) use ($obatId, $stokAwal) {
-            // Hitung stok akhir dengan single query
-            $stokAkhir = DB::table('stok_bulanans as sb')
-                ->selectRaw('COALESCE(SUM(sb.stok_masuk), 0) - COALESCE(SUM(sb.stok_pakai), 0) as net_stok')
-                ->where('sb.obat_id', $obatId)
-                ->where(function ($query) use ($item) {
-                    $query->where('sb.tahun', '<', $item->tahun)
-                        ->orWhere(function ($subQuery) use ($item) {
-                            $subQuery->where('sb.tahun', $item->tahun)
-                                ->where('sb.bulan', '<=', $item->bulan);
-                        });
-                })
-                ->value('net_stok') ?? 0;
+        // Fully optimized: Hitung semua stok akhir dengan single query untuk semua periode
+        $periodes = $stokBulanan->map(function ($item) {
+            return [
+                'tahun' => $item->tahun,
+                'bulan' => $item->bulan,
+                'index_key' => $item->tahun.'_'.$item->bulan, // Unique key untuk mapping
+            ];
+        });
 
-            $item->stok_akhir = $stokAwal + $stokAkhir;
+        // Build single query untuk semua periode sekaligus
+        $stokAkhirMap = collect();
+        if ($periodes->isNotEmpty()) {
+            $stokAkhirQuery = DB::table('stok_bulanans as sb')
+                ->selectRaw('sb.tahun, sb.bulan, COALESCE(SUM(sb.stok_masuk), 0) - COALESCE(SUM(sb.stok_pakai), 0) as net_stok')
+                ->where('sb.obat_id', $obatId)
+                ->where(function ($query) use ($periodes) {
+                    foreach ($periodes as $periode) {
+                        $query->orWhere(function ($subQuery) use ($periode) {
+                            $subQuery->where('sb.tahun', '<', $periode['tahun'])
+                                ->orWhere(function ($subSubQuery) use ($periode) {
+                                    $subSubQuery->where('sb.tahun', $periode['tahun'])
+                                        ->where('sb.bulan', '<=', $periode['bulan']);
+                                });
+                        });
+                    }
+                })
+                ->groupBy('sb.tahun', 'sb.bulan')
+                ->get();
+
+            // Map hasil ke periode yang sesuai
+            foreach ($stokAkhirQuery as $result) {
+                $key = $result->tahun.'_'.$result->bulan;
+                $stokAkhirMap->put($key, $result->net_stok);
+            }
+        }
+
+        // Assign stok akhir ke setiap item
+        $result = $stokBulanan->map(function ($item) use ($stokAwal, $stokAkhirMap) {
+            $key = $item->tahun.'_'.$item->bulan;
+            $netStok = $stokAkhirMap->get($key, 0);
+            $item->stok_akhir = $stokAwal + $netStok;
 
             return $item;
         });

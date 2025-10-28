@@ -31,9 +31,10 @@ class StokController extends Controller
         $obatIds = $obats->pluck('id_obat')->toArray();
         $sisaStokMap = StokBulanan::getSisaStokSaatIniBatch($obatIds);
 
-        // Assign sisa stok ke setiap obat
+        // Assign sisa stok ke setiap obat dengan setAttribute untuk menghindari N+1
         $obatsWithStok = $obats->map(function ($obat) use ($sisaStokMap) {
-            $obat->sisa_stok = $sisaStokMap->get($obat->id_obat, 0);
+            // Set sebagai attribute agar accessor tidak memanggil query individual
+            $obat->setAttribute('sisa_stok', $sisaStokMap->get($obat->id_obat, 0));
 
             return $obat;
         });
@@ -91,6 +92,9 @@ class StokController extends Controller
         // Hitung sisa stok saat ini menggunakan batch approach (untuk konsistensi)
         $sisaStokMap = StokBulanan::getSisaStokSaatIniBatch([$obat_id]);
         $sisaStok = $sisaStokMap->get($obat_id, 0);
+
+        // Set sisa_stok sebagai attribute untuk menghindari N+1 di accessor
+        $obat->setAttribute('sisa_stok', $sisaStok);
 
         // Data untuk form stok masuk bulan ini
         $tahunSekarang = now()->year;
