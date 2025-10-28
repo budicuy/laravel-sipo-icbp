@@ -4,11 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Kunjungan;
 use App\Models\RekamMedis;
-<<<<<<< HEAD
-use App\Models\RekamMedisEmergency;
-use App\Models\Keluarga;
-=======
->>>>>>> 479d56f5795edd4432f1bb771b73ee21cce65b3b
 use Illuminate\Http\Request;
 
 class KunjunganController extends Controller
@@ -88,16 +83,6 @@ class KunjunganController extends Controller
             return $noRM.'_'.$rm->tanggal_periksa->format('Y-m-d');
         })->values();
 
-<<<<<<< HEAD
-        // Urutkan berdasarkan No RM emergency lalu tanggal descending
-        $rekamMedisEmergency = $queryEmergency->get()->sortBy(function($rm) {
-            $noRM = $rm->externalEmployee->kode_rm ?? '';
-            return $noRM . '_' . $rm->tanggal_periksa->format('Y-m-d');
-        })->values();
-
-        // Transform data rekam medis reguler ke format kunjungan
-        $kunjungansReguler = $rekamMedis->map(function($rm) {
-=======
         // Pre-calculate visit counts untuk semua rekam medis dalam satu query untuk menghindari N+1
         $visitCounts = [];
         if ($rekamMedis->isNotEmpty()) {
@@ -119,7 +104,6 @@ class KunjunganController extends Controller
 
         // Transform data ke format kunjungan dengan nomor registrasi per pasien per bulan
         $kunjungans = $rekamMedis->map(function ($rm) use ($visitCounts) {
->>>>>>> 479d56f5795edd4432f1bb771b73ee21cce65b3b
             // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_bulan]/NDL/BJM/[bulan]/[tahun]
             $bulan = $rm->tanggal_periksa->format('m');
             $tahun = $rm->tanggal_periksa->format('Y');
@@ -141,10 +125,6 @@ class KunjunganController extends Controller
                 'keluarga' => $rm->keluarga,
                 'user' => $rm->user,
                 'keluhans' => $rm->keluhans ?? [],
-<<<<<<< HEAD
-                'tipe' => 'reguler'
-=======
->>>>>>> 479d56f5795edd4432f1bb771b73ee21cce65b3b
             ];
         });
 
@@ -205,33 +185,6 @@ class KunjunganController extends Controller
 
     public function show($id)
     {
-<<<<<<< HEAD
-        // Check if this is an emergency record (starts with EMR-)
-        if (strpos($id, 'EMR-') === 0) {
-            // Extract emergency ID
-            $emergencyId = str_replace('EMR-', '', $id);
-            
-            // Ambil data rekam medis emergency sebagai detail kunjungan - OPTIMIZED
-            $rekamMedisEmergency = RekamMedisEmergency::with([
-                'externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat,no_hp',
-                'user:id_user,username,nama_lengkap',
-                'keluhans:id_keluhan,id_emergency,id_diagnosa_emergency,terapi,keterangan,id_obat,jumlah_obat,aturan_pakai',
-                'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa',
-                'keluhans.obat:id_obat,nama_obat'
-            ])->findOrFail($emergencyId);
-
-            // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_bulan]/NDL/BJM/[bulan]/[tahun]
-            $bulan = $rekamMedisEmergency->tanggal_periksa->format('m');
-            $tahun = $rekamMedisEmergency->tanggal_periksa->format('Y');
-            
-            // Hitung urutan kunjungan untuk pasien ini pada bulan dan tahun yang sama
-            $visitCount = RekamMedisEmergency::where('id_external_employee', $rekamMedisEmergency->id_external_employee)
-                ->whereMonth('tanggal_periksa', $bulan)
-                ->whereYear('tanggal_periksa', $tahun)
-                ->where('tanggal_periksa', '<=', $rekamMedisEmergency->tanggal_periksa)
-                ->count();
-            
-=======
         // Ambil data rekam medis sebagai detail kunjungan - OPTIMIZED
         $rekamMedis = RekamMedis::with([
             'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
@@ -309,33 +262,16 @@ class KunjunganController extends Controller
             $visitKey = $rm->id_keluarga.'_'.$bulan.'_'.$tahun.'_'.$rm->id_rekam;
             $visitCount = $visitCounts[$visitKey] ?? 1;
 
->>>>>>> 479d56f5795edd4432f1bb771b73ee21cce65b3b
             $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
             // Transform ke format kunjungan
             $kunjungan = (object) [
                 'id_kunjungan' => 'EMR-' . $rekamMedisEmergency->id_emergency,
                 'nomor_registrasi' => $nomorRegistrasi,
-<<<<<<< HEAD
-                'no_rm' => $rekamMedisEmergency->externalEmployee->kode_rm ?? '-',
-                'nama_pasien' => $rekamMedisEmergency->externalEmployee->nama_employee ?? '-',
-                'hubungan' => 'External',
-                'tanggal_kunjungan' => $rekamMedisEmergency->tanggal_periksa,
-                'status' => $rekamMedisEmergency->status ?? 'On Progress',
-                'externalEmployee' => $rekamMedisEmergency->externalEmployee,
-                'user' => $rekamMedisEmergency->user,
-                'keluhans' => $rekamMedisEmergency->keluhans ?? [],
-                'tipe' => 'emergency',
-                'id_emergency' => $rekamMedisEmergency->id_emergency,
-                'keluhan' => $rekamMedisEmergency->keluhan,
-                'catatan' => $rekamMedisEmergency->catatan,
-                'waktu_periksa' => $rekamMedisEmergency->waktu_periksa
-=======
                 'tanggal_kunjungan' => $rm->tanggal_periksa,
                 'status' => $rm->status ?? 'On Progress',
                 'user' => $rm->user,
                 'keluhans' => $rm->keluhans ?? [],
->>>>>>> 479d56f5795edd4432f1bb771b73ee21cce65b3b
             ];
 
             // Ambil semua riwayat kunjungan emergency pasien ini - OPTIMIZED
