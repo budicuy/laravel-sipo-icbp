@@ -21,9 +21,9 @@ class UserController extends Controller
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('username', 'like', '%' . $search . '%')
-                    ->orWhere('nama_lengkap', 'like', '%' . $search . '%')
-                    ->orWhere('role', 'like', '%' . $search . '%');
+                $q->where('username', 'like', '%'.$search.'%')
+                    ->orWhere('nama_lengkap', 'like', '%'.$search.'%')
+                    ->orWhere('role', 'like', '%'.$search.'%');
             });
         }
 
@@ -70,12 +70,14 @@ class UserController extends Controller
         $validated = $request->validate([
             'username' => 'required|string|max:50|unique:user,username',
             'nama_lengkap' => 'required|string|max:100',
+            'nik' => 'nullable|string|max:20',
             'role' => 'required|string|in:Super Admin,Admin,User',
             'password' => 'required|string|min:8|confirmed',
         ], [
             'username.required' => 'Username wajib diisi',
             'username.unique' => 'Username sudah digunakan',
             'nama_lengkap.required' => 'Nama lengkap wajib diisi',
+            'nik.max' => 'NIK maksimal 20 karakter',
             'role.required' => 'Role wajib dipilih',
             'password.required' => 'Password wajib diisi',
             'password.min' => 'Password minimal 8 karakter',
@@ -85,6 +87,7 @@ class UserController extends Controller
         User::create([
             'username' => $validated['username'],
             'nama_lengkap' => $validated['nama_lengkap'],
+            'nik' => $validated['nik'],
             'role' => $validated['role'],
             'password' => Hash::make($validated['password']),
             'is_active' => 1,
@@ -99,6 +102,7 @@ class UserController extends Controller
     public function edit(string $id)
     {
         $user = User::findOrFail($id);
+
         return view('user.edit', compact('user'));
     }
 
@@ -112,6 +116,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'username' => ['required', 'string', 'max:50', Rule::unique('user', 'username')->ignore($user->id_user, 'id_user')],
             'nama_lengkap' => 'required|string|max:100',
+            'nik' => 'nullable|string|max:20',
             'role' => 'required|string|in:Super Admin,Admin,User',
             'password' => 'nullable|string|min:8|confirmed',
             'is_active' => 'nullable|boolean',
@@ -119,6 +124,7 @@ class UserController extends Controller
             'username.required' => 'Username wajib diisi',
             'username.unique' => 'Username sudah digunakan',
             'nama_lengkap.required' => 'Nama lengkap wajib diisi',
+            'nik.max' => 'NIK maksimal 20 karakter',
             'role.required' => 'Role wajib dipilih',
             'password.min' => 'Password minimal 8 karakter',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
@@ -127,11 +133,12 @@ class UserController extends Controller
         $updateData = [
             'username' => $validated['username'],
             'nama_lengkap' => $validated['nama_lengkap'],
+            'nik' => $validated['nik'],
             'role' => $validated['role'],
         ];
 
         // Update password jika diisi
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $updateData['password'] = Hash::make($validated['password']);
         }
 

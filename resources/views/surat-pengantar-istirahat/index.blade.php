@@ -82,12 +82,21 @@
                                     {{ $surat->nomor_surat }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $surat->nik_karyawan ?? '-' }}
+                                    @if ($surat->tipe_pasien === 'emergency')
+                                        {{ $surat->rekamMedisEmergency->nik_pasien ?? '-' }}
+                                    @else
+                                        {{ $surat->nik_karyawan ?? '-' }}
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $surat->nama_pasien }}
-                                    @if ($surat->nama_karyawan)
-                                        <br><span class="text-xs text-gray-500">({{ $surat->nama_karyawan }})</span>
+                                    @if ($surat->tipe_pasien === 'emergency')
+                                        {{ $surat->rekamMedisEmergency->nama_pasien ?? '-' }}
+                                        <br><span class="text-xs text-red-600 font-medium">(Emergency)</span>
+                                    @else
+                                        {{ $surat->nama_pasien }}
+                                        @if ($surat->nama_karyawan)
+                                            <br><span class="text-xs text-gray-500">({{ $surat->nama_karyawan }})</span>
+                                        @endif
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

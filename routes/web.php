@@ -209,6 +209,7 @@ Route::middleware('auth')->group(function () {
     // Surat Pengantar Istirahat Routes
     Route::get('/surat-pengantar-istirahat/search-rekam-medis', [SuratPengantarIstirahatController::class, 'searchRekamMedis'])->name('surat-pengantar-istirahat.searchRekamMedis');
     Route::get('/surat-pengantar-istirahat/get-rekam-medis-detail/{id_rekam}', [SuratPengantarIstirahatController::class, 'getRekamMedisDetail'])->name('surat-pengantar-istirahat.getRekamMedisDetail');
+    Route::get('/surat-pengantar-istirahat/get-rekam-medis-emergency-detail/{id_emergency}', [SuratPengantarIstirahatController::class, 'getRekamMedisEmergencyDetail'])->name('surat-pengantar-istirahat.getRekamMedisEmergencyDetail');
     Route::get('/surat-pengantar-istirahat/{suratPengantarIstirahat}/cetak', [SuratPengantarIstirahatController::class, 'cetak'])->name('surat-pengantar-istirahat.cetak');
 
     Route::resource('surat-pengantar-istirahat', SuratPengantarIstirahatController::class)->parameters([

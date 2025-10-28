@@ -13,10 +13,29 @@
             <form id="formSuratIstirahat" class="space-y-6">
                 @csrf
 
+                <!-- Pilih Tipe Pasien -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Tipe Pasien <span class="text-red-500">*</span>
+                    </label>
+                    <div class="flex space-x-4">
+                        <label class="flex items-center">
+                            <input type="radio" name="tipe_pasien" value="regular" checked
+                                class="mr-2 text-green-600 focus:ring-green-500">
+                            <span class="text-sm">Karyawan & Keluarga</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="tipe_pasien" value="emergency"
+                                class="mr-2 text-green-600 focus:ring-green-500">
+                            <span class="text-sm">Emergency</span>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Pencarian Rekam Medis -->
-                <div class="relative">
+                <div class="relative" id="search-container">
                     <label for="search_rekam_medis" class="block text-sm font-medium text-gray-700 mb-2">
-                        Cari NIK Karyawan / Nama Pasien <span class="text-red-500">*</span>
+                        <span id="search-label">Cari NIK Karyawan / Nama Pasien</span> <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
                         <input type="text" id="search_rekam_medis" name="search_rekam_medis"
@@ -36,7 +55,7 @@
                     </div>
 
                     <p class="mt-1 text-xs text-gray-500 italic">
-                        Hanya menampilkan rekam medis dengan status "On Progress"
+                        <span id="search-help-text">Hanya menampilkan rekam medis dengan status "On Progress"</span>
                     </p>
                 </div>
 
@@ -52,11 +71,11 @@
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                             <div>
-                                <span class="text-gray-600">NIK Karyawan:</span>
+                                <span class="text-gray-600" id="label-nik">NIK Karyawan:</span>
                                 <span id="display_nik" class="ml-2 font-medium text-gray-900"></span>
                             </div>
                             <div>
-                                <span class="text-gray-600">Nama Karyawan:</span>
+                                <span class="text-gray-600" id="label-nama-karyawan">Nama Karyawan:</span>
                                 <span id="display_nama_karyawan" class="ml-2 font-medium text-gray-900"></span>
                             </div>
                             <div>
@@ -64,7 +83,7 @@
                                 <span id="display_nama_pasien" class="ml-2 font-medium text-gray-900"></span>
                             </div>
                             <div>
-                                <span class="text-gray-600">Departemen:</span>
+                                <span class="text-gray-600" id="label-departemen">Departemen:</span>
                                 <span id="display_departemen" class="ml-2 font-medium text-gray-900"></span>
                             </div>
                             <div>
@@ -76,8 +95,10 @@
                 </div>
 
                 <!-- Hidden fields -->
+                <input type="hidden" id="tipe_pasien" name="tipe_pasien" value="regular" />
                 <input type="hidden" id="id_rekam" name="id_rekam" />
                 <input type="hidden" id="id_keluarga" name="id_keluarga" />
+                <input type="hidden" id="id_emergency" name="id_emergency" />
 
                 <!-- Lama Istirahat -->
                 <div>
@@ -120,9 +141,11 @@
                     <label for="diagnosa_utama" class="block text-sm font-medium text-gray-700 mb-2">
                         Diagnosa Utama <span class="text-red-500">*</span>
                     </label>
-                    <textarea id="diagnosa_utama" name="diagnosa_utama" rows="3"
-                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-                        placeholder="Masukkan diagnosa utama pasien" maxlength="500" required></textarea>
+                    <input id="diagnosa_utama" name="diagnosa_utama" rows="3"
+                        class="w-full
+                        bg-gray-100 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all
+                        "
+                        placeholder="Masukkan diagnosa utama pasien" maxlength="500" required>
                     <p class="mt-1 text-xs text-gray-500 italic">
                         Maksimal 500 karakter
                     </p>
@@ -177,7 +200,56 @@
 
                 // Trigger perhitungan tanggal selesai
                 calculateTanggalSelesai();
+
+                // Event listener untuk perubahan tipe pasien
+                document.querySelectorAll('input[name="tipe_pasien"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        handleTipePasienChange(this.value);
+                    });
+                });
             });
+
+            // Handle perubahan tipe pasien
+            function handleTipePasienChange(tipe) {
+                // Update hidden field
+                document.getElementById('tipe_pasien').value = tipe;
+
+                // Reset form
+                resetForm();
+
+                // Update UI berdasarkan tipe
+                if (tipe === 'emergency') {
+                    // Emergency mode
+                    document.getElementById('search-label').textContent = 'Cari NIK / Nama Pasien Emergency';
+                    document.getElementById('search_rekam_medis').placeholder = 'Masukkan NIK atau nama pasien emergency...';
+                    document.getElementById('search-help-text').textContent =
+                        'Hanya menampilkan rekam medis emergency dengan status "On Progress"';
+                    document.getElementById('label-nik').textContent = 'NIK Pasien:';
+                    document.getElementById('label-nama-karyawan').textContent = 'Nama Pasien:';
+                    document.getElementById('label-departemen').textContent = 'Status:';
+                } else {
+                    // Regular mode
+                    document.getElementById('search-label').textContent = 'Cari NIK Karyawan / Nama Pasien';
+                    document.getElementById('search_rekam_medis').placeholder = 'Masukkan NIK karyawan atau nama pasien...';
+                    document.getElementById('search-help-text').textContent =
+                        'Hanya menampilkan rekam medis dengan status "On Progress"';
+                    document.getElementById('label-nik').textContent = 'NIK Karyawan:';
+                    document.getElementById('label-nama-karyawan').textContent = 'Nama Karyawan:';
+                    document.getElementById('label-departemen').textContent = 'Departemen:';
+                }
+            }
+
+            // Reset form
+            function resetForm() {
+                selectedRekamMedis = null;
+                document.getElementById('search_rekam_medis').value = '';
+                document.getElementById('id_rekam').value = '';
+                document.getElementById('id_keluarga').value = '';
+                document.getElementById('id_emergency').value = '';
+                document.getElementById('info-pasien').classList.add('hidden');
+                document.getElementById('diagnosa_utama').value = '';
+                hideSearchResults();
+            }
 
             // Fungsi pencarian rekam medis
             document.getElementById('search_rekam_medis').addEventListener('input', function(e) {
@@ -197,7 +269,9 @@
 
             // Fungsi untuk melakukan pencarian
             function searchRekamMedis(query) {
-                fetch(`{{ route('surat-pengantar-istirahat.searchRekamMedis') }}?q=${encodeURIComponent(query)}`)
+                const tipePasien = document.getElementById('tipe_pasien').value;
+                fetch(
+                        `{{ route('surat-pengantar-istirahat.searchRekamMedis') }}?q=${encodeURIComponent(query)}&tipe=${tipePasien}`)
                     .then(response => response.json())
                     .then(data => {
                         displaySearchResults(data);
@@ -252,14 +326,54 @@
             // Fungsi memilih rekam medis
             function selectRekamMedis(rekamMedis) {
                 selectedRekamMedis = rekamMedis;
+                const tipePasien = document.getElementById('tipe_pasien').value;
 
-                // Isi hidden fields
-                document.getElementById('id_rekam').value = rekamMedis.id_rekam;
-                document.getElementById('id_keluarga').value = rekamMedis.id_keluarga;
+                // Reset hidden fields
+                document.getElementById('id_rekam').value = '';
+                document.getElementById('id_keluarga').value = '';
+                document.getElementById('id_emergency').value = '';
 
-                // Isi info pasien
-                document.getElementById('display_nik').textContent = rekamMedis.nik_karyawan || 'Tidak ada NIK';
-                document.getElementById('display_nama_karyawan').textContent = rekamMedis.nama_karyawan || 'External';
+                if (tipePasien === 'emergency') {
+                    // Emergency mode
+                    document.getElementById('id_emergency').value = rekamMedis.id_emergency;
+                    document.getElementById('display_nik').textContent = rekamMedis.nik_pasien || 'Tidak ada NIK';
+                    document.getElementById('display_nama_karyawan').textContent = rekamMedis.nama_karyawan || 'External';
+
+                    // Ambil detail emergency untuk diagnosa
+                    fetch(`{{ route('surat-pengantar-istirahat.getRekamMedisEmergencyDetail', ['id_emergency' => 'ID_EMERGENCY']) }}`
+                            .replace(
+                                'ID_EMERGENCY', rekamMedis.id_emergency))
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('diagnosa_utama').value = data.data.diagnosa_utama;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                } else {
+                    // Regular mode
+                    document.getElementById('id_rekam').value = rekamMedis.id_rekam;
+                    document.getElementById('id_keluarga').value = rekamMedis.id_keluarga;
+                    document.getElementById('display_nik').textContent = rekamMedis.nik_karyawan || 'Tidak ada NIK';
+                    document.getElementById('display_nama_karyawan').textContent = rekamMedis.nama_karyawan || 'External';
+
+                    // Ambil detail regular untuk diagnosa
+                    fetch(`{{ route('surat-pengantar-istirahat.getRekamMedisDetail', ['id_rekam' => 'ID_REKAM']) }}`.replace(
+                            'ID_REKAM', rekamMedis.id_rekam))
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('diagnosa_utama').value = data.data.diagnosa_utama;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                }
+
+                // Isi info pasien (common untuk both types)
                 document.getElementById('display_nama_pasien').textContent = rekamMedis.nama_pasien;
                 document.getElementById('display_departemen').textContent = rekamMedis.departemen || 'Tidak ada departemen';
                 document.getElementById('display_tanggal_periksa').textContent = rekamMedis.tanggal_periksa;
@@ -272,19 +386,6 @@
 
                 // Kosongkan search input
                 document.getElementById('search_rekam_medis').value = '';
-
-                // Ambil detail rekam medis untuk diagnosa
-                fetch(`{{ route('surat-pengantar-istirahat.getRekamMedisDetail', ['id_rekam' => 'ID_REKAM']) }}`.replace(
-                        'ID_REKAM', rekamMedis.id_rekam))
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            document.getElementById('diagnosa_utama').value = data.data.diagnosa_utama;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
             }
 
             // Fungsi menyembunyikan hasil pencarian

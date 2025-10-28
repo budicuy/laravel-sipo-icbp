@@ -16,7 +16,9 @@ class SuratPengantarIstirahat extends Model
 
     protected $fillable = [
         'id_rekam',
+        'id_emergency',
         'id_keluarga',
+        'tipe_pasien',
         'tanggal_surat',
         'lama_istirahat',
         'tanggal_mulai_istirahat',
@@ -39,6 +41,14 @@ class SuratPengantarIstirahat extends Model
     public function rekamMedis(): BelongsTo
     {
         return $this->belongsTo(RekamMedis::class, 'id_rekam', 'id_rekam');
+    }
+
+    /**
+     * Relasi ke RekamMedisEmergency
+     */
+    public function rekamMedisEmergency(): BelongsTo
+    {
+        return $this->belongsTo(RekamMedisEmergency::class, 'id_emergency', 'id_emergency');
     }
 
     /**
@@ -90,6 +100,54 @@ class SuratPengantarIstirahat extends Model
     }
 
     /**
+     * Accessor untuk mendapatkan NIK pasien (baik dari karyawan atau external employee)
+     */
+    public function getNikPasienAttribute()
+    {
+        if ($this->tipe_pasien === 'emergency') {
+            return $this->rekamMedisEmergency?->nik_pasien;
+        }
+
+        return $this->keluarga?->karyawan?->nik_karyawan;
+    }
+
+    /**
+     * Accessor untuk mendapatkan nama pasien
+     */
+    public function getNamaPasienEmergencyAttribute()
+    {
+        if ($this->tipe_pasien === 'emergency') {
+            return $this->rekamMedisEmergency?->nama_pasien;
+        }
+
+        return $this->keluarga?->nama_keluarga;
+    }
+
+    /**
+     * Accessor untuk mendapatkan nama karyawan/external employee
+     */
+    public function getNamaKaryawanEmergencyAttribute()
+    {
+        if ($this->tipe_pasien === 'emergency') {
+            return $this->rekamMedisEmergency?->nama_pasien; // Untuk emergency, nama pasien = nama employee
+        }
+
+        return $this->keluarga?->karyawan?->nama_karyawan;
+    }
+
+    /**
+     * Accessor untuk mendapatkan departemen (untuk emergency akan menampilkan 'Emergency')
+     */
+    public function getDepartemenEmergencyAttribute()
+    {
+        if ($this->tipe_pasien === 'emergency') {
+            return 'Emergency';
+        }
+
+        return $this->keluarga?->karyawan?->departemen?->nama_departemen;
+    }
+
+    /**
      * Mutator untuk menghitung tanggal selesai istirahat otomatis
      */
     public function setLamaIstirahatAttribute($value)
@@ -127,6 +185,9 @@ class SuratPengantarIstirahat extends Model
                 ->orWhere('nama_karyawan', 'like', "%{$search}%");
         })->orWhereHas('keluarga', function ($keluarga) use ($search) {
             $keluarga->where('nama_keluarga', 'like', "%{$search}%");
+        })->orWhereHas('rekamMedisEmergency', function ($emergency) use ($search) {
+            $emergency->where('nik_pasien', 'like', "%{$search}%")
+                ->orWhere('nama_pasien', 'like', "%{$search}%");
         });
     }
 
@@ -159,6 +220,6 @@ class SuratPengantarIstirahat extends Model
         // Jika tidak ada surat di tahun yang sama, mulai dari 1
         $nomorUrut = $lastSurat ? ((int) substr($lastSurat->nomor_surat, 0, 3)) + 1 : 1;
 
-        return str_pad($nomorUrut, 3, '0', STR_PAD_LEFT) . '/SKS/' . $month . '/' . $year;
+        return str_pad($nomorUrut, 3, '0', STR_PAD_LEFT).'/SKS/'.$month.'/'.$year;
     }
 }

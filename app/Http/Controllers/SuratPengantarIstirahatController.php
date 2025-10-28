@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RekamMedis;
+use App\Models\RekamMedisEmergency;
 use App\Models\SuratPengantarIstirahat;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function index(Request $request)
     {
-        $query = SuratPengantarIstirahat::with(['rekamMedis', 'keluarga.karyawan', 'dokter'])
+        $query = SuratPengantarIstirahat::with(['rekamMedis', 'rekamMedisEmergency', 'keluarga.karyawan', 'dokter'])
             ->orderBy('created_at', 'desc');
 
         // Search functionality
@@ -43,18 +44,19 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'id_rekam' => 'required|exists:rekam_medis,id_rekam',
-            'id_keluarga' => 'required|exists:keluarga,id_keluarga',
+        $tipePasien = $request->tipe_pasien ?? 'regular';
+
+        $rules = [
+            'tipe_pasien' => 'required|in:regular,emergency',
             'lama_istirahat' => 'required|integer|min:1|max:30',
             'tanggal_mulai_istirahat' => 'required|date|after_or_equal:today',
             'diagnosa_utama' => 'required|string|max:500',
             'keterangan_tambahan' => 'nullable|string|max:1000',
-        ], [
-            'id_rekam.required' => 'Rekam medis harus dipilih',
-            'id_rekam.exists' => 'Rekam medis tidak ditemukan',
-            'id_keluarga.required' => 'Pasien harus dipilih',
-            'id_keluarga.exists' => 'Pasien tidak ditemukan',
+        ];
+
+        $messages = [
+            'tipe_pasien.required' => 'Tipe pasien harus dipilih',
+            'tipe_pasien.in' => 'Tipe pasien tidak valid',
             'lama_istirahat.required' => 'Lama istirahat harus diisi',
             'lama_istirahat.min' => 'Lama istirahat minimal 1 hari',
             'lama_istirahat.max' => 'Lama istirahat maksimal 30 hari',
@@ -63,7 +65,22 @@ class SuratPengantarIstirahatController extends Controller
             'diagnosa_utama.required' => 'Diagnosa utama harus diisi',
             'diagnosa_utama.max' => 'Diagnosa utama maksimal 500 karakter',
             'keterangan_tambahan.max' => 'Keterangan tambahan maksimal 1000 karakter',
-        ]);
+        ];
+
+        if ($tipePasien === 'regular') {
+            $rules['id_rekam'] = 'required|exists:rekam_medis,id_rekam';
+            $rules['id_keluarga'] = 'required|exists:keluarga,id_keluarga';
+            $messages['id_rekam.required'] = 'Rekam medis harus dipilih';
+            $messages['id_rekam.exists'] = 'Rekam medis tidak ditemukan';
+            $messages['id_keluarga.required'] = 'Pasien harus dipilih';
+            $messages['id_keluarga.exists'] = 'Pasien tidak ditemukan';
+        } else {
+            $rules['id_emergency'] = 'required|exists:rekam_medis_emergency,id_emergency';
+            $messages['id_emergency.required'] = 'Rekam medis emergency harus dipilih';
+            $messages['id_emergency.exists'] = 'Rekam medis emergency tidak ditemukan';
+        }
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return response()->json([
@@ -78,9 +95,8 @@ class SuratPengantarIstirahatController extends Controller
             $nomorSurat = SuratPengantarIstirahat::generateNomorSurat();
 
             // Create surat pengantar istirahat
-            $surat = SuratPengantarIstirahat::create([
-                'id_rekam' => $request->id_rekam,
-                'id_keluarga' => $request->id_keluarga,
+            $data = [
+                'tipe_pasien' => $tipePasien,
                 'tanggal_surat' => now()->format('Y-m-d'),
                 'lama_istirahat' => $request->lama_istirahat,
                 'tanggal_mulai_istirahat' => $request->tanggal_mulai_istirahat,
@@ -88,7 +104,17 @@ class SuratPengantarIstirahatController extends Controller
                 'keterangan_tambahan' => $request->keterangan_tambahan,
                 'id_dokter' => Auth::id(),
                 'nomor_surat' => $nomorSurat,
-            ]);
+            ];
+
+            if ($tipePasien === 'regular') {
+                $data['id_rekam'] = $request->id_rekam;
+                $data['id_keluarga'] = $request->id_keluarga;
+            } else {
+                $data['id_emergency'] = $request->id_emergency;
+                $data['id_keluarga'] = null; // Emergency tidak menggunakan keluarga
+            }
+
+            $surat = SuratPengantarIstirahat::create($data);
 
             return response()->json([
                 'success' => true,
@@ -110,7 +136,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function show(SuratPengantarIstirahat $suratPengantarIstirahat)
     {
-        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'keluarga.karyawan.departemen', 'dokter']);
+        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency', 'keluarga.karyawan.departemen', 'dokter']);
 
         return view('surat-pengantar-istirahat.show', compact('surat'));
     }
@@ -120,7 +146,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function edit(SuratPengantarIstirahat $suratPengantarIstirahat)
     {
-        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'keluarga.karyawan', 'dokter']);
+        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency', 'keluarga.karyawan', 'dokter']);
 
         return view('surat-pengantar-istirahat.edit', compact('surat'));
     }
@@ -189,11 +215,24 @@ class SuratPengantarIstirahatController extends Controller
     public function searchRekamMedis(Request $request)
     {
         $search = $request->get('q');
+        $tipe = $request->get('tipe', 'regular');
 
         if (empty($search)) {
             return response()->json([]);
         }
 
+        if ($tipe === 'emergency') {
+            return $this->searchRekamMedisEmergency($search);
+        } else {
+            return $this->searchRekamMedisRegular($search);
+        }
+    }
+
+    /**
+     * Pencarian rekam medis regular
+     */
+    private function searchRekamMedisRegular($search)
+    {
         $rekamMedis = RekamMedis::with(['keluarga.karyawan.departemen'])
             ->where('status', 'On Progress')
             ->whereHas('keluarga', function ($keluarga) use ($search) {
@@ -225,11 +264,40 @@ class SuratPengantarIstirahatController extends Controller
     }
 
     /**
+     * Pencarian rekam medis emergency
+     */
+    private function searchRekamMedisEmergency($search)
+    {
+        $rekamMedisEmergency = RekamMedisEmergency::with('externalEmployee')
+            ->where('status', 'On Progress')
+            ->whereHas('externalEmployee', function ($query) use ($search) {
+                $query->where('nik_employee', 'like', "%{$search}%")
+                    ->orWhere('nama_employee', 'like', "%{$search}%");
+            })
+            ->orderBy('tanggal_periksa', 'desc')
+            ->limit(20)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id_emergency' => $item->id_emergency,
+                    'nama_pasien' => $item->nama_pasien,
+                    'nik_pasien' => $item->nik_pasien,
+                    'nama_karyawan' => $item->nama_pasien, // Untuk emergency, nama pasien = nama employee
+                    'departemen' => 'Emergency',
+                    'tanggal_periksa' => $item->tanggal_periksa->format('d/m/Y'),
+                    'display_text' => $item->nik_pasien.' - '.$item->nama_pasien.' (Emergency)',
+                ];
+            });
+
+        return response()->json($rekamMedisEmergency);
+    }
+
+    /**
      * Cetak surat pengantar istirahat
      */
     public function cetak(SuratPengantarIstirahat $suratPengantarIstirahat)
     {
-        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'keluarga.karyawan.departemen', 'dokter']);
+        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency', 'keluarga.karyawan.departemen', 'dokter']);
 
         $pdf = PDF::loadView('surat-pengantar-istirahat.cetak', compact('surat'))
             ->setPaper('A4', 'portrait')
@@ -267,6 +335,31 @@ class SuratPengantarIstirahatController extends Controller
                 'nama_karyawan' => $rekamMedis->keluarga->karyawan->nama_karyawan ?? null,
                 'departemen' => $rekamMedis->keluarga->karyawan->departemen->nama_departemen ?? null,
                 'tanggal_periksa' => $rekamMedis->tanggal_periksa->format('d/m/Y'),
+                'diagnosa_utama' => $diagnosaUtama,
+            ],
+        ]);
+    }
+
+    /**
+     * Get detail rekam medis emergency untuk form
+     */
+    public function getRekamMedisEmergencyDetail($id_emergency)
+    {
+        $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee'])
+            ->findOrFail($id_emergency);
+
+        // Ambil diagnosa utama dari kolom keluhan (text)
+        $diagnosaUtama = $rekamMedisEmergency->keluhan ?? '';
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id_emergency' => $rekamMedisEmergency->id_emergency,
+                'nama_pasien' => $rekamMedisEmergency->nama_pasien,
+                'nik_pasien' => $rekamMedisEmergency->nik_pasien,
+                'nama_karyawan' => $rekamMedisEmergency->nama_pasien, // Untuk emergency, nama pasien = nama employee
+                'departemen' => 'Emergency',
+                'tanggal_periksa' => $rekamMedisEmergency->tanggal_periksa->format('d/m/Y'),
                 'diagnosa_utama' => $diagnosaUtama,
             ],
         ]);

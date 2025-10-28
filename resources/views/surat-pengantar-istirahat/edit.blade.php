@@ -21,30 +21,63 @@
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Informasi Pasien
+                        @if ($surat->tipe_pasien === 'emergency')
+                            <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Emergency</span>
+                        @else
+                            <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Regular</span>
+                        @endif
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                        <div>
-                            <span class="text-gray-600">NIK Karyawan:</span>
-                            <span class="ml-2 font-medium text-gray-900">{{ $surat->nik_karyawan ?? '-' }}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-600">Nama Karyawan:</span>
-                            <span class="ml-2 font-medium text-gray-900">{{ $surat->nama_karyawan ?? 'External' }}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-600">Nama Pasien:</span>
-                            <span class="ml-2 font-medium text-gray-900">{{ $surat->nama_pasien }}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-600">Departemen:</span>
-                            <span class="ml-2 font-medium text-gray-900">{{ $surat->departemen ?? '-' }}</span>
-                        </div>
+                        @if ($surat->tipe_pasien === 'emergency')
+                            <div>
+                                <span class="text-gray-600">NIK Pasien:</span>
+                                <span
+                                    class="ml-2 font-medium text-gray-900">{{ $surat->rekamMedisEmergency->nik_pasien ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Nama Pasien:</span>
+                                <span
+                                    class="ml-2 font-medium text-gray-900">{{ $surat->rekamMedisEmergency->nama_pasien ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Status:</span>
+                                <span class="ml-2 font-medium text-gray-900">Emergency</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Tanggal Periksa:</span>
+                                <span
+                                    class="ml-2 font-medium text-gray-900">{{ $surat->rekamMedisEmergency->tanggal_periksa->format('d/m/Y') ?? '-' }}</span>
+                            </div>
+                        @else
+                            <div>
+                                <span class="text-gray-600">NIK Karyawan:</span>
+                                <span class="ml-2 font-medium text-gray-900">{{ $surat->nik_karyawan ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Nama Karyawan:</span>
+                                <span
+                                    class="ml-2 font-medium text-gray-900">{{ $surat->nama_karyawan ?? 'External' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Nama Pasien:</span>
+                                <span class="ml-2 font-medium text-gray-900">{{ $surat->nama_pasien }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Departemen:</span>
+                                <span class="ml-2 font-medium text-gray-900">{{ $surat->departemen ?? '-' }}</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
                 <!-- Hidden fields -->
-                <input type="hidden" id="id_rekam" name="id_rekam" value="{{ $surat->id_rekam }}" />
-                <input type="hidden" id="id_keluarga" name="id_keluarga" value="{{ $surat->id_keluarga }}" />
+                <input type="hidden" id="tipe_pasien" name="tipe_pasien" value="{{ $surat->tipe_pasien }}" />
+                @if ($surat->tipe_pasien === 'emergency')
+                    <input type="hidden" id="id_emergency" name="id_emergency" value="{{ $surat->id_emergency }}" />
+                @else
+                    <input type="hidden" id="id_rekam" name="id_rekam" value="{{ $surat->id_rekam }}" />
+                    <input type="hidden" id="id_keluarga" name="id_keluarga" value="{{ $surat->id_keluarga }}" />
+                @endif
 
                 <!-- Nomor Surat (Read-only) -->
                 <div>
