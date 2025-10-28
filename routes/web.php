@@ -142,8 +142,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/rekam-medis/template', [RekamMedisController::class, 'downloadTemplate'])->name('rekam-medis.template')->middleware('role:Super Admin');
     Route::post('/rekam-medis/import', [RekamMedisController::class, 'import'])->name('rekam-medis.import')->middleware('role:Super Admin');
     Route::get('/rekam-medis/choose-type', [RekamMedisController::class, 'chooseType'])->name('rekam-medis.chooseType');
-    Route::get('/rekam-medis/create-emergency', [RekamMedisController::class, 'createEmergency'])->name('rekam-medis.createEmergency');
-    Route::post('/rekam-medis/store-emergency', [RekamMedisController::class, 'storeEmergency'])->name('rekam-medis.storeEmergency');
+    Route::get('/rekam-medis/create-emergency', [RekamMedisController::class, 'createEmergency'])->name('rekam-medis.createEmergency')->middleware('role:User,Admin,Super Admin');
+    Route::post('/rekam-medis/store-emergency', [RekamMedisController::class, 'storeEmergency'])->name('rekam-medis.storeEmergency')->middleware('role:User,Admin,Super Admin');
     // Rekam Medis Resource Routes
     Route::resource('rekam-medis', RekamMedisController::class)->parameters([
         'rekam-medis' => 'id_rekam',
@@ -183,8 +183,8 @@ Route::middleware('auth')->group(function () {
 
     // Rekam Medis Emergency Routes (keep individual routes for CRUD operations)
     Route::get('/rekam-medis-emergency', [RekamMedisEmergencyController::class, 'index'])->name('rekam-medis-emergency.index');
-    Route::get('/rekam-medis-emergency/create', [RekamMedisEmergencyController::class, 'create'])->name('rekam-medis-emergency.create');
-    Route::post('/rekam-medis-emergency', [RekamMedisEmergencyController::class, 'store'])->name('rekam-medis-emergency.store')->middleware('role:Admin,Super Admin');
+    Route::get('/rekam-medis-emergency/create', [RekamMedisEmergencyController::class, 'create'])->name('rekam-medis-emergency.create')->middleware('role:User,Admin,Super Admin');
+    Route::post('/rekam-medis-emergency', [RekamMedisEmergencyController::class, 'store'])->name('rekam-medis-emergency.store')->middleware('role:User,Admin,Super Admin');
     Route::get('/rekam-medis-emergency/{id}', [RekamMedisEmergencyController::class, 'show'])->name('rekam-medis-emergency.show');
     Route::get('/rekam-medis-emergency/{id}/edit', [RekamMedisEmergencyController::class, 'edit'])->name('rekam-medis-emergency.edit')->middleware('role:Admin,Super Admin');
     Route::patch('/rekam-medis-emergency/{id}/update-status', [RekamMedisEmergencyController::class, 'updateStatus'])->name('rekam-medis-emergency.updateStatus');

@@ -182,18 +182,21 @@
                         <td>NIK Karyawan</td>
                         <td>: {{ $surat->nik_karyawan ?? '-' }}</td>
                     </tr>
+                    @if ($surat->nama_karyawan !== $surat->nama_pasien)
+                        <tr>
+                            <td>Nama Karyawan</td>
+                            <td>: {{ $surat->nama_karyawan ?? 'External' }}</td>
+                        </tr>
+                    @endif
                     <tr>
-                        <td>Nama Karyawan</td>
-                        <td>: {{ $surat->nama_karyawan ?? 'External' }}</td>
+                        <td>Departemen</td>
+                        <td>: {{ $surat->departemen ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td>Nama Pasien</td>
                         <td>: {{ $surat->nama_pasien }}</td>
                     </tr>
-                    <tr>
-                        <td>Departemen</td>
-                        <td>: {{ $surat->departemen ?? '-' }}</td>
-                    </tr>
+
                 @endif
                 <tr>
                     <td>Diagnosa</td>
@@ -225,7 +228,7 @@
             <tr>
                 <td>Dokter Pemeriksa</td>
                 <td></td>
-                <td>Pasien</td>
+                <td>Yang Bersangkutan</td>
             </tr>
             <tr>
                 <td>
@@ -236,9 +239,18 @@
                 <td></td>
                 <td>
                     <div class="signature-box"></div>
-                    <span>{{ $surat->tipe_rekam_medis === 'emergency' ? $surat->nama_pasien_emergency ?? '-' : $surat->nama_pasien ?? '-' }}</span><br>
-                    <span>NIK.
-                        {{ $surat->tipe_rekam_medis === 'emergency' ? $surat->nik_pasien ?? '-' : $surat->nik_karyawan ?? '-' }}</span>
+                    @if ($surat->tipe_rekam_medis === 'emergency')
+                        <span>{{ $surat->nama_pasien_emergency ?? '-' }}</span><br>
+                        <span>NIK. {{ $surat->nik_pasien ?? '-' }}</span>
+                    @else
+                        @if ($surat->nama_karyawan !== $surat->nama_pasien)
+                            <span>{{ $surat->nama_karyawan ?? 'External' }}</span><br>
+                            <span>NIK. {{ $surat->nik_karyawan ?? '-' }}</span>
+                        @else
+                            <span>{{ $surat->nama_pasien ?? '-' }}</span><br>
+                            <span>NIK. {{ $surat->nik_karyawan ?? '-' }}</span>
+                        @endif
+                    @endif
                 </td>
             </tr>
         </table>
