@@ -18,7 +18,7 @@ class SuratPengantarIstirahat extends Model
         'id_rekam',
         'id_emergency',
         'id_keluarga',
-        'tipe_pasien',
+        'tipe_rekam_medis',
         'tanggal_surat',
         'lama_istirahat',
         'tanggal_mulai_istirahat',
@@ -104,7 +104,7 @@ class SuratPengantarIstirahat extends Model
      */
     public function getNikPasienAttribute()
     {
-        if ($this->tipe_pasien === 'emergency') {
+        if ($this->tipe_rekam_medis === 'emergency') {
             return $this->rekamMedisEmergency?->nik_pasien;
         }
 
@@ -116,7 +116,7 @@ class SuratPengantarIstirahat extends Model
      */
     public function getNamaPasienEmergencyAttribute()
     {
-        if ($this->tipe_pasien === 'emergency') {
+        if ($this->tipe_rekam_medis === 'emergency') {
             return $this->rekamMedisEmergency?->nama_pasien;
         }
 
@@ -128,7 +128,7 @@ class SuratPengantarIstirahat extends Model
      */
     public function getNamaKaryawanEmergencyAttribute()
     {
-        if ($this->tipe_pasien === 'emergency') {
+        if ($this->tipe_rekam_medis === 'emergency') {
             return $this->rekamMedisEmergency?->nama_pasien; // Untuk emergency, nama pasien = nama employee
         }
 
@@ -140,11 +140,35 @@ class SuratPengantarIstirahat extends Model
      */
     public function getDepartemenEmergencyAttribute()
     {
-        if ($this->tipe_pasien === 'emergency') {
+        if ($this->tipe_rekam_medis === 'emergency') {
             return 'Emergency';
         }
 
         return $this->keluarga?->karyawan?->departemen?->nama_departemen;
+    }
+
+    /**
+     * Accessor untuk mendapatkan nama vendor dari external employee (emergency)
+     */
+    public function getVendorAttribute()
+    {
+        if ($this->tipe_rekam_medis === 'emergency') {
+            return $this->rekamMedisEmergency?->externalEmployee?->vendor?->nama_vendor;
+        }
+
+        return null;
+    }
+
+    /**
+     * Accessor untuk mendapatkan nama kategori dari external employee (emergency)
+     */
+    public function getKategoriAttribute()
+    {
+        if ($this->tipe_rekam_medis === 'emergency') {
+            return $this->rekamMedisEmergency?->externalEmployee?->kategori?->nama_kategori;
+        }
+
+        return null;
     }
 
     /**

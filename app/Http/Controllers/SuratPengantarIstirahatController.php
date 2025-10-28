@@ -44,10 +44,10 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function store(Request $request)
     {
-        $tipePasien = $request->tipe_pasien ?? 'regular';
+        $tipePasien = $request->tipe_rekam_medis ?? 'regular';
 
         $rules = [
-            'tipe_pasien' => 'required|in:regular,emergency',
+            'tipe_rekam_medis' => 'required|in:regular,emergency',
             'lama_istirahat' => 'required|integer|min:1|max:30',
             'tanggal_mulai_istirahat' => 'required|date|after_or_equal:today',
             'diagnosa_utama' => 'required|string|max:500',
@@ -55,8 +55,8 @@ class SuratPengantarIstirahatController extends Controller
         ];
 
         $messages = [
-            'tipe_pasien.required' => 'Tipe pasien harus dipilih',
-            'tipe_pasien.in' => 'Tipe pasien tidak valid',
+            'tipe_rekam_medis.required' => 'Tipe pasien harus dipilih',
+            'tipe_rekam_medis.in' => 'Tipe pasien tidak valid',
             'lama_istirahat.required' => 'Lama istirahat harus diisi',
             'lama_istirahat.min' => 'Lama istirahat minimal 1 hari',
             'lama_istirahat.max' => 'Lama istirahat maksimal 30 hari',
@@ -96,7 +96,7 @@ class SuratPengantarIstirahatController extends Controller
 
             // Create surat pengantar istirahat
             $data = [
-                'tipe_pasien' => $tipePasien,
+                'tipe_rekam_medis' => $tipePasien,
                 'tanggal_surat' => now()->format('Y-m-d'),
                 'lama_istirahat' => $request->lama_istirahat,
                 'tanggal_mulai_istirahat' => $request->tanggal_mulai_istirahat,
@@ -136,7 +136,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function show(SuratPengantarIstirahat $suratPengantarIstirahat)
     {
-        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency', 'keluarga.karyawan.departemen', 'dokter']);
+        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency.keluhans', 'rekamMedisEmergency.externalEmployee', 'keluarga.karyawan.departemen', 'dokter']);
 
         return view('surat-pengantar-istirahat.show', compact('surat'));
     }
@@ -146,7 +146,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function edit(SuratPengantarIstirahat $suratPengantarIstirahat)
     {
-        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency', 'keluarga.karyawan', 'dokter']);
+        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency.keluhans', 'rekamMedisEmergency.externalEmployee', 'keluarga.karyawan', 'dokter']);
 
         return view('surat-pengantar-istirahat.edit', compact('surat'));
     }
@@ -297,7 +297,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function cetak(SuratPengantarIstirahat $suratPengantarIstirahat)
     {
-        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency', 'keluarga.karyawan.departemen', 'dokter']);
+        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency.keluhans', 'rekamMedisEmergency.externalEmployee', 'keluarga.karyawan.departemen', 'dokter']);
 
         $pdf = PDF::loadView('surat-pengantar-istirahat.cetak', compact('surat'))
             ->setPaper('A4', 'portrait')

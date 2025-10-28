@@ -28,7 +28,7 @@ $emergencyData = RekamMedisEmergency::with('externalEmployee')->limit(3)->get();
 if ($emergencyData->count() > 0) {
     echo "✓ Ditemukan {$emergencyData->count()} data RekamMedisEmergency\n";
     foreach ($emergencyData as $data) {
-        echo "  - ID: {$data->id_emergency}, Nama: ".($data->externalEmployee->nama ?? 'N/A').', Perusahaan: '.($data->externalEmployee->perusahaan ?? 'N/A')."\n";
+        echo "  - ID: {$data->id_emergency}, Nama: ".($data->nama_pasien ?? 'N/A').', NIK: '.($data->nik_pasien ?? 'N/A')."\n";
     }
 } else {
     echo "✗ Tidak ada data RekamMedisEmergency\n";

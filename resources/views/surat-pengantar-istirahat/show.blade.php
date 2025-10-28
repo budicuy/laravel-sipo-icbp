@@ -67,22 +67,37 @@
                         Informasi Pasien
                     </h3>
                     <div class="space-y-2">
-                        <div class="flex">
-                            <span class="text-gray-600 w-32">NIK Karyawan:</span>
-                            <span class="font-medium">{{ $surat->nik_karyawan ?? '-' }}</span>
-                        </div>
-                        <div class="flex">
-                            <span class="text-gray-600 w-32">Nama Karyawan:</span>
-                            <span class="font-medium">{{ $surat->nama_karyawan ?? 'External' }}</span>
-                        </div>
-                        <div class="flex">
-                            <span class="text-gray-600 w-32">Nama Pasien:</span>
-                            <span class="font-medium">{{ $surat->nama_pasien }}</span>
-                        </div>
-                        <div class="flex">
-                            <span class="text-gray-600 w-32">Departemen:</span>
-                            <span class="font-medium">{{ $surat->departemen ?? '-' }}</span>
-                        </div>
+                        @if ($surat->tipe_rekam_medis === 'emergency' && $surat->rekamMedisEmergency)
+                            <div class="flex">
+                                <span class="text-gray-600 w-32">NIK Pasien:</span>
+                                <span class="font-medium">{{ $surat->rekamMedisEmergency->nik_pasien ?? '-' }}</span>
+                            </div>
+                            <div class="flex">
+                                <span class="text-gray-600 w-32">Nama Pasien:</span>
+                                <span class="font-medium">{{ $surat->rekamMedisEmergency->nama_pasien ?? '-' }}</span>
+                            </div>
+                            <div class="flex">
+                                <span class="text-gray-600 w-32">Departemen:</span>
+                                <span class="font-medium">Emergency</span>
+                            </div>
+                        @else
+                            <div class="flex">
+                                <span class="text-gray-600 w-32">NIK Karyawan:</span>
+                                <span class="font-medium">{{ $surat->nik_karyawan ?? '-' }}</span>
+                            </div>
+                            <div class="flex">
+                                <span class="text-gray-600 w-32">Nama Karyawan:</span>
+                                <span class="font-medium">{{ $surat->nama_karyawan ?? 'External' }}</span>
+                            </div>
+                            <div class="flex">
+                                <span class="text-gray-600 w-32">Nama Pasien:</span>
+                                <span class="font-medium">{{ $surat->nama_pasien ?? '-' }}</span>
+                            </div>
+                            <div class="flex">
+                                <span class="text-gray-600 w-32">Departemen:</span>
+                                <span class="font-medium">{{ $surat->departemen ?? '-' }}</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -126,7 +141,8 @@
                 <div class="space-y-3">
                     <div>
                         <span class="text-gray-600 block">Diagnosa Utama:</span>
-                        <p class="font-medium bg-white p-3 rounded border border-gray-200">{{ $surat->diagnosa_utama }}</p>
+                        <p class="font-medium bg-white p-3 rounded border border-gray-200">{{ $surat->diagnosa_utama }}
+                        </p>
                     </div>
                     @if ($surat->keterangan_tambahan)
                         <div>
@@ -148,24 +164,58 @@
                     Informasi Rekam Medis
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <span class="text-gray-600 block">Tanggal Periksa:</span>
-                        <span
-                            class="font-medium">{{ \Carbon\Carbon::parse($surat->rekamMedis->tanggal_periksa)->format('d F Y') }}</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-600 block">Status Rekam Medis:</span>
-                        <span class="font-medium">
+                    @if ($surat->tipe_rekam_medis === 'emergency' && $surat->rekamMedisEmergency)
+                        <div>
+                            <span class="text-gray-600 block">Tanggal Periksa:</span>
                             <span
-                                class="px-2 py-1 text-xs rounded-full {{ $surat->rekamMedis->status === 'On Progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
-                                {{ $surat->rekamMedis->status }}
+                                class="font-medium">{{ \Carbon\Carbon::parse($surat->rekamMedisEmergency->tanggal_periksa)->format('d F Y') }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 block">Status Rekam Medis:</span>
+                            <span class="font-medium">
+                                <span
+                                    class="px-2 py-1 text-xs rounded-full {{ $surat->rekamMedisEmergency->status === 'On Progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
+                                    {{ $surat->rekamMedisEmergency->status }}
+                                </span>
                             </span>
-                        </span>
-                    </div>
-                    <div>
-                        <span class="text-gray-600 block">Jumlah Keluhan:</span>
-                        <span class="font-medium">{{ $surat->rekamMedis->jumlah_keluhan }} keluhan</span>
-                    </div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 block">Jumlah Keluhan:</span>
+                            <span class="font-medium">{{ $surat->rekamMedisEmergency->keluhans->count() }} keluhan</span>
+                        </div>
+                    @elseif($surat->tipe_rekam_medis === 'regular' && $surat->rekamMedis)
+                        <div>
+                            <span class="text-gray-600 block">Tanggal Periksa:</span>
+                            <span
+                                class="font-medium">{{ \Carbon\Carbon::parse($surat->rekamMedis->tanggal_periksa)->format('d F Y') }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 block">Status Rekam Medis:</span>
+                            <span class="font-medium">
+                                <span
+                                    class="px-2 py-1 text-xs rounded-full {{ $surat->rekamMedis->status === 'On Progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
+                                    {{ $surat->rekamMedis->status }}
+                                </span>
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 block">Jumlah Keluhan:</span>
+                            <span class="font-medium">{{ $surat->rekamMedis->jumlah_keluhan }} keluhan</span>
+                        </div>
+                    @else
+                        <div>
+                            <span class="text-gray-600 block">Tanggal Periksa:</span>
+                            <span class="font-medium">-</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 block">Status Rekam Medis:</span>
+                            <span class="font-medium">-</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600 block">Jumlah Keluhan:</span>
+                            <span class="font-medium">-</span>
+                        </div>
+                    @endif
                 </div>
             </div>
 

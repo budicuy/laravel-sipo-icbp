@@ -20,12 +20,12 @@
                     </label>
                     <div class="flex space-x-4">
                         <label class="flex items-center">
-                            <input type="radio" name="tipe_pasien" value="regular" checked
+                            <input type="radio" name="tipe_rekam_medis" value="regular" checked
                                 class="mr-2 text-green-600 focus:ring-green-500">
                             <span class="text-sm">Karyawan & Keluarga</span>
                         </label>
                         <label class="flex items-center">
-                            <input type="radio" name="tipe_pasien" value="emergency"
+                            <input type="radio" name="tipe_rekam_medis" value="emergency"
                                 class="mr-2 text-green-600 focus:ring-green-500">
                             <span class="text-sm">Emergency</span>
                         </label>
@@ -95,7 +95,7 @@
                 </div>
 
                 <!-- Hidden fields -->
-                <input type="hidden" id="tipe_pasien" name="tipe_pasien" value="regular" />
+                <input type="hidden" id="tipe_rekam_medis_hidden" name="tipe_rekam_medis" value="regular" />
                 <input type="hidden" id="id_rekam" name="id_rekam" />
                 <input type="hidden" id="id_keluarga" name="id_keluarga" />
                 <input type="hidden" id="id_emergency" name="id_emergency" />
@@ -202,7 +202,7 @@
                 calculateTanggalSelesai();
 
                 // Event listener untuk perubahan tipe pasien
-                document.querySelectorAll('input[name="tipe_pasien"]').forEach(radio => {
+                document.querySelectorAll('input[name="tipe_rekam_medis"]').forEach(radio => {
                     radio.addEventListener('change', function() {
                         handleTipePasienChange(this.value);
                     });
@@ -212,7 +212,7 @@
             // Handle perubahan tipe pasien
             function handleTipePasienChange(tipe) {
                 // Update hidden field
-                document.getElementById('tipe_pasien').value = tipe;
+                document.getElementById('tipe_rekam_medis_hidden').value = tipe;
 
                 // Reset form
                 resetForm();
@@ -267,13 +267,39 @@
                 }, 500);
             });
 
+            // Fungsi untuk menangani keydown event
+            document.getElementById('search_rekam_medis').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const query = e.target.value.trim();
+                    if (query.length >= 2) {
+                        searchRekamMedis(query);
+                    }
+                }
+            });
+
+            // Fungsi untuk menangani focus event
+            document.getElementById('search_rekam_medis').addEventListener('focus', function(e) {
+                const query = e.target.value.trim();
+                if (query.length >= 2) {
+                    searchRekamMedis(query);
+                }
+            });
+
             // Fungsi untuk melakukan pencarian
             function searchRekamMedis(query) {
-                const tipePasien = document.getElementById('tipe_pasien').value;
+                const tipePasien = document.getElementById('tipe_rekam_medis_hidden').value;
+                console.log('Searching for:', query, 'Type:', tipePasien);
+
                 fetch(
-                        `{{ route('surat-pengantar-istirahat.searchRekamMedis') }}?q=${encodeURIComponent(query)}&tipe=${tipePasien}`)
-                    .then(response => response.json())
+                        `{{ route('surat-pengantar-istirahat.searchRekamMedis') }}?q=${encodeURIComponent(query)}&tipe=${tipePasien}`
+                    )
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('Search results:', data);
                         displaySearchResults(data);
                     })
                     .catch(error => {
@@ -285,6 +311,7 @@
             // Fungsi menampilkan hasil pencarian
             function displaySearchResults(results) {
                 const resultsContainer = document.getElementById('search_results');
+                console.log('Displaying results:', results);
 
                 if (results.length === 0) {
                     resultsContainer.innerHTML = `
@@ -312,21 +339,25 @@
 
                 resultsContainer.innerHTML = html;
                 resultsContainer.classList.remove('hidden');
+                console.log('Results container updated');
 
                 // Add click event listeners to each result item
-                document.querySelectorAll('.search-result-item').forEach(item => {
-                    item.addEventListener('click', function() {
-                        const index = this.getAttribute('data-index');
-                        const result = results[index];
-                        selectRekamMedis(result);
+                setTimeout(() => {
+                    document.querySelectorAll('.search-result-item').forEach(item => {
+                        item.addEventListener('click', function() {
+                            const index = this.getAttribute('data-index');
+                            const result = results[index];
+                            console.log('Selected result:', result);
+                            selectRekamMedis(result);
+                        });
                     });
-                });
+                }, 100);
             }
 
             // Fungsi memilih rekam medis
             function selectRekamMedis(rekamMedis) {
                 selectedRekamMedis = rekamMedis;
-                const tipePasien = document.getElementById('tipe_pasien').value;
+                const tipePasien = document.getElementById('tipe_rekam_medis_hidden').value;
 
                 // Reset hidden fields
                 document.getElementById('id_rekam').value = '';

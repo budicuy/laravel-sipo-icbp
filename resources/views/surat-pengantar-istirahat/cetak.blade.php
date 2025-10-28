@@ -158,7 +158,7 @@
             Poliklinik PT. Indoofood CBP Sukses Makmur Tbk. Noodle Division, pasien dengan data sebagai berikut:</p>
         <div class="patient-info">
             <table>
-                @if ($surat->tipe_pasien === 'emergency')
+                @if ($surat->tipe_rekam_medis === 'emergency')
                     <!-- Data untuk pasien emergency -->
                     <tr>
                         <td>NIK Pasien</td>
@@ -166,17 +166,17 @@
                     </tr>
                     <tr>
                         <td>Nama Pasien</td>
-                        <td>: {{ $surat->nama_pasien }}</td>
+                        <td>: {{ $surat->nama_pasien_emergency ?? '-' }}</td>
                     </tr>
                     <tr>
-                        <td>Perusahaan</td>
-                        <td>: {{ $surat->perusahaan ?? '-' }}</td>
+                        <td>Vendor</td>
+                        <td>: {{ $surat->vendor ?? '-' }}</td>
                     </tr>
                     <tr>
-                        <td>Departemen</td>
-                        <td>: {{ $surat->departemen ?? '-' }}</td>
+                        <td>Kategori</td>
+                        <td>: {{ $surat->kategori ?? '-' }}</td>
                     </tr>
-                @else
+                @elseif ($surat->tipe_rekam_medis === 'regular')
                     <!-- Data untuk pasien regular (karyawan/keluarga) -->
                     <tr>
                         <td>NIK Karyawan</td>
@@ -236,9 +236,9 @@
                 <td></td>
                 <td>
                     <div class="signature-box"></div>
-                    <span>{{ $surat->nama_pasien }}</span><br>
+                    <span>{{ $surat->tipe_rekam_medis === 'emergency' ? $surat->nama_pasien_emergency ?? '-' : $surat->nama_pasien ?? '-' }}</span><br>
                     <span>NIK.
-                        {{ $surat->tipe_pasien === 'emergency' ? $surat->nik_pasien ?? '-' : $surat->nik_karyawan ?? '-' }}</span>
+                        {{ $surat->tipe_rekam_medis === 'emergency' ? $surat->nik_pasien ?? '-' : $surat->nik_karyawan ?? '-' }}</span>
                 </td>
             </tr>
         </table>

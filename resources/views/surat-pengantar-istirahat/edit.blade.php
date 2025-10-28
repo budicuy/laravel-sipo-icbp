@@ -21,14 +21,14 @@
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Informasi Pasien
-                        @if ($surat->tipe_pasien === 'emergency')
+                        @if ($surat->tipe_rekam_medis === 'emergency')
                             <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Emergency</span>
-                        @else
+                        @elseif ($surat->tipe_rekam_medis === 'regular')
                             <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Regular</span>
                         @endif
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                        @if ($surat->tipe_pasien === 'emergency')
+                        @if ($surat->tipe_rekam_medis === 'emergency')
                             <div>
                                 <span class="text-gray-600">NIK Pasien:</span>
                                 <span
@@ -48,7 +48,7 @@
                                 <span
                                     class="ml-2 font-medium text-gray-900">{{ $surat->rekamMedisEmergency->tanggal_periksa->format('d/m/Y') ?? '-' }}</span>
                             </div>
-                        @else
+                        @elseif ($surat->tipe_rekam_medis === 'regular')
                             <div>
                                 <span class="text-gray-600">NIK Karyawan:</span>
                                 <span class="ml-2 font-medium text-gray-900">{{ $surat->nik_karyawan ?? '-' }}</span>
@@ -71,8 +71,9 @@
                 </div>
 
                 <!-- Hidden fields -->
-                <input type="hidden" id="tipe_pasien" name="tipe_pasien" value="{{ $surat->tipe_pasien }}" />
-                @if ($surat->tipe_pasien === 'emergency')
+                <input type="hidden" id="tipe_rekam_medis" name="tipe_rekam_medis"
+                    value="{{ $surat->tipe_rekam_medis }}" />
+                @if ($surat->tipe_rekam_medis === 'emergency')
                     <input type="hidden" id="id_emergency" name="id_emergency" value="{{ $surat->id_emergency }}" />
                 @else
                     <input type="hidden" id="id_rekam" name="id_rekam" value="{{ $surat->id_rekam }}" />

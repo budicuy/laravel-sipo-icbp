@@ -10,12 +10,17 @@ class RekamMedisEmergency extends Model
     use HasFactory;
 
     protected $table = 'rekam_medis_emergency';
+
     protected $primaryKey = 'id_emergency';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
 
     protected $fillable = [
         'id_external_employee',
+        'nama_pasien',
+        'nik_pasien',
         'tanggal_periksa',
         'waktu_periksa',
         'status',
@@ -131,6 +136,7 @@ class RekamMedisEmergency extends Model
         if ($endDate) {
             $query->where('tanggal_periksa', '<=', $endDate);
         }
+
         return $query;
     }
 
@@ -140,28 +146,41 @@ class RekamMedisEmergency extends Model
     public function scopeSearch($query, $search)
     {
         if ($search) {
-            $query->whereHas('externalEmployee', function($sub) use ($search) {
+            $query->whereHas('externalEmployee', function ($sub) use ($search) {
                 $sub->where('nama_employee', 'like', "%{$search}%")
                     ->orWhere('nik_employee', 'like', "%{$search}%")
                     ->orWhere('kode_rm', 'like', "%{$search}%");
             });
         }
+
         return $query;
     }
 
     /**
-     * Accessor for getting NIK from external employee.
+     * Accessor for getting NIK from external employee or direct field.
      */
-    public function getNikPasienAttribute()
+    public function getNikPasienAttribute($value)
     {
+        // If the field is directly set in the table, use it
+        if (! empty($this->attributes['nik_pasien'])) {
+            return $this->attributes['nik_pasien'];
+        }
+
+        // Otherwise, get from external employee relationship
         return $this->externalEmployee?->nik_employee;
     }
 
     /**
-     * Accessor for getting patient name from external employee.
+     * Accessor for getting patient name from external employee or direct field.
      */
-    public function getNamaPasienAttribute()
+    public function getNamaPasienAttribute($value)
     {
+        // If the field is directly set in the table, use it
+        if (! empty($this->attributes['nama_pasien'])) {
+            return $this->attributes['nama_pasien'];
+        }
+
+        // Otherwise, get from external employee relationship
         return $this->externalEmployee?->nama_employee;
     }
 
