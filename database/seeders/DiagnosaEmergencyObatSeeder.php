@@ -39,6 +39,9 @@ class DiagnosaEmergencyObatSeeder extends Seeder
             'Cedera Trauma' => ['Painkiller', 'Anti-inflamasi', 'Kasa Steril'],
             'Keracunan' => ['Arang Aktif', 'Antidotum', 'Infus'],
             'Alergi Akut' => ['Antihistamin', 'Epinefrin', 'Kortikosteroid'],
+            'Luka' => ['Betadine', 'Kassa Steril', 'Hansaplast', 'Bioplacenton', 'Octenilin'],
+            'Iritasi' => ['Hydrocortisone', 'Insto Regular', 'Cetirizine', 'CTM'],
+            'Diare' => ['Attapulgite', 'Diatabs', 'Loperamide', 'Zink Tab'],
         ];
 
         $pivotData = [];

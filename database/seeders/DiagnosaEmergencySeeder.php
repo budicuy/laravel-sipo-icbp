@@ -74,6 +74,24 @@ class DiagnosaEmergencySeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'nama_diagnosa_emergency' => 'Luka',
+                'deskripsi' => 'Luka yang memerlukan penanganan medis segera',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nama_diagnosa_emergency' => 'Iritasi',
+                'deskripsi' => 'Iritasi pada kulit atau organ lain yang memerlukan penanganan',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nama_diagnosa_emergency' => 'Diare',
+                'deskripsi' => 'Diare yang memerlukan penanganan medis segera',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ];
 
         DB::table('diagnosa_emergency')->insert($diagnosaEmergency);

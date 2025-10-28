@@ -26,12 +26,22 @@
 
     <!-- Patient Information Card -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-        <div class="bg-gradient-to-r from-orange-500 to-red-600 px-6 py-4">
+        <div class="bg-gradient-to-r
+            @if($kunjungan->tipe == 'emergency') from-red-500 to-pink-600
+            @else from-orange-500 to-red-600
+            @endif px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Informasi Pasien
+                @if($kunjungan->tipe == 'emergency')
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    Informasi Pasien Emergency
+                @else
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Informasi Pasien
+                @endif
             </h2>
         </div>
         <div class="p-6">
@@ -50,7 +60,10 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-500 mb-1">Hubungan</label>
-                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                    <span class="px-3 py-1
+                        @if($kunjungan->tipe == 'emergency') bg-red-100 text-red-800
+                        @else bg-blue-100 text-blue-800
+                        @endif rounded-full text-sm font-medium">
                         {{ $kunjungan->hubungan }}
                     </span>
                 </div>
@@ -74,20 +87,78 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-500 mb-1">NIK</label>
-                    <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->keluarga->karyawan->nik_karyawan ?? '-' }}</p>
+                    <p class="text-lg font-semibold text-gray-900">
+                        @if($kunjungan->tipe == 'emergency')
+                            {{ $kunjungan->externalEmployee->nik_employee ?? '-' }}
+                        @else
+                            {{ $kunjungan->keluarga->karyawan->nik_karyawan ?? '-' }}
+                        @endif
+                    </p>
                 </div>
+                @if($kunjungan->tipe == 'emergency')
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Waktu Periksa</label>
+                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->waktu_periksa ?? '-' }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Jenis Kelamin</label>
+                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->externalEmployee->jenis_kelamin ?? '-' }}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Alamat</label>
+                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->externalEmployee->alamat ?? '-' }}</p>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 
+    <!-- Emergency Complaint Information -->
+    @if($kunjungan->tipe == 'emergency')
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+            <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    Keluhan Emergency
+                </h2>
+            </div>
+            <div class="p-6">
+                @if($kunjungan->keluhan)
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-500 mb-2">Keluhan Utama</label>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ $kunjungan->keluhan }}</p>
+                    </div>
+                @endif
+                @if($kunjungan->catatan)
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-2">Catatan</label>
+                        <p class="text-gray-900 bg-gray-50 p-3 rounded-lg">{{ $kunjungan->catatan }}</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
+
     <!-- Medical Information Card -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-        <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+        <div class="bg-gradient-to-r
+            @if($kunjungan->tipe == 'emergency') from-red-600 to-pink-600
+            @else from-green-600 to-emerald-600
+            @endif px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Informasi Medis
+                @if($kunjungan->tipe == 'emergency')
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    Informasi Medis Emergency
+                @else
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Informasi Medis
+                @endif
             </h2>
         </div>
         <div class="p-6">
@@ -109,7 +180,13 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-500 mb-1">Diagnosa</label>
-                                <p class="text-gray-900">{{ $keluhan->diagnosa->nama_diagnosa ?? '-' }}</p>
+                                <p class="text-gray-900">
+                                    @if($kunjungan->tipe == 'emergency')
+                                        {{ $keluhan->diagnosaEmergency->nama_diagnosa ?? '-' }}
+                                    @else
+                                        {{ $keluhan->diagnosa->nama_diagnosa ?? '-' }}
+                                    @endif
+                                </p>
                             </div>
                             @if($keluhan->obat)
                             <div>
@@ -153,12 +230,22 @@
 
     <!-- Visit History Card -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
+        <div class="bg-gradient-to-r
+            @if($kunjungan->tipe == 'emergency') from-red-600 to-pink-600
+            @else from-blue-600 to-cyan-600
+            @endif px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Riwayat Kunjungan
+                @if($kunjungan->tipe == 'emergency')
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    Riwayat Kunjungan Emergency
+                @else
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Riwayat Kunjungan
+                @endif
             </h2>
         </div>
         <div class="p-6">

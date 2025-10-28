@@ -174,7 +174,7 @@
                 <div class="info-item p-4 rounded-xl bg-gray-50">
                     <div class="flex items-center gap-3 mb-2">
                         <div class="bg-purple-100 p-2 rounded-lg">
-                            @if($rekamMedisEmergency->externalEmployee->jenis_kelamin == 'L')
+                            @if($rekamMedisEmergency->externalEmployee->jenis_kelamin == 'Laki-laki')
                                 <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                                 </svg>
@@ -186,7 +186,7 @@
                         </div>
                         <div class="data-label">Jenis Kelamin</div>
                     </div>
-                    <div class="data-value text-xl">{{ $rekamMedisEmergency->externalEmployee->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</div>
+                    <div class="data-value text-xl">{{ $rekamMedisEmergency->externalEmployee->jenis_kelamin }}</div>
                 </div>
             </div>
 
