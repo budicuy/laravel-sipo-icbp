@@ -19,16 +19,30 @@ return new class extends Migration
                 $table->enum('tipe_rekam_medis', ['regular', 'emergency'])->default('regular')->after('id_emergency');
             }
 
-            // Foreign key untuk emergency (hanya jika belum ada)
-            if (! Schema::hasColumn('surat_pengantar_istirahat', 'id_emergency')) {
-                $table->foreign('id_emergency')->references('id_emergency')->on('rekam_medis_emergency')
-                    ->onUpdate('cascade')->onDelete('cascade');
-            }
-
             // Index untuk performa (hanya jika belum ada)
-            $table->index('id_emergency');
-            $table->index('tipe_rekam_medis');
+            if (! $this->indexExists('surat_pengantar_istirahat', 'id_emergency')) {
+                $table->index('id_emergency');
+            }
+            if (! $this->indexExists('surat_pengantar_istirahat', 'tipe_rekam_medis')) {
+                $table->index('tipe_rekam_medis');
+            }
         });
+    }
+
+    /**
+     * Check if index exists
+     */
+    private function indexExists($table, $indexName): bool
+    {
+        $indexes = \Illuminate\Support\Facades\DB::select('
+            SELECT INDEX_NAME
+            FROM INFORMATION_SCHEMA.STATISTICS
+            WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME = ?
+            AND INDEX_NAME = ?
+        ', [$table, $indexName]);
+
+        return ! empty($indexes);
     }
 
     /**
