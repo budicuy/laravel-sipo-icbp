@@ -136,7 +136,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function show(SuratPengantarIstirahat $suratPengantarIstirahat)
     {
-        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency.keluhans', 'rekamMedisEmergency.externalEmployee', 'keluarga.karyawan.departemen', 'dokter']);
+        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency.keluhans', 'rekamMedisEmergency.externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat', 'keluarga.karyawan.departemen', 'dokter']);
 
         return view('surat-pengantar-istirahat.show', compact('surat'));
     }
@@ -146,7 +146,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function edit(SuratPengantarIstirahat $suratPengantarIstirahat)
     {
-        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency.keluhans', 'rekamMedisEmergency.externalEmployee', 'keluarga.karyawan', 'dokter']);
+        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency.keluhans', 'rekamMedisEmergency.externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat', 'keluarga.karyawan', 'dokter']);
 
         return view('surat-pengantar-istirahat.edit', compact('surat'));
     }
@@ -268,7 +268,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     private function searchRekamMedisEmergency($search)
     {
-        $rekamMedisEmergency = RekamMedisEmergency::with('externalEmployee')
+        $rekamMedisEmergency = RekamMedisEmergency::with('externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat')
             ->where('status', 'On Progress')
             ->whereHas('externalEmployee', function ($query) use ($search) {
                 $query->where('nik_employee', 'like', "%{$search}%")
@@ -297,7 +297,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function cetak(SuratPengantarIstirahat $suratPengantarIstirahat)
     {
-        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency.keluhans', 'rekamMedisEmergency.externalEmployee', 'keluarga.karyawan.departemen', 'dokter']);
+        $surat = $suratPengantarIstirahat->load(['rekamMedis', 'rekamMedisEmergency.keluhans', 'rekamMedisEmergency.externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat', 'keluarga.karyawan.departemen', 'dokter']);
 
         $pdf = PDF::loadView('surat-pengantar-istirahat.cetak', compact('surat'))
             ->setPaper('A4', 'portrait')
@@ -345,7 +345,7 @@ class SuratPengantarIstirahatController extends Controller
      */
     public function getRekamMedisEmergencyDetail($id_emergency)
     {
-        $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee'])
+        $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat'])
             ->findOrFail($id_emergency);
 
         // Ambil diagnosa utama dari kolom keluhan (text)

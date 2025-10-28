@@ -503,7 +503,7 @@
                                             required>
                                             <option value="">-- Pilih Terapi --</option>
                                             <option value="Obat">Obat</option>
-                                            <option value="Lab">Lab</option>
+                                            <option value="Lab">Konsul Faskes Lanjutan</option>
                                             <option value="Istirahat">Istirahat</option>
                                         </select>
                                         <div
@@ -1024,7 +1024,7 @@
 
                 keluhanSections.forEach(section => {
                     const diagnosaSelect = section.querySelector(
-                    `select[name="keluhan[${keluhanIndex}][id_diagnosa]"]`);
+                        `select[name="keluhan[${keluhanIndex}][id_diagnosa]"]`);
                     const terapiSelect = section.querySelector(`select[name="keluhan[${keluhanIndex}][terapi]"]`);
 
                     if (!diagnosaSelect || !diagnosaSelect.value) {
@@ -1047,17 +1047,17 @@
                         if (checkedBoxes.length === 0) {
                             showSectionError(section,
                                 `Jika terapi adalah "Obat", minimal satu obat harus dipilih untuk keluhan ${keluhanIndex + 1}`
-                                );
+                            );
                             errorMessages.push(
                                 `Jika terapi adalah "Obat", minimal satu obat harus dipilih untuk keluhan ${keluhanIndex + 1}`
-                                );
+                            );
                             isValid = false;
                         } else {
                             // Validate obat details
                             checkedBoxes.forEach((checkbox, index) => {
                                 const jumlahInput = section.querySelector(
                                     `input[name="keluhan[${keluhanIndex}][obat_list][${index}][jumlah_obat]"]`
-                                    );
+                                );
 
                                 if (jumlahInput && (!jumlahInput.value || parseInt(jumlahInput.value) < 1)) {
                                     showFieldError(jumlahInput, `Jumlah obat harus diisi dan minimal 1`);
@@ -1162,13 +1162,13 @@
                 <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
                 <div class="mt-2">
                     ${errors.map(error => `
-                                <div class="flex items-center py-1">
-                                    <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <span class="text-sm text-red-700">${error}</span>
-                                </div>
-                            `).join('')}
+                                        <div class="flex items-center py-1">
+                                            <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <span class="text-sm text-red-700">${error}</span>
+                                        </div>
+                                    `).join('')}
                 </div>
             </div>
             <div class="ml-auto pl-3">

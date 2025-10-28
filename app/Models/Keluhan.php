@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Keluhan extends Model
 {
     protected $table = 'keluhan';
+
     protected $primaryKey = 'id_keluhan';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -45,6 +47,7 @@ class Keluhan extends Model
         if (static::$tableColumnsCache === null) {
             static::$tableColumnsCache = \Illuminate\Support\Facades\Schema::getColumnListing($this->getTable());
         }
+
         return static::$tableColumnsCache;
     }
 
@@ -57,7 +60,7 @@ class Keluhan extends Model
         $tableColumns = $this->getTableColumns();
 
         foreach ($this->attributes as $key => $value) {
-            if (!in_array($key, $tableColumns)) {
+            if (! in_array($key, $tableColumns)) {
                 unset($this->attributes[$key]);
             }
         }
@@ -77,11 +80,11 @@ class Keluhan extends Model
         try {
             $schema = $this->getTableColumns();
 
-            if (in_array('id_emergency', $schema) && !in_array('id_emergency', $model->fillable)) {
+            if (in_array('id_emergency', $schema) && ! in_array('id_emergency', $model->fillable)) {
                 $model->fillable[] = 'id_emergency';
             }
 
-            if (in_array('id_diagnosa_emergency', $schema) && !in_array('id_diagnosa_emergency', $model->fillable)) {
+            if (in_array('id_diagnosa_emergency', $schema) && ! in_array('id_diagnosa_emergency', $model->fillable)) {
                 $model->fillable[] = 'id_diagnosa_emergency';
             }
         } catch (\Exception $e) {
@@ -170,6 +173,7 @@ class Keluhan extends Model
         } elseif ($this->id_rekam) {
             return 'Regular';
         }
+
         return 'Unknown';
     }
 
@@ -222,7 +226,7 @@ class Keluhan extends Model
     {
         $descriptions = [
             'Obat' => 'Terapi Obat',
-            'Lab' => 'Pemeriksaan Laboratorium',
+            'Lab' => 'Konsul Faskes Lanjutan',
             'Istirahat' => 'Istirahat',
             'Emergency' => 'Tindakan Emergency',
         ];

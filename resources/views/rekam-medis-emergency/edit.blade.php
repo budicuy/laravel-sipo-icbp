@@ -183,7 +183,7 @@
                                 Obat</option>
                             <option value="Lab"
                                 {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Lab' ? 'selected' : '' }}>
-                                Lab</option>
+                                Konsul Faskes Lanjutan</option>
                             <option value="Istirahat"
                                 {{ old('terapi', $rekamMedisEmergency->keluhans->first()->terapi ?? null) == 'Istirahat' ? 'selected' : '' }}>
                                 Istirahat</option>

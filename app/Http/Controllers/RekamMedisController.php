@@ -263,7 +263,7 @@ class RekamMedisController extends Controller
             'keluhan.*.id_diagnosa.required' => 'Diagnosa/Penyakit harus dipilih untuk setiap keluhan.',
             'keluhan.*.id_diagnosa.exists' => 'Diagnosa yang dipilih tidak valid.',
             'keluhan.*.terapi.required' => 'Jenis terapi harus dipilih untuk setiap keluhan.',
-            'keluhan.*.terapi.in' => 'Jenis terapi harus salah satu dari: Obat, Lab, atau Istirahat.',
+            'keluhan.*.terapi.in' => 'Jenis terapi harus salah satu dari: Obat, Konsul Faskes Lanjutan, atau Istirahat.',
             'keluhan.*.keterangan.max' => 'Anamnesa/Keterangan maksimal 1000 karakter.',
 
             // Custom error messages untuk Obat
@@ -399,7 +399,7 @@ class RekamMedisController extends Controller
             'keluhan.*.id_diagnosa.required' => 'Diagnosa/Penyakit harus dipilih untuk setiap keluhan.',
             'keluhan.*.id_diagnosa.exists' => 'Diagnosa yang dipilih tidak valid.',
             'keluhan.*.terapi.required' => 'Jenis terapi harus dipilih untuk setiap keluhan.',
-            'keluhan.*.terapi.in' => 'Jenis terapi harus salah satu dari: Obat, Lab, atau Istirahat.',
+            'keluhan.*.terapi.in' => 'Jenis terapi harus salah satu dari: Obat, Konsul Faskes Lanjutan, atau Istirahat.',
             'keluhan.*.keterangan.max' => 'Anamnesa/Keterangan maksimal 1000 karakter.',
 
             // Custom error messages untuk Obat
@@ -1800,7 +1800,7 @@ class RekamMedisController extends Controller
             $stokAggregates = [];
 
             foreach ($keluhans as $keluhan) {
-                if (!$keluhan->rekamMedis) {
+                if (! $keluhan->rekamMedis) {
                     continue;
                 }
 
@@ -1811,7 +1811,7 @@ class RekamMedisController extends Controller
 
                 $key = "{$obatId}_{$tahun}_{$bulan}";
 
-                if (!isset($stokAggregates[$key])) {
+                if (! isset($stokAggregates[$key])) {
                     $stokAggregates[$key] = [
                         'obat_id' => $obatId,
                         'tahun' => $tahun,
@@ -1849,5 +1849,4 @@ class RekamMedisController extends Controller
             ]);
         }
     }
-
 }

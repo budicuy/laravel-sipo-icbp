@@ -713,7 +713,7 @@ class LaporanController extends Controller
     {
         $rekamMedisEmergency = RekamMedisEmergency::with([
             'externalEmployee' => function ($query) {
-                $query->select('id', 'nik_employee', 'nama_employee', 'alamat');
+                $query->select('id', 'nik_employee', 'nama_employee', 'alamat', 'jenis_kelamin');
             },
             'keluhans' => function ($query) {
                 $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai')
@@ -824,7 +824,7 @@ class LaporanController extends Controller
     {
         $rekamMedisEmergency = RekamMedisEmergency::with([
             'externalEmployee' => function ($query) {
-                $query->select('id', 'nik_employee', 'nama_employee', 'alamat');
+                $query->select('id', 'nik_employee', 'nama_employee', 'alamat', 'jenis_kelamin');
             },
             'keluhans' => function ($query) {
                 $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai')
@@ -1446,7 +1446,7 @@ class LaporanController extends Controller
         // Optimized query with specific columns and eager loading for emergency
         $rekamMedisEmergencyQuery = RekamMedisEmergency::with([
             'externalEmployee' => function ($query) {
-                $query->select('id', 'nik_employee', 'nama_employee');
+                $query->select('id', 'nik_employee', 'nama_employee', 'jenis_kelamin', 'alamat');
             },
             'keluhans' => function ($query) {
                 $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat')

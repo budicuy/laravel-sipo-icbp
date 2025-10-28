@@ -21,7 +21,7 @@ class RekamMedisEmergencyController extends Controller
      */
     public function index(Request $request)
     {
-        $query = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap', 'externalEmployee', 'keluhans.diagnosaEmergency']);
+        $query = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap', 'externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat', 'keluhans.diagnosaEmergency']);
 
         // Filter pencarian
         if ($request->filled('q')) {
@@ -139,7 +139,7 @@ class RekamMedisEmergencyController extends Controller
 
             // Terapi
             'terapi.required' => 'Jenis terapi harus dipilih.',
-            'terapi.in' => 'Jenis terapi yang dipilih tidak valid. Pilihan yang tersedia: Obat, Lab, Istirahat, atau Emergency.',
+            'terapi.in' => 'Jenis terapi yang dipilih tidak valid. Pilihan yang tersedia: Obat, Konsul Faskes Lanjutan, Istirahat, atau Emergency.',
 
             // Catatan
             'catatan.max' => 'Catatan terlalu panjang. Maksimal 2000 karakter.',
@@ -288,7 +288,7 @@ class RekamMedisEmergencyController extends Controller
      */
     public function show($id)
     {
-        $rekamMedisEmergency = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap', 'externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
+        $rekamMedisEmergency = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap', 'externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat', 'keluhans.diagnosaEmergency'])->findOrFail($id);
 
         return view('rekam-medis-emergency.detail', compact('rekamMedisEmergency'));
     }
@@ -304,7 +304,7 @@ class RekamMedisEmergencyController extends Controller
                 ->with('error', 'Token emergency diperlukan untuk mengedit rekam medis emergency.');
         }
 
-        $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee', 'keluhans.diagnosaEmergency'])->findOrFail($id);
+        $rekamMedisEmergency = RekamMedisEmergency::with(['externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat', 'keluhans.diagnosaEmergency'])->findOrFail($id);
 
         // Get data for dropdowns with relationships
         $externalEmployees = ExternalEmployee::with(['vendor', 'kategori'])->aktif()->get();
@@ -369,7 +369,7 @@ class RekamMedisEmergencyController extends Controller
 
             // Terapi
             'terapi.required' => 'Jenis terapi harus dipilih.',
-            'terapi.in' => 'Jenis terapi yang dipilih tidak valid. Pilihan yang tersedia: Obat, Lab, Istirahat, atau Emergency.',
+            'terapi.in' => 'Jenis terapi yang dipilih tidak valid. Pilihan yang tersedia: Obat, Konsul Faskes Lanjutan, Istirahat, atau Emergency.',
 
             // Catatan
             'catatan.max' => 'Catatan terlalu panjang. Maksimal 2000 karakter.',

@@ -21,7 +21,7 @@ class KunjunganController extends Controller
 
         // Ambil semua data rekam medis emergency untuk dijadikan kunjungan - OPTIMIZED
         $queryEmergency = RekamMedisEmergency::with([
-            'externalEmployee:id,nik_employee,nama_employee,kode_rm',
+            'externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat',
             'user:id_user,username,nama_lengkap',
             'keluhans:id_keluhan,id_emergency,id_diagnosa_emergency,terapi,keterangan,id_obat,jumlah_obat,aturan_pakai', // Eager loading dengan select specific columns untuk keluhans
         ])->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'id_user', 'status'); // Select only needed columns
@@ -201,10 +201,10 @@ class KunjunganController extends Controller
 
             // Ambil data rekam medis emergency sebagai detail kunjungan
             $rekamMedisEmergency = RekamMedisEmergency::with([
-                'externalEmployee:id,nik_employee,nama_employee,kode_rm',
+                'externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat',
                 'user:id_user,username,nama_lengkap',
                 'keluhans:id_keluhan,id_emergency,id_diagnosa_emergency,terapi,keterangan,id_obat,jumlah_obat,aturan_pakai',
-                'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa',
+                'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency',
                 'keluhans.obat:id_obat,nama_obat',
             ])->findOrFail($emergencyId);
 
@@ -234,13 +234,15 @@ class KunjunganController extends Controller
                 'user' => $rekamMedisEmergency->user,
                 'keluhans' => $rekamMedisEmergency->keluhans ?? [],
                 'tipe' => 'emergency',
+                'keluhan' => $rekamMedisEmergency->keluhan ?? null,
+                'catatan' => $rekamMedisEmergency->catatan ?? null,
             ];
 
             // Ambil semua riwayat kunjungan emergency pasien ini
             $riwayatKunjungan = RekamMedisEmergency::with([
                 'user:id_user,username,nama_lengkap',
                 'keluhans:id_keluhan,id_emergency,id_diagnosa_emergency,terapi,keterangan,id_obat,jumlah_obat,aturan_pakai',
-                'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa',
+                'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency',
                 'keluhans.obat:id_obat,nama_obat',
             ])
                 ->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'status', 'id_user')

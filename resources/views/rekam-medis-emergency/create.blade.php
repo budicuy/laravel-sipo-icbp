@@ -425,11 +425,10 @@
                                     required onchange="toggleObatSection()">
                                     <option value="">-- Pilih Terapi --</option>
                                     <option value="Obat" {{ old('terapi') == 'Obat' ? 'selected' : '' }}>Obat</option>
-                                    <option value="Lab" {{ old('terapi') == 'Lab' ? 'selected' : '' }}>Lab</option>
+                                    <option value="Lab" {{ old('terapi') == 'Lab' ? 'selected' : '' }}>Konsul Faskes
+                                        Lanjutan</option>
                                     <option value="Istirahat" {{ old('terapi') == 'Istirahat' ? 'selected' : '' }}>
                                         Istirahat</option>
-                                    <option value="Emergency" {{ old('terapi') == 'Emergency' ? 'selected' : '' }}>
-                                        Emergency</option>
                                 </select>
                                 <div
                                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
@@ -954,13 +953,13 @@
                 <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
                 <div class="mt-2">
                     ${errors.map(error => `
-                                                                        <div class="flex items-center py-1">
-                                                                            <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                                                            </svg>
-                                                                            <span class="text-sm text-red-700">${error}</span>
-                                                                        </div>
-                                                                    `).join('')}
+                                                                                        <div class="flex items-center py-1">
+                                                                                            <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                                                                            </svg>
+                                                                                            <span class="text-sm text-red-700">${error}</span>
+                                                                                        </div>
+                                                                                    `).join('')}
                 </div>
             </div>
             <div class="ml-auto pl-3">
