@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\ExternalEmployee;
-use App\Models\Vendor;
 use App\Models\Kategori;
+use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -22,7 +22,7 @@ class ExternalEmployeeController extends Controller
 
         // Filter by nama (search)
         if ($request->has('search') && $request->search != '') {
-            $query->where('nama_employee', 'like', '%' . $request->search . '%');
+            $query->where('nama_employee', 'like', '%'.$request->search.'%');
         }
 
         // Filter by jenis kelamin
@@ -67,6 +67,7 @@ class ExternalEmployeeController extends Controller
     {
         $vendors = Vendor::all();
         $kategoris = Kategori::all();
+
         return view('external-employee.create', compact('vendors', 'kategoris'));
     }
 
@@ -112,6 +113,7 @@ class ExternalEmployeeController extends Controller
     public function show($id)
     {
         $externalEmployee = ExternalEmployee::with(['vendor', 'kategori'])->findOrFail($id);
+
         return view('external-employee.show', compact('externalEmployee'));
     }
 
@@ -120,6 +122,7 @@ class ExternalEmployeeController extends Controller
         $externalEmployee = ExternalEmployee::findOrFail($id);
         $vendors = Vendor::all();
         $kategoris = Kategori::all();
+
         return view('external-employee.edit', compact('externalEmployee', 'vendors', 'kategoris'));
     }
 
@@ -128,7 +131,7 @@ class ExternalEmployeeController extends Controller
         $externalEmployee = ExternalEmployee::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'nik_employee' => 'required|string|max:20|unique:external_employees,nik_employee,' . $id . ',id',
+            'nik_employee' => 'required|string|max:20|unique:external_employees,nik_employee,'.$id.',id',
             'nama_employee' => 'required|string|max:255',
             'kode_rm' => 'required|string|max:50',
             'tanggal_lahir' => 'required|date',
@@ -193,7 +196,7 @@ class ExternalEmployeeController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => $validator->errors()->first('file')
+                'message' => $validator->errors()->first('file'),
             ], 422);
         }
 
@@ -203,14 +206,14 @@ class ExternalEmployeeController extends Controller
 
             // Create temporary directory if not exists
             $tempDir = storage_path('app/temp');
-            if (!is_dir($tempDir)) {
+            if (! is_dir($tempDir)) {
                 mkdir($tempDir, 0755, true);
             }
 
             // Save file to temporary location
-            $filename = 'external_employee_import_' . time() . '.' . $extension;
+            $filename = 'external_employee_import_'.time().'.'.$extension;
             $file->move($tempDir, $filename);
-            $filePath = $tempDir . '/' . $filename;
+            $filePath = $tempDir.'/'.$filename;
 
             $importCount = 0;
             $skipCount = 0;
@@ -230,8 +233,8 @@ class ExternalEmployeeController extends Controller
             if ($skipCount > 0) {
                 $message .= " {$skipCount} data dilewati karena duplikasi.";
             }
-            if (!empty($errors)) {
-                $message .= " " . count($errors) . " data gagal diimport.";
+            if (! empty($errors)) {
+                $message .= ' '.count($errors).' data gagal diimport.';
             }
 
             return response()->json([
@@ -239,13 +242,13 @@ class ExternalEmployeeController extends Controller
                 'message' => $message,
                 'import_count' => $importCount,
                 'skip_count' => $skipCount,
-                'errors' => $errors
+                'errors' => $errors,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -254,11 +257,11 @@ class ExternalEmployeeController extends Controller
     {
         $importCount = 0;
 
-        if (($handle = fopen($filePath, 'r')) !== FALSE) {
+        if (($handle = fopen($filePath, 'r')) !== false) {
             // Skip header row
             fgetcsv($handle, 1000, ',');
 
-            while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
+            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
                 try {
                     // Skip empty rows
                     if (empty(array_filter($data))) {
@@ -278,7 +281,7 @@ class ExternalEmployeeController extends Controller
                         'no_ktp' => $data[8] ?? null,
                         'bpjs_id' => $data[9] ?? null,
                         'kategori' => $data[10] ?? '',
-                        'status' => 'aktif'
+                        'status' => 'aktif',
                     ];
 
                     $result = $this->processImportData($importData);
@@ -287,10 +290,10 @@ class ExternalEmployeeController extends Controller
                     } elseif ($result['skipped']) {
                         $skipCount++;
                     } else {
-                        $errors[] = "Baris " . ($importCount + $skipCount + count($errors) + 2) . ": " . $result['message'];
+                        $errors[] = 'Baris '.($importCount + $skipCount + count($errors) + 2).': '.$result['message'];
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Baris " . ($importCount + $skipCount + count($errors) + 2) . ": " . $e->getMessage();
+                    $errors[] = 'Baris '.($importCount + $skipCount + count($errors) + 2).': '.$e->getMessage();
                 }
             }
             fclose($handle);
@@ -331,7 +334,7 @@ class ExternalEmployeeController extends Controller
                         'no_ktp' => $data[8] ?? null,
                         'bpjs_id' => $data[9] ?? null,
                         'kategori' => $data[10] ?? '',
-                        'status' => 'aktif'
+                        'status' => 'aktif',
                     ];
 
                     $result = $this->processImportData($importData);
@@ -340,14 +343,14 @@ class ExternalEmployeeController extends Controller
                     } elseif ($result['skipped']) {
                         $skipCount++;
                     } else {
-                        $errors[] = "Baris " . ($index + 2) . ": " . $result['message'];
+                        $errors[] = 'Baris '.($index + 2).': '.$result['message'];
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
+                    $errors[] = 'Baris '.($index + 2).': '.$e->getMessage();
                 }
             }
         } catch (\Exception $e) {
-            throw new \Exception("Error processing Excel file: " . $e->getMessage());
+            throw new \Exception('Error processing Excel file: '.$e->getMessage());
         }
 
         return $importCount;
@@ -367,23 +370,23 @@ class ExternalEmployeeController extends Controller
 
         // Find or create vendor
         $vendor = Vendor::where('nama_vendor', $data['nama_vendor'])->first();
-        if (!$vendor) {
+        if (! $vendor) {
             $vendor = Vendor::create(['nama_vendor' => $data['nama_vendor']]);
         }
 
         // Process kategori
         $kategori = null;
-        if (!empty($data['kategori'])) {
+        if (! empty($data['kategori'])) {
             // Extract kode kategori from format like "X - Guest"
             if (preg_match('/^([xyz])\s*-\s*(.+)$/i', $data['kategori'], $matches)) {
                 $kodeKategori = strtolower($matches[1]);
                 $namaKategori = $matches[2];
 
                 $kategori = Kategori::where('kode_kategori', $kodeKategori)->first();
-                if (!$kategori) {
+                if (! $kategori) {
                     $kategori = Kategori::create([
                         'kode_kategori' => $kodeKategori,
-                        'nama_kategori' => $namaKategori
+                        'nama_kategori' => $namaKategori,
                     ]);
                 }
             }
@@ -402,7 +405,7 @@ class ExternalEmployeeController extends Controller
             'no_ktp' => $data['no_ktp'],
             'bpjs_id' => $data['bpjs_id'],
             'id_kategori' => $kategori ? $kategori->id_kategori : null,
-            'status' => $data['status'] ?? 'aktif'
+            'status' => $data['status'] ?? 'aktif',
         ];
 
         // Create external employee
@@ -431,9 +434,10 @@ class ExternalEmployeeController extends Controller
                 // Excel stores dates as days since 1900-01-01 (with 1900 incorrectly considered a leap year)
                 // PHP's base date is 1970-01-01
                 $excelEpoch = new \DateTime('1899-12-30'); // Excel's epoch adjusted for the leap year bug
-                $interval = new \DateInterval('P' . $dateValue . 'D');
+                $interval = new \DateInterval('P'.$dateValue.'D');
                 $date = clone $excelEpoch;
                 $date->add($interval);
+
                 return $date->format('Y-m-d');
             } catch (\Exception $e) {
                 // If parsing fails, return null
@@ -444,6 +448,7 @@ class ExternalEmployeeController extends Controller
         // Try to parse as a regular date string
         try {
             $date = new \DateTime($dateValue);
+
             return $date->format('Y-m-d');
         } catch (\Exception $e) {
             // If parsing fails, return null
@@ -465,7 +470,7 @@ class ExternalEmployeeController extends Controller
         if (empty($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data yang dipilih'
+                'message' => 'Tidak ada data yang dipilih',
             ], 400);
         }
 
@@ -485,12 +490,12 @@ class ExternalEmployeeController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Berhasil menghapus ' . count($ids) . ' data external employee'
+                'message' => 'Berhasil menghapus '.count($ids).' data external employee',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+                'message' => 'Gagal menghapus data: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -499,11 +504,11 @@ class ExternalEmployeeController extends Controller
     {
         // Create template directory if not exists
         $templateDir = public_path('templates');
-        if (!is_dir($templateDir)) {
+        if (! is_dir($templateDir)) {
             mkdir($templateDir, 0755, true);
         }
 
-        $filePath = $templateDir . '/external-employee-template.csv';
+        $filePath = $templateDir.'/external-employee-template.csv';
 
         // Create a simple CSV template
         $csvContent = "nik_employee,nama_employee,kode_rm,tanggal_lahir,jenis_kelamin,alamat,no_hp,nama_vendor,no_ktp,bpjs_id,kategori\n";

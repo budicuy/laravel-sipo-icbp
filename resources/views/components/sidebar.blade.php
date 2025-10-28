@@ -39,9 +39,39 @@
                 </li>
 
                 <!-- Master Data (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('karyawan*') || request()->is('keluarga*') || request()->is('obat*') || request()->is('diagnosa*') || request()->is('user*') || request()->is('external-employee*') ? 'true' : 'false' }} }">
+                <li x-data="{ open: {{ auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin'
+                    ? (request()->is('karyawan*') ||
+                    request()->is('keluarga*') ||
+                    request()->is('obat*') ||
+                    request()->is('diagnosa*') ||
+                    request()->is('user*') ||
+                    request()->is('external-employee*')
+                        ? 'true'
+                        : 'false')
+                    : (request()->is('karyawan*') ||
+                    request()->is('keluarga*') ||
+                    request()->is('obat*') ||
+                    request()->is('diagnosa*') ||
+                    request()->is('external-employee*')
+                        ? 'true'
+                        : 'false') }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('karyawan*') || request()->is('keluarga*') || request()->is('obat*') || request()->is('diagnosa*') || request()->is('user*') || request()->is('external-employee*') ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin'
+                            ? (request()->is('karyawan*') ||
+                            request()->is('keluarga*') ||
+                            request()->is('obat*') ||
+                            request()->is('diagnosa*') ||
+                            request()->is('user*') ||
+                            request()->is('external-employee*')
+                                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
+                                : 'text-gray-700 hover:bg-gray-100')
+                            : (request()->is('karyawan*') ||
+                            request()->is('keluarga*') ||
+                            request()->is('obat*') ||
+                            request()->is('diagnosa*') ||
+                            request()->is('external-employee*')
+                                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
+                                : 'text-gray-700 hover:bg-gray-100') }}"
                         :title="!sidebarOpen ? 'Master Data' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
@@ -88,12 +118,14 @@
                                 Data Diagnosa
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ route('user.index') }}"
-                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('user*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
-                                Data User
-                            </a>
-                        </li>
+                        @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                            <li>
+                                <a href="{{ route('user.index') }}"
+                                    class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('user*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
+                                    Data User
+                                </a>
+                            </li>
+                        @endif
                         <li>
                             <a href="{{ route('external-employee.index') }}"
                                 class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('external-employee*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">

@@ -518,52 +518,5 @@
             </div>
         </div>
 
-        <!-- Modern Action Buttons -->
-        <div class="bg-white rounded-2xl shadow-lg modern-card overflow-hidden no-print">
-            <div class="p-6 lg:p-8">
-                <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
-                    <a href="{{ route('rekam-medis.index') }}"
-                        class="btn-modern w-full lg:w-auto px-8 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl inline-flex items-center justify-center gap-3">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <span>Kembali ke Daftar</span>
-                    </a>
-
-                    <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                        <a href="{{ route('rekam-medis.index', ['search' => $rekamMedis->keluarga->nama_keluarga ?? '']) }}"
-                            class="btn-modern w-full sm:w-auto px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl inline-flex items-center justify-center gap-3">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span>Riwayat Lengkap</span>
-                        </a>
-
-                        <button onclick="window.print()"
-                            class="btn-modern w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl inline-flex items-center justify-center gap-3">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <span>Cetak Dokumen</span>
-                        </button>
-
-                        <a href="{{ route('rekam-medis.edit', $rekamMedis->id_rekam) }}"
-                            class="btn-modern w-full sm:w-auto px-8 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-xl inline-flex items-center justify-center gap-3">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                            <span>Edit Data</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 @endsection

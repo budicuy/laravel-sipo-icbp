@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Events\RekamMedisCreated;
-use App\Events\RekamMedisUpdated;
 use App\Events\RekamMedisDeleted;
+use App\Events\RekamMedisUpdated;
 use App\Models\Diagnosa;
 use App\Models\Karyawan;
 use App\Models\Keluarga;
@@ -75,7 +75,8 @@ class RekamMedisController extends Controller
         $queryEmergency = \App\Models\RekamMedisEmergency::with([
             'user:id_user,username,nama_lengkap',
             'externalEmployee',
-            'keluhans.diagnosaEmergency',
+            'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency',
+            'keluhans.obat:id_obat,nama_obat',
         ]);
 
         // Filter pencarian for emergency records
@@ -324,8 +325,8 @@ class RekamMedisController extends Controller
                 return $rekamMedis;
             }, 3); // Retry up to 3 times on deadlock
 
-            // Dispatch event untuk mengurangi stok obat otomatis
-            RekamMedisCreated::dispatch($rekamMedis);
+            // Dispatch event untuk mengurangi stok obat otomatis AFTER transaction commits
+            event(new RekamMedisCreated($rekamMedis));
 
             return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil ditambahkan!');
         } catch (\Exception $e) {
@@ -412,10 +413,10 @@ class RekamMedisController extends Controller
 
         // Using Laravel 12's transaction method with automatic retry for better reliability
         try {
-            \Illuminate\Support\Facades\DB::transaction(function () use ($rekamMedis, $validated, $request) {
-                // Simpan keluhan lama untuk event listener (sebelum dihapus)
-                $oldKeluhans = $rekamMedis->keluhans()->get();
+            // Simpan keluhan lama untuk event listener (sebelum transaction dimulai)
+            $oldKeluhans = $rekamMedis->keluhans()->get();
 
+            \Illuminate\Support\Facades\DB::transaction(function () use ($rekamMedis, $validated, $request) {
                 // Update data rekam medis
                 $rekamMedis->update([
                     'id_keluarga' => $validated['id_keluarga'],
@@ -461,10 +462,12 @@ class RekamMedisController extends Controller
                         }
                     }
                 }
-
-                // Trigger event untuk adjust stok obat
-                event(new RekamMedisUpdated($rekamMedis, $oldKeluhans));
             }, 3); // Retry up to 3 times on deadlock
+
+            // Trigger event untuk adjust stok obat AFTER transaction commits
+            // Refresh the model to get the latest keluhans
+            $rekamMedis->refresh();
+            event(new RekamMedisUpdated($rekamMedis, $oldKeluhans));
 
             return redirect()->route('rekam-medis.index')->with('success', 'Data rekam medis berhasil diperbarui!');
         } catch (\Exception $e) {
@@ -1093,6 +1096,36 @@ class RekamMedisController extends Controller
             $created = 0;
             $errors = [];
 
+            // Cache untuk menghindari N+1 query problem
+            $userCache = [];
+            $karyawanCache = [];
+            $keluargaCache = [];
+            $diagnosaCache = [];
+            $obatCache = [];
+
+            // Pre-warm StokBulanan cache untuk bulan ini
+            // Load semua stok_bulanans untuk bulan/tahun saat ini ke dalam cache listener
+            $currentDate = now();
+            $currentYear = $currentDate->year;
+            $currentMonth = $currentDate->month;
+
+            $stokBulanans = \App\Models\StokBulanan::where('tahun', $currentYear)
+                ->where('bulan', $currentMonth)
+                ->get();
+
+            // Populate cache di listener
+            foreach ($stokBulanans as $stok) {
+                $cacheKey = "{$stok->obat_id}_{$stok->tahun}_{$stok->bulan}";
+                \App\Listeners\KurangiStokObatListener::warmCache($cacheKey, $stok);
+            }
+
+            // SUSPEND event stok selama import untuk performa maksimal
+            \App\Listeners\KurangiStokObatListener::setSuspended(true);
+            \App\Listeners\KurangiStokObatEmergencyListener::setSuspended(true);
+
+            // Collect all created rekam medis IDs untuk bulk update di akhir
+            $createdRekamMedisIds = [];
+
             // Detect Excel format by checking the headers
             $highestColumn = $sheet->getHighestColumn();
             $isMultiDiagnosaFormat = false;
@@ -1382,7 +1415,11 @@ class RekamMedisController extends Controller
                 }
 
                 // Find karyawan
-                $karyawan = Karyawan::where('nik_karyawan', $nikKaryawan)->first();
+                if (! isset($karyawanCache[$nikKaryawan])) {
+                    $karyawanCache[$nikKaryawan] = Karyawan::where('nik_karyawan', $nikKaryawan)->first();
+                }
+                $karyawan = $karyawanCache[$nikKaryawan];
+
                 if (! $karyawan) {
                     $errors[] = "Baris $rowNumber: Karyawan dengan NIK $nikKaryawan tidak ditemukan";
 
@@ -1390,7 +1427,11 @@ class RekamMedisController extends Controller
                 }
 
                 // Find user based on petugas klinik name
-                $user = User::where('nama_lengkap', $petugasKlinik)->first();
+                if (! isset($userCache[$petugasKlinik])) {
+                    $userCache[$petugasKlinik] = User::where('nama_lengkap', $petugasKlinik)->first();
+                }
+                $user = $userCache[$petugasKlinik];
+
                 if (! $user) {
                     $errors[] = "Baris $rowNumber: User dengan nama '$petugasKlinik' tidak ditemukan";
 
@@ -1398,9 +1439,14 @@ class RekamMedisController extends Controller
                 }
 
                 // Find keluarga
-                $keluarga = Keluarga::where('id_karyawan', $karyawan->id_karyawan)
-                    ->where('nama_keluarga', $namaPasien)
-                    ->first();
+                $keluargaKey = $karyawan->id_karyawan.'_'.$namaPasien;
+                if (! isset($keluargaCache[$keluargaKey])) {
+                    $keluargaCache[$keluargaKey] = Keluarga::where('id_karyawan', $karyawan->id_karyawan)
+                        ->where('nama_keluarga', $namaPasien)
+                        ->first();
+                }
+                $keluarga = $keluargaCache[$keluargaKey];
+
                 if (! $keluarga) {
                     $errors[] = "Baris $rowNumber: Pasien $namaPasien tidak ditemukan untuk karyawan $nikKaryawan";
 
@@ -1428,7 +1474,10 @@ class RekamMedisController extends Controller
 
                     // Process Diagnosa 1
                     if (! empty($diagnosa1) && $diagnosa1 !== '-') {
-                        $diagnosa1Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa1]);
+                        if (! isset($diagnosaCache[$diagnosa1])) {
+                            $diagnosaCache[$diagnosa1] = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa1]);
+                        }
+                        $diagnosa1Model = $diagnosaCache[$diagnosa1];
                         $idDiagnosa1 = $diagnosa1Model->id_diagnosa;
 
                         // Create keluhan entries for each obat in Diagnosa 1
@@ -1441,7 +1490,11 @@ class RekamMedisController extends Controller
                         $hasObat = false;
                         foreach ($obatList1 as $obatData) {
                             if (! empty($obatData['nama']) && $obatData['nama'] !== '-') {
-                                $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
+                                if (! isset($obatCache[$obatData['nama']])) {
+                                    $obatCache[$obatData['nama']] = Obat::where('nama_obat', $obatData['nama'])->first();
+                                }
+                                $obatModel = $obatCache[$obatData['nama']];
+
                                 if ($obatModel) {
                                     Keluhan::create([
                                         'id_rekam' => $rekamMedis->id_rekam,
@@ -1479,7 +1532,10 @@ class RekamMedisController extends Controller
 
                     // Process Diagnosa 2
                     if (! empty($diagnosa2) && $diagnosa2 !== '-') {
-                        $diagnosa2Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa2]);
+                        if (! isset($diagnosaCache[$diagnosa2])) {
+                            $diagnosaCache[$diagnosa2] = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa2]);
+                        }
+                        $diagnosa2Model = $diagnosaCache[$diagnosa2];
                         $idDiagnosa2 = $diagnosa2Model->id_diagnosa;
 
                         // Create keluhan entries for each obat in Diagnosa 2
@@ -1491,7 +1547,11 @@ class RekamMedisController extends Controller
                         $hasObat = false;
                         foreach ($obatList2 as $obatData) {
                             if (! empty($obatData['nama']) && $obatData['nama'] !== '-') {
-                                $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
+                                if (! isset($obatCache[$obatData['nama']])) {
+                                    $obatCache[$obatData['nama']] = Obat::where('nama_obat', $obatData['nama'])->first();
+                                }
+                                $obatModel = $obatCache[$obatData['nama']];
+
                                 if ($obatModel) {
                                     Keluhan::create([
                                         'id_rekam' => $rekamMedis->id_rekam,
@@ -1529,7 +1589,10 @@ class RekamMedisController extends Controller
 
                     // Process Diagnosa 3
                     if (! empty($diagnosa3) && $diagnosa3 !== '-') {
-                        $diagnosa3Model = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa3]);
+                        if (! isset($diagnosaCache[$diagnosa3])) {
+                            $diagnosaCache[$diagnosa3] = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa3]);
+                        }
+                        $diagnosa3Model = $diagnosaCache[$diagnosa3];
                         $idDiagnosa3 = $diagnosa3Model->id_diagnosa;
 
                         // Create keluhan entries for each obat in Diagnosa 3
@@ -1541,7 +1604,11 @@ class RekamMedisController extends Controller
                         $hasObat = false;
                         foreach ($obatList3 as $obatData) {
                             if (! empty($obatData['nama']) && $obatData['nama'] !== '-') {
-                                $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
+                                if (! isset($obatCache[$obatData['nama']])) {
+                                    $obatCache[$obatData['nama']] = Obat::where('nama_obat', $obatData['nama'])->first();
+                                }
+                                $obatModel = $obatCache[$obatData['nama']];
+
                                 if ($obatModel) {
                                     Keluhan::create([
                                         'id_rekam' => $rekamMedis->id_rekam,
@@ -1582,7 +1649,10 @@ class RekamMedisController extends Controller
                     // Find or create diagnosa
                     $idDiagnosa = null;
                     if (! empty($diagnosa1) && $diagnosa1 !== '-') {
-                        $diagnosaModel = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa1]);
+                        if (! isset($diagnosaCache[$diagnosa1])) {
+                            $diagnosaCache[$diagnosa1] = Diagnosa::firstOrCreate(['nama_diagnosa' => $diagnosa1]);
+                        }
+                        $diagnosaModel = $diagnosaCache[$diagnosa1];
                         $idDiagnosa = $diagnosaModel->id_diagnosa;
                     }
 
@@ -1596,7 +1666,11 @@ class RekamMedisController extends Controller
                     $hasObat = false;
                     foreach ($obatList as $obatData) {
                         if (! empty($obatData['nama']) && $obatData['nama'] !== '-') {
-                            $obatModel = Obat::where('nama_obat', $obatData['nama'])->first();
+                            if (! isset($obatCache[$obatData['nama']])) {
+                                $obatCache[$obatData['nama']] = Obat::where('nama_obat', $obatData['nama'])->first();
+                            }
+                            $obatModel = $obatCache[$obatData['nama']];
+
                             if ($obatModel) {
                                 Keluhan::create([
                                     'id_rekam' => $rekamMedis->id_rekam,
@@ -1635,11 +1709,25 @@ class RekamMedisController extends Controller
                 // Update jumlah_keluhan
                 $rekamMedis->update(['jumlah_keluhan' => $keluhanCount]);
 
-                // Dispatch event to trigger stock management
+                // Dispatch event untuk update stok (SUSPENDED selama import)
                 RekamMedisCreated::dispatch($rekamMedis);
+
+                // Collect ID untuk bulk update stok nanti
+                $createdRekamMedisIds[] = $rekamMedis->id_rekam;
 
                 $created++;
             }
+
+            // Re-enable events
+            \App\Listeners\KurangiStokObatListener::setSuspended(false);
+            \App\Listeners\KurangiStokObatEmergencyListener::setSuspended(false);
+
+            // Bulk update stok SEKALI SAJA untuk semua import
+            $this->bulkUpdateStokObat($createdRekamMedisIds);
+
+            // Clear cache stok setelah semua selesai
+            \App\Listeners\KurangiStokObatListener::clearCache();
+            \App\Listeners\KurangiStokObatEmergencyListener::clearCache();
 
             $message = "Import selesai: $created data rekam medis berhasil ditambahkan";
             $hasErrors = count($errors) > 0;
@@ -1671,6 +1759,10 @@ class RekamMedisController extends Controller
             return back()->with('success', $message);
 
         } catch (\Exception $e) {
+            // Re-enable events jika error
+            \App\Listeners\KurangiStokObatListener::setSuspended(false);
+            \App\Listeners\KurangiStokObatEmergencyListener::setSuspended(false);
+
             // Return JSON response for AJAX requests
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
@@ -1682,4 +1774,80 @@ class RekamMedisController extends Controller
             return back()->with('error', 'Gagal import data: '.$e->getMessage());
         }
     }
+
+    /**
+     * Bulk update stok obat untuk semua rekam medis yang di-import
+     */
+    private function bulkUpdateStokObat(array $rekamMedisIds)
+    {
+        if (empty($rekamMedisIds)) {
+            return;
+        }
+
+        try {
+            // Get all keluhan dengan obat dalam 1 query
+            $keluhans = \App\Models\Keluhan::whereIn('id_rekam', $rekamMedisIds)
+                ->whereNotNull('id_obat')
+                ->where('jumlah_obat', '>', 0)
+                ->with('rekamMedis:id_rekam,tanggal_periksa')
+                ->get();
+
+            if ($keluhans->isEmpty()) {
+                return;
+            }
+
+            // Group and aggregate by obat_id + tahun + bulan
+            $stokAggregates = [];
+
+            foreach ($keluhans as $keluhan) {
+                if (!$keluhan->rekamMedis) {
+                    continue;
+                }
+
+                $tanggalPeriksa = $keluhan->rekamMedis->tanggal_periksa;
+                $tahun = $tanggalPeriksa->year;
+                $bulan = $tanggalPeriksa->month;
+                $obatId = $keluhan->id_obat;
+
+                $key = "{$obatId}_{$tahun}_{$bulan}";
+
+                if (!isset($stokAggregates[$key])) {
+                    $stokAggregates[$key] = [
+                        'obat_id' => $obatId,
+                        'tahun' => $tahun,
+                        'bulan' => $bulan,
+                        'total_jumlah' => 0,
+                    ];
+                }
+
+                $stokAggregates[$key]['total_jumlah'] += $keluhan->jumlah_obat;
+            }
+
+            // Batch upsert dengan DB::raw untuk atomic operation
+            foreach ($stokAggregates as $aggregate) {
+                \App\Models\StokBulanan::updateOrCreate(
+                    [
+                        'obat_id' => $aggregate['obat_id'],
+                        'tahun' => $aggregate['tahun'],
+                        'bulan' => $aggregate['bulan'],
+                    ],
+                    [
+                        'stok_pakai' => \DB::raw("COALESCE(stok_pakai, 0) + {$aggregate['total_jumlah']}"),
+                    ]
+                );
+            }
+
+            \Log::info('Bulk stok update completed', [
+                'rekam_medis_count' => count($rekamMedisIds),
+                'stok_updates' => count($stokAggregates),
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error in bulk stok update', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+    }
+
 }

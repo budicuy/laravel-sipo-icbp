@@ -251,10 +251,10 @@ class RekamMedisEmergencyController extends Controller
                     ]));
                 }
 
-                // Dispatch event untuk mengurangi stok obat
-                event(new RekamMedisEmergencyCreated($rekamMedisEmergency));
-
                 DB::commit();
+
+                // Dispatch event untuk mengurangi stok obat AFTER transaction commits
+                event(new RekamMedisEmergencyCreated($rekamMedisEmergency));
             } catch (\Exception $e) {
                 DB::rollback();
                 // If there's an error, restore the token availability
@@ -398,14 +398,14 @@ class RekamMedisEmergencyController extends Controller
                     ->with('error', 'Token tidak valid atau sudah kadaluarsa. Silakan masukkan token kembali.');
             }
 
+            // Simpan old keluhans untuk listener BEFORE transaction
+            $oldKeluhans = $rekamMedisEmergency->keluhans()
+                ->whereNotNull('id_obat')
+                ->where('jumlah_obat', '>', 0)
+                ->get();
+
             DB::beginTransaction();
             try {
-                // Simpan old keluhans untuk listener
-                $oldKeluhans = $rekamMedisEmergency->keluhans()
-                    ->whereNotNull('id_obat')
-                    ->where('jumlah_obat', '>', 0)
-                    ->get();
-
                 // Update emergency medical record
                 $rekamMedisEmergency->update([
                     'id_external_employee' => $validated['external_employee_id'],
@@ -449,10 +449,12 @@ class RekamMedisEmergencyController extends Controller
                     ]));
                 }
 
-                // Dispatch event untuk menyesuaikan stok obat
-                event(new RekamMedisEmergencyUpdated($rekamMedisEmergency, $oldKeluhans));
-
                 DB::commit();
+
+                // Dispatch event untuk menyesuaikan stok obat AFTER transaction commits
+                // Refresh the model to get the latest keluhans
+                $rekamMedisEmergency->refresh();
+                event(new RekamMedisEmergencyUpdated($rekamMedisEmergency, $oldKeluhans));
             } catch (\Exception $e) {
                 DB::rollback();
                 throw $e;

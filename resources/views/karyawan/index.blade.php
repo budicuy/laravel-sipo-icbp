@@ -31,23 +31,27 @@
                         Tambah Karyawan
                     </a>
 
-                    <button type="button" onclick="openImportModal()"
-                        class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        Import Excel
-                    </button>
+                    @if (auth()->user()->role === 'Super Admin')
+                        <button type="button" onclick="openImportModal()"
+                            class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            Import Excel
+                        </button>
+                    @endif
 
-                    <button type="button" onclick="submitBulkDelete()"
-                        class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Hapus Terpilih
-                    </button>
+                    @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                        <button type="button" onclick="submitBulkDelete()"
+                            class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Hapus Terpilih
+                        </button>
+                    @endif
                 </div>
             </div>
 
@@ -138,10 +142,12 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr class="bg-gradient-to-r from-gray-800 to-gray-900">
-                            <th class="px-4 py-4 text-left">
-                                <input type="checkbox" onclick="toggleAll(this)"
-                                    class="rounded border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500">
-                            </th>
+                            @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                                <th class="px-4 py-4 text-left">
+                                    <input type="checkbox" onclick="toggleAll(this)"
+                                        class="rounded border-gray-400 text-blue-600 focus:ring-2 focus:ring-blue-500">
+                                </th>
+                            @endif
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No</th>
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                                 <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nik_karyawan', 'direction' => request('sort') == 'nik_karyawan' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
@@ -325,17 +331,22 @@
                             </th>
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Status
                             </th>
-                            <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
+                            @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi
+                                </th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($karyawans as $karyawan)
                             <tr class="hover:bg-blue-50 transition-colors">
-                                <td class="px-4 py-4 whitespace-nowrap">
-                                    <input name="ids[]" value="{{ $karyawan->id_karyawan }}" type="checkbox"
-                                        class="row-checkbox rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                                        data-id="{{ $karyawan->id_karyawan }}">
-                                </td>
+                                @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <input name="ids[]" value="{{ $karyawan->id_karyawan }}" type="checkbox"
+                                            class="row-checkbox rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                                            data-id="{{ $karyawan->id_karyawan }}">
+                                    </td>
+                                @endif
                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {{ ($karyawans->currentPage() - 1) * $karyawans->perPage() + $loop->iteration }}</td>
                                 <td class="px-4 py-4 whitespace-nowrap">
@@ -417,33 +428,36 @@
                                         {{ optional($karyawan->tanggal_lahir)->format('d-m-Y') }}
                                     </div>
                                 </td>
-                                <td class="px-4 py-4 whitespace-nowrap text-sm">
-                                    <div class="flex items-center gap-2">
-                                        <a href="{{ route('karyawan.edit', $karyawan->id_karyawan) }}"
-                                            class="inline-flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
-                                            title="Edit">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                        </a>
-                                        <form action="{{ route('karyawan.destroy', $karyawan->id_karyawan) }}"
-                                            method="POST" class="delete-form">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" onclick="confirmDelete(this)"
-                                                class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
-                                                title="Hapus">
+                                @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm">
+                                        <div class="flex items-center gap-2">
+                                            <a href="{{ route('karyawan.edit', $karyawan->id_karyawan) }}"
+                                                class="inline-flex items-center justify-center w-9 h-9 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
+                                                title="Edit">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
+                                            </a>
+                                            <form action="{{ route('karyawan.destroy', $karyawan->id_karyawan) }}"
+                                                method="POST" class="delete-form">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" onclick="confirmDelete(this)"
+                                                    class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
+                                                    title="Hapus">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         @empty
                             <tr>

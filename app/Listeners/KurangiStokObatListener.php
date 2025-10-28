@@ -6,9 +6,21 @@ use App\Events\RekamMedisCreated;
 use App\Models\Keluhan;
 use App\Models\StokBulanan;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class KurangiStokObatListener
 {
+    /**
+     * Static cache untuk StokBulanan dalam satu request
+     * Format: ['obat_id_tahun_bulan' => StokBulanan instance]
+     */
+    protected static $stokCache = [];
+
+    /**
+     * Flag untuk suspend event selama bulk import
+     */
+    protected static $suspended = false;
+
     /**
      * Create the event listener.
      */
@@ -22,6 +34,11 @@ class KurangiStokObatListener
      */
     public function handle(RekamMedisCreated $event): void
     {
+        // Skip jika suspended (sedang bulk import)
+        if (self::$suspended) {
+            return;
+        }
+
         $rekamMedis = $event->rekamMedis;
 
         try {
@@ -43,40 +60,49 @@ class KurangiStokObatListener
             $tahun = $tanggalPeriksa->year;
             $bulan = $tanggalPeriksa->month;
 
-            // Proses setiap keluhan
-            foreach ($keluhans as $keluhan) {
-                $obatId = $keluhan->id_obat;
-                $jumlahObat = $keluhan->jumlah_obat;
+            // Group keluhans by obat untuk mengurangi query
+            $keluhansByObat = $keluhans->groupBy('id_obat');
+
+            // Proses setiap obat (bukan setiap keluhan)
+            foreach ($keluhansByObat as $obatId => $keluhanGroup) {
+                $totalJumlah = $keluhanGroup->sum('jumlah_obat');
 
                 // Log untuk debugging
                 Log::info('Memproses pengurangan stok obat', [
                     'id_rekam' => $rekamMedis->id_rekam,
-                    'id_keluhan' => $keluhan->id_keluhan,
                     'id_obat' => $obatId,
-                    'jumlah_obat' => $jumlahObat,
+                    'jumlah_obat' => $totalJumlah,
                     'tahun' => $tahun,
                     'bulan' => $bulan
                 ]);
 
-                // Cari atau buat record di tabel StokBulanan
-                $stokBulanan = StokBulanan::getOrCreate($obatId, $tahun, $bulan);
+                // Cari atau buat record di tabel StokBulanan dengan cache
+                $stokBulanan = $this->getOrCreateStokBulanan($obatId, $tahun, $bulan);
 
                 // Tambahkan nilai jumlah_obat ke kolom stok_pakai
-                $stokBulanan->stok_pakai += $jumlahObat;
-                $stokBulanan->save();
+                $stokBulanan->stok_pakai += $totalJumlah;
+
+                // Save immediately for regular operations
+                if (!self::$suspended) {
+                    $stokBulanan->save();
+                }
+
+                // Update cache dengan instance terbaru
+                $cacheKey = "{$obatId}_{$tahun}_{$bulan}";
+                self::$stokCache[$cacheKey] = $stokBulanan;
 
                 Log::info('Stok obat berhasil dikurangi', [
                     'id_obat' => $obatId,
                     'tahun' => $tahun,
                     'bulan' => $bulan,
-                    'jumlah_dikurangi' => $jumlahObat,
+                    'jumlah_dikurangi' => $totalJumlah,
                     'total_stok_pakai' => $stokBulanan->stok_pakai
                 ]);
             }
 
             Log::info('Proses pengurangan stok obat selesai', [
                 'id_rekam' => $rekamMedis->id_rekam,
-                'total_keluhan' => $keluhans->count()
+                'total_obat_diproses' => $keluhansByObat->count()
             ]);
 
         } catch (\Exception $e) {
@@ -86,5 +112,85 @@ class KurangiStokObatListener
                 'trace' => $e->getTraceAsString()
             ]);
         }
+    }
+
+    /**
+     * Get or create StokBulanan dengan cache
+     */
+    protected function getOrCreateStokBulanan($obatId, $tahun, $bulan)
+    {
+        $cacheKey = "{$obatId}_{$tahun}_{$bulan}";
+
+        // Cek cache terlebih dahulu
+        if (isset(self::$stokCache[$cacheKey])) {
+            // Kembalikan dari cache tanpa refresh (untuk performa)
+            return self::$stokCache[$cacheKey];
+        }
+
+        // Jika tidak ada di cache, query dari database
+        $stokBulanan = StokBulanan::where('obat_id', $obatId)
+            ->where('tahun', $tahun)
+            ->where('bulan', $bulan)
+            ->first();
+
+        if (!$stokBulanan) {
+            // Buat baru jika tidak ada
+            $stokBulanan = StokBulanan::create([
+                'obat_id' => $obatId,
+                'tahun' => $tahun,
+                'bulan' => $bulan,
+                'stok_masuk' => 0,
+                'stok_pakai' => 0,
+            ]);
+        }
+
+        // Simpan ke cache
+        self::$stokCache[$cacheKey] = $stokBulanan;
+
+        return $stokBulanan;
+    }
+
+    /**
+     * Warm cache dengan data yang sudah di-load sebelumnya
+     */
+    public static function warmCache($cacheKey, $stokBulanan)
+    {
+        self::$stokCache[$cacheKey] = $stokBulanan;
+    }
+
+    /**
+     * Set suspended flag
+     */
+    public static function setSuspended($suspended)
+    {
+        self::$suspended = $suspended;
+    }
+
+    /**
+     * Save semua perubahan yang ada di cache ke database
+     */
+    public static function saveAllCachedChanges()
+    {
+        $savedCount = 0;
+        foreach (self::$stokCache as $cacheKey => $stokBulanan) {
+            if ($stokBulanan->isDirty()) {
+                $stokBulanan->save();
+                $savedCount++;
+            }
+        }
+
+        if ($savedCount > 0) {
+            Log::info('Batch save stok bulanan completed', [
+                'total_saved' => $savedCount
+            ]);
+        }
+    }
+
+    /**
+     * Clear cache - dipanggil setelah import selesai
+     */
+    public static function clearCache()
+    {
+        self::$stokCache = [];
     }
 }
