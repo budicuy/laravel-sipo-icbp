@@ -112,83 +112,83 @@
                 <thead class="bg-gray-800">
                     <tr>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nomor Registrasi</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No RM</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Pasien</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Hubungan</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tipe</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tanggal Kunjungan</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Total Kunjungan</th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($kunjunganCollection as $index => $kunjungan)
-                    <tr class="hover:bg-orange-50 transition-colors @if($kunjungan->tipe == 'emergency') bg-red-50 @endif">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $kunjunganCollection->firstItem() + $index }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
-                            {{ $kunjungan->nomor_registrasi }}
-                            @if($kunjungan->tipe == 'emergency')
-                                <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
-                                    <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                    Emergency
+                    @php
+                        // Group kunjungan by No RM untuk menampilkan setiap pasien sekali saja
+                        $groupedKunjungans = [];
+                        $currentYear = date('Y');
+                        
+                        foreach($kunjunganCollection as $kunjungan) {
+                            $noRM = $kunjungan->no_rm;
+                            // Ensure NO RM is a string for consistent array key handling
+                            $noRMKey = (string)$noRM;
+                            if(!isset($groupedKunjungans[$noRMKey])) {
+                                $groupedKunjungans[$noRMKey] = [
+                                    'no_rm' => $noRM,
+                                    'nama_pasien' => $kunjungan->nama_pasien,
+                                    'hubungan' => $kunjungan->hubungan,
+                                    'kunjungans' => [],
+                                    'latest_visit' => $kunjungan // Store latest visit for action button
+                                ];
+                            }
+                            $groupedKunjungans[$noRMKey]['kunjungans'][] = $kunjungan;
+                            // Update latest visit if current visit is newer
+                            if($kunjungan->tanggal_kunjungan > $groupedKunjungans[$noRMKey]['latest_visit']->tanggal_kunjungan) {
+                                $groupedKunjungans[$noRMKey]['latest_visit'] = $kunjungan;
+                            }
+                        }
+                        
+                        // Convert to array and sort by No RM to avoid issues with uksort on associative arrays
+                        $groupedArray = array_values($groupedKunjungans);
+                        usort($groupedArray, function($a, $b) {
+                            return strcmp($a['no_rm'], $b['no_rm']);
+                        });
+                    @endphp
+                    
+                    @forelse($groupedArray as $index => $patientGroup)
+                        <tr class="hover:bg-orange-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                {{ $kunjunganCollection->firstItem() + $index }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
+                                {{ $patientGroup['no_rm'] }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
+                                {{ $patientGroup['nama_pasien'] }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                    {{ $patientGroup['hubungan'] }}
                                 </span>
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
-                            {{ $kunjungan->no_rm }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
-                            {{ $kunjungan->nama_pasien }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            <span class="px-3 py-1
-                                @if($kunjungan->tipe == 'emergency') bg-red-100 text-red-800
-                                @else bg-blue-100 text-blue-800
-                                @endif rounded-full text-xs font-medium">
-                                {{ $kunjungan->hubungan }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            <span class="px-3 py-1
-                                @if($kunjungan->tipe == 'emergency') bg-red-100 text-red-800
-                                @else bg-green-100 text-green-800
-                                @endif rounded-full text-xs font-medium">
-                                {{ $kunjungan->tipe == 'emergency' ? 'Emergency' : 'Reguler' }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            {{ $kunjungan->tanggal_kunjungan->format('d-m-Y') }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                            <span class="px-3 py-1 rounded-full text-xs font-medium
-                                @if($kunjungan->status == 'On Progress') bg-yellow-100 text-yellow-800
-                                @elseif($kunjungan->status == 'Close') bg-green-100 text-green-800
-                                @else bg-gray-100 text-gray-800
-                                @endif">
-                                {{ $kunjungan->status }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <a href="{{ route('kunjungan.detail', $kunjungan->id_kunjungan) }}" class="bg-gradient-to-r
-                                @if($kunjungan->tipe == 'emergency') from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600
-                                @else from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600
-                                @endif text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
-                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                                Detail
-                            </a>
-                        </td>
-                    </tr>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                    {{ count($patientGroup['kunjungans']) }} kunjungan
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <a href="{{ route('kunjungan.detail', $patientGroup['latest_visit']->id_kunjungan) }}" class="bg-gradient-to-r
+                                    @if($patientGroup['latest_visit']->tipe == 'emergency') from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600
+                                    @else from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600
+                                    @endif text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
+                                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Detail
+                                </a>
+                            </td>
+                        </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="px-6 py-8 text-center text-gray-500">
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                             <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>

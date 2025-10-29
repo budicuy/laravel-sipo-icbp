@@ -32,67 +32,47 @@
                 class="bg-gradient-to-r
             @if ($kunjungan->tipe == 'emergency') from-red-500 to-pink-600
             @else from-orange-500 to-red-600 @endif px-6 py-4">
-                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                    @if ($kunjungan->tipe == 'emergency')
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        Informasi Pasien Emergency
-                    @else
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        Informasi Pasien
-                    @endif
-                </h2>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        @if ($kunjungan->tipe == 'emergency')
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Informasi Pasien Emergency
+                        @else
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Informasi Pasien
+                        @endif
+                    </h2>
+                    <!-- Prominent Visit Status Display -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-white text-sm font-medium">Status Kunjungan:</span>
+                        <span
+                            class="px-4 py-2 rounded-full text-sm font-bold shadow-lg
+                        @if ($kunjungan->status == 'On Progress') bg-yellow-400 text-yellow-900 border-2 border-yellow-300
+                        @elseif($kunjungan->status == 'Close') bg-green-400 text-green-900 border-2 border-green-300
+                        @else bg-gray-300 text-gray-900 border-2 border-gray-200 @endif">
+                            {{ $kunjungan->status }}
+                        </span>
+                    </div>
+                </div>
             </div>
             <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Registration Number -->
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-1">Nomor Registrasi</label>
                         <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->nomor_registrasi }}</p>
                     </div>
+                    
+                    <!-- Employee NIK -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">No RM</label>
-                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->no_rm }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Nama Pasien</label>
-                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->nama_pasien }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Hubungan</label>
-                        <span
-                            class="px-3 py-1
-                        @if ($kunjungan->tipe == 'emergency') bg-red-100 text-red-800
-                        @else bg-blue-100 text-blue-800 @endif rounded-full text-sm font-medium">
-                            {{ $kunjungan->hubungan }}
-                        </span>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Tanggal Kunjungan</label>
-                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->tanggal_kunjungan->format('d-m-Y') }}
-                        </p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Status</label>
-                        <span
-                            class="px-3 py-1 rounded-full text-sm font-medium
-                        @if ($kunjungan->status == 'On Progress') bg-yellow-100 text-yellow-800
-                        @elseif($kunjungan->status == 'Close') bg-green-100 text-green-800
-                        @else bg-gray-100 text-gray-800 @endif">
-                            {{ $kunjungan->status }}
-                        </span>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">Petugas</label>
-                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->user->nama_lengkap ?? '-' }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-500 mb-1">NIK</label>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">NIK Karyawan</label>
                         <p class="text-lg font-semibold text-gray-900">
                             @if ($kunjungan->tipe == 'emergency')
                                 {{ $kunjungan->externalEmployee->nik_employee ?? '-' }}
@@ -100,6 +80,79 @@
                                 {{ $kunjungan->keluarga->karyawan->nik_karyawan ?? '-' }}
                             @endif
                         </p>
+                    </div>
+                    
+                    <!-- Employee Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Nama Karyawan</label>
+                        <p class="text-lg font-semibold text-gray-900">
+                            @if ($kunjungan->tipe == 'emergency')
+                                {{ $kunjungan->externalEmployee->nama_employee ?? '-' }}
+                            @else
+                                {{ $kunjungan->keluarga->karyawan->nama_karyawan ?? '-' }}
+                            @endif
+                        </p>
+                    </div>
+                    
+                    <!-- Medical Record Number -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">No RM</label>
+                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->no_rm }}</p>
+                    </div>
+                    
+                    <!-- Patient Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Nama Pasien</label>
+                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->nama_pasien }}</p>
+                    </div>
+                    
+                    <!-- Relationship with Patient -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Hubungan dengan Pasien</label>
+                        <span
+                            class="px-3 py-1
+                        @if ($kunjungan->tipe == 'emergency') bg-red-100 text-red-800
+                        @else bg-blue-100 text-blue-800 @endif rounded-full text-sm font-medium">
+                            {{ $kunjungan->hubungan }}
+                        </span>
+                    </div>
+                    
+                    <!-- Last Visit Date -->
+                    <div>
+                        @php
+                            // Check if current visit is the first (most recent) in history
+                            $isMostRecentVisit = false;
+                            if ($riwayatKunjungan && $riwayatKunjungan->count() > 0) {
+                                $firstVisit = $riwayatKunjungan->first();
+                                $isMostRecentVisit = ($firstVisit->id_kunjungan == $kunjungan->id_kunjungan);
+                            }
+                        @endphp
+                        
+                        @if ($isMostRecentVisit)
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Tanggal Kunjungan Terakhir</label>
+                        @else
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Tanggal Kunjungan</label>
+                        @endif
+                        
+                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->tanggal_kunjungan->format('d-m-Y') }}</p>
+                        
+                        @if ($riwayatKunjungan && $riwayatKunjungan->count() > 1)
+                            @if ($isMostRecentVisit)
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Kunjungan sebelumnya: {{ $riwayatKunjungan->skip(1)->first()->tanggal_kunjungan->format('d-m-Y') }}
+                                </p>
+                            @else
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Tanggal Kunjungan Terakhir: {{ $riwayatKunjungan->first()->tanggal_kunjungan->format('d-m-Y') }}
+                                </p>
+                            @endif
+                        @endif
+                    </div>
+                    
+                    <!-- Medical Officer -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Petugas Medis</label>
+                        <p class="text-lg font-semibold text-gray-900">{{ $kunjungan->user->nama_lengkap ?? '-' }}</p>
                     </div>
                     @if ($kunjungan->tipe == 'emergency')
                         <div>
