@@ -13,6 +13,63 @@ use Illuminate\Http\Request;
 class LaporanController extends Controller
 {
     /**
+     * Helper method untuk generate nomor registrasi yang konsisten dengan KunjunganController
+     * Format: [urutan_kunjungan_pasien_per_tahun]/NDL/BJM/[bulan]/[tahun]
+     */
+    private function generateNomorRegistrasi($pasienId, $tanggalPeriksa, $tipe = 'reguler')
+    {
+        $bulan = $tanggalPeriksa->format('m');
+        $tahun = $tanggalPeriksa->format('Y');
+        
+        if ($tipe === 'emergency') {
+            // Hitung urutan kunjungan untuk pasien emergency pada tahun yang sama
+            $visitCount = RekamMedisEmergency::where('id_external_employee', $pasienId)
+                ->whereYear('tanggal_periksa', $tahun)
+                ->where('tanggal_periksa', '<=', $tanggalPeriksa)
+                ->count();
+        } else {
+            // Hitung urutan kunjungan untuk pasien reguler pada tahun yang sama
+            $visitCount = RekamMedis::where('id_keluarga', $pasienId)
+                ->whereYear('tanggal_periksa', $tahun)
+                ->where('tanggal_periksa', '<=', $tanggalPeriksa)
+                ->count();
+        }
+        
+        return "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
+    }
+
+    /**
+     * Helper method untuk validasi nomor registrasi unik
+     */
+    private function validateNomorRegistrasi($nomorRegistrasi, $excludeId = null)
+    {
+        $query = Kunjungan::where('kode_transaksi', $nomorRegistrasi);
+        
+        if ($excludeId) {
+            $query->where('id_kunjungan', '!=', $excludeId);
+        }
+        
+        return !$query->exists();
+    }
+
+    /**
+     * Helper method untuk optimasi query dengan eager loading
+     */
+    private function optimizeTransaksiQuery($query, $withRelations = [])
+    {
+        $defaultRelations = [
+            'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
+            'keluarga.hubungan:kode_hubungan,hubungan',
+            'keluhans:id_keluhan,id_rekam,id_diagnosa,id_obat,jumlah_obat,aturan_pakai',
+            'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
+            'keluhans.obat:id_obat,nama_obat',
+            'user:id_user,username,nama_lengkap'
+        ];
+        
+        return $query->with(array_merge($defaultRelations, $withRelations));
+    }
+
+    /**
      * Display laporan transaksi page
      */
     public function transaksi(Request $request)
@@ -343,14 +400,12 @@ class LaporanController extends Controller
 
         // Process reguler data
         $resultReguler = $rekamMedisData->map(function ($rekamMedis) use ($kunjunganIdMap, $kunjunganKeyMap, $hargaObatMap) {
-            // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
-            $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
-            $bulan = $rekamMedis->tanggal_periksa->format('m');
-            $tahun = $rekamMedis->tanggal_periksa->format('Y');
-
+            // Generate nomor registrasi yang konsisten dengan KunjunganController
+            $nomorRegistrasi = $this->generateNomorRegistrasi($rekamMedis->id_keluarga, $rekamMedis->tanggal_periksa, 'reguler');
+            
             // Get kode_transaksi from map
             $kunjunganKey = $rekamMedis->id_keluarga.'_'.$rekamMedis->tanggal_periksa->format('Y-m-d');
-            $kodeTransaksi = $kunjunganKeyMap[$kunjunganKey] ?? "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+            $kodeTransaksi = $kunjunganKeyMap[$kunjunganKey] ?? $nomorRegistrasi;
 
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedis->keluhans;
@@ -406,11 +461,9 @@ class LaporanController extends Controller
 
         // Process emergency data
         $resultEmergency = $rekamMedisEmergencyData->map(function ($rekamMedisEmergency) use ($hargaObatMap) {
-            // Generate kode_transaksi format: 2(No Running)/NDL/BJM/MM/YYYY
-            $noRunning = str_pad($rekamMedisEmergency->id_emergency, 1, '0', STR_PAD_LEFT);
-            $bulan = $rekamMedisEmergency->tanggal_periksa->format('m');
-            $tahun = $rekamMedisEmergency->tanggal_periksa->format('Y');
-            $kodeTransaksi = "2{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+            // Generate nomor registrasi yang konsisten dengan KunjunganController
+            $nomorRegistrasi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_external_employee, $rekamMedisEmergency->tanggal_periksa, 'emergency');
+            $kodeTransaksi = $nomorRegistrasi;
 
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedisEmergency->keluhans;
@@ -603,11 +656,8 @@ class LaporanController extends Controller
         ])
             ->findOrFail($id);
 
-        // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
-        $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
-        $bulan = $rekamMedis->tanggal_periksa->format('m');
-        $tahun = $rekamMedis->tanggal_periksa->format('Y');
-        $kodeTransaksi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+        // Generate nomor registrasi yang konsisten dengan KunjunganController
+        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_keluarga, $rekamMedis->tanggal_periksa, 'reguler');
 
         // Create or get kunjungan record for synchronization
         $kunjungan = Kunjungan::firstOrCreate(
@@ -725,11 +775,8 @@ class LaporanController extends Controller
         ])
             ->findOrFail($id);
 
-        // Generate kode_transaksi format: 2(No Running)/NDL/BJM/MM/YYYY
-        $noRunning = str_pad($rekamMedisEmergency->id_emergency, 1, '0', STR_PAD_LEFT);
-        $bulan = $rekamMedisEmergency->tanggal_periksa->format('m');
-        $tahun = $rekamMedisEmergency->tanggal_periksa->format('Y');
-        $kodeTransaksi = "2{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+        // Generate nomor registrasi yang konsisten dengan KunjunganController
+        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_external_employee, $rekamMedisEmergency->tanggal_periksa, 'emergency');
 
         // Add custom attributes to match format in kunjungan page
         $rekamMedisEmergency->no_rm = $rekamMedisEmergency->externalEmployee->nik_employee ?? '-';
@@ -836,11 +883,8 @@ class LaporanController extends Controller
         ])
             ->findOrFail($id);
 
-        // Generate kode_transaksi format: 2(No Running)/NDL/BJM/MM/YYYY
-        $noRunning = str_pad($rekamMedisEmergency->id_emergency, 1, '0', STR_PAD_LEFT);
-        $bulan = $rekamMedisEmergency->tanggal_periksa->format('m');
-        $tahun = $rekamMedisEmergency->tanggal_periksa->format('Y');
-        $kodeTransaksi = "2{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+        // Generate nomor registrasi yang konsisten dengan KunjunganController
+        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_external_employee, $rekamMedisEmergency->tanggal_periksa, 'emergency');
 
         // Add custom attributes to match format in kunjungan page
         $rekamMedisEmergency->no_rm = $rekamMedisEmergency->externalEmployee->nik_employee ?? '-';
@@ -959,11 +1003,8 @@ class LaporanController extends Controller
         ])
             ->findOrFail($id);
 
-        // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
-        $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
-        $bulan = $rekamMedis->tanggal_periksa->format('m');
-        $tahun = $rekamMedis->tanggal_periksa->format('Y');
-        $kodeTransaksi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+        // Generate nomor registrasi yang konsisten dengan KunjunganController
+        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_keluarga, $rekamMedis->tanggal_periksa, 'reguler');
 
         // Create or get kunjungan record for synchronization
         $kunjungan = Kunjungan::firstOrCreate(
@@ -1533,11 +1574,8 @@ class LaporanController extends Controller
 
         // Process reguler data
         $resultReguler = $rekamMedisData->map(function ($rekamMedis) use ($hargaObatMap) {
-            // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
-            $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
-            $bulan = $rekamMedis->tanggal_periksa->format('m');
-            $tahun = $rekamMedis->tanggal_periksa->format('Y');
-            $kodeTransaksi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+            // Generate nomor registrasi yang konsisten dengan KunjunganController
+            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_keluarga, $rekamMedis->tanggal_periksa, 'reguler');
 
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedis->keluhans;
@@ -1589,11 +1627,8 @@ class LaporanController extends Controller
 
         // Process emergency data
         $resultEmergency = $rekamMedisEmergencyData->map(function ($rekamMedisEmergency) use ($hargaObatMap) {
-            // Generate kode_transaksi format: 2(No Running)/NDL/BJM/MM/YYYY
-            $noRunning = str_pad($rekamMedisEmergency->id_emergency, 1, '0', STR_PAD_LEFT);
-            $bulan = $rekamMedisEmergency->tanggal_periksa->format('m');
-            $tahun = $rekamMedisEmergency->tanggal_periksa->format('Y');
-            $kodeTransaksi = "2{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+            // Generate nomor registrasi yang konsisten dengan KunjunganController
+            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_external_employee, $rekamMedisEmergency->tanggal_periksa, 'emergency');
 
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedisEmergency->keluhans;
