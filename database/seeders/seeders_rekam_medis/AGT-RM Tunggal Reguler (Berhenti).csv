@@ -1,13 +1,13 @@
 ﻿A=Hari / Tgl;B=Time;C=NIK;D=Nama Karyawan;E=Kode RM;F=Nama Pasien;G=Diagnosa 1;H=Keluhan 1;I=Obat 1-1;J=Qty;K=Obat 1-2;L=Qty;M=Obat 1-3;N=Qty;O=Diagnosa 2;P=Keluhan 2;Q=Obat 2-1;R=Qty;S=Obat 2-2;T=Qty;U=Obat 2-3;V=Qty;W=Diagnosa 3;X=Keluhan 3;Y=Obat 3-1;Z=Qty;AA=Obat 3-2;AB=Qty;AC=Obat 3-3;AD=Qty;AE=Petugas;AF=Status
-02/08/2025;18:37:00;50170532;Siti Noor Malasari;50170532-A;Siti Noor Malasari;Luka;Luka; Hansaplast ;2; -   ; -   ;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Close
-07/08/2025;05:19:00;1201123;Agus Sutopo;1201123-A;Agus Sutopo;Gatal;Alergi; Cetirizine ;10; Dexamethasone ;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Close
-11/08/2025;06:43:00;1200306;Miftahul Zannah;1200306-A;Miftahul Zannah;Bab > 3X;Diare; Diatabs ;8; Samtacid ;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
-12/08/2025;04:39:00;50167329;Lindawati;50167329-A;Lindawati;Mual;Dispepsia; Samtacid ;10; -   ; -   ;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Close
-15/08/2025;06:10:00;50017031;Dewi Lestari;50017031-C;Muhammad Rey Fadilan;Mata Bengkak  ;Iritasi; Genoint S.M ;1; -   ; -   ;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
-19/08/2025;22:23:00;1200938;Riyadi;1200938-B;Nilla Ariani;Pil KB;KBP; Microgynon ;1; -   ; -   ;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Close
-20/08/2025;18:21:00;50017031;Dewi Lestari;50017031-A;Dewi Lestari;Haid;Haid; Softex ;1; -   ; -   ;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Close
-22/08/2025;02:08:00;50170532;Siti Noor Malasari;50170532-A;Siti Noor Malasari;Luka;Luka; Hansaplast ;2; -   ; -   ;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
-22/08/2025;05:08:00;1200154;Siti Norma;1200154-A;Siti Norma;Mata Perih;Iritasi; Insto Regular ;1; -   ; -   ;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
-23/08/2025;04:08:00;1200414;Masrotin;1200414-A;Masrotin;Sakit Kaki;POJP; Natrium Diklofenak ;10; -   ; -   ;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
-25/08/2025;19:19:00;50047945;Sariwati;50047945-A;Sariwati;Gatal;Alergi; Hydrocortisone ;1; -   ; -   ;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
-28/08/2025;06:49:00;50167329;Lindawati;50167329-A;Lindawati;Mual;Dispepsia; Samtacid ;10; -   ; -   ;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Close
+02/08/2025;18:37:00;50170532;Siti Noor Malasari;50170532-A;Siti Noor Malasari;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Close
+07/08/2025;05:19:00;1201123;Agus Sutopo;1201123-A;Agus Sutopo;Gatal;Alergi;Cetirizine;10;Dexamethasone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Close
+11/08/2025;06:43:00;1200306;Miftahul Zannah;1200306-A;Miftahul Zannah;Bab > 3X;Diare;Diatabs;8;Samtacid;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
+12/08/2025;04:39:00;50167329;Lindawati;50167329-A;Lindawati;Mual;Dispepsia;Samtacid;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Close
+15/08/2025;06:10:00;50017031;Dewi Lestari;50017031-C;Muhammad Rey Fadilan;Mata Bengkak;Iritasi;Genoint S.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
+19/08/2025;22:23:00;1200938;Riyadi;1200938-B;Nilla Ariani;Pil KB;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Close
+20/08/2025;18:21:00;50017031;Dewi Lestari;50017031-A;Dewi Lestari;Haid;Haid;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Close
+22/08/2025;02:08:00;50170532;Siti Noor Malasari;50170532-A;Siti Noor Malasari;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
+22/08/2025;05:08:00;1200154;Siti Norma;1200154-A;Siti Norma;Mata Perih;Iritasi;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
+23/08/2025;04:08:00;1200414;Masrotin;1200414-A;Masrotin;Sakit Kaki;POJP;Natrium Diklofenak;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
+25/08/2025;19:19:00;50047945;Sariwati;50047945-A;Sariwati;Gatal;Alergi;Hydrocortisone;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Close
+28/08/2025;06:49:00;50167329;Lindawati;50167329-A;Lindawati;Mual;Dispepsia;Samtacid;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Close

@@ -288,7 +288,43 @@ class RekamMedisEmergencyController extends Controller
      */
     public function show($id)
     {
-        $rekamMedisEmergency = RekamMedisEmergency::with(['user:id_user,username,nama_lengkap', 'externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat', 'keluhans.diagnosaEmergency'])->findOrFail($id);
+        $rekamMedisEmergency = RekamMedisEmergency::with([
+            'user:id_user,username,nama_lengkap',
+            'externalEmployee:id,nik_employee,nama_employee,kode_rm,jenis_kelamin,alamat',
+            'keluhans.diagnosaEmergency',
+            'keluhans.obat:id_obat,nama_obat,id_satuan',
+            'keluhans.obat.satuanObat:id_satuan,nama_satuan',
+        ])->findOrFail($id);
+
+        // Kelompokkan data berdasarkan diagnosa emergency untuk menghindari duplikasi
+        $keluhanDikelompokkan = [];
+        foreach ($rekamMedisEmergency->keluhans as $keluhan) {
+            $diagnosaId = $keluhan->id_diagnosa_emergency;
+            $diagnosaNama = $keluhan->diagnosaEmergency->nama_diagnosa_emergency ?? 'Tidak ada diagnosa';
+
+            if (! isset($keluhanDikelompokkan[$diagnosaId])) {
+                $keluhanDikelompokkan[$diagnosaId] = [
+                    'diagnosa' => $diagnosaNama,
+                    'terapi' => $keluhan->terapi,
+                    'keterangan' => $keluhan->keterangan,
+                    'obat_list' => [],
+                ];
+            }
+
+            // Tambahkan obat jika ada
+            if ($keluhan->obat) {
+                $keluhanDikelompokkan[$diagnosaId]['obat_list'][] = [
+                    'id_obat' => $keluhan->obat->id_obat,
+                    'nama_obat' => $keluhan->obat->nama_obat,
+                    'jumlah_obat' => $keluhan->jumlah_obat,
+                    'aturan_pakai' => $keluhan->aturan_pakai,
+                    'satuan' => $keluhan->obat->satuanObat->nama_satuan ?? '',
+                ];
+            }
+        }
+
+        // Konversi ke array untuk memudahkan iterasi di view
+        $rekamMedisEmergency->keluhan_dikelompokkan = array_values($keluhanDikelompokkan);
 
         return view('rekam-medis-emergency.detail', compact('rekamMedisEmergency'));
     }

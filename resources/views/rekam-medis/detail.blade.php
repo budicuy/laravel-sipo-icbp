@@ -347,7 +347,7 @@
 
                 <!-- Diagnosa & Treatment Cards -->
                 <div class="space-y-4">
-                    @forelse($rekamMedis->keluhans as $keluhanIndex => $keluhan)
+                    @forelse($rekamMedis->keluhan_dikelompokkan as $keluhanIndex => $keluhanGroup)
                         <div
                             class="bg-white rounded-xl p-6 shadow-md border-2 border-gray-100 hover:border-blue-200 transition-all">
                             <div class="flex flex-col lg:flex-row lg:items-start justify-between mb-5">
@@ -359,23 +359,23 @@
                                     <div>
                                         <div class="data-label mb-2">Diagnosa</div>
                                         <div class="data-value text-xl font-bold text-gray-900">
-                                            {{ $keluhan->diagnosa->nama_diagnosa ?? '-' }}</div>
+                                            {{ $keluhanGroup['diagnosa'] }}</div>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <div
                                         class="status-badge px-4 py-2 rounded-xl text-sm font-bold shadow-sm
-                                {{ $keluhan->terapi == 'Obat' ? 'bg-purple-100 text-purple-700 border-2 border-purple-300' : '' }}
-                                {{ $keluhan->terapi == 'Lab' ? 'bg-orange-100 text-orange-700 border-2 border-orange-300' : '' }}
-                                {{ $keluhan->terapi == 'Istirahat' ? 'bg-green-100 text-green-700 border-2 border-green-300' : '' }}">
+                                {{ $keluhanGroup['terapi'] == 'Obat' ? 'bg-purple-100 text-purple-700 border-2 border-purple-300' : '' }}
+                                {{ $keluhanGroup['terapi'] == 'Lab' ? 'bg-orange-100 text-orange-700 border-2 border-orange-300' : '' }}
+                                {{ $keluhanGroup['terapi'] == 'Istirahat' ? 'bg-green-100 text-green-700 border-2 border-green-300' : '' }}">
                                         <div class="flex items-center gap-2">
-                                            @if ($keluhan->terapi == 'Obat')
+                                            @if ($keluhanGroup['terapi'] == 'Obat')
                                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd"
                                                         d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"
                                                         clip-rule="evenodd" />
                                                 </svg>
-                                            @elseif($keluhan->terapi == 'Lab')
+                                            @elseif($keluhanGroup['terapi'] == 'Lab')
                                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd"
                                                         d="M7 2a1 1 0 00-.707 1.707L7 4.414v3.758a1 1 0 01-.293.707l-4 4C.817 14.769 2.156 18 4.828 18h10.343c2.673 0 4.012-3.231 2.122-5.121l-4-4A1 1 0 0113 8.172V4.414l.707-.707A1 1 0 0013 2H7zm2 6.172V4h2v4.172a3 3 0 00.879 2.12l1.027 1.028a4 4 0 00-2.171.102l-.47.156a4 4 0 01-2.53 0l-.563-.187a1.993 1.993 0 00-.114-.035l1.063-1.063A3 3 0 009 8.172z"
@@ -388,13 +388,13 @@
                                                         clip-rule="evenodd" />
                                                 </svg>
                                             @endif
-                                            <span>{{ $keluhan->terapi }}</span>
+                                            <span>{{ $keluhanGroup['terapi'] }}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            @if ($keluhan->keterangan)
+                            @if ($keluhanGroup['keterangan'])
                                 <div
                                     class="mb-5 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-l-4 border-blue-500 shadow-sm">
                                     <div class="flex items-start gap-3">
@@ -414,13 +414,14 @@
                                                 </svg>
                                                 Catatan Dokter
                                             </div>
-                                            <div class="text-gray-800 leading-relaxed">{{ $keluhan->keterangan }}</div>
+                                            <div class="text-gray-800 leading-relaxed">{{ $keluhanGroup['keterangan'] }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             @endif
 
-                            @if ($keluhan->obat)
+                            @if (count($keluhanGroup['obat_list']) > 0)
                                 <div
                                     class="prescription-card border-2 border-green-300 rounded-xl p-5 shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
                                     <div class="flex items-center gap-3 mb-5 pb-4 border-b-2 border-green-200">
@@ -434,58 +435,57 @@
                                         </div>
                                         <div>
                                             <div class="data-label mb-1">Resep Obat</div>
-                                            <div class="font-bold text-green-800 text-xl">{{ $keluhan->obat->nama_obat }}
+                                            <div class="font-bold text-green-800 text-xl">
+                                                @if (count($keluhanGroup['obat_list']) > 1)
+                                                    {{ count($keluhanGroup['obat_list']) }} Jenis Obat
+                                                @else
+                                                    {{ $keluhanGroup['obat_list'][0]['nama_obat'] ?? '' }}
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                        @if ($keluhan->jumlah_obat)
+
+                                    <!-- Daftar Obat -->
+                                    <div class="space-y-3">
+                                        @foreach ($keluhanGroup['obat_list'] as $obatIndex => $obat)
                                             <div class="bg-white p-4 rounded-xl shadow-sm border border-green-200">
-                                                <div class="flex items-center gap-2 mb-2">
-                                                    <svg class="w-5 h-5 text-green-600" fill="currentColor"
-                                                        viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd"
-                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                    <div class="data-label">Jumlah</div>
+                                                <div class="flex items-start justify-between mb-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <div
+                                                            class="bg-green-100 text-green-800 w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm">
+                                                            {{ $obatIndex + 1 }}
+                                                        </div>
+                                                        <div class="font-semibold text-green-800">{{ $obat['nama_obat'] }}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="data-value text-2xl text-green-700">
-                                                    {{ $keluhan->jumlah_obat }} <span
-                                                        class="text-base">{{ $keluhan->obat->satuanObat->nama_satuan ?? '' }}</span>
+                                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <svg class="w-4 h-4 text-green-600" fill="currentColor"
+                                                            viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd"
+                                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                                                                clip-rule="evenodd" />
+                                                        </svg>
+                                                        <span class="text-sm text-gray-600">Jumlah:</span>
+                                                        <span class="font-semibold">{{ $obat['jumlah_obat'] }}
+                                                            {{ $obat['satuan'] }}</span>
+                                                    </div>
+                                                    @if ($obat['aturan_pakai'])
+                                                        <div class="flex items-center gap-2">
+                                                            <svg class="w-4 h-4 text-green-600" fill="currentColor"
+                                                                viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                                    clip-rule="evenodd" />
+                                                            </svg>
+                                                            <span class="text-sm text-gray-600">Aturan Pakai:</span>
+                                                            <span class="font-semibold">{{ $obat['aturan_pakai'] }}</span>
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
-                                        @endif
-                                        @if ($keluhan->aturan_pakai)
-                                            <div class="bg-white p-4 rounded-xl shadow-sm border border-green-200">
-                                                <div class="flex items-center gap-2 mb-2">
-                                                    <svg class="w-5 h-5 text-green-600" fill="currentColor"
-                                                        viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd"
-                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                    <div class="data-label">Aturan Pakai</div>
-                                                </div>
-                                                <div class="data-value text-lg text-green-700">
-                                                    {{ $keluhan->aturan_pakai }}</div>
-                                            </div>
-                                        @endif
-                                        @if ($keluhan->waktu_pakai)
-                                            <div class="bg-white p-4 rounded-xl shadow-sm border border-green-200">
-                                                <div class="flex items-center gap-2 mb-2">
-                                                    <svg class="w-5 h-5 text-green-600" fill="currentColor"
-                                                        viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd"
-                                                            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                    <div class="data-label">Durasi</div>
-                                                </div>
-                                                <div class="data-value text-2xl text-green-700">
-                                                    {{ $keluhan->waktu_pakai }} <span class="text-base">Hari</span></div>
-                                            </div>
-                                        @endif
+                                        @endforeach
                                     </div>
                                 </div>
                             @else

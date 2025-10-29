@@ -345,6 +345,36 @@ class RekamMedisController extends Controller
             'keluhans.obat.satuanObat:id_satuan,nama_satuan',
         ])->findOrFail($id);
 
+        // Kelompokkan data berdasarkan diagnosa untuk menghindari duplikasi
+        $keluhanDikelompokkan = [];
+        foreach ($rekamMedis->keluhans as $keluhan) {
+            $diagnosaId = $keluhan->id_diagnosa;
+            $diagnosaNama = $keluhan->diagnosa->nama_diagnosa ?? 'Tidak ada diagnosa';
+
+            if (! isset($keluhanDikelompokkan[$diagnosaId])) {
+                $keluhanDikelompokkan[$diagnosaId] = [
+                    'diagnosa' => $diagnosaNama,
+                    'terapi' => $keluhan->terapi,
+                    'keterangan' => $keluhan->keterangan,
+                    'obat_list' => [],
+                ];
+            }
+
+            // Tambahkan obat jika ada
+            if ($keluhan->obat) {
+                $keluhanDikelompokkan[$diagnosaId]['obat_list'][] = [
+                    'id_obat' => $keluhan->obat->id_obat,
+                    'nama_obat' => $keluhan->obat->nama_obat,
+                    'jumlah_obat' => $keluhan->jumlah_obat,
+                    'aturan_pakai' => $keluhan->aturan_pakai,
+                    'satuan' => $keluhan->obat->satuanObat->nama_satuan ?? '',
+                ];
+            }
+        }
+
+        // Konversi ke array untuk memudahkan iterasi di view
+        $rekamMedis->keluhan_dikelompokkan = array_values($keluhanDikelompokkan);
+
         return view('rekam-medis.detail', compact('rekamMedis'));
     }
 
