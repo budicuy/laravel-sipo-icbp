@@ -2,18 +2,16 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use App\Models\RekamMedisEmergency;
-use App\Models\ExternalEmployee;
-use App\Models\User;
 use App\Models\DiagnosaEmergency;
-use App\Models\Obat;
-use App\Models\Keluhan;
-use App\Models\StokObat;
+use App\Models\ExternalEmployee;
 use App\Models\HargaObatPerBulan;
+use App\Models\Keluhan;
+use App\Models\Obat;
+use App\Models\RekamMedisEmergency;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Log;
 
 class RekamMedisEmergencyFromCSVSeeder extends Seeder
 {
@@ -42,25 +40,26 @@ class RekamMedisEmergencyFromCSVSeeder extends Seeder
      */
     private function processCsvFile($csvPath)
     {
-        $this->command->info("Processing CSV file: " . basename($csvPath));
-        
+        $this->command->info('Processing CSV file: '.basename($csvPath));
+
         // Read CSV file
         $csvData = $this->readCsv($csvPath);
-        
+
         if (empty($csvData)) {
-            $this->command->warn("No data found in CSV file: " . basename($csvPath));
+            $this->command->warn('No data found in CSV file: '.basename($csvPath));
+
             return;
         }
 
         // Skip header row and process data rows
         for ($rowNumber = 1; $rowNumber < count($csvData); $rowNumber++) {
             $rowData = $csvData[$rowNumber];
-            
+
             try {
                 $this->processDataRow($rowData, $rowNumber + 1);
             } catch (\Exception $e) {
-                $this->command->error("Error processing row {$rowNumber}: " . $e->getMessage());
-                Log::error("Error processing CSV row {$rowNumber}: " . $e->getMessage());
+                $this->command->error("Error processing row {$rowNumber}: ".$e->getMessage());
+                Log::error("Error processing CSV row {$rowNumber}: ".$e->getMessage());
             }
         }
     }
@@ -99,25 +98,28 @@ class RekamMedisEmergencyFromCSVSeeder extends Seeder
 
         // Find or create external employee
         $externalEmployee = $this->findOrCreateExternalEmployee($nik, $namaKaryawan, $kodeRm);
-        
-        if (!$externalEmployee) {
+
+        if (! $externalEmployee) {
             $this->command->warn("Could not find or create external employee: {$namaKaryawan} (NIK: {$nik})");
+
             return;
         }
 
         // Find user (petugas)
         $user = $this->findUserByName($petugas);
-        
-        if (!$user) {
+
+        if (! $user) {
             $this->command->warn("Could not find user: {$petugas}");
+
             return;
         }
 
         // Find diagnosis
         $diagnosaEmergency = $this->findDiagnosaEmergency($diagnosa);
-        
-        if (!$diagnosaEmergency) {
+
+        if (! $diagnosaEmergency) {
             $this->command->warn("Could not find diagnosis: {$diagnosa}");
+
             return;
         }
 
@@ -146,17 +148,17 @@ class RekamMedisEmergencyFromCSVSeeder extends Seeder
     {
         // Try to find by NIK first
         $externalEmployee = ExternalEmployee::where('nik_employee', $nik)->first();
-        
-        if (!$externalEmployee) {
+
+        if (! $externalEmployee) {
             // Try to find by name
             $externalEmployee = ExternalEmployee::where('nama_employee', $namaKaryawan)->first();
         }
-        
-        if (!$externalEmployee) {
+
+        if (! $externalEmployee) {
             // Try to find by kode RM
             $externalEmployee = ExternalEmployee::where('kode_rm', $kodeRm)->first();
         }
-        
+
         return $externalEmployee;
     }
 
@@ -192,9 +194,10 @@ class RekamMedisEmergencyFromCSVSeeder extends Seeder
 
         // Find medication
         $obat = Obat::where('nama_obat', $namaObat)->first();
-        
-        if (!$obat) {
+
+        if (! $obat) {
             $this->command->warn("Medication not found: {$namaObat}");
+
             return;
         }
 
@@ -218,9 +221,6 @@ class RekamMedisEmergencyFromCSVSeeder extends Seeder
             'aturan_pakai' => null,
         ]);
 
-        // Reduce stock
-        $this->reduceStock($obat->id_obat, $qty, $currentPeriode, $rekamMedisEmergency->id_emergency);
-
         $this->command->info("Created keluhan for medication: {$namaObat} (Qty: {$qty})");
     }
 
@@ -231,14 +231,14 @@ class RekamMedisEmergencyFromCSVSeeder extends Seeder
     {
         // Check if harga obat already exists for this period
         $existingHarga = HargaObatPerBulan::where('id_obat', $idObat)
-                                          ->where('periode', $periode)
-                                          ->first();
+            ->where('periode', $periode)
+            ->first();
 
-        if (!$existingHarga) {
+        if (! $existingHarga) {
             // Get the latest harga for this obat to use as reference
             $latestHarga = HargaObatPerBulan::where('id_obat', $idObat)
-                                                ->orderByRaw("SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC")
-                                                ->first();
+                ->orderByRaw('SUBSTRING(periode, 4, 2) DESC, SUBSTRING(periode, 1, 2) DESC')
+                ->first();
 
             if ($latestHarga) {
                 // Create new harga record for current period with same price
@@ -254,46 +254,6 @@ class RekamMedisEmergencyFromCSVSeeder extends Seeder
     }
 
     /**
-     * Reduce medication stock
-     */
-    private function reduceStock($idObat, $jumlah, $periode, $idEmergency)
-    {
-        try {
-            // Find or create stock record for current period
-            $stokObat = StokObat::firstOrCreate(
-                [
-                    'id_obat' => $idObat,
-                    'periode' => $periode,
-                ],
-                [
-                    'stok_awal' => StokObat::getStokAkhirBulanSebelumnya($idObat, $periode),
-                    'stok_masuk' => 0,
-                    'stok_pakai' => 0,
-                    'stok_akhir' => 0,
-                    'keterangan' => "Emergency record #{$idEmergency}",
-                ]
-            );
-
-            // Update stock usage
-            $stokObat->stok_pakai += $jumlah;
-            
-            // Recalculate ending stock
-            $stokObat->stok_akhir = StokObat::hitungStokAkhir(
-                $stokObat->stok_awal,
-                $stokObat->stok_pakai,
-                $stokObat->stok_masuk
-            );
-            
-            $stokObat->save();
-
-            $this->command->info("Reduced stock for medication ID {$idObat} by {$jumlah} units");
-        } catch (\Exception $e) {
-            $this->command->error("Error reducing stock: " . $e->getMessage());
-            Log::error("Error reducing stock for medication {$idObat}: " . $e->getMessage());
-        }
-    }
-
-    /**
      * Parse date from CSV (format: DD/MM/YYYY)
      */
     private function parseDate($dateString)
@@ -303,11 +263,12 @@ class RekamMedisEmergencyFromCSVSeeder extends Seeder
             if (preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $dateString, $matches)) {
                 return Carbon::createFromDate($matches[3], $matches[2], $matches[1]);
             }
-            
+
             // Try other formats if needed
             return Carbon::parse($dateString);
         } catch (\Exception $e) {
             $this->command->warn("Invalid date format: {$dateString}");
+
             return Carbon::now();
         }
     }
@@ -321,10 +282,11 @@ class RekamMedisEmergencyFromCSVSeeder extends Seeder
             if (empty($timeString)) {
                 return Carbon::now()->format('H:i:s');
             }
-            
+
             return Carbon::parse($timeString)->format('H:i:s');
         } catch (\Exception $e) {
             $this->command->warn("Invalid time format: {$timeString}");
+
             return Carbon::now()->format('H:i:s');
         }
     }
@@ -336,8 +298,8 @@ class RekamMedisEmergencyFromCSVSeeder extends Seeder
     {
         $csvData = [];
 
-        if (($handle = fopen($filePath, 'r')) !== FALSE) {
-            while (($data = fgetcsv($handle, 1000, ';')) !== FALSE) {
+        if (($handle = fopen($filePath, 'r')) !== false) {
+            while (($data = fgetcsv($handle, 1000, ';')) !== false) {
                 $csvData[] = $data;
             }
             fclose($handle);

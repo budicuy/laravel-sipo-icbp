@@ -31,6 +31,26 @@
                         Tambah Obat Baru
                     </a>
 
+                    @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                        <button type="button" onclick="openImportModal()"
+                            class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            Import Stok Masuk
+                        </button>
+
+                        <button type="button" onclick="openImportPakaiModal()"
+                            class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" />
+                            </svg>
+                            Import Stok Pakai
+                        </button>
+                    @endif
+
                     <button type="button" id="refreshBtn"
                         class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,5 +398,294 @@
                 window.location.reload();
             }, 60000);
         });
+
+        // Import Stok Modal Functions
+        function openImportModal() {
+            Swal.fire({
+                title: 'Import Stok Obat dari CSV',
+                html: `
+            <div class="text-left">
+                <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 class="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Informasi Penting
+                    </h4>
+                    <ul class="text-sm text-blue-800 space-y-1 ml-7">
+                        <li>• Format file: Excel (.xlsx atau .xls)</li>
+                        <li>• Maksimal ukuran file: 5MB</li>
+                        <li>• Download template terlebih dahulu</li>
+                        <li>• Format: Nama Obat ; MM-YYYY ; MM-YYYY ; MM-YYYY</li>
+                        <li>• Contoh: Allopurinol ; 50 ; 0 ; 42</li>
+                    </ul>
+                </div>
+
+                <div class="mb-4">
+                    <a href="{{ route('stok.template') }}"
+                       class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-all w-full justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Download Template CSV
+                    </a>
+                </div>
+
+                <form id="importForm" action="{{ route('stok.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File CSV</label>
+                        <input type="file"
+                               name="file"
+                               id="importFile"
+                               accept=".xlsx,.xls"
+                               required
+                               class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2">
+                        <p class="mt-1 text-xs text-gray-500">File Excel (.xlsx atau .xls), maksimal 5MB</p>
+                    </div>
+                </form>
+            </div>
+        `,
+                showCancelButton: true,
+                confirmButtonText: 'Upload & Import',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#7c3aed',
+                cancelButtonColor: '#6b7280',
+                width: '600px',
+                customClass: {
+                    confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
+                    cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
+                },
+                preConfirm: () => {
+                    const fileInput = document.getElementById('importFile');
+                    if (!fileInput.files || fileInput.files.length === 0) {
+                        Swal.showValidationMessage('Silakan pilih file Excel terlebih dahulu');
+                        return false;
+                    }
+
+                    const file = fileInput.files[0];
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+
+                    if (file.size > maxSize) {
+                        Swal.showValidationMessage('Ukuran file maksimal 5MB');
+                        return false;
+                    }
+
+                    const allowedExtensions = ['xlsx', 'xls'];
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                    if (!allowedExtensions.includes(fileExtension)) {
+                        Swal.showValidationMessage('Format file harus .xlsx atau .xls');
+                        return false;
+                    }
+
+                    return true;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const fileInput = document.getElementById('importFile');
+                    const file = fileInput.files[0];
+
+                    // Create FormData
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content'));
+
+                    // Show loading
+                    Swal.fire({
+                        title: 'Sedang Mengimport...',
+                        html: 'Mohon tunggu, data stok sedang diproses',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Submit via AJAX
+                    fetch('{{ route('stok.import') }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => Promise.reject(err));
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                html: data.message,
+                                confirmButtonColor: '#7c3aed'
+                            }).then(() => {
+                                // Reload page to show new data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 2000); // 2-second delay
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Import error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal Import',
+                                html: error.message || 'Terjadi kesalahan saat mengimport data stok',
+                                confirmButtonColor: '#7c3aed'
+                            });
+                        });
+                }
+            });
+        }
+
+        // Import Stok Pakai Modal Functions
+        function openImportPakaiModal() {
+            Swal.fire({
+                title: 'Import Stok Pakai Obat dari CSV',
+                html: `
+            <div class="text-left">
+                <div class="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                    <h4 class="font-semibold text-orange-900 mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Informasi Penting
+                    </h4>
+                    <ul class="text-sm text-orange-800 space-y-1 ml-7">
+                        <li>• Format file: Excel (.xlsx atau .xls)</li>
+                        <li>• Maksimal ukuran file: 5MB</li>
+                        <li>• Download template terlebih dahulu</li>
+                        <li>• Format: Nama Obat ; MM-YYYY ; MM-YYYY ; MM-YYYY</li>
+                        <li>• Contoh: Allopurinol ; 25 ; 15 ; 30</li>
+                    </ul>
+                </div>
+
+                <div class="mb-4">
+                    <a href="{{ route('stok.template-pakai') }}"
+                       class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-all w-full justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Download Template CSV
+                    </a>
+                </div>
+
+                <form id="importPakaiForm" action="{{ route('stok.import-pakai') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File CSV</label>
+                        <input type="file"
+                               name="file"
+                               id="importPakaiFile"
+                               accept=".xlsx,.xls"
+                               required
+                               class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2">
+                        <p class="mt-1 text-xs text-gray-500">File Excel (.xlsx atau .xls), maksimal 5MB</p>
+                    </div>
+                </form>
+            </div>
+        `,
+                showCancelButton: true,
+                confirmButtonText: 'Upload & Import',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#ea580c',
+                cancelButtonColor: '#6b7280',
+                width: '600px',
+                customClass: {
+                    confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
+                    cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
+                },
+                preConfirm: () => {
+                    const fileInput = document.getElementById('importPakaiFile');
+                    if (!fileInput.files || fileInput.files.length === 0) {
+                        Swal.showValidationMessage('Silakan pilih file Excel terlebih dahulu');
+                        return false;
+                    }
+
+                    const file = fileInput.files[0];
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+
+                    if (file.size > maxSize) {
+                        Swal.showValidationMessage('Ukuran file maksimal 5MB');
+                        return false;
+                    }
+
+                    const allowedExtensions = ['xlsx', 'xls'];
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                    if (!allowedExtensions.includes(fileExtension)) {
+                        Swal.showValidationMessage('Format file harus .xlsx atau .xls');
+                        return false;
+                    }
+
+                    return true;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const fileInput = document.getElementById('importPakaiFile');
+                    const file = fileInput.files[0];
+
+                    // Create FormData
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute(
+                        'content'));
+
+                    // Show loading
+                    Swal.fire({
+                        title: 'Sedang Mengimport...',
+                        html: 'Mohon tunggu, data stok pakai sedang diproses',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Submit via AJAX
+                    fetch('{{ route('stok.import-pakai') }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => Promise.reject(err));
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                html: data.message,
+                                confirmButtonColor: '#ea580c'
+                            }).then(() => {
+                                // Reload page to show new data
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 2000); // 2-second delay
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Import error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal Import',
+                                html: error.message ||
+                                    'Terjadi kesalahan saat mengimport data stok pakai',
+                                confirmButtonColor: '#ea580c'
+                            });
+                        });
+                }
+            });
+        }
     </script>
 @endpush

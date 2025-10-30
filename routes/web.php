@@ -78,6 +78,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
     Route::get('/stok/{obat_id}', [StokController::class, 'show'])->name('stok.show');
 
+    // Stok Import Routes (Admin & Super Admin only)
+    Route::get('/stok/template', [StokController::class, 'downloadTemplate'])->name('stok.template')->middleware('role:Admin,Super Admin');
+    Route::post('/stok/import', [StokController::class, 'import'])->name('stok.import')->middleware('role:Admin,Super Admin');
+    Route::get('/stok/template-pakai', [StokController::class, 'downloadTemplatePakai'])->name('stok.template-pakai')->middleware('role:Admin,Super Admin');
+    Route::post('/stok/import-pakai', [StokController::class, 'importPakai'])->name('stok.import-pakai')->middleware('role:Admin,Super Admin');
+
     // Stok Masuk Routes (Admin & Super Admin only)
     Route::post('/stok/masuk', [StokMasukController::class, 'store'])->name('stok.masuk.store')->middleware('role:Admin,Super Admin');
 

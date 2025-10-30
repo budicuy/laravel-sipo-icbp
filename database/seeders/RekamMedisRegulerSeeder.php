@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Events\RekamMedisCreated;
 use App\Models\Diagnosa;
 use App\Models\Karyawan;
 use App\Models\Keluarga;
@@ -183,9 +182,6 @@ class RekamMedisRegulerSeeder extends Seeder
         $this->createKeluhanForDiagnosis($rekamMedis, $diagnosa3, $keluhan3, [
             [$obat3_1, $qty3_1], [$obat3_2, $qty3_2], [$obat3_3, $qty3_3],
         ]);
-
-        // Fire event to automatically reduce stock
-        event(new RekamMedisCreated($rekamMedis));
 
         $this->command->info("Created regular medical record for {$namaPasien} - {$jumlahKeluhan} diagnoses");
 
