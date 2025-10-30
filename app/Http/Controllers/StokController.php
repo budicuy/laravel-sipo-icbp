@@ -258,10 +258,10 @@ class StokController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls', 'max:5120'],
+            'file' => ['required', 'file', 'mimes:xlsx', 'max:5120'],
         ], [
             'file.required' => 'File harus dipilih',
-            'file.mimes' => 'File harus berformat Excel (.xlsx atau .xls)',
+            'file.mimes' => 'File harus berformat Excel (.xlsx)',
             'file.max' => 'Ukuran file maksimal 5MB',
         ]);
 
@@ -542,10 +542,10 @@ class StokController extends Controller
     public function importPakai(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls', 'max:5120'],
+            'file' => ['required', 'file', 'mimes:xlsx', 'max:5120'],
         ], [
             'file.required' => 'File harus dipilih',
-            'file.mimes' => 'File harus berformat Excel (.xlsx atau .xls)',
+            'file.mimes' => 'File harus berformat Excel (.xlsx)',
             'file.max' => 'Ukuran file maksimal 5MB',
         ]);
 

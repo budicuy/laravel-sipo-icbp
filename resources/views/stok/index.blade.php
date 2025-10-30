@@ -402,7 +402,7 @@
         // Import Stok Modal Functions
         function openImportModal() {
             Swal.fire({
-                title: 'Import Stok Obat dari CSV',
+                title: 'Import Stok Obat dari Excel',
                 html: `
             <div class="text-left">
                 <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -413,11 +413,11 @@
                         Informasi Penting
                     </h4>
                     <ul class="text-sm text-blue-800 space-y-1 ml-7">
-                        <li>• Format file: Excel (.xlsx atau .xls)</li>
+                        <li>• Format file: Excel (.xlsx)</li>
                         <li>• Maksimal ukuran file: 5MB</li>
                         <li>• Download template terlebih dahulu</li>
-                        <li>• Format: Nama Obat ; MM-YYYY ; MM-YYYY ; MM-YYYY</li>
-                        <li>• Contoh: Allopurinol ; 50 ; 0 ; 42</li>
+                        <li>• Format: Nama Obat | MM-YYYY | MM-YYYY | MM-YYYY</li>
+                        <li>• Contoh: Allopurinol | 50 | 0 | 42</li>
                     </ul>
                 </div>
 
@@ -427,21 +427,21 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        Download Template CSV
+                        Download Template Excel
                     </a>
                 </div>
 
                 <form id="importForm" action="{{ route('stok.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File CSV</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File Excel</label>
                         <input type="file"
                                name="file"
                                id="importFile"
-                               accept=".xlsx,.xls"
+                               accept=".xlsx"
                                required
                                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2">
-                        <p class="mt-1 text-xs text-gray-500">File Excel (.xlsx atau .xls), maksimal 5MB</p>
+                        <p class="mt-1 text-xs text-gray-500">File Excel (.xlsx), maksimal 5MB</p>
                     </div>
                 </form>
             </div>
@@ -471,11 +471,11 @@
                         return false;
                     }
 
-                    const allowedExtensions = ['xlsx', 'xls'];
+                    const allowedExtensions = ['xlsx'];
                     const fileExtension = file.name.split('.').pop().toLowerCase();
 
                     if (!allowedExtensions.includes(fileExtension)) {
-                        Swal.showValidationMessage('Format file harus .xlsx atau .xls');
+                        Swal.showValidationMessage('Format file harus .xlsx');
                         return false;
                     }
 
@@ -546,7 +546,7 @@
         // Import Stok Pakai Modal Functions
         function openImportPakaiModal() {
             Swal.fire({
-                title: 'Import Stok Pakai Obat dari CSV',
+                title: 'Import Stok Pakai Obat dari Excel',
                 html: `
             <div class="text-left">
                 <div class="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
@@ -557,11 +557,11 @@
                         Informasi Penting
                     </h4>
                     <ul class="text-sm text-orange-800 space-y-1 ml-7">
-                        <li>• Format file: Excel (.xlsx atau .xls)</li>
+                        <li>• Format file: Excel (.xlsx)</li>
                         <li>• Maksimal ukuran file: 5MB</li>
                         <li>• Download template terlebih dahulu</li>
-                        <li>• Format: Nama Obat ; MM-YYYY ; MM-YYYY ; MM-YYYY</li>
-                        <li>• Contoh: Allopurinol ; 25 ; 15 ; 30</li>
+                        <li>• Format: Nama Obat | MM-YYYY | MM-YYYY | MM-YYYY</li>
+                        <li>• Contoh: Allopurinol | 25 | 15 | 30</li>
                     </ul>
                 </div>
 
@@ -571,21 +571,21 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        Download Template CSV
+                        Download Template Excel
                     </a>
                 </div>
 
                 <form id="importPakaiForm" action="{{ route('stok.import-pakai') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File CSV</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pilih File Excel</label>
                         <input type="file"
                                name="file"
                                id="importPakaiFile"
-                               accept=".xlsx,.xls"
+                               accept=".xlsx"
                                required
                                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2">
-                        <p class="mt-1 text-xs text-gray-500">File Excel (.xlsx atau .xls), maksimal 5MB</p>
+                        <p class="mt-1 text-xs text-gray-500">File Excel (.xlsx), maksimal 5MB</p>
                     </div>
                 </form>
             </div>
@@ -615,11 +615,11 @@
                         return false;
                     }
 
-                    const allowedExtensions = ['xlsx', 'xls'];
+                    const allowedExtensions = ['xlsx'];
                     const fileExtension = file.name.split('.').pop().toLowerCase();
 
                     if (!allowedExtensions.includes(fileExtension)) {
-                        Swal.showValidationMessage('Format file harus .xlsx atau .xls');
+                        Swal.showValidationMessage('Format file harus .xlsx');
                         return false;
                     }
 
