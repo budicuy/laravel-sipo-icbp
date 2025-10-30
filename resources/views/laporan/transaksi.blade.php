@@ -223,12 +223,12 @@
                 </div>
 
                 <!-- Export Button -->
-                <button class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                <a href="{{ route('laporan.export.transaksi', ['bulan' => $bulan, 'tahun' => $tahun, 'periode' => $periode, 'search' => $search]) }}" class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Export Excel
-                </button>
+                </a>
             </div>
 
             <!-- Periode Filter -->
@@ -236,7 +236,7 @@
                 <form method="GET" action="{{ route('laporan.transaksi') }}">
                     <input type="hidden" name="bulan" value="{{ $bulan }}">
                     <input type="hidden" name="tahun" value="{{ $tahun }}">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
                                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -250,6 +250,15 @@
                                     <option value="{{ $periodeOption['value'] }}" {{ $periode == $periodeOption['value'] ? 'selected' : '' }}>{{ $periodeOption['label'] }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div>
+                            <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                Cari Nama / No RM
+                            </label>
+                            <input type="text" name="search" value="{{ $search }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Nama pasien atau No RM">
                         </div>
                         <div>
                             <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
@@ -343,13 +352,27 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-4">
-                                    <div class="text-sm text-gray-900 max-w-xs" title="{{ $item['diagnosa'] }}">
-                                        <span class="font-medium">{{ Str::limit($item['diagnosa'], 50) }}</span>
+                                    <div class="text-sm text-gray-900 max-w-xs">
+                                        @if(isset($item['diagnosa_list']) && is_array($item['diagnosa_list']))
+                                            @foreach($item['diagnosa_list'] as $index => $diagnosa)
+                                                @if($index > 0), @endif
+                                                <span class="font-medium">{{ $diagnosa }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="font-medium">-</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-4 py-4">
-                                    <div class="text-sm text-gray-700 max-w-xs" title="{{ $item['obat'] }}">
-                                        {{ Str::limit($item['obat'], 50) }}
+                                    <div class="text-sm text-gray-700 max-w-xs">
+                                        @if(isset($item['obat_details']) && is_array($item['obat_details']))
+                                            @foreach($item['obat_details'] as $index => $obat)
+                                                @if($index > 0), @endif
+                                                <span>{{ $obat['nama_obat'] }} ({{ $obat['jumlah_obat'] }})</span>
+                                            @endforeach
+                                        @else
+                                            <span>-</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
@@ -359,7 +382,7 @@
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
                                     @if($item['tipe'] == 'Emergency')
-                                        <a href="{{ route('laporan.detail-emergency', $item['id_rekam']) }}" class="inline-flex items-center px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition-all">
+                                        <a href="{{ route('laporan.detail-emergency', $item['id_rekam']) }}?bulan={{ $bulan }}&tahun={{ $tahun }}&periode={{ $periode }}&search={{ $search }}&per_page={{ $perPage }}" class="inline-flex items-center px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition-all">
                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -367,7 +390,7 @@
                                             Detail
                                         </a>
                                     @else
-                                        <a href="{{ route('laporan.detail', $item['id_rekam']) }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all">
+                                        <a href="{{ route('laporan.detail', $item['id_rekam']) }}?bulan={{ $bulan }}&tahun={{ $tahun }}&periode={{ $periode }}&search={{ $search }}&per_page={{ $perPage }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all">
                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -379,7 +402,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="11" class="px-4 py-8 text-center text-gray-500">
+                                <td colspan="10" class="px-4 py-8 text-center text-gray-500">
                                     <div class="flex flex-col items-center">
                                         <svg class="w-12 h-12 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -518,6 +541,18 @@
                     tension: 0.4,
                     pointRadius: 4,
                     pointHoverRadius: 6
+                },
+                {
+                    label: 'Total Pemeriksaan',
+                    data: chartPemeriksaanData.total,
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderDash: [5, 5]
                 }
             ]
         },
@@ -585,6 +620,18 @@
                     tension: 0.4,
                     pointRadius: 4,
                     pointHoverRadius: 6
+                },
+                {
+                    label: 'Total Biaya',
+                    data: chartBiayaData.total,
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    borderDash: [5, 5]
                 }
             ]
         },

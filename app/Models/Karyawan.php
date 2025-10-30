@@ -11,7 +11,9 @@ class Karyawan extends Model
     use HasFactory;
 
     protected $table = 'karyawan';
+
     protected $primaryKey = 'id_karyawan';
+
     public $timestamps = true;
 
     protected $fillable = [
@@ -25,6 +27,7 @@ class Karyawan extends Model
         'foto',
         'email',
         'bpjs_id',
+        'status',
     ];
 
     protected $casts = [
@@ -54,6 +57,7 @@ class Karyawan extends Model
         } elseif ($this->jenis_kelamin === 'Perempuan') {
             return 'P';
         }
+
         return $this->jenis_kelamin;
     }
 
@@ -68,5 +72,3 @@ class Karyawan extends Model
         return $this->hasMany(Keluarga::class, 'id_karyawan', 'id_karyawan');
     }
 }
-
-

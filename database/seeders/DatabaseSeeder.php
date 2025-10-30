@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         // Seeder untuk master data
         $this->call([
+            DiagnosaEmergencyObatSeeder::class, // Tambahkan seeder untuk pivot table
             DepartemenSeeder::class,
             SatuanObatSeeder::class,
             HubunganSeeder::class,
@@ -28,7 +29,9 @@ class DatabaseSeeder extends Seeder
             VendorSeeder::class,
             KategoriSeeder::class,
             ExternalEmployeeSeeder::class,
-            DiagnosaEmergencyObatSeeder::class, // Tambahkan seeder untuk pivot table
+            TokenEmergencySeeder::class, // Seeder untuk token emergency
+            RekamMedisEmergencyFromCSVSeeder::class, // Seeder untuk data emergency dari CSV
+            RekamMedisRegulerSeeder::class, // Seeder untuk data rekam medis reguler dari CSV
         ]);
 
         // Tabel users belum ada, komentari dulu

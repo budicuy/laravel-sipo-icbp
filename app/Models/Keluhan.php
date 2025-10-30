@@ -7,21 +7,92 @@ use Illuminate\Database\Eloquent\Model;
 class Keluhan extends Model
 {
     protected $table = 'keluhan';
+
     protected $primaryKey = 'id_keluhan';
+
     public $timestamps = false;
 
     protected $fillable = [
         'id_rekam',
-        'id_emergency', // Kolom untuk relasi dengan rekam_medis_emergency
         'id_diagnosa',
-        'id_diagnosa_emergency', // Kolom untuk relasi langsung dengan diagnosa_emergency
         'terapi',
         'keterangan',
         'id_obat',
         'jumlah_obat',
         'aturan_pakai',
         'id_keluarga',
+        'id_emergency',
+        'id_diagnosa_emergency',
     ];
+
+    // Properties that should be ignored when saving to database
+    protected $guarded = [];
+
+    // Static cache for table columns to prevent repeated schema queries
+    protected static $tableColumnsCache = null;
+
+    /**
+     * Get the attributes that should be converted to dates.
+     */
+    public function getDates()
+    {
+        return ['created_at'];
+    }
+
+    /**
+     * Get cached table columns to prevent N+1 schema queries
+     */
+    protected function getTableColumns()
+    {
+        if (static::$tableColumnsCache === null) {
+            static::$tableColumnsCache = \Illuminate\Support\Facades\Schema::getColumnListing($this->getTable());
+        }
+
+        return static::$tableColumnsCache;
+    }
+
+    /**
+     * Override save method to handle dynamic attributes
+     */
+    public function save(array $options = [])
+    {
+        // Remove attributes that don't exist in the table before saving
+        $tableColumns = $this->getTableColumns();
+
+        foreach ($this->attributes as $key => $value) {
+            if (! in_array($key, $tableColumns)) {
+                unset($this->attributes[$key]);
+            }
+        }
+
+        return parent::save($options);
+    }
+
+    /**
+     * Create a new model instance that is existing.
+     * This method is overridden to handle dynamic fillable attributes.
+     */
+    public function newInstance($attributes = [], $exists = false)
+    {
+        $model = parent::newInstance($attributes, $exists);
+
+        // Check if emergency columns exist and add them to fillable (using cache)
+        try {
+            $schema = $this->getTableColumns();
+
+            if (in_array('id_emergency', $schema) && ! in_array('id_emergency', $model->fillable)) {
+                $model->fillable[] = 'id_emergency';
+            }
+
+            if (in_array('id_diagnosa_emergency', $schema) && ! in_array('id_diagnosa_emergency', $model->fillable)) {
+                $model->fillable[] = 'id_diagnosa_emergency';
+            }
+        } catch (\Exception $e) {
+            // Ignore errors during schema inspection
+        }
+
+        return $model;
+    }
 
     protected $casts = [
         'tanggal_periksa' => 'date',
@@ -102,6 +173,7 @@ class Keluhan extends Model
         } elseif ($this->id_rekam) {
             return 'Regular';
         }
+
         return 'Unknown';
     }
 
@@ -121,8 +193,12 @@ class Keluhan extends Model
      */
     public function setIdRekamAttribute($value)
     {
+        // Only set id_emergency to null if the column exists in the table (using cache)
         if ($value) {
-            $this->attributes['id_emergency'] = null;
+            $tableColumns = $this->getTableColumns();
+            if (in_array('id_emergency', $tableColumns)) {
+                $this->attributes['id_emergency'] = null;
+            }
         }
         $this->attributes['id_rekam'] = $value;
     }
@@ -150,8 +226,9 @@ class Keluhan extends Model
     {
         $descriptions = [
             'Obat' => 'Terapi Obat',
-            'Lab' => 'Pemeriksaan Laboratorium',
+            'Lab' => 'Konsul Faskes Lanjutan',
             'Istirahat' => 'Istirahat',
+            'Emergency' => 'Tindakan Emergency',
         ];
 
         return $descriptions[$this->terapi] ?? $this->terapi;

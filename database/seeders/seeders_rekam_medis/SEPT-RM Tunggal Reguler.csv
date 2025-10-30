@@ -1,0 +1,520 @@
+﻿A=Hari / Tgl;B=Time;C=NIK;D=Nama Karyawan;E=Kode RM;F=Nama Pasien;G=Diagnosa 1;H=Keluhan 1;I=Obat 1-1;J=Qty;K=Obat 1-2;L=Qty;M=Obat 1-3;N=Qty;O=Diagnosa 2;P=Keluhan 2;Q=Obat 2-1;R=Qty;S=Obat 2-2;T=Qty;U=Obat 2-3;V=Qty;W=Diagnosa 3;X=Keluhan 3;Y=Obat 3-1;Z=Qty;AA=Obat 3-2;AB=Qty;AC=Obat 3-3;AD=Qty;AE=Petugas;AF=Status
+01/09/2025;00:45:00;1200758;Manawiah;1200758-A;Manawiah;Dispepsia;Mual, Nyeri Ulu Hati;Metoclopramide;1;Ranitidin;5;Dobrizol;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+01/09/2025;01:51:00;50003245;Indratno;50003245-A;Indratno;Hipertensi;Pusing;Amlodipin 10Mg;10;Panadol Biru;5;Amoxicilin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+01/09/2025;02:07:00;50018862;Yenni Fitri Iriani;50018862-A;Yenni Fitri Iriani;Dispepsia;Mual;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+01/09/2025;02:31:00;50165488;Rita Rahim;50165488-A;Rita Rahim;Haid;Haid;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+01/09/2025;04:20:00;50027902;M. Al Khoiri;50027902-A;M. Al Khoiri;Furunkel;Lengan Bengkak;Amoxicilin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+01/09/2025;04:21:00;50136049;Rizky Maulidin;50136049-A;Rizky Maulidin;Hematom;Tangan Memar;Amoxicilin;10;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+01/09/2025;05:08:00;50168470;Zahwa Jian Parera Syubi;50168470-A;Zahwa Jian Parera Syubi;Luka;Luka;Hansaplast;3;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+01/09/2025;06:13:00;1200329;Rahmawati;1200329-A;Rahmawati;Check Kolestrol;Cek Kolestrol (171);Stick Kolesterol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+01/09/2025;06:16:00;1200146;Adriyanie Rachman;1200146-A;Adriyanie Rachman;Hipertensi;Hipertensi;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+01/09/2025;06:18:00;1201206;Siti Rahmah Aliansyah;1201206-A;Siti Rahmah Aliansyah;Haid;Haid;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+01/09/2025;07:33:00;50004826;Yusef Antonios;50004826-A;Yusef Antonios;ISPA;Batuk;Brochifar;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+01/09/2025;09:47:00;50162917;Muhammad Noor Arifin;50162917-A;Muhammad Noor Arifin;Luka;Luka;Bioplacenton;1;Emturnas;10;Kassa Steril;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+01/09/2025;13:44:00;50147999;Muhammad Riza Noor;50147999-A;Muhammad Riza Noor;ISPA;Batuk;Brochifar;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+01/09/2025;14:48:00;50161392;Winda Utari Cahyani;50161392-A;Winda Utari Cahyani;Aminorhea;Terlambat Haid;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+01/09/2025;15:30:00;1201344;Khairudin;1201344-A;Khairudin;Selulitis pedis;Bengkak Ditelapak Kaki;Lostacef;10;Natrium Diklofenak;10;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+01/09/2025;15:33:00;50010241;Syafrizal Suid;50010241-A;Syafrizal Suid;Combustio;Luka Bakar;Bioplacenton;1;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+01/09/2025;16:03:00;50000950;Dina Erliana;50000950-A;Dina Erliana;KBP;KBP;Microgynon;1;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+01/09/2025;17:34:00;1200634;Rumini;1200634-A;Rumini;Combustio;Luka Bakar;Bioplacenton;1;Softex;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+01/09/2025;18:37:00;1201237;Kristina;1201237-A;Kristina;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+01/09/2025;20:49:00;1201273;Karmila Juwanti;1201273-A;Karmila Juwanti;ISPA;Flu, S. Tenggorokan;Flucadex;10;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+02/09/2025;01:29:00;1201356;Achmad Sajali;1201356-B;Arifah;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+02/09/2025;02:24:00;50007796;Iwan Idoma;50007796-A;Iwan Idoma;ISPA;Flu,Batuk;Flucadex;5;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+02/09/2025;04:21:00;1201226;Fahrudin;1201226-B;Norhidayati;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+02/09/2025;07:07:00;50162908;Ersa Ayu Nur Syahputri;50162908-A;Ersa Ayu Nur Syahputri;Dismenore;Nyeri Haid;Scopma Plus;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;07:33:00;50013537;Rachmat Waskita Kusuma;50013537-A;Rachmat Waskita Kusuma;Dispepsia;S. Perut;Antasida Doen Tablet;10;Dobrizol;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;07:48:00;1201389;Mulkani Rahmi;1201389-B;Rasida Hairanie;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;08:16:00;50011702;Norlaila Santi;50011702-D;Naira Husna;ISPA;Batuk, Demam;Flutop Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;09:10:00;1201310;Rosita Wati;1201310-A;Rosita Wati;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;09:19:00;1201207;Muhamad Yusuf;1201207-D;Fatimah Azzahra;ISPA;Batuk;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;10:20:00;1201207;Muhamad Yusuf;1201207-C;Windy Zahara Safana;ISPA;Batuk;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;10:50:00;50027898;Nor Ekawati;50027898-A;Nor Ekawati;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;10:55:00;50038700;Ade Nur Hutari;50038700-D;Farisha Azalea Putri;ISPA;Batuk, Flu;Flutop Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;13:25:00;50000645;Tulus Wahyudi;50000645-A;Tulus Wahyudi;Dispepsia;S. Perut;Ranitidin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;13:55:00;50002295;Mediyawati;50002295-A;Mediyawati;Diare;Bab 3X;Diatabs;8;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;14:52:00;50004826;Yusef Antonios;50004826-A;Yusef Antonios;Faringitis;S. Menelan;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+02/09/2025;17:03:00;50147164;M. Ihsan;50147164-A;M. Ihsan;PPJP;S. Gigi;Anastan;10;Hansaplast;4;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+02/09/2025;18:12:00;50027889;Muliyono;50027889-A;Muliyono;Febris;Panas;Emturnas;10;Hansaplast;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+02/09/2025;19:42:00;1200241;Muhammad Akhbari;1200241-A;Muhammad Akhbari;PPJP;S. Gigi;Natrium Diklofenak;10;Novamox;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+02/09/2025;19:55:00;1200229;Joni Tappi;1200229-A;Joni Tappi;Asma;Sesak;Ventasal Inject;1;Spuit 3 Cc;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+02/09/2025;20:02:00;50027847;M. Soparto Rahman;50027847-A;M. Soparto Rahman;ISPA;Flu;Brochifar;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+02/09/2025;22:46:00;50001697;Haryanto;50001697-A;Haryanto;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;00:09:00;1201189;Sri Herlina;1201189-A;Sri Herlina;Haid;Haid;Softex;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+03/09/2025;04:03:00;50103663;Tihamah;50103663-A;Tihamah;PPJP;S.Gigi;Emturnas;10;Novamox;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+03/09/2025;04:43:00;50006928;Muhaimin;50006928-A;Muhaimin;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+03/09/2025;05:08:00;1200312;Siti Nurningsih;1200312-A;Siti Nurningsih;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+03/09/2025;05:12:00;1200266;Agus Jaya Nurhadi;1200266-A;Agus Jaya Nurhadi;Iritasi;Mata Merah;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+03/09/2025;05:20:00;50000636;Rumiah;50000636-A;Rumiah;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+03/09/2025;06:21:00;50014975;Eka Aprilyawati;50014975-A;Eka Aprilyawati;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+03/09/2025;06:38:00;1201403;Nurul Azmi;1201403-A;Nurul Azmi;Diabetes Melitus;Lemes & Cek Gds (468);Stick Glukosa;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+03/09/2025;06:40:00;50000544;Fauziansyah;50000544-A;Fauziansyah;Dispepsia;Mual;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;06:51:00;1201164;Abdul Basit;1201164-A;Abdul Basit;PPJP;Sakit Gigi;Anastan;5;Methylprednisolone;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;07:17:00;50174020;Muhammad Alvie;50174020-A;Muhammad Alvie;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;07:26:00;1200570;M.Sawabi;1200570-A;M.Sawabi;Luka;Luka;Bioplacenton;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;07:44:00;50013537;Rachmat Waskita Kusuma;50013537-A;Rachmat Waskita Kusuma;Dispepsia;Perut Kembung;Dobrizol;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;09:29:00;50169372;Handika Juliansyah;50169372-A;Handika Juliansyah;Iritasi;Mata Perih;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;10:07:00;50049530;Siti Khadijah;50049530-A;Siti Khadijah;Haid;Haid;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;10:18:00;1201107;Suparno;1201107-A;Suparno;PPJP;Sakit Gigi;Anastan;10;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;10:26:00;50049528;Imiwara Santi;50049528-A;Imiwara Santi;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;10:35:00;50036213;Roby Martoni;50036213-A;Roby Martoni;Faringitis;Sakit Menelan;Emturnas;10;Dexamethasone;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;11:51:00;1200248;Wahyono;1200248-B;Murziah;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;12:00:00;50087118;Laila Hayati;50087118-A;Laila Hayati;ISPA;Flu;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;12:07:00;50046078;Muhammad Rifa'i;50046078-A;Muhammad Rifa'i;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;13:13:00;1201348;Winarsih;1201348-A;Winarsih;POJP;Sakit Leher;Piroxicam;10;Neurodex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;14:32:00;1200914;Syamsul Pahri;1200914-A;Syamsul Pahri;Dispepsia;Perut Kembung;Dobrizol;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;14:44:00;1200122;Abdul Rahim;1200122-A;Abdul Rahim;Hiperlipidemia;Pusing;Simvastatin 10 mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;14:52:00;1201133;Nurani;1201133-A;Nurani;ISPA;Batuk;Brochifar;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+03/09/2025;16:16:00;1200682;Hartini;1200682-A;Hartini;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;16:56:00;1200632;Gt. Sekar Sri Wulan;1200632-A;Gt. Sekar Sri Wulan;Hiperlipidemia;Kebas;Simvastatin 10 mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;17:00:00;50107988;Agung Prabowo;50107988-A;Agung Prabowo;Iritasi;Mata Gatal;Genoint S.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;17:30:00;50027847;M. Soparto Rahman;50027847-A;M. Soparto Rahman;Cephalgia;Sakit Kepala;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;17:45:00;50000946;Yazid Bustani;50000946-A;Yazid Bustani;Cephalgia;Sakit Kepala;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;17:45:00;50047163;Sri Wahyuningsih;50047163-A;Sri Wahyuningsih;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;18:30:00;1201311;Idawati;1201311-A;Idawati;Cephalgia;Pusing;Panadol Extra;5;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;19:53:00;50165506;Nurvina Ramadhita;50165506-A;Nurvina Ramadhita;ISPA;Flu;Flucadex;5;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;20:04:00;1201403;Nurul Azmi;1201403-A;Nurul Azmi;Diabetes Melitus;Cek Gula (532);Stick Glukosa;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;20:16:00;50034713;Muhammad Amin;50034713-A;Muhammad Amin;Faringitis;S. Tenggorokan;Amoxicilin;10;Anastan;10;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+03/09/2025;21:41:00;1201051;Riyada Ramaidah;1201051-A;Riyada Ramaidah;Alergi;Gatal;Cetirizine;10;Methylprednisolone;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+04/09/2025;01:30:00;1201128;Rahmah;1201128-A;Rahmah;Dismenore;Nyeri Haid;Ranitidin;5;Scopma Plus;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+04/09/2025;05:50:00;50002009;Abdul Halil;50002009-B;Paulina;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+04/09/2025;06:58:00;50012994;Fahrin Munawar;50012994-A;Fahrin Munawar;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+04/09/2025;07:21:00;1200812;Suwito;1200812-A;Suwito;POJP;Sakit Tangan;Piroxicam;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+04/09/2025;08:02:00;50024637;Hendra Budiman;50024637-A;Hendra Budiman;ISPA;Flu;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+04/09/2025;08:21:00;1200395;Ramli Saleh;1200395-A;Ramli Saleh;ISPA;Flu;Flucadex;10;Methylprednisolone;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+04/09/2025;10:12:00;50022356;Taufikkurahman;50022356-A;Taufikkurahman;ISPA;Flu;Flucadex;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+04/09/2025;11:03:00;50012079;Rukayah;50012079-A;Rukayah;ISPA;Flu;Coparcetin;10;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+04/09/2025;13:27:00;50002412;Yohanes Bosco Deni Setiawan;50002412-A;Yohanes Bosco Deni Setiawan;Hipertensi;Pusing;Amlodipin 10Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+04/09/2025;14:00:00;50001148;Arifin;50001148-A;Arifin;Iritasi;Mata Perih;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+04/09/2025;14:16:00;50017031;Dewi Lestari;50017031-A;Dewi Lestari;Luka;Luka;Bioplacenton;1;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+04/09/2025;15:46:00;1201112;Agus Susilawati;1201112-A;Agus Susilawati;PPJP;Gusi Bengkak;Natrium Diklofenak;10;Novamox;10;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+04/09/2025;17:33:00;50004824;Suntoro;50004824-A;Suntoro;Hordeolum;Kelopak Mata Bengkak;Genoint T.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+04/09/2025;19:05:00;50158080;Muhammad Riki Ramadhani;50158080-A;Muhammad Riki Ramadhani;Urtikaria;Gatal;Molacort;10;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+04/09/2025;21:02:00;1200290;Endang Sulastri;1200290-A;Endang Sulastri;Alergi;Gatal;Hydrocortisone;1;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+04/09/2025;21:21:00;50027929;Hendy Meinatha;50027929-A;Hendy Meinatha;ISPA;Flu;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+04/09/2025;22:19:00;50170539;Imam Bukoiri;50170539-A;Imam Bukoiri;Stomatitis;Sariawan;Methylprednisolone;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+05/09/2025;02:03:00;1201162;Sugeng;1201162-D;Winar Dwimukti Pasha;Febris;Demam;Erlamol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+05/09/2025;02:46:00;50000639;Budi Mulyawan;50000639-A;Budi Mulyawan;Myalgia;Lemes;Emturnas;5;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+05/09/2025;03:20:00;1200963;Halimah A.;1200963-A;Halimah A.;POJP;Nyeri Kaki;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+05/09/2025;06:37:00;50027401;Hikmah;50027401-A;Hikmah;ISPA;Pilek,Flu;Coparcetin;5;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+05/09/2025;08:09:00;50170535;Farida Ariani;50170535-A;Farida Ariani;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+05/09/2025;09:40:00;50047951;Masriah;50047951-A;Masriah;ISPA;Batuk;Coparcetin;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+05/09/2025;11:24:00;50087118;Laila Hayati;50087118-A;Laila Hayati;Dispepsia;Perut Kembung;Dobrizol;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+05/09/2025;12:24:00;1200429;Nazaruddin;1200429-A;Nazaruddin;Dispepsia;Mual;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+05/09/2025;12:47:00;1200321;Jasmawati;1200321-A;Jasmawati;Hipertensi;Pusing;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+05/09/2025;15:50:00;50022375;Tino Hariyanto;50022375-D;Nabila Syakira Azzahra;ISPA;Flu;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+05/09/2025;16:07:00;50012994;Fahrin Munawar;50012994-B;Hartuti;Diare;Bab Cair > 3X;Diatabs;8;Cotrimoxazole;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+05/09/2025;16:15:00;50027847;M. Soparto Rahman;50027847-C;Nauraya Hayati;ISPA;Flu;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+06/09/2025;10:39:00;50000546;Yulita;50000546-A;Yulita;KBP;KBP;Microgynon;1;Softex;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+06/09/2025;12:12:00;50166213;Ahmad Rifai;50166213-A;Ahmad Rifai;Alergi;Gatal;Molacort;10;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;01:19:00;1200390;Hasnah;1200390-A;Hasnah;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+08/09/2025;02:25:00;50174022;Khafidzin;50174022-A;Khafidzin;Iritasi;Mata Terkena Bumbu Mie;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+08/09/2025;04:30:00;1201172;Paridah;1201172-A;Paridah;Iritasi;Mata Perih;Genoint T.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+08/09/2025;04:42:00;1201189;Sri Herlina;1201189-A;Sri Herlina;KBS;KBS 1 Bln;Spuit 3 Cc;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+08/09/2025;05:56:00;50136055;Rizka;50136055-A;Rizka;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+08/09/2025;06:10:00;50038700;Ade Nur Hutari;50038700-A;Ade Nur Hutari;Iritasi;Mata Merah;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;06:12:00;50010241;Syafrizal Suid;50010241-A;Syafrizal Suid;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;06:48:00;50027847;M. Soparto Rahman;50027847-A;M. Soparto Rahman;POJP;Nyeri Sendi;Natrium Diklofenak;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;07:51:00;50011192;Yudi Ariyandi;50011192-A;Yudi Ariyandi;Hordeolum;Nyeri Kelopak Mata;Genoint T.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;08:16:00;1201025;Nurhaina;1201025-A;Nurhaina;GEA;Mual, Muntah, Bab Cair;Dobrizol;10;Antasida Doen Syrup 60 ml;1;Neurodex;5;GEA;Mual, Muntah, Bab Cair;Diatabs;4;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;08:39:00;1200122;Abdul Rahim;1200122-D;Muhammad Yose Rizal;ISPA;Flu;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;09:27:00;1201296;Yekti Handiyamah;1201296-A;Yekti Handiyamah;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;10:39:00;50007921;Utami Wulan Sari;50007921-A;Utami Wulan Sari;POJP;Nyeri Sendi;Natrium Diklofenak;5;Softex;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;12:14:00;1201207;Muhamad Yusuf;1201207-A;Muhamad Yusuf;ISPA;Flu, Batuk Berdahak;Flucadex;10;Ambroxol;10;Novamox;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;12:36:00;1201051;Riyada Ramaidah;1201051-A;Riyada Ramaidah;POJP;Nyeri Sendi;Natrium Diklofenak;10;Hansaplast;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;13:07:00;50165463;Ririn Amelia;50165463-A;Ririn Amelia;ISPA;Panas, S. Tenggorokan;Emturnas;10;Methylprednisolone;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;13:31:00;50002842;Ani Sukmaningsih;50002842-D;Muhammad Dzaki Arwan;Alergi;Gatal;Gentamicin;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;13:57:00;50022438;Maslaini;50022438-B;Noor Latifah;Diabetes Melitus;Diabetes Melitus;Metformin;20;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;14:09:00;50011938;Ramlan;50011938-D;Muhammad Zaini Zein;Febris;Panas;Erlamol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+08/09/2025;15:05:00;50002295;Mediyawati;50002295-A;Mediyawati;Hipertensi;Pusing;Amlodipin 10Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+08/09/2025;15:06:00;1200792;Waskito;1200792-A;Waskito;Faringitis;Batuk, Sakit Menelan;Coparcetin;10;Vit C;5;Methylprednisolone;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+08/09/2025;18:46:00;1201004;Siti Wardah;1201004-A;Siti Wardah;ISPA;Batuk;Coparcetin;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+08/09/2025;19:00:00;50087133;Muhammad Fadli;50087133-A;Muhammad Fadli;Jamur;Gatal;Miconazole Cream;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+08/09/2025;19:38:00;50115398;Rahmat Hidayatullah;50115398-A;Rahmat Hidayatullah;Combustio;Kena Minyak Panas;Octenilin;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+08/09/2025;20:01:00;1201240;Masran;1201240-B;Muriani;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+08/09/2025;20:17:00;50088112;Azizatul Aulia;50088112-A;Azizatul Aulia;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+08/09/2025;20:45:00;50004824;Suntoro;50004824-D;Putri Nur Alya;ISPA;Batuk,Pilek;Flutop Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+08/09/2025;20:51:00;50152234;Muhammad Fathan;50152234-A;Muhammad Fathan;Dispepsia;Mual;Ranitidin;5;Vosea;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+08/09/2025;22:50:00;1201237;Kristina;1201237-A;Kristina;Iritasi;Mata Merah;Genoint T.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+09/09/2025;00:42:00;50001141;Jainudin;50001141-A;Jainudin;ISPA;Flu;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+09/09/2025;02:04:00;1201044;Faridah;1201044-A;Faridah;ISK;Nyeri Bak;Cefixime;10;Emturnas;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+09/09/2025;04:19:00;50166223;Adel Felisia Saragih;50166223-A;Adel Felisia Saragih;Haid;Haid;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+09/09/2025;05:56:00;1200122;Abdul Rahim;1200122-A;Abdul Rahim;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+09/09/2025;06:34:00;50022436;Riza Suriadi;50022436-A;Riza Suriadi;Iritasi;Mata Merah;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+09/09/2025;11:53:00;1201107;Suparno;1201107-A;Suparno;Dermatitis Serboroik;Gatal Dikepala;Cetirizine;10;Cefixime;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+09/09/2025;13:33:00;50001724;Hepy Dyah Astuti;50001724-A;Hepy Dyah Astuti;Iritasi;Mata Merah;Insto Regular;1;Softex;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+09/09/2025;14:03:00;1200708;Susilawati. B;1200708-A;Susilawati. B;Cephalgia;Pusing;Panadol Extra;5;Softex;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+09/09/2025;15:48:00;50000544;Fauziansyah;50000544-A;Fauziansyah;POJP;Nyeri Lengan;Natrium Diklofenak;10;Methylprednisolone;4;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+09/09/2025;18:52:00;50027261;Dahlia;50027261-A;Dahlia;PPJP;S.Gigi;Anastan;10;Novamox;10;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+09/09/2025;20:51:00;1200228;Jamainsyah;1200228-A;Jamainsyah;Hipertensi;Pusing;Amlodipin 5Mg;10;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+09/09/2025;21:28:00;1200499;Y. Wisnu Wijaya;1200499-A;Y. Wisnu Wijaya;Hipertensi;Pusing;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+09/09/2025;21:35:00;50000294;Ponidi;50000294-A;Ponidi;POJP;Nyeri Otot;Natrium Diklofenak;5;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+09/09/2025;21:38:00;1200291;Tuti;1200291-A;Tuti;Luka;Luka;Hansaplast;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+09/09/2025;21:42:00;50000640;Susilawati S.;50000640-A;Susilawati S.;KBS;KBS 3 Bln;Triclofem;1;Spuit 3 Cc;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+10/09/2025;01:26:00;50052093;Yandi Aprianur;50052093-A;Yandi Aprianur;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+10/09/2025;01:38:00;50165459;Seri Wulandari;50165459-A;Seri Wulandari;PPJP;Sakit Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+10/09/2025;03:16:00;50047951;Masriah;50047951-A;Masriah;Iritasi;Mata Perih;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+10/09/2025;05:35:00;50007745;Wiwin Indah Ariani Wibowo;50007745-A;Wiwin Indah Ariani Wibowo;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+10/09/2025;06:21:00;50087101;Ismawati;50087101-A;Ismawati;Dispepsia;Perut Kembung;Dobrizol;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+10/09/2025;06:26:00;1201034;Muhammad Baihaki;1201034-E;Ibtisamah Nur Balqis;ISPA;Batuk;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+10/09/2025;07:40:00;1201004;Siti Wardah;1201004-A;Siti Wardah;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+10/09/2025;10:28:00;50000946;Yazid Bustani;50000946-A;Yazid Bustani;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+10/09/2025;14:45:00;1201043;Arif Samsuharko;1201043-A;Arif Samsuharko;Dermatitis Kontak;Gatal;Cipropluxacin;10;Gentamicin;1;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+10/09/2025;14:47:00;1201403;Nurul Azmi;1201403-A;Nurul Azmi;Diabetes Melitus;Cek Gula (269);Stick Glukosa;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+10/09/2025;17:01:00;1200191;Jainah;1200191-A;Jainah;ISK;Nyeri Bak;Cipropluxacin;10;Emturnas;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+10/09/2025;18:32:00;1201157;Tutik Heru Suwanti;1201157-A;Tutik Heru Suwanti;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+10/09/2025;19:06:00;1201207;Muhamad Yusuf;1201207-A;Muhamad Yusuf;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+10/09/2025;19:08:00;50013639;Asnan;50013639-A;Asnan;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+10/09/2025;20:04:00;1201356;Achmad Sajali;1201356-A;Achmad Sajali;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+10/09/2025;20:04:00;50027887;Hendra;50027887-D;Elsafa Rizkia Putri;ISPA;Batuk;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+10/09/2025;20:10:00;50000629;Rasmiyanti;50000629-A;Rasmiyanti;POJP;Nyeri Sendi;Piroxicam;10;Methylprednisolone;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+10/09/2025;21:38:00;1200399;Usnatun Hasanah;1200399-A;Usnatun Hasanah;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+11/09/2025;00:53:00;50007745;Wiwin Indah Ariani Wibowo;50007745-A;Wiwin Indah Ariani Wibowo;Haid;Haid;Softex;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+11/09/2025;01:15:00;1200810;Sulianto;1200810-B;Wiwik Arsiah;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+11/09/2025;03:00:00;50017031;Dewi Lestari;50017031-A;Dewi Lestari;Stomatitis;Sariawan;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+11/09/2025;06:10:00;1201243;Lahmudin;1201243-A;Lahmudin;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+11/09/2025;07:58:00;1201306;Hernani;1201306-A;Hernani;Check Gula;Cek Gula (97);Stick Glukosa;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+11/09/2025;09:13:00;1200545;Muhammad Ihsan;1200545-A;Muhammad Ihsan;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+11/09/2025;13:15:00;50014249;Risnawati;50014249-A;Risnawati;Cephalgia;Pusing;Panadol Extra;5;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+11/09/2025;13:29:00;1200938;Riyadi;1200938-B;Nilla Ariani;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+11/09/2025;14:16:00;50038700;Ade Nur Hutari;50038700-C;Muhammad Azril Kurniawan;ISPA;Flu;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+11/09/2025;14:25:00;1200892;Purwanto A;1200892-A;Purwanto A;Cephalgia;Pusing;Panadol Extra;5;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+11/09/2025;16:43:00;1201189;Sri Herlina;1201189-A;Sri Herlina;POJP;Nyeri Kaki;Piroxicam;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+11/09/2025;19:03:00;1200162;Masmegawati;1200162-A;Masmegawati;POJP;Cek Au+Gds,Nyeri Kaki (Au 3,4) (Gd 90);Stick Asam Urat;1;Stick Glukosa;1;Piroxicam;5;POJP;Cek Au+Gds,Nyeri Kaki (Au 3,4) (Gd 90);Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+11/09/2025;19:40:00;50002293;Iqbal Husaen;50002293-A;Iqbal Husaen;Diabetes Melitus;Diabetes Melitus;Metformin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+11/09/2025;21:02:00;50002293;Iqbal Husaen;50002293-B;Eni Ida Rustantina;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+11/09/2025;21:35:00;50014617;Nor Astri Jamilah;50014617-A;Nor Astri Jamilah;POJP;Nyeri Pinggang. Luka;Natrium Diklofenak;10;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+12/09/2025;00:29:00;1201348;Winarsih;1201348-A;Winarsih;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+12/09/2025;01:45:00;50047948;Tuti Novita Sari;50047948-A;Tuti Novita Sari;Cephalgia;Pusing;Panadol Extra;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+12/09/2025;02:29:00;50136055;Rizka;50136055-A;Rizka;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+12/09/2025;04:06:00;50002776;Nur'aini;50002776-A;Nur'aini;POJP;Sakit Kaki;Piroxicam;10;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+12/09/2025;04:26:00;50052093;Yandi Aprianur;50052093-A;Yandi Aprianur;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+12/09/2025;05:31:00;1201051;Riyada Ramaidah;1201051-A;Riyada Ramaidah;KBS;KBS 1 Bln;Spuit 3 Cc;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+12/09/2025;06:01:00;1200708;Susilawati. B;1200708-A;Susilawati. B;ISK;Nyeri Bak;Cefixime;10;Emturnas;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+12/09/2025;06:01:00;50000544;Fauziansyah;50000544-A;Fauziansyah;Dispepsia;Mual;Antasida Doen Syrup 60 ml;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+12/09/2025;06:03:00;50113650;Muhammad Adrian Noor;50113650-A;Muhammad Adrian Noor;Iritasi;Mata Berair;Genoint S.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+12/09/2025;06:40:00;50000645;Tulus Wahyudi;50000645-A;Tulus Wahyudi;ISPA;Batuk Dn Flu;Flucadex;10;Ambroxol;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+12/09/2025;07:14:00;1200426;Suyatno;1200426-A;Suyatno;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+12/09/2025;07:32:00;50009853;Yunita Sari;50009853-A;Yunita Sari;POJP;Nyeri Bak;Stick Kolesterol;1;Stick Asam Urat;1;Methylprednisolone;10;POJP;Nyeri Bak;Natrium Diklofenak;10;Neurodex;10;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+12/09/2025;08:24:00;50010405;Adistia Fitriana;50010405-A;Adistia Fitriana;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+12/09/2025;09:28:00;1200222;Suharto;1200222-A;Suharto;ISPA;Batuk, Sesak;Bronchosal;10;Ambroxol;10;Methylprednisolone;10;ISPA;Batuk, Sesak;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+12/09/2025;10:51:00;50010241;Syafrizal Suid;50010241-A;Syafrizal Suid;Hordeolum;Kelopak Mata Bengkak;Genoint T.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+12/09/2025;11:16:00;50014617;Nor Astri Jamilah;50014617-A;Nor Astri Jamilah;Myalgia;Lesu;Vit C;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+12/09/2025;12:48:00;1200758;Manawiah;1200758-A;Manawiah;POJP;Nyeri Sendi (Low);Stick Asam Urat;1;Natrium Diklofenak;10;Methylprednisolone;10;POJP;Nyeri Sendi (Low);Neurodex;10;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+12/09/2025;17:38:00;50006855;Norjanah J.;50006855-A;Norjanah J.;ISPA;Flu, Batuk;Flucadex;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+12/09/2025;19:57:00;50146518;Ikbal Januar;50146518-A;Ikbal Januar;ISPA;Flu,Batuk;Flucadex;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+12/09/2025;20:39:00;1200963;Halimah A.;1200963-A;Halimah A.;POJP;Sakit Kaki;Anastan;5;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+13/09/2025;01:51:00;1201206;Siti Rahmah Aliansyah;1201206-A;Siti Rahmah Aliansyah;ISPA;Flu;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+13/09/2025;01:59:00;1200429;Nazaruddin;1200429-A;Nazaruddin;Jamur;Gatal;Miconazole Cream;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+13/09/2025;02:48:00;50052093;Yandi Aprianur;50052093-A;Yandi Aprianur;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+13/09/2025;05:54:00;50166195;Julaiha;50166195-A;Julaiha;Diare;Bab > 3X;Diatabs;8;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+13/09/2025;08:28:00;50001148;Arifin;50001148-A;Arifin;ISPA;Flu, Batuk;Methylprednisolone;10;Vit C;10;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+13/09/2025;09:47:00;50027385;Astuti;50027385-A;Astuti;Faringitis;S. Tenggorokan;Methylprednisolone;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+13/09/2025;11:40:00;50049276;Sahrul Gunawan;50049276-A;Sahrul Gunawan;Diare;Mual, Bab Cair;Antasida Doen Syrup 60 ml;1;Diatabs;8;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+13/09/2025;12:10:00;50024303;Hadiannoor;50024303-A;Hadiannoor;Cephalgia;Pusing & Lesu;Panadol Extra;5;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+13/09/2025;13:28:00;1201403;Nurul Azmi;1201403-A;Nurul Azmi;Diare;Bab Cair;Diatabs;8;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+13/09/2025;15:06:00;50163793;Wanda Kurnia Savitri;50163793-A;Wanda Kurnia Savitri;PPJP;S.Gigi;Anastan;5;Methylprednisolone;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+13/09/2025;15:22:00;1200186;Halidah;1200186-A;Halidah;Hiperlipidemia;Leher Tegang;Simvastatin 10 mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+13/09/2025;15:45:00;1201307;Fathur Rahman;1201307-A;Fathur Rahman;POJP;Nyeri Lengan;Natrium Diklofenak;5;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+13/09/2025;15:50:00;50014617;Nor Astri Jamilah;50014617-A;Nor Astri Jamilah;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+13/09/2025;16:37:00;1201128;Rahmah;1201128-A;Rahmah;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+13/09/2025;17:17:00;50027922;Taufik Rahman;50027922-A;Taufik Rahman;ISPA;Flu, Batuk;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+13/09/2025;18:28:00;1201239;Nita Hermawati;1201239-A;Nita Hermawati;POJP;Nyeri Lengan;Piroxicam;5;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+13/09/2025;20:17:00;50027889;Muliyono;50027889-C;Muhammad Zaini Bakri;Febris;Demam;Erlamol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+13/09/2025;21:07:00;50017555;Norma;50017555-A;Norma;POJP;Nyeri Jari ,Kebas;Natrium Diklofenak;5;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+13/09/2025;21:59:00;50157482;Marsya Ayu Putri;50157482-A;Marsya Ayu Putri;Haid;Haid;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+14/09/2025;08:01:00;50002293;Iqbal Husaen;50002293-D;Assya Haifa Salsabilla;ISPA;Batuk, Pilek;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+14/09/2025;09:26:00;50087133;Muhammad Fadli;50087133-B;Sri Fatmawati;ISPA;Batuk, Pilek;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+14/09/2025;11:51:00;1200122;Abdul Rahim;1200122-A;Abdul Rahim;Hipertensi;Pusing;Amlodipin 10Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+14/09/2025;12:16:00;50172104;Adam Azhari;50172104-A;Adam Azhari;POJP;Nyeri Pinggang;Natrium Diklofenak;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+14/09/2025;13:39:00;50087133;Muhammad Fadli;50087133-A;Muhammad Fadli;ISPA;Batuk;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+14/09/2025;13:46:00;1200122;Abdul Rahim;1200122-B;Maidayosa;Hiperlipidemia;Pundak Tegang;Simvastatin 10 mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+14/09/2025;13:55:00;1200928;Miftahul Rahmi;1200928-A;Miftahul Rahmi;ISPA;Batuk;Flucadex;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+14/09/2025;13:58:00;1200928;Miftahul Rahmi;1200928-B;Rachmawati S.;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+14/09/2025;14:02:00;50171977;M. Fikri;50171977-A;M. Fikri;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+14/09/2025;14:38:00;1200222;Suharto;1200222-A;Suharto;Dispepsia;Mual;Antasida Doen Tablet;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+15/09/2025;00:08:00;50037994;Nucky Nugraha;50037994-A;Nucky Nugraha;Cephalgia;Sakit Kepala;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+15/09/2025;00:33:00;1201306;Hernani;1201306-A;Hernani;POJP;Nyeri Sendi (5,8);Stick Asam Urat;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+15/09/2025;01:47:00;1201305;Murdiyah;1201305-A;Murdiyah;Hipertensi;S. Kepala;Amlodipin 5Mg;5;Emturnas;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+15/09/2025;01:52:00;50011938;Ramlan;50011938-B;Hariyati;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+15/09/2025;02:30:00;50002295;Mediyawati;50002295-A;Mediyawati;POJP;Nyeri Sendi;Natrium Diklofenak;10;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+15/09/2025;04:33:00;1201248;Nani;1201248-A;Nani;KBP;KBP;Microgynon;1;Hansaplast;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+15/09/2025;06:06:00;1201051;Riyada Ramaidah;1201051-A;Riyada Ramaidah;PPJP;S. Gigi;Novamox;10;Natrium Diklofenak;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+15/09/2025;06:06:00;50027847;M. Soparto Rahman;50027847-A;M. Soparto Rahman;POJP;Nyeri Sendi;Natrium Diklofenak;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+15/09/2025;06:26:00;50027889;Muliyono;50027889-A;Muliyono;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+15/09/2025;06:34:00;50164390;Muhammad Noor Ikhsan;50164390-A;Muhammad Noor Ikhsan;PPJP;S.Gigi;Emturnas;5;Methylprednisolone;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+15/09/2025;08:39:00;50170539;Imam Bukoiri;50170539-A;Imam Bukoiri;ISPA;Batuk,Pilek;Coparcetin;5;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+15/09/2025;08:52:00;1200541;Sri Widodo;1200541-B;Fatmawati;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+15/09/2025;09:05:00;1200929;Purnomo;1200929-A;Purnomo;Hiperlipidemia;Leher Tegang;Simvastatin 10 mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+15/09/2025;10:00:00;50034713;Muhammad Amin;50034713-C;Muhammad Adzka;ISPA;Batuk Pilek;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+15/09/2025;13:12:00;1200329;Rahmawati;1200329-A;Rahmawati;Diare;Bab > 3X;Diatabs;4;Ranitidin;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+15/09/2025;15:01:00;50172842;Syaidatul Aisyah;50172842-A;Syaidatul Aisyah;ISPA;Batuk, Flu;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+15/09/2025;15:30:00;50001137;Ahmad Suriyadi;50001137-A;Ahmad Suriyadi;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+15/09/2025;16:35:00;1200168;Safnah;1200168-D;Rahmad Rasyid Ridha;Febris;Demam;Emturnas;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+15/09/2025;19:11:00;1200168;Safnah;1200168-A;Safnah;POJP;Sakit Kaki;Piroxicam;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+15/09/2025;20:13:00;50047158;Milda Mindrawati;50047158-A;Milda Mindrawati;Post KLLD;Sakit Bahu;Piroxicam;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+15/09/2025;21:03:00;1200326;Mastawiyah;1200326-A;Mastawiyah;Iritasi;Mata Perih;Genoint T.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;00:10:00;1200286;Asmiah;1200286-E;Muhammad Rizky Naufal;Febris;Panas;Erlamol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+16/09/2025;01:06:00;1200206;Hilmiyati Mariana;1200206-A;Hilmiyati Mariana;Asma;Sesak;Neurodex;5;Bronchosal;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+16/09/2025;03:12:00;1200437;Khoirul Ansyori;1200437-A;Khoirul Ansyori;Dispepsia;Mual;Antasida Doen Syrup 60 ml;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+16/09/2025;06:11:00;50011192;Yudi Ariyandi;50011192-A;Yudi Ariyandi;ISPA;Flu Dn Batuk;Flucadex;10;Methylprednisolone;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+16/09/2025;06:19:00;50000950;Dina Erliana;50000950-A;Dina Erliana;Faringitis;S. Tenggorokan;Emturnas;10;Methylprednisolone;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+16/09/2025;06:35:00;1201322;Achmad Yani;1201322-A;Achmad Yani;ISPA;Batuk;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+16/09/2025;07:39:00;50027844;Eswanto;50027844-A;Eswanto;POJP;Sakit Lengan;Natrium Diklofenak;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+16/09/2025;08:07:00;50027401;Hikmah;50027401-A;Hikmah;Haid;Haid;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+16/09/2025;10:21:00;50160567;Hesty Aulia;50160567-A;Hesty Aulia;Dispepsia;Mual,Pusing;Antasida Doen Tablet;5;Panadol Extra;3;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+16/09/2025;10:36:00;1201403;Nurul Azmi;1201403-A;Nurul Azmi;Diabetes Melitus;Gds Tinggi (348);Stick Glukosa;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+16/09/2025;11:50:00;50047931;Gusti Mirna Mustika;50047931-A;Gusti Mirna Mustika;Cephalgia;Pusing;Emturnas;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+16/09/2025;12:20:00;1201327;Jumberi;1201327-A;Jumberi;Luka;Luka;Hansaplast;2;Kassa Steril;3;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+16/09/2025;14:27:00;50052093;Yandi Aprianur;50052093-A;Yandi Aprianur;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+16/09/2025;14:28:00;50146529;Sri Hamdanah;50146529-A;Sri Hamdanah;ISPA;Batuk;Coparcetin;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+16/09/2025;16:12:00;1200407;Triyanto;1200407-A;Triyanto;POJP;Sakit Tangan;Piroxicam;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;16:23:00;1201206;Siti Rahmah Aliansyah;1201206-A;Siti Rahmah Aliansyah;POJP;Sakit Tangan;Natrium Diklofenak;10;Neurodex;5;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;16:56:00;50047951;Masriah;50047951-A;Masriah;Dispepsia;Mual;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;17:26:00;1201218;Salmah;1201218-A;Salmah;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;17:33:00;1200616;Muhyanti;1200616-A;Muhyanti;Alergi;Gatal;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;17:47:00;50014249;Risnawati;50014249-A;Risnawati;Dispepsia;Mual;Antasida Doen Syrup 60 ml;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;17:58:00;50035691;Riza Riadi;50035691-A;Riza Riadi;Faringitis;Sakit Menelan + Demam;Emturnas;10;Vit C;10;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;18:51:00;50103668;Nur Halifah;50103668-A;Nur Halifah;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;19:09:00;50027922;Taufik Rahman;50027922-A;Taufik Rahman;Alergi;Gatal;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;20:09:00;1201025;Nurhaina;1201025-A;Nurhaina;Dispepsia;Mual + Pusing;Panadol Extra;5;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;20:56:00;1200618;Siti Aisyah;1200618-A;Siti Aisyah;ISPA;Flu;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+16/09/2025;22:02:00;1200321;Jasmawati;1200321-A;Jasmawati;Hipertensi;Pusing;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+17/09/2025;02:11:00;50022364;Fahruzzein Amrullah;50022364-A;Fahruzzein Amrullah;PPJP;S. Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+17/09/2025;02:36:00;50022364;Fahruzzein Amrullah;50022364-B;Rina Aulia;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+17/09/2025;03:36:00;1201248;Nani;1201248-A;Nani;Diare;Bab Cair, Nyeri Perut;Diatabs;4;Scopma Plus;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+17/09/2025;03:47:00;1201068;Lina Herliana;1201068-C;Abidzar Al Ghifary;Febris;Panas;Erlamol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+17/09/2025;06:22:00;50049276;Sahrul Gunawan;50049276-A;Sahrul Gunawan;Febris;Panas;Emturnas;10;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+17/09/2025;06:43:00;50002317;Basran;50002317-B;Asnawati;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+17/09/2025;08:00:00;50027922;Taufik Rahman;50027922-A;Taufik Rahman;Post KLLD;Nyeri Bahu;Natrium Diklofenak;10;Novamox;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+17/09/2025;08:53:00;1200787;Syahruni;1200787-B;Titik Sumarningsih;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+17/09/2025;09:16:00;50012079;Rukayah;50012079-C;Fathimah Rushda;ISPA;Pilek;Ternix Hijau;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+17/09/2025;09:39:00;50164390;Muhammad Noor Ikhsan;50164390-A;Muhammad Noor Ikhsan;Parotis;Pipi Bengkak;Emturnas;5;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+17/09/2025;12:30:00;1201347;Mulyati D.;1201347-A;Mulyati D.;PPJP;S.Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+17/09/2025;12:33:00;1200411;Mardani;1200411-B;Noorhidayah;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+17/09/2025;14:54:00;50011208;Syahrifinnor;50011208-A;Syahrifinnor;POJP;Nyeri Sendi;Methylprednisolone;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+17/09/2025;15:06:00;50101564;Duwi Nur Hafifah;50101564-A;Duwi Nur Hafifah;ISPA;Batuk, Demam;Emturnas;10;Ambroxol;10;Cetirizine;10;ISPA;Batuk, Demam;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+17/09/2025;16:17:00;50146845;Muhammad Ridani Prasetyo;50146845-B;Wiwin Dwi Sugiarti;ISPA;Flu;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+17/09/2025;17:01:00;50047951;Masriah;50047951-A;Masriah;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+17/09/2025;19:03:00;50002776;Nur'aini;50002776-B;Halimah;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+17/09/2025;19:09:00;1200274;Ahmad Madi;1200274-A;Ahmad Madi;Alergi;Gatal;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+17/09/2025;19:33:00;50168495;Dinda Kurnilam;50168495-A;Dinda Kurnilam;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+17/09/2025;21:13:00;50007700;Liana Kurniawati;50007700-A;Liana Kurniawati;KBS;KBS 1 Bln;Spuit 3 Cc;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+17/09/2025;21:29:00;1200548;Aris Maryatno;1200548-A;Aris Maryatno;Iritasi;Mata Perih;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+17/09/2025;22:03:00;50017562;Diana;50017562-E;Arumi Nasha Razeta;ISPA;Batuk;Coparcetin Syrup;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+17/09/2025;22:53:00;50146845;Muhammad Ridani Prasetyo;50146845-D;Muhammad Nizam Maqil Sharim;ISPA;Flu;Ternix Hijau;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+18/09/2025;01:36:00;1201051;Riyada Ramaidah;1201051-A;Riyada Ramaidah;Dispepsia;Mual;Antasida Doen Syrup 60 ml;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+18/09/2025;01:54:00;50000946;Yazid Bustani;50000946-A;Yazid Bustani;PPJP;S. Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+18/09/2025;05:38:00;1201034;Muhammad Baihaki;1201034-B;Isnaini;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+18/09/2025;06:35:00;1200159;Titin Jumiati;1200159-A;Titin Jumiati;ISPA;Flu,Pilek;Coparcetin;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+18/09/2025;09:21:00;1201311;Idawati;1201311-A;Idawati;Cephalgia;Pusing;Emturnas;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+18/09/2025;10:42:00;1200673;Siti Aminah;1200673-A;Siti Aminah;Hipertensi;Pusing;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+18/09/2025;10:45:00;1200613;Ernawati;1200613-A;Ernawati;POJP;Nyeri Lengan;Natrium Diklofenak;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+18/09/2025;13:07:00;50000639;Budi Mulyawan;50000639-A;Budi Mulyawan;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+18/09/2025;13:28:00;1201307;Fathur Rahman;1201307-A;Fathur Rahman;POJP;Nyeri Lengan;Natrium Diklofenak;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+18/09/2025;16:02:00;1200426;Suyatno;1200426-A;Suyatno;Hipertensi;Pusing;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+18/09/2025;16:44:00;50034713;Muhammad Amin;50034713-D;Aisya Nur Rizkia;ISPA;Flu;Ternix Hijau;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+18/09/2025;18:05:00;1201243;Lahmudin;1201243-A;Lahmudin;Iritasi;Mata Perih;Genoint T.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+18/09/2025;18:27:00;1201387;Santoso T.;1201387-A;Santoso T.;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+18/09/2025;19:17:00;50049530;Siti Khadijah;50049530-A;Siti Khadijah;Colic Abd;Sakit Perut;Cotrimoxazole;10;Antasida Doen Tablet;10;Scopma Plus;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+18/09/2025;19:37:00;50015540;Bahrah;50015540-A;Bahrah;ISPA;Batuk;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+18/09/2025;20:16:00;1200812;Suwito;1200812-A;Suwito;Infeksi;Luka;Cefixime;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+18/09/2025;21:01:00;50002295;Mediyawati;50002295-E;Muhammad Mirza Hanif;ISPA;Flu;Ternix Hijau;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+19/09/2025;00:37:00;50007839;Rabiatul Hidayah;50007839-A;Rabiatul Hidayah;ISK;Nyeri Bak;Cefixime;10;Emturnas;10;Softex;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+19/09/2025;03:23:00;50170535;Farida Ariani;50170535-A;Farida Ariani;ISPA;Flu Dn B Atuk;Ambroxol;5;Flucadex;5;Methylprednisolone;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+19/09/2025;03:38:00;50049276;Sahrul Gunawan;50049276-A;Sahrul Gunawan;Alergi;Gatal & S.Gigi;Cetirizine;10;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+19/09/2025;04:51:00;1200708;Su  silawati. B;1200708-A;Susilawati. B;Dispepsia;Mual;Antasida Doen Syrup 60 ml;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+19/09/2025;05:23:00;50001143;Selamat Sugiharto;50001143-A;Selamat Sugiharto;ISPA;Flu, Batuk;Flucadex;5;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+19/09/2025;06:59:00;1200159;Titin Jumiati;1200159-A;Titin Jumiati;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+19/09/2025;08:10:00;1200889;Didik Purwanto;1200889-A;Didik Purwanto;Dispepsia;Maul;Lansoprazol;1;Panadol Biru;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+19/09/2025;10:35:00;1201267;Rusmilawati;1201267-A;Rusmilawati;Myalgia;Mual,Pusing;Antasida Doen Tablet;10;Panadol Biru;5;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+19/09/2025;10:35:00;1201231;Siti Aisyah AM.;1201231-A;Siti Aisyah AM.;Alergi;Gatal;Gentamicin;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+19/09/2025;12:34:00;50012823;Maurice Chris Laurence;50012823-A;Maurice Chris Laurence;Dispepsia;Mual;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+19/09/2025;15:17:00;50146845;Muhammad Ridani Prasetyo;50146845-B;Wiwin Dwi Sugiarti;PPJP;Sakit Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+19/09/2025;15:50:00;50012286;Mulyadi;50012286-B;Basrah;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+19/09/2025;16:33:00;50000946;Yazid Bustani;50000946-A;Yazid Bustani;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+19/09/2025;16:58:00;50107988;Agung Prabowo;50107988-A;Agung Prabowo;Dispepsia;Perut Kembung;Lansoprazol;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+19/09/2025;17:31:00;1201389;Mulkani Rahmi;1201389-A;Mulkani Rahmi;ISPA;Flu;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+19/09/2025;18:28:00;50087100;Dwi Norliani;50087100-A;Dwi Norliani;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+19/09/2025;18:54:00;1200162;Masmegawati;1200162-A;Masmegawati;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+19/09/2025;18:56:00;1200122;Abdul Rahim;1200122-A;Abdul Rahim;PPJP;Sakit Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+19/09/2025;19:52:00;1200892;Purwanto A;1200892-A;Purwanto A;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+20/09/2025;02:58:00;50168495;Dinda Kurnilam;50168495-A;Dinda Kurnilam;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+20/09/2025;03:03:00;50024637;Hendra Budiman;50024637-A;Hendra Budiman;Dispepsia;Pusing, Mual;Panadol Extra;5;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+20/09/2025;14:26:00;1201062;Sarkiah;1201062-A;Sarkiah;Dispepsia;Pusing, Mual;Panadol Biru;1;Antasida Doen Syrup 60 ml;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+20/09/2025;16:25:00;1201034;Muhammad Baihaki;1201034-A;Muhammad Baihaki;Diare;Bab > 3X;Diatabs;8;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+20/09/2025;17:32:00;1200616;Muhyanti;1200616-A;Muhyanti;Colic Abd;Sakit Perut;Scopma Plus;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+20/09/2025;18:14:00;50165494;Asikil Anwar;50165494-A;Asikil Anwar;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+20/09/2025;19:24:00;1201107;Suparno;1201107-D;Aurelia Lintang Hapsari;Post KLLD;Luka;Anastan;10;Novamox;10;Octenilin;1;Post KLLD;Luka;Pehacain;1;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+20/09/2025;20:22:00;50014616;Anggi Mariani;50014616-A;Anggi Mariani;KBS;KBS 1 Bln;Spuit 3 Cc;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+20/09/2025;20:30:00;1200429;Nazaruddin;1200429-D;Halwa Fitria;Hordeolum;Mata Bengkak;Genoint S.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+21/09/2025;06:26:00;50027847;M. Soparto Rahman;50027847-A;M. Soparto Rahman;Faringitis;Sakit Menelan;Panadol Extra;5;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+22/09/2025;00:35:00;50027244;M. Noordin;50027244-A;M. Noordin;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+22/09/2025;00:39:00;1200639;Munirah;1200639-A;Munirah;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+22/09/2025;01:07:00;50027440;Ahmad Fauzi;50027440-A;Ahmad Fauzi;Dispepsia;Mual,Pusing;Lansoprazol;1;Panadol Biru;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+22/09/2025;03:21:00;50006928;Muhaimin;50006928-A;Muhaimin;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+22/09/2025;05:45:00;50027889;Muliyono;50027889-A;Muliyono;Iritasi;Mata Perih;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+22/09/2025;06:32:00;1200914;Syamsul Pahri;1200914-A;Syamsul Pahri;Faringitis;Sakit Menelan;Emturnas;10;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+22/09/2025;08:13:00;1200730;Mastaharah;1200730-A;Mastaharah;Dispepsia;Sakit Perut;Ranitidin;10;Vosea;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+22/09/2025;08:32:00;50017032;Risna Yuli Astuti;50017032-A;Risna Yuli Astuti;Colic Abd;Sakit Perut;Scopma Plus;3;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+22/09/2025;09:22:00;50010134;Siti Masrusroh;50010134-A;Siti Masrusroh;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+22/09/2025;10:29:00;50001148;Arifin;50001148-A;Arifin;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+22/09/2025;11:41:00;50132050;Sukirno;50132050-A;Sukirno;ISPA;Batuk;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+22/09/2025;12:57:00;1201216;Hamdani;1201216-A;Hamdani;Hemoroid;Bab Nyeri;Ambeven;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+22/09/2025;15:17:00;1200437;Khoirul Ansyori;1200437-B;Rahmawati;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+22/09/2025;16:04:00;50014069;Aulia;50014069-A;Aulia;Faringitis;S. Tenggorokan;Emturnas;10;Methylprednisolone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+22/09/2025;16:29:00;1201068;Lina Herliana;1201068-A;Lina Herliana;ISPA;Flu Dn Batuk;Flucadex;10;Molacort;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+22/09/2025;18:37:00;50000544;Fauziansyah;50000544-A;Fauziansyah;Hipourisemia;Nyeri Tangan;Stick Asam Urat;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+22/09/2025;18:56:00;50022375;Tino Hariyanto;50022375-A;Tino Hariyanto;ISPA;Flu & Batuk;Lostacef;10;Ambroxol;10;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+22/09/2025;18:59:00;1201348;Winarsih;1201348-A;Winarsih;POJP;Nyeri Sendi (4,4);Natrium Diklofenak;10;Methylprednisolone;10;Stick Asam Urat;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+22/09/2025;19:37:00;1200290;Endang Sulastri;1200290-A;Endang Sulastri;Alergi;Gatal;Gentamicin;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+22/09/2025;19:38:00;1201403;Nurul Azmi;1201403-A;Nurul Azmi;Diabetes Melitus;Cek Gula (235);Stick Glukosa;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+22/09/2025;20:37:00;1201039;Ummu Kulsum;1201039-A;Ummu Kulsum;PPJP;S. Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+22/09/2025;22:43:00;50011192;Yudi Ariyandi;50011192-B;Gusti Irmadiyana;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;00:36:00;50002780;Farida Mustika;50002780-E;Ahmad Arsya Al Farizi;ISPA;Pilek;Ternix Hijau;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+23/09/2025;01:42:00;1200889;Didik Purwanto;1200889-A;Didik Purwanto;Myalgia;Lesu;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+23/09/2025;02:22:00;50136049;Rizky Maulidin;50136049-A;Rizky Maulidin;POJP;S.Pinggang;Natrium Diklofenak;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+23/09/2025;02:38:00;50022356;Taufikkurahman;50022356-A;Taufikkurahman;ISPA;Pilek, Pusing;Flucadex;10;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+23/09/2025;06:00:00;50006928;Muhaimin;50006928-A;Muhaimin;ISPA;Pilek,Batuk;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+23/09/2025;06:07:00;1201133;Nurani;1201133-B;Suharni;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;06:31:00;50027840;Abdurrahman;50027840-A;Abdurrahman;ISPA;Batuk;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;07:40:00;1200390;Hasnah;1200390-A;Hasnah;POJP;Sakit Kaki;Natrium Diklofenak;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;07:59:00;50005634;Hendry;50005634-A;Hendry;PPJP;Sakit Gigi;Anastan;10;Dexamethasone;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;09:05:00;1201251;Lukman Hakim;1201251-A;Lukman Hakim;PPJP;Sakit Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;09:05:00;50052093;Yandi Aprianur;50052093-A;Yandi Aprianur;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;09:06:00;50022438;Maslaini;50022438-A;Maslaini;POJP;Sakit Kaki;Natrium Diklofenak;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;09:40:00;1200477;Wahyuni;1200477-A;Wahyuni;Hipertensi;Pusing;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;10:24:00;50004828;Muhammad Rifani;50004828-E;Muhammad Razqa;ISPA;Flu;Ternix Hijau;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;10:54:00;50103668;Nur Halifah;50103668-A;Nur Halifah;Iritasi;Mata Perih;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;11:45:00;1201370;Sarini Nurlaila;1201370-A;Sarini Nurlaila;Dispepsia;Mual;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;12:23:00;50162922;Rif'ah Saufiah;50162922-A;Rif'ah Saufiah;ISPA;Flu;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+23/09/2025;15:33:00;50049946;Riyadh Adnani;50049946-A;Riyadh Adnani;GEA;Bab Cair, Nyeri Perut, Mual;Dobrizol;10;Scopma Plus;10;Diatabs;4;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;16:01:00;1201081;Abdul Rahman;1201081-A;Abdul Rahman;POJP;Nyeri Sendi;Natrium Diklofenak;10;Neurodex;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;17:47:00;50007921;Utami Wulan Sari;50007921-A;Utami Wulan Sari;Diare;Bab Cair, S. Perut;Diatabs;4;Emturnas;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;18:48:00;1200673;Siti Aminah;1200673-A;Siti Aminah;KBP;KBP;Microgynon;1;Softex;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;18:53:00;50018372;Fajrin Anwari;50018372-A;Fajrin Anwari;ISPA;Flu Dn Batuk;Flucadex;10;Ambroxol;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;19:15:00;50027847;M. Soparto Rahman;50027847-A;M. Soparto Rahman;PPJP;S. Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;20:05:00;1201273;Karmila Juwanti;1201273-A;Karmila Juwanti;Hiperlipidemia;Pusing, Kebas;Simvastatin 10 mg;10;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;20:10:00;50000546;Yulita;50000546-A;Yulita;PPJP;S. Gigi;Anastan;10;Molacort;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;21:09:00;50000946;Yazid Bustani;50000946-A;Yazid Bustani;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;21:24:00;50165463;Ririn Amelia;50165463-A;Ririn Amelia;Alergi;Gatal;Gentamicin;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;22:14:00;1201107;Suparno;1201107-D;Aurelia Lintang Hapsari;Post KLLD;Kontrol Luka;Anastan;10;Novamox;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+23/09/2025;22:55:00;50034713;Muhammad Amin;50034713-A;Muhammad Amin;ISPA;Flu Dn Batuk;Flucadex;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+24/09/2025;01:17:00;50027889;Muliyono;50027889-A;Muliyono;Dispepsia;Mual;Lansoprazol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+24/09/2025;02:28:00;1201129;Nor'Ainah;1201129-A;Nor'Ainah;KBP;Pil KB,Haid;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+24/09/2025;02:50:00;50002780;Farida Mustika;50002780-A;Farida Mustika;Iritasi;Mata Perih;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+24/09/2025;06:09:00;50000645;Tulus Wahyudi;50000645-B;Elly Yani;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+24/09/2025;06:31:00;50027898;Nor Ekawati;50027898-A;Nor Ekawati;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+24/09/2025;07:48:00;1201322;Achmad Yani;1201322-B;Aulia Aziza;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+24/09/2025;09:35:00;1200929;Purnomo;1200929-B;Samirah;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+24/09/2025;10:55:00;1200570;M.Sawabi;1200570-B;Haja Sumartini;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+24/09/2025;13:18:00;1201112;Agus Susilawati;1201112-A;Agus Susilawati;Hordeolum;Mata Bengkak;Genoint S.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+24/09/2025;13:49:00;50000946;Yazid Bustani;50000946-A;Yazid Bustani;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+24/09/2025;14:08:00;50146518;Ikbal Januar;50146518-A;Ikbal Januar;Cephalgia;Pusing;Panadol Biru;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+24/09/2025;15:26:00;1201306;Hernani;1201306-A;Hernani;POJP;Nyeri Sendi;Natrium Diklofenak;10;Softex;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+24/09/2025;18:06:00;1201305;Murdiyah;1201305-A;Murdiyah;Hiperlipidemia;Mual, Kebas (235);Simvastatin 10 mg;10;Ranitidin;10;Stick Kolesterol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+24/09/2025;18:24:00;50002412;Yohanes Bosco Deni Setiawan;50002412-A;Yohanes Bosco Deni Setiawan;Febris;Panas;Emturnas;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+24/09/2025;22:29:00;50173241;M. K. Ronggo Warsito;50173241-A;M. K. Ronggo Warsito;PPJP;S. Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+25/09/2025;00:42:00;1200222;Suharto;1200222-A;Suharto;PPJP;S.Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+25/09/2025;01:28:00;1200286;Asmiah;1200286-A;Asmiah;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+25/09/2025;04:16:00;1200639;Munirah;1200639-A;Munirah;ISPA;Pilek,Flu;Coparcetin;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+25/09/2025;06:00:00;1200222;Suharto;1200222-C;Liyana Desi Anggraeni;Febris;Demam;Erlamol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+25/09/2025;06:28:00;50049530;Siti Khadijah;50049530-A;Siti Khadijah;POJP;Nyeri Tangan;Anastan;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+25/09/2025;06:45:00;1200618;Siti Aisyah;1200618-A;Siti Aisyah;ISPA;Batuk;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+25/09/2025;06:48:00;1201133;Nurani;1201133-A;Nurani;Hemoroid;Bab Berdarah;Ambeven;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+25/09/2025;07:39:00;1200810;Sulianto;1200810-A;Sulianto;ISPA;Batuk;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+25/09/2025;08:45:00;1201107;Suparno;1201107-A;Suparno;PPJP;Sakit Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+25/09/2025;11:35:00;1200812;Suwito;1200812-A;Suwito;Asma;Sesak Nafas;Salbutamol 4Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+25/09/2025;16:34:00;50003526;Dian Prahendra Putra Kusuma;50003526-B;Wantini;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+25/09/2025;17:34:00;50001724;Hepy Dyah Astuti;50001724-A;Hepy Dyah Astuti;Dismenore;Mual, Nyeri Haid;Emturnas;10;Antasida Doen Tablet;10;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+25/09/2025;18:04:00;1201026;Suriyati;1201026-A;Suriyati;Dispepsia;Mual;Antasida Doen Syrup 60 ml;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+25/09/2025;19:15:00;1201225;Rahman Ruswoyo;1201225-D;Ahmad Wildan;Hordeolum;Kelopak Mata Bengkak;Cipropluxacin;10;Emturnas;10;Genoint T.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+25/09/2025;19:25:00;1201225;Rahman Ruswoyo;1201225-B;Mautia Farida;Hipertensi;Pusing;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+25/09/2025;21:13:00;50038700;Ade Nur Hutari;50038700-C;Muhammad Azril Kurniawan;Febris;Panas;Erlamol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+25/09/2025;22:12:00;50000546;Yulita;50000546-A;Yulita;Dispepsia;Mual, Kbp;Antasida Doen Syrup 60 ml;1;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+25/09/2025;22:55:00;50132050;Sukirno;50132050-A;Sukirno;ISPA;Flu Dn Batuk;Coparcetin;10;Vit C;10;Ambroxol;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+26/09/2025;02:04:00;50052090;M. Hernadi;50052090-A;M. Hernadi;Vulnus;Telapak Kaki Luka;Anastan;10;Novamox;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+26/09/2025;04:23:00;50136049;Rizky Maulidin;50136049-B;Mu'Minah;Asma;Sesak;Bronchosal;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+26/09/2025;05:44:00;50169214;Muhammad Adi Royan Pratama;50169214-A;Muhammad Adi Royan Pratama;Vulnus Laceratum;Luka Lecet Di Kaki;Anastan;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+26/09/2025;06:08:00;50022371;Mochamad;50022371-A;Mochamad;Dispepsia;Mual + Pusing;Antasida Doen Tablet;10;Vosea;10;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;06:14:00;50022356;Taufikkurahman;50022356-D;Muhammad Elfandy Radeeya Rahman;ISPA;Batuk;Ternix Hijau;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+26/09/2025;06:39:00;50114463;Noormadiawati;50114463-A;Noormadiawati;Dispepsia;Mual + Pusing;Antasida Doen Tablet;10;Erlamol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;07:27:00;50166195;Julaiha;50166195-A;Julaiha;Haid;Haid;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;09:36:00;50027847;M. Soparto Rahman;50027847-A;M. Soparto Rahman;PPJP;Sakit Gigi;Novamox;10;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;10:09:00;50011192;Yudi Ariyandi;50011192-A;Yudi Ariyandi;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;10:39:00;50166207;Ratih Setya Rini;50166207-A;Ratih Setya Rini;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;10:50:00;50136055;Rizka;50136055-A;Rizka;ISPA;Batuk;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;11:13:00;1201273;Karmila Juwanti;1201273-A;Karmila Juwanti;Haid;Haid;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;12:08:00;50117776;M. Akbar;50117776-A;M. Akbar;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;13:27:00;1200168;Safnah;1200168-A;Safnah;Hiperlipidemia;Pusing;Simvastatin 10 mg;10;Stick Kolesterol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;14:16:00;50047951;Masriah;50047951-A;Masriah;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;14:40:00;1201112;Agus Susilawati;1201112-A;Agus Susilawati;ISPA;Batuk;Ambroxol;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+26/09/2025;15:52:00;1200758;Manawiah;1200758-A;Manawiah;Post KLLD;Luka Sedekat, Lecet;Kassa Steril;3;Hypafix;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+26/09/2025;16:10:00;50022438;Maslaini;50022438-B;Noor Latifah;Diabetes Melitus;Dm Cho(180), Gula (353);Metformin;20;Stick Glukosa;1;Stick Kolesterol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+26/09/2025;16:55:00;50105387;Riska;50105387-A;Riska;Konjungtivitis;Mata Berair, Gatal;Cipropluxacin;10;Cetirizine;10;Genoint T.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+26/09/2025;17:14:00;50165527;Septi Noviana;50165527-A;Septi Noviana;Abdominal Paint;Nyeri Perut;Scopma Plus;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+26/09/2025;18:12:00;50000950;Dina Erliana;50000950-A;Dina Erliana;ISPA;Flu;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+26/09/2025;18:13:00;1200150;Abdi Rama;1200150-D;Aprilia Nurhaliza;Febris;Panas;Erlamol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+26/09/2025;18:13:00;1200708;Susilawati. B;1200708-A;Susilawati. B;ISPA;Flu Dn Batuk;Coparcetin;10;Ambroxol;3;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+26/09/2025;21:45:00;50004828;Muhammad Rifani;50004828-B;Rita;KBP;KBP;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+27/09/2025;00:12:00;1200758;Manawiah;1200758-A;Manawiah;Vulnus Laceratum;Post Jatuh KLLD;Anastan;10;Novamox;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+27/09/2025;00:59:00;1200917;Rohman;1200917-E;Muhamad Rama Widiatmoko;Faringitis;Demam,Batuk,S.Menelan;Coparcetin;10;Cefixime;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+27/09/2025;01:45:00;1200812;Suwito;1200812-A;Suwito;Hipertensi;Pusing;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+27/09/2025;02:27:00;1200810;Sulianto;1200810-A;Sulianto;Stomatitis;Sariawan;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+27/09/2025;04:25:00;1200228;Jamainsyah;1200228-B;Ramnah;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+27/09/2025;04:27:00;50013639;Asnan;50013639-A;Asnan;POJP;Badan Sakitan;Natrium Diklofenak;5;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+27/09/2025;04:53:00;1200812;Suwito;1200812-B;Muslimah;KBP;Pil KB;Microgynon;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+27/09/2025;07:34:00;50087113;Ribut Hari Sandi;50087113-A;Ribut Hari Sandi;ISPA;Batuk;Cetirizine;10;Vit C;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+27/09/2025;07:54:00;1201039;Ummu Kulsum;1201039-A;Ummu Kulsum;POJP;Sakit Kaki;Natrium Diklofenak;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+27/09/2025;08:05:00;50018372;Fajrin Anwari;50018372-C;Alifa Maulida;Febris;Demam;Erlamol;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+27/09/2025;09:03:00;1200730;Mastaharah;1200730-A;Mastaharah;ISPA;Batuk;Coparcetin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+27/09/2025;09:34:00;50000546;Yulita;50000546-A;Yulita;PPJP;Sakit Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+27/09/2025;11:46:00;50022375;Tino Hariyanto;50022375-A;Tino Hariyanto;ISPA;Batuk;Coparcetin;10;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+27/09/2025;12:12:00;50169372;Handika Juliansyah;50169372-A;Handika Juliansyah;Iritasi;Mata Perih;Genoint T.M;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+27/09/2025;14:24:00;1201206;Siti Rahmah Aliansyah;1201206-A;Siti Rahmah Aliansyah;Haid;Haid;Softex;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+27/09/2025;14:58:00;50001137;Ahmad Suriyadi;50001137-A;Ahmad Suriyadi;Dispepsia;Mual;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+27/09/2025;18:05:00;50022365;Saubari;50022365-A;Saubari;PPJP;S. Gigi;Anastan;10;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+27/09/2025;19:12:00;50027846;Deddy Istanto;50027846-A;Deddy Istanto;Iritasi;Mata Kelilipan;Insto Regular;1;Spuit 3 Cc;1;Natrium Diklofenak;10;Iritasi;Mata Kelilipan;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+27/09/2025;20:10:00;50002295;Mediyawati;50002295-D;Muhammad Rakha Faizan;ISPA;Flu;Ternix Hijau;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+28/09/2025;11:23:00;1201389;Mulkani Rahmi;1201389-A;Mulkani Rahmi;Iritasi;Mata Berair;Insto Regular;1;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+28/09/2025;13:01:00;50014069;Aulia;50014069-A;Aulia;GEA;Bab Cair, Mual, Muntah, Nyeri Perut;Antasida Doen Tablet;10;Dobrizol;10;Scopma Plus;10;GEA;Bab Cair, Mual, Muntah, Nyeri Perut;Diatabs;4;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+29/09/2025;04:22:00;50027851;Nor Aliansyah;50027851-A;Nor Aliansyah;PPJP;Sakit Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+29/09/2025;04:52:00;1200321;Jasmawati;1200321-A;Jasmawati;Hipertensi;Pusing;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+29/09/2025;06:47:00;50002842;Ani Sukmaningsih;50002842-A;Ani Sukmaningsih;ISPA;Flu;Ternix Hijau;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+29/09/2025;08:25:00;1200618;Siti Aisyah;1200618-A;Siti Aisyah;POJP;Nyeri Sendi (6,5);Natrium Diklofenak;10;Molacort;10;Stick Asam Urat;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+29/09/2025;09:23:00;50107384;Hernandi Bayu Pratomo;50107384-A;Hernandi Bayu Pratomo;Iritasi;Mata Merah;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+29/09/2025;10:24:00;1200545;Muhammad Ihsan;1200545-A;Muhammad Ihsan;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+29/09/2025;11:34:00;1201305;Murdiyah;1201305-A;Murdiyah;Dispepsia;Mual;Dobrizol;10;Hansaplast;2;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+29/09/2025;13:17:00;1200917;Rohman;1200917-E;Muhamad Rama Widiatmoko;ISPA;Flu, Sesak;Coparcetin;10;Bronchosal;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+29/09/2025;13:39:00;50022364;Fahruzzein Amrullah;50022364-A;Fahruzzein Amrullah;Dispepsia;Mual;Ranitidin;10;Antasida Doen Tablet;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+29/09/2025;15:14:00;1200758;Manawiah;1200758-A;Manawiah;Vulnus Laceratum;Post KLLD;Octenilin;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;15:26:00;50146865;M. Aulia Noor;50146865-A;M. Aulia Noor;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;15:59:00;1200914;Syamsul Pahri;1200914-A;Syamsul Pahri;ISPA;Batuk, Pilek;Coparcetin;10;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;16:31:00;50027889;Muliyono;50027889-A;Muliyono;Cephalgia;Pusing;Panadol Extra;5;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;16:51:00;1200239;Bambang Hariyatin;1200239-A;Bambang Hariyatin;Hipertensi;Pusing, Tensi (170/110);Amlodipin 10Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;17:15:00;1201128;Rahmah;1201128-D;Marisa Aulia;ISPA;Batuk;Coparcetin;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;17:53:00;1200616;Muhyanti;1200616-D;Muhammad Zikry Novryannor;ISPA;Batuk;Coparcetin;5;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;18:48:00;50027385;Astuti;50027385-A;Astuti;Tonsilitis;S.Menelan;Novamox;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;19:05:00;50025928;Atmadi;50025928-A;Atmadi;Alergi;Gatal;Hydrocortisone;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;19:09:00;50013639;Asnan;50013639-A;Asnan;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;19:16:00;1201128;Rahmah;1201128-A;Rahmah;Hipertensi;Pusing;Amlodipin 10Mg;10;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;19:52:00;50007745;Wiwin Indah Ariani Wibowo;50007745-A;Wiwin Indah Ariani Wibowo;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;20:04:00;1200457;Rusdiansyah;1200457-A;Rusdiansyah;Luka;Luka;Hansaplast;2;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;20:55:00;50027440;Ahmad Fauzi;50027440-A;Ahmad Fauzi;Hemoroid;Nyeri Bab;Ambeven;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;22:44:00;1201025;Nurhaina;1201025-A;Nurhaina;Faringitis;Pilek,S.Tenggorokan;Anastan;10;Cetirizine;10;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+29/09/2025;22:45:00;50149384;Dadang Setiawan;50149384-A;Dadang Setiawan;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+30/09/2025;01:53:00;1201172;Paridah;1201172-A;Paridah;Hipertensi;Pusing;Amlodipin 10Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+30/09/2025;02:13:00;50049530;Siti Khadijah;50049530-A;Siti Khadijah;PPJP;Sakit Gigi;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+30/09/2025;04:30:00;50022438;Maslaini;50022438-A;Maslaini;Luka;Luka;Octenilin;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+30/09/2025;06:59:00;50000644;Muhammad Rum;50000644-A;Muhammad Rum;ISPA;Flu;Flucadex;10;Molacort;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Ellien M;Reguler
+30/09/2025;07:40:00;50027847;M. Soparto Rahman;50027847-A;M. Soparto Rahman;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+30/09/2025;10:00:00;1200434;Primanto;1200434-A;Primanto;Hipertensi;Pusing;Amlodipin 5Mg;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+30/09/2025;10:25:00;50132050;Sukirno;50132050-A;Sukirno;ISPA;Flu, Mata Merah;Flucadex;10;Insto Regular;1;Cetirizine;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+30/09/2025;11:34:00;1201207;Muhamad Yusuf;1201207-A;Muhamad Yusuf;ISPA;Flu;Flucadex;10;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+30/09/2025;12:40:00;50027846;Deddy Istanto;50027846-A;Deddy Istanto;PPJP;S. Gigi;Gratheos;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Farid Wajidi;Reguler
+30/09/2025;15:34:00;50002293;Iqbal Husaen;50002293-A;Iqbal Husaen;Diabetes Melitus;Gds Tinggi;Metformin;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+30/09/2025;15:41:00;50000629;Rasmiyanti;50000629-A;Rasmiyanti;Iritasi;Mata Merah;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+30/09/2025;16:32:00;1201237;Kristina;1201237-A;Kristina;Iritasi;Mata Merah;Insto Regular;1;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+30/09/2025;17:55:00;50027922;Taufik Rahman;50027922-A;Taufik Rahman;Cephalgia;Pusing;Panadol Extra;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+30/09/2025;18:07:00;1200963;Halimah A.;1200963-A;Halimah A.;Faringitis;Sakit Tenggorokan;Anastan;5;Vit C;5;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler
+30/09/2025;22:44:00;1201307;Fathur Rahman;1201307-A;Fathur Rahman;POJP;Nyeri Lengan;Anastan;10;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;Didi Suryadi;Reguler

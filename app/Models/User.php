@@ -6,7 +6,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\TokenEmergency;
 
 class User extends Authenticatable
 {
@@ -14,9 +13,13 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $table = 'user';
+
     protected $primaryKey = 'id_user';
+
     public $timestamps = false;
+
     const CREATED_AT = 'created_at';
+
     const UPDATED_AT = null;
 
     /**
@@ -28,6 +31,7 @@ class User extends Authenticatable
         'username',
         'password',
         'nama_lengkap',
+        'nik',
         'role',
         'last_login',
         'is_active',
@@ -108,7 +112,6 @@ class User extends Authenticatable
     {
         return $this->role === 'User';
     }
-
 
     /**
      * Relasi ke Rekam Medis

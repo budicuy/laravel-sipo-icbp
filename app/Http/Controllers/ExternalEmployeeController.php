@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\ExternalEmployee;
-use App\Models\Vendor;
 use App\Models\Kategori;
+use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -22,7 +22,7 @@ class ExternalEmployeeController extends Controller
 
         // Filter by nama (search)
         if ($request->has('search') && $request->search != '') {
-            $query->where('nama_employee', 'like', '%' . $request->search . '%');
+            $query->where('nama_employee', 'like', '%'.$request->search.'%');
         }
 
         // Filter by jenis kelamin
@@ -48,7 +48,7 @@ class ExternalEmployeeController extends Controller
         // Apply sorting
         $sortField = $request->get('sort', 'id');
         $sortDirection = $request->get('direction', 'asc');
-        
+
         // Validate sort field to prevent SQL injection
         $allowedSortFields = ['id', 'nik_employee', 'nama_employee', 'jenis_kelamin', 'id_vendor', 'id_kategori', 'no_hp', 'status', 'tanggal_lahir'];
         if (in_array($sortField, $allowedSortFields)) {
@@ -67,6 +67,7 @@ class ExternalEmployeeController extends Controller
     {
         $vendors = Vendor::all();
         $kategoris = Kategori::all();
+
         return view('external-employee.create', compact('vendors', 'kategoris'));
     }
 
@@ -112,6 +113,7 @@ class ExternalEmployeeController extends Controller
     public function show($id)
     {
         $externalEmployee = ExternalEmployee::with(['vendor', 'kategori'])->findOrFail($id);
+
         return view('external-employee.show', compact('externalEmployee'));
     }
 
@@ -120,6 +122,7 @@ class ExternalEmployeeController extends Controller
         $externalEmployee = ExternalEmployee::findOrFail($id);
         $vendors = Vendor::all();
         $kategoris = Kategori::all();
+
         return view('external-employee.edit', compact('externalEmployee', 'vendors', 'kategoris'));
     }
 
@@ -128,7 +131,7 @@ class ExternalEmployeeController extends Controller
         $externalEmployee = ExternalEmployee::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'nik_employee' => 'required|string|max:20|unique:external_employees,nik_employee,' . $id,
+            'nik_employee' => 'required|string|max:20|unique:external_employees,nik_employee,'.$id.',id',
             'nama_employee' => 'required|string|max:255',
             'kode_rm' => 'required|string|max:50',
             'tanggal_lahir' => 'required|date',
@@ -157,7 +160,7 @@ class ExternalEmployeeController extends Controller
             if ($externalEmployee->foto) {
                 Storage::disk('public')->delete($externalEmployee->foto);
             }
-            
+
             $foto = $request->file('foto');
             $fotoPath = $foto->store('external-employee-foto', 'public');
             $data['foto'] = $fotoPath;
@@ -193,78 +196,78 @@ class ExternalEmployeeController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => $validator->errors()->first('file')
+                'message' => $validator->errors()->first('file'),
             ], 422);
         }
 
         try {
             $file = $request->file('file');
             $extension = $file->getClientOriginalExtension();
-            
+
             // Create temporary directory if not exists
             $tempDir = storage_path('app/temp');
-            if (!is_dir($tempDir)) {
+            if (! is_dir($tempDir)) {
                 mkdir($tempDir, 0755, true);
             }
-            
+
             // Save file to temporary location
-            $filename = 'external_employee_import_' . time() . '.' . $extension;
+            $filename = 'external_employee_import_'.time().'.'.$extension;
             $file->move($tempDir, $filename);
-            $filePath = $tempDir . '/' . $filename;
-            
+            $filePath = $tempDir.'/'.$filename;
+
             $importCount = 0;
             $skipCount = 0;
             $errors = [];
-            
+
             // Process file based on extension
             if ($extension === 'csv') {
                 $importCount = $this->processCsvImport($filePath, $skipCount, $errors);
             } else {
                 $importCount = $this->processExcelImport($filePath, $skipCount, $errors);
             }
-            
+
             // Clean up temporary file
             unlink($filePath);
-            
+
             $message = "Import selesai. {$importCount} data berhasil diimport.";
             if ($skipCount > 0) {
                 $message .= " {$skipCount} data dilewati karena duplikasi.";
             }
-            if (!empty($errors)) {
-                $message .= " " . count($errors) . " data gagal diimport.";
+            if (! empty($errors)) {
+                $message .= ' '.count($errors).' data gagal diimport.';
             }
-            
+
             return response()->json([
                 'success' => true,
                 'message' => $message,
                 'import_count' => $importCount,
                 'skip_count' => $skipCount,
-                'errors' => $errors
+                'errors' => $errors,
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan: '.$e->getMessage(),
             ], 500);
         }
     }
-    
+
     private function processCsvImport($filePath, &$skipCount, &$errors)
     {
         $importCount = 0;
-        
-        if (($handle = fopen($filePath, 'r')) !== FALSE) {
+
+        if (($handle = fopen($filePath, 'r')) !== false) {
             // Skip header row
             fgetcsv($handle, 1000, ',');
-            
-            while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
+
+            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
                 try {
                     // Skip empty rows
                     if (empty(array_filter($data))) {
                         continue;
                     }
-                    
+
                     // Map CSV columns to database fields
                     $importData = [
                         'nik_employee' => $data[0] ?? '',
@@ -278,46 +281,46 @@ class ExternalEmployeeController extends Controller
                         'no_ktp' => $data[8] ?? null,
                         'bpjs_id' => $data[9] ?? null,
                         'kategori' => $data[10] ?? '',
-                        'status' => 'aktif'
+                        'status' => 'aktif',
                     ];
-                    
+
                     $result = $this->processImportData($importData);
                     if ($result['success']) {
                         $importCount++;
                     } elseif ($result['skipped']) {
                         $skipCount++;
                     } else {
-                        $errors[] = "Baris " . ($importCount + $skipCount + count($errors) + 2) . ": " . $result['message'];
+                        $errors[] = 'Baris '.($importCount + $skipCount + count($errors) + 2).': '.$result['message'];
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Baris " . ($importCount + $skipCount + count($errors) + 2) . ": " . $e->getMessage();
+                    $errors[] = 'Baris '.($importCount + $skipCount + count($errors) + 2).': '.$e->getMessage();
                 }
             }
             fclose($handle);
         }
-        
+
         return $importCount;
     }
-    
+
     private function processExcelImport($filePath, &$skipCount, &$errors)
     {
         $importCount = 0;
-        
+
         try {
             $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
             $worksheet = $spreadsheet->getActiveSheet();
             $rows = $worksheet->toArray();
-            
+
             // Skip header row
             array_shift($rows);
-            
+
             foreach ($rows as $index => $data) {
                 try {
                     // Skip empty rows
                     if (empty(array_filter($data))) {
                         continue;
                     }
-                    
+
                     // Map Excel columns to database fields
                     $importData = [
                         'nik_employee' => $data[0] ?? '',
@@ -331,70 +334,70 @@ class ExternalEmployeeController extends Controller
                         'no_ktp' => $data[8] ?? null,
                         'bpjs_id' => $data[9] ?? null,
                         'kategori' => $data[10] ?? '',
-                        'status' => 'aktif'
+                        'status' => 'aktif',
                     ];
-                    
+
                     $result = $this->processImportData($importData);
                     if ($result['success']) {
                         $importCount++;
                     } elseif ($result['skipped']) {
                         $skipCount++;
                     } else {
-                        $errors[] = "Baris " . ($index + 2) . ": " . $result['message'];
+                        $errors[] = 'Baris '.($index + 2).': '.$result['message'];
                     }
                 } catch (\Exception $e) {
-                    $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
+                    $errors[] = 'Baris '.($index + 2).': '.$e->getMessage();
                 }
             }
         } catch (\Exception $e) {
-            throw new \Exception("Error processing Excel file: " . $e->getMessage());
+            throw new \Exception('Error processing Excel file: '.$e->getMessage());
         }
-        
+
         return $importCount;
     }
-    
+
     private function processImportData($data)
     {
         // Validate required fields
         if (empty($data['nik_employee']) || empty($data['nama_employee']) || empty($data['kode_rm'])) {
             return ['success' => false, 'skipped' => false, 'message' => 'Field NIK, Nama, dan Kode RM wajib diisi'];
         }
-        
+
         // Check if NIK already exists
         if (ExternalEmployee::where('nik_employee', $data['nik_employee'])->exists()) {
             return ['success' => false, 'skipped' => true, 'message' => 'NIK sudah ada'];
         }
-        
+
         // Find or create vendor
         $vendor = Vendor::where('nama_vendor', $data['nama_vendor'])->first();
-        if (!$vendor) {
+        if (! $vendor) {
             $vendor = Vendor::create(['nama_vendor' => $data['nama_vendor']]);
         }
-        
+
         // Process kategori
         $kategori = null;
-        if (!empty($data['kategori'])) {
+        if (! empty($data['kategori'])) {
             // Extract kode kategori from format like "X - Guest"
             if (preg_match('/^([xyz])\s*-\s*(.+)$/i', $data['kategori'], $matches)) {
                 $kodeKategori = strtolower($matches[1]);
                 $namaKategori = $matches[2];
-                
+
                 $kategori = Kategori::where('kode_kategori', $kodeKategori)->first();
-                if (!$kategori) {
+                if (! $kategori) {
                     $kategori = Kategori::create([
                         'kode_kategori' => $kodeKategori,
-                        'nama_kategori' => $namaKategori
+                        'nama_kategori' => $namaKategori,
                     ]);
                 }
             }
         }
-        
+
         // Prepare data for insertion
         $insertData = [
             'nik_employee' => $data['nik_employee'],
             'nama_employee' => $data['nama_employee'],
             'kode_rm' => $data['kode_rm'],
-            'tanggal_lahir' => !empty($data['tanggal_lahir']) ? date('Y-m-d', strtotime($data['tanggal_lahir'])) : null,
+            'tanggal_lahir' => $this->parseDate($data['tanggal_lahir']),
             'jenis_kelamin' => $data['jenis_kelamin'],
             'alamat' => $data['alamat'] ?? '',
             'no_hp' => $data['no_hp'],
@@ -402,13 +405,55 @@ class ExternalEmployeeController extends Controller
             'no_ktp' => $data['no_ktp'],
             'bpjs_id' => $data['bpjs_id'],
             'id_kategori' => $kategori ? $kategori->id_kategori : null,
-            'status' => $data['status'] ?? 'aktif'
+            'status' => $data['status'] ?? 'aktif',
         ];
-        
+
         // Create external employee
         ExternalEmployee::create($insertData);
-        
+
         return ['success' => true, 'skipped' => false, 'message' => ''];
+    }
+
+    /**
+     * Parse date from various formats (Excel serial, text, etc.)
+     */
+    private function parseDate($dateValue)
+    {
+        if (empty($dateValue)) {
+            return null;
+        }
+
+        // If it's already a valid date string (YYYY-MM-DD format)
+        if (is_string($dateValue) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateValue)) {
+            return $dateValue;
+        }
+
+        // If it's a numeric value (Excel serial date)
+        if (is_numeric($dateValue)) {
+            try {
+                // Excel stores dates as days since 1900-01-01 (with 1900 incorrectly considered a leap year)
+                // PHP's base date is 1970-01-01
+                $excelEpoch = new \DateTime('1899-12-30'); // Excel's epoch adjusted for the leap year bug
+                $interval = new \DateInterval('P'.$dateValue.'D');
+                $date = clone $excelEpoch;
+                $date->add($interval);
+
+                return $date->format('Y-m-d');
+            } catch (\Exception $e) {
+                // If parsing fails, return null
+                return null;
+            }
+        }
+
+        // Try to parse as a regular date string
+        try {
+            $date = new \DateTime($dateValue);
+
+            return $date->format('Y-m-d');
+        } catch (\Exception $e) {
+            // If parsing fails, return null
+            return null;
+        }
     }
 
     public function export(Request $request)
@@ -421,60 +466,58 @@ class ExternalEmployeeController extends Controller
     public function bulkDelete(Request $request)
     {
         $ids = $request->ids;
-        
+
         if (empty($ids)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tidak ada data yang dipilih'
+                'message' => 'Tidak ada data yang dipilih',
             ], 400);
         }
 
         try {
             // Get employees to delete their photos
             $employees = ExternalEmployee::whereIn('id', $ids)->get();
-            
+
             foreach ($employees as $employee) {
                 // Delete photo if exists
                 if ($employee->foto) {
                     Storage::disk('public')->delete($employee->foto);
                 }
             }
-            
+
             // Delete employees
             ExternalEmployee::whereIn('id', $ids)->delete();
-            
+
             return response()->json([
                 'success' => true,
-                'message' => 'Berhasil menghapus ' . count($ids) . ' data external employee'
+                'message' => 'Berhasil menghapus '.count($ids).' data external employee',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+                'message' => 'Gagal menghapus data: '.$e->getMessage(),
             ], 500);
         }
     }
 
     public function downloadTemplate()
     {
-        $filePath = public_path('templates/external-employee-template.csv');
-        
-        if (!file_exists($filePath)) {
-            // Create template directory if not exists
-            $templateDir = public_path('templates');
-            if (!is_dir($templateDir)) {
-                mkdir($templateDir, 0755, true);
-            }
-            
-            // Create a simple CSV template as fallback
-            $csvContent = "nik_employee,nama_employee,kode_rm,tanggal_lahir,jenis_kelamin,alamat,no_hp,nama_vendor,no_ktp,bpjs_id,kategori\n";
-            $csvContent .= "80007053,John Doe,80007053-F,1993-09-09,L,Jakarta,082122,PT. Tropis Service,6372040909930005,0001547298944,X - Guest\n";
-            $csvContent .= "80007054,Jane Smith,80007054-F,1995-05-15,P,Bandung,082123,PT. Tropis Service,6372051505950006,0001547298945,Y - Outsourcing\n";
-            $csvContent .= "80007055,Robert Johnson,80007055-F,1990-12-20,L,Surabaya,082124,PT. Mitra Sejati,6372122009900007,0001547298946,Z - Supporting\n";
-            
-            file_put_contents($filePath, $csvContent);
+        // Create template directory if not exists
+        $templateDir = public_path('templates');
+        if (! is_dir($templateDir)) {
+            mkdir($templateDir, 0755, true);
         }
-        
-        return response()->download($filePath, 'external-employee-template.csv');
+
+        $filePath = $templateDir.'/external-employee-template.csv';
+
+        // Create a simple CSV template
+        $csvContent = "nik_employee,nama_employee,kode_rm,tanggal_lahir,jenis_kelamin,alamat,no_hp,nama_vendor,no_ktp,bpjs_id,kategori\n";
+        $csvContent .= "80007053,John Doe,80007053-F,1993-09-09,L,Jakarta,082122,PT. Tropis Service,6372040909930005,0001547298944,X - Guest\n";
+        $csvContent .= "80007054,Jane Smith,80007054-F,1995-05-15,P,Bandung,082123,PT. Tropis Service,6372051505950006,0001547298945,Y - Outsourcing\n";
+        $csvContent .= "80007055,Robert Johnson,80007055-F,1990-12-20,L,Surabaya,082124,PT. Mitra Sejati,6372122009900007,0001547298946,Z - Supporting\n";
+
+        file_put_contents($filePath, $csvContent);
+
+        return response()->download($filePath, 'external-employee-template.csv')->deleteFileAfterSend(true);
     }
 }

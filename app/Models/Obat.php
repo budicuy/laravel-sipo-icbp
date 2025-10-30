@@ -15,6 +15,7 @@ class Obat extends Model
         'nama_obat',
         'keterangan',
         'id_satuan',
+        'stok_awal',
         'tanggal_update',
     ];
 
@@ -57,10 +58,16 @@ class Obat extends Model
         return $this->hasMany(Keluhan::class, 'id_obat', 'id_obat');
     }
 
-    // Relasi ke Stok Bulanan
-    public function stokBulanans()
+    // Relasi ke Stok Bulanan (lama)
+    public function stokObats()
     {
         return $this->hasMany(StokObat::class, 'id_obat', 'id_obat');
+    }
+
+    // Relasi ke Stok Bulanan (baru)
+    public function stokBulanans()
+    {
+        return $this->hasMany(StokBulanan::class, 'obat_id', 'id_obat');
     }
 
     // Relasi ke Harga Obat Per Bulan
@@ -99,5 +106,38 @@ class Obat extends Model
                 'id_satuan' => $obat->id_satuan
             ]);
         });
+    }
+
+    /**
+     * Menghitung sisa stok saat ini
+     *
+     * Accessor ini hanya digunakan jika sisa_stok belum di-set secara manual
+     * Untuk menghindari N+1 query, gunakan batch approach di controller
+     */
+    public function getSisaStokAttribute()
+    {
+        // Jika sisa_stok sudah di-set (misal dari batch calculation di controller),
+        // gunakan nilai tersebut untuk menghindari query individual
+        if (array_key_exists('sisa_stok', $this->attributes)) {
+            return $this->attributes['sisa_stok'];
+        }
+
+        // Fallback ke individual query hanya jika benar-benar diperlukan
+        // dan log untuk debugging
+        Log::warning('N+1 Query Warning: getSisaStokAttribute dipanggil secara individual', [
+            'obat_id' => $this->id_obat,
+            'nama_obat' => $this->nama_obat,
+            'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5)
+        ]);
+
+        return StokBulanan::getSisaStokSaatIni($this->id_obat);
+    }
+
+    /**
+     * Mendapatkan riwayat stok bulanan
+     */
+    public function getRiwayatStok($limit = 12)
+    {
+        return StokBulanan::getRiwayatStok($this->id_obat, $limit);
     }
 }

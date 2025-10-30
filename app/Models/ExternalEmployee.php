@@ -11,6 +11,12 @@ class ExternalEmployee extends Model
 
     protected $table = 'external_employees';
 
+    protected $primaryKey = 'id';
+
+    public $incrementing = true;
+
+    protected $keyType = 'int';
+
     protected $fillable = [
         'nik_employee',
         'nama_employee',
@@ -41,6 +47,14 @@ class ExternalEmployee extends Model
         return $this->belongsTo(Kategori::class, 'id_kategori', 'id_kategori');
     }
 
+    /**
+     * Get all emergency medical records for this external employee.
+     */
+    public function rekamMedisEmergencies()
+    {
+        return $this->hasMany(\App\Models\RekamMedisEmergency::class, 'id_external_employee', 'id');
+    }
+
     public function getJenisKelaminAttribute()
     {
         return $this->attributes['jenis_kelamin'] === 'L' ? 'Laki-laki' : 'Perempuan';
@@ -63,10 +77,10 @@ class ExternalEmployee extends Model
 
     public function scopeSearch($query, $search)
     {
-        return $query->where(function($q) use ($search) {
+        return $query->where(function ($q) use ($search) {
             $q->where('nik_employee', 'like', "%{$search}%")
-              ->orWhere('nama_employee', 'like', "%{$search}%")
-              ->orWhere('kode_rm', 'like', "%{$search}%");
+                ->orWhere('nama_employee', 'like', "%{$search}%")
+                ->orWhere('kode_rm', 'like', "%{$search}%");
         });
     }
 }
