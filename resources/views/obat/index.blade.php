@@ -267,7 +267,8 @@
                                     </span>
                                 </a>
                             </th>
-                            <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Lokasi</th>
+                            <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Lokasi
+                            </th>
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                                 <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'keterangan', 'direction' => request('sort') == 'keterangan' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="flex items-center justify-between group hover:text-green-300 transition-colors">

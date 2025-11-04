@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Log;
 class Obat extends Model
 {
     protected $table = 'obat';
+
     protected $primaryKey = 'id_obat';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -86,7 +88,7 @@ class Obat extends Model
 
         static::saving(function ($obat) {
             // Update tanggal_update only if not already set
-            if (!$obat->tanggal_update) {
+            if (! $obat->tanggal_update) {
                 $obat->tanggal_update = now();
             }
         });
@@ -96,7 +98,7 @@ class Obat extends Model
             Log::info('Obat created successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
-                'id_satuan' => $obat->id_satuan
+                'id_satuan' => $obat->id_satuan,
             ]);
         });
 
@@ -104,7 +106,7 @@ class Obat extends Model
             Log::info('Obat updated successfully', [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
-                'id_satuan' => $obat->id_satuan
+                'id_satuan' => $obat->id_satuan,
             ]);
         });
     }
@@ -128,7 +130,7 @@ class Obat extends Model
         Log::warning('N+1 Query Warning: getSisaStokAttribute dipanggil secara individual', [
             'obat_id' => $this->id_obat,
             'nama_obat' => $this->nama_obat,
-            'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5)
+            'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5),
         ]);
 
         return StokBulanan::getSisaStokSaatIni($this->id_obat);
