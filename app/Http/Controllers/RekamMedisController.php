@@ -243,6 +243,7 @@ class RekamMedisController extends Controller
             'keluhan.*.obat_list' => 'nullable|array',
             'keluhan.*.obat_list.*.id_obat' => 'required|exists:obat,id_obat',
             'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
+            'keluhan.*.obat_list.*.diskon' => 'nullable|integer|in:0,20,40,50,80,100',
             'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string|max:500',
         ], [
             // Custom error messages untuk Data Pasien
@@ -303,6 +304,7 @@ class RekamMedisController extends Controller
                                     'keterangan' => $keluhanData['keterangan'] ?? null,
                                     'id_obat' => $obatData['id_obat'],
                                     'jumlah_obat' => $obatData['jumlah_obat'] ?? 0, // Default to 0
+                                    'diskon' => $obatData['diskon'] ?? 0, // Default to 0
                                     'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
                                 ]);
                             }
@@ -409,6 +411,7 @@ class RekamMedisController extends Controller
             'keluhan.*.obat_list' => 'nullable|array',
             'keluhan.*.obat_list.*.id_obat' => 'required|exists:obat,id_obat',
             'keluhan.*.obat_list.*.jumlah_obat' => 'nullable|integer|min:1|max:10000',
+            'keluhan.*.obat_list.*.diskon' => 'nullable|integer|in:0,20,40,50,80,100',
             'keluhan.*.obat_list.*.aturan_pakai' => 'nullable|string|max:500',
         ], [
             // Custom error messages untuk Data Pasien
@@ -474,6 +477,7 @@ class RekamMedisController extends Controller
                                     'keterangan' => $keluhanData['keterangan'] ?? null,
                                     'id_obat' => $obatData['id_obat'],
                                     'jumlah_obat' => $obatData['jumlah_obat'] ?? 0, // Default to 0
+                                    'diskon' => $obatData['diskon'] ?? 0, // Default to 0
                                     'aturan_pakai' => $obatData['aturan_pakai'] ?? null,
                                 ]);
                             }

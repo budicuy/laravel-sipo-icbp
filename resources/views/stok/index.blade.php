@@ -600,6 +600,7 @@
                     confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
                     cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
                 },
+
                 preConfirm: () => {
                     const fileInput = document.getElementById('importPakaiFile');
                     if (!fileInput.files || fileInput.files.length === 0) {

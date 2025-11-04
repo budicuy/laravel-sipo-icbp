@@ -19,6 +19,7 @@ class Keluhan extends Model
         'keterangan',
         'id_obat',
         'jumlah_obat',
+        'diskon',
         'aturan_pakai',
         'id_keluarga',
         'id_emergency',

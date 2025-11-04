@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Detail Transaksi</title>
@@ -70,7 +71,8 @@
             margin-bottom: 15px;
         }
 
-        .obat-table th, .obat-table td {
+        .obat-table th,
+        .obat-table td {
             padding: 5px;
             border: 1px solid #ddd;
             text-align: left;
@@ -105,6 +107,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <h1>DETAIL TRANSAKSI PEMERIKSAAN</h1>
@@ -183,22 +186,40 @@
                 <table class="obat-table">
                     <thead>
                         <tr>
-                            <th width="30%">Obat</th>
-                            <th width="15%">Jumlah</th>
-                            <th width="30%">Aturan Pakai</th>
+                            <th width="25%">Obat</th>
+                            <th width="12%">Jumlah</th>
+                            <th width="25%">Aturan Pakai</th>
                             <th width="12%">Harga Satuan</th>
-                            <th width="13%">Subtotal</th>
+                            <th width="10%">Diskon</th>
+                            <th width="16%">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($keluhans as $keluhan)
-                        <tr>
-                            <td>{{ $keluhan->obat->nama_obat ?? '-' }}</td>
-                            <td>{{ $keluhan->jumlah_obat ?? 0 }} {{ $keluhan->obat->satuanObat->nama_satuan ?? '' }}</td>
-                            <td>{{ $keluhan->aturan_pakai ?: '-' }}</td>
-                            <td>Rp{{ number_format($keluhan->harga_satuan ?? 0, 0, ',', '.') }}</td>
-                            <td>Rp{{ number_format(($keluhan->jumlah_obat ?? 0) * ($keluhan->harga_satuan ?? 0), 0, ',', '.') }}</td>
-                        </tr>
+                        @foreach ($keluhans as $keluhan)
+                            @php
+                                $hargaSatuan = $keluhan->harga_satuan ?? 0;
+                                $jumlahObat = $keluhan->jumlah_obat ?? 0;
+                                $diskon = $keluhan->diskon ?? 0;
+                                $subtotalSebelumDiskon = $jumlahObat * $hargaSatuan;
+                                $subtotalSetelahDiskon = $subtotalSebelumDiskon * (1 - $diskon / 100);
+                            @endphp
+                            <tr>
+                                <td>{{ $keluhan->obat->nama_obat ?? '-' }}</td>
+                                <td>{{ $jumlahObat }} {{ $keluhan->obat->satuanObat->nama_satuan ?? '' }}</td>
+                                <td>{{ $keluhan->aturan_pakai ?: '-' }}</td>
+                                <td>Rp{{ number_format($hargaSatuan, 0, ',', '.') }}</td>
+                                <td>{{ $diskon > 0 ? $diskon . '%' : '-' }}</td>
+                                <td>
+                                    @if ($diskon > 0)
+                                        <div style="font-size: 9px; color: #999; text-decoration: line-through;">
+                                            Rp{{ number_format($subtotalSebelumDiskon, 0, ',', '.') }}</div>
+                                        <div style="font-weight: bold; color: #16a34a;">
+                                            Rp{{ number_format($subtotalSetelahDiskon, 0, ',', '.') }}</div>
+                                    @else
+                                        Rp{{ number_format($subtotalSetelahDiskon, 0, ',', '.') }}
+                                    @endif
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -222,4 +243,5 @@
         <p>Halaman 1 dari 1</p>
     </div>
 </body>
+
 </html>

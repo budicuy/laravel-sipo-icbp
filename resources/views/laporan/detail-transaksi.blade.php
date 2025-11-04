@@ -183,22 +183,51 @@
                                             Harga Satuan</th>
                                         <th
                                             class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                            Diskon</th>
+                                        <th
+                                            class="px-4 py-2 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                                             Subtotal</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     @foreach ($keluhans as $keluhan)
+                                        @php
+                                            $hargaSatuan = $keluhan->harga_satuan ?? 0;
+                                            $jumlahObat = $keluhan->jumlah_obat ?? 0;
+                                            $diskon = $keluhan->diskon ?? 0;
+                                            $subtotalSebelumDiskon = $jumlahObat * $hargaSatuan;
+                                            $subtotalSetelahDiskon = $subtotalSebelumDiskon * (1 - $diskon / 100);
+                                        @endphp
                                         <tr>
                                             <td class="px-4 py-2 text-sm text-gray-900">
                                                 {{ $keluhan->obat->nama_obat ?? '-' }}</td>
-                                            <td class="px-4 py-2 text-sm text-gray-900">{{ $keluhan->jumlah_obat ?? 0 }}
+                                            <td class="px-4 py-2 text-sm text-gray-900">{{ $jumlahObat }}
                                                 {{ $keluhan->obat->satuanObat->nama_satuan ?? '' }}</td>
                                             <td class="px-4 py-2 text-sm text-gray-600">
                                                 {{ $keluhan->aturan_pakai ?: '-' }}</td>
                                             <td class="px-4 py-2 text-sm text-gray-900">
-                                                Rp{{ number_format($keluhan->harga_satuan ?? 0, 0, ',', '.') }}</td>
+                                                Rp{{ number_format($hargaSatuan, 0, ',', '.') }}</td>
+                                            <td class="px-4 py-2 text-sm text-gray-900">
+                                                @if ($diskon > 0)
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        {{ $diskon }}%
+                                                    </span>
+                                                @else
+                                                    <span class="text-gray-400">-</span>
+                                                @endif
+                                            </td>
                                             <td class="px-4 py-2 text-sm font-medium text-gray-900">
-                                                Rp{{ number_format(($keluhan->jumlah_obat ?? 0) * ($keluhan->harga_satuan ?? 0), 0, ',', '.') }}
+                                                @if ($diskon > 0)
+                                                    <div class="flex flex-col">
+                                                        <span
+                                                            class="line-through text-gray-400 text-xs">Rp{{ number_format($subtotalSebelumDiskon, 0, ',', '.') }}</span>
+                                                        <span
+                                                            class="text-green-600">Rp{{ number_format($subtotalSetelahDiskon, 0, ',', '.') }}</span>
+                                                    </div>
+                                                @else
+                                                    Rp{{ number_format($subtotalSetelahDiskon, 0, ',', '.') }}
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

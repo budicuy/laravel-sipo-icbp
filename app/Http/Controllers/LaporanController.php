@@ -20,7 +20,7 @@ class LaporanController extends Controller
     {
         $bulan = $tanggalPeriksa->format('m');
         $tahun = $tanggalPeriksa->format('Y');
-        
+
         if ($tipe === 'emergency') {
             // Hitung urutan kunjungan untuk pasien emergency pada tahun yang sama
             $visitCount = RekamMedisEmergency::where('id_external_employee', $pasienId)
@@ -34,7 +34,7 @@ class LaporanController extends Controller
                 ->where('tanggal_periksa', '<=', $tanggalPeriksa)
                 ->count();
         }
-        
+
         return "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
     }
 
@@ -44,11 +44,11 @@ class LaporanController extends Controller
     private function validateNomorRegistrasi($nomorRegistrasi, $excludeId = null)
     {
         $query = Kunjungan::where('kode_transaksi', $nomorRegistrasi);
-        
+
         if ($excludeId) {
             $query->where('id_kunjungan', '!=', $excludeId);
         }
-        
+
         return !$query->exists();
     }
 
@@ -60,12 +60,12 @@ class LaporanController extends Controller
         $defaultRelations = [
             'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
             'keluarga.hubungan:kode_hubungan,hubungan',
-            'keluhans:id_keluhan,id_rekam,id_diagnosa,id_obat,jumlah_obat,aturan_pakai',
+            'keluhans:id_keluhan,id_rekam,id_diagnosa,id_obat,jumlah_obat,diskon,aturan_pakai',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
             'keluhans.obat:id_obat,nama_obat',
             'user:id_user,username,nama_lengkap'
         ];
-        
+
         return $query->with(array_merge($defaultRelations, $withRelations));
     }
 
@@ -234,7 +234,10 @@ class LaporanController extends Controller
             $hargaObat = $hargaObatMapReguler[$key] ?? null;
 
             if ($hargaObat) {
-                $monthlyDataReguler[$month] += $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
+                $hargaSebelumDiskon = $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
+                $diskon = $keluhan->diskon ?? 0;
+                $hargaSetelahDiskon = $hargaSebelumDiskon * (1 - ($diskon / 100));
+                $monthlyDataReguler[$month] += $hargaSetelahDiskon;
             }
         }
 
@@ -402,7 +405,7 @@ class LaporanController extends Controller
         $resultReguler = $rekamMedisData->map(function ($rekamMedis) use ($kunjunganIdMap, $kunjunganKeyMap, $hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
             $nomorRegistrasi = $this->generateNomorRegistrasi($rekamMedis->id_keluarga, $rekamMedis->tanggal_periksa, 'reguler');
-            
+
             // Get kode_transaksi from map
             $kunjunganKey = $rekamMedis->id_keluarga.'_'.$rekamMedis->tanggal_periksa->format('Y-m-d');
             $kodeTransaksi = $kunjunganKeyMap[$kunjunganKey] ?? $nomorRegistrasi;
@@ -423,7 +426,11 @@ class LaporanController extends Controller
                 $key = $keluhan->id_obat.'_'.$periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat->harga_per_satuan ?? 0;
-                $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
+                $subtotalSebelumDiskon = $keluhan->jumlah_obat * $hargaSatuan;
+
+                // Apply discount
+                $diskon = $keluhan->diskon ?? 0;
+                $subtotal = $subtotalSebelumDiskon * (1 - ($diskon / 100));
 
                 $totalBiaya += $subtotal;
 
@@ -432,6 +439,7 @@ class LaporanController extends Controller
                     'nama_obat' => $keluhan->obat->nama_obat ?? '',
                     'jumlah_obat' => $keluhan->jumlah_obat,
                     'harga_satuan' => $hargaSatuan,
+                    'diskon' => $diskon,
                     'subtotal' => $subtotal,
                 ];
             }
@@ -481,7 +489,11 @@ class LaporanController extends Controller
                 $key = $keluhan->id_obat.'_'.$periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat->harga_per_satuan ?? 0;
-                $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
+                $subtotalSebelumDiskon = $keluhan->jumlah_obat * $hargaSatuan;
+
+                // Apply discount (emergency can also have discount)
+                $diskon = $keluhan->diskon ?? 0;
+                $subtotal = $subtotalSebelumDiskon * (1 - ($diskon / 100));
 
                 $totalBiaya += $subtotal;
 
@@ -490,6 +502,7 @@ class LaporanController extends Controller
                     'nama_obat' => $keluhan->obat->nama_obat ?? '',
                     'jumlah_obat' => $keluhan->jumlah_obat,
                     'harga_satuan' => $hargaSatuan,
+                    'diskon' => $diskon,
                     'subtotal' => $subtotal,
                 ];
             }
@@ -608,7 +621,9 @@ class LaporanController extends Controller
             $hargaObat = $hargaObatMap[$key] ?? null;
 
             if ($hargaObat) {
-                $totalBiaya += $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
+                $hargaSebelumDiskon = $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
+                $diskon = $keluhan->diskon ?? 0;
+                $totalBiaya += $hargaSebelumDiskon * (1 - ($diskon / 100));
             }
         }
 
@@ -647,7 +662,7 @@ class LaporanController extends Controller
                     ->with(['hubungan:kode_hubungan,hubungan']);
             },
             'keluhans' => function ($query) {
-                $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
+                $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'diskon', 'aturan_pakai')
                     ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
                     ->with(['obat:id_obat,nama_obat,id_satuan'])
                     ->with(['obat.satuanObat:id_satuan,nama_satuan']);
@@ -723,8 +738,10 @@ class LaporanController extends Controller
             }
 
             $hargaObat = $hargaObatMap[$keluhan->id_obat] ?? null;
+            $hargaSebelumDiskon = $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
+            $diskon = $keluhan->diskon ?? 0;
 
-            return $keluhan->jumlah_obat * ($hargaObat->harga_per_satuan ?? 0);
+            return $hargaSebelumDiskon * (1 - ($diskon / 100));
         });
 
         // Group keluhan by diagnosa, only include those with obat
@@ -994,7 +1011,7 @@ class LaporanController extends Controller
                     ->with(['hubungan:kode_hubungan,hubungan']);
             },
             'keluhans' => function ($query) {
-                $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'aturan_pakai')
+                $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'diskon', 'aturan_pakai')
                     ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
                     ->with(['obat:id_obat,nama_obat,id_satuan'])
                     ->with(['obat.satuanObat:id_satuan,nama_satuan']);
@@ -1473,7 +1490,7 @@ class LaporanController extends Controller
                     ->with(['hubungan:kode_hubungan,hubungan']);
             },
             'keluhans' => function ($query) {
-                $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat')
+                $query->select('id_keluhan', 'id_rekam', 'id_diagnosa', 'id_obat', 'jumlah_obat', 'diskon')
                     ->with(['diagnosa:id_diagnosa,nama_diagnosa'])
                     ->with(['obat:id_obat,nama_obat']);
             },
@@ -1490,7 +1507,7 @@ class LaporanController extends Controller
                 $query->select('id', 'nik_employee', 'nama_employee', 'jenis_kelamin', 'alamat');
             },
             'keluhans' => function ($query) {
-                $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat')
+                $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'diskon')
                     ->with(['diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency'])
                     ->with(['obat:id_obat,nama_obat']);
             },
@@ -1593,7 +1610,11 @@ class LaporanController extends Controller
                 $key = $keluhan->id_obat.'_'.$periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
-                $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
+                $subtotalSebelumDiskon = $keluhan->jumlah_obat * $hargaSatuan;
+                
+                // Apply discount
+                $diskon = $keluhan->diskon ?? 0;
+                $subtotal = $subtotalSebelumDiskon * (1 - ($diskon / 100));
 
                 $totalBiaya += $subtotal;
 
@@ -1602,6 +1623,7 @@ class LaporanController extends Controller
                     'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
                     'jumlah_obat' => $keluhan->jumlah_obat,
                     'harga_satuan' => $hargaSatuan,
+                    'diskon' => $diskon,
                     'subtotal' => $subtotal,
                 ];
             }
