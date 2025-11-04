@@ -49,7 +49,7 @@ class LaporanController extends Controller
             $query->where('id_kunjungan', '!=', $excludeId);
         }
 
-        return !$query->exists();
+        return ! $query->exists();
     }
 
     /**
@@ -63,7 +63,7 @@ class LaporanController extends Controller
             'keluhans:id_keluhan,id_rekam,id_diagnosa,id_obat,jumlah_obat,diskon,aturan_pakai',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
             'keluhans.obat:id_obat,nama_obat',
-            'user:id_user,username,nama_lengkap'
+            'user:id_user,username,nama_lengkap',
         ];
 
         return $query->with(array_merge($defaultRelations, $withRelations));
@@ -1611,7 +1611,7 @@ class LaporanController extends Controller
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
                 $subtotalSebelumDiskon = $keluhan->jumlah_obat * $hargaSatuan;
-                
+
                 // Apply discount
                 $diskon = $keluhan->diskon ?? 0;
                 $subtotal = $subtotalSebelumDiskon * (1 - ($diskon / 100));
