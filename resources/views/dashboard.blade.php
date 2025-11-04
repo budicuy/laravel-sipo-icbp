@@ -509,36 +509,39 @@
                                                                                                                 <div
                                                                                                                     class="p-6">
                                                                                                                     <div
-                                                                                                                        class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                                                                                        <!-- Chart Area -->
+                                                                                                                        class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                                                                                                        <!-- Chart Area - 1 kolom -->
                                                                                                                         <div
-                                                                                                                            class="flex">
+                                                                                                                            class="lg:col-span-1">
                                                                                                                             <div
-                                                                                                                                class="bg-gradient-to-br from-gray-50 to-purple-50 border border-purple-100 rounded-lg p-5 w-full flex flex-col">
+                                                                                                                                class="bg-gradient-to-br from-gray-50 to-purple-50 border border-purple-100 rounded-lg p-5 h-full flex flex-col">
                                                                                                                                 <h4
                                                                                                                                     class="text-sm font-semibold text-gray-700 mb-4">
                                                                                                                                     Distribusi
                                                                                                                                     Diagnosa
                                                                                                                                 </h4>
                                                                                                                                 <div
-                                                                                                                                    class="flex-1 flex items-center justify-center min-h-[400px]">
-                                                                                                                                    <canvas
-                                                                                                                                        id="diagnosisChart"></canvas>
+                                                                                                                                    class="flex-1 flex items-center justify-center">
+                                                                                                                                    <div
+                                                                                                                                        style="max-width: 280px; max-height: 280px;">
+                                                                                                                                        <canvas
+                                                                                                                                            id="diagnosisChart"></canvas>
+                                                                                                                                    </div>
                                                                                                                                 </div>
                                                                                                                             </div>
                                                                                                                         </div>
 
-                                                                                                                        <!-- List Area -->
+                                                                                                                        <!-- List Area - 2 kolom -->
                                                                                                                         <div
-                                                                                                                            class="flex">
+                                                                                                                            class="lg:col-span-2">
                                                                                                                             <div
-                                                                                                                                class="bg-gradient-to-br from-gray-50 to-pink-50 border border-pink-100 rounded-lg p-5 w-full flex flex-col">
+                                                                                                                                class="bg-gradient-to-br from-gray-50 to-pink-50 border border-pink-100 rounded-lg p-5 h-full flex flex-col">
                                                                                                                                 <div
                                                                                                                                     class="flex items-center justify-between mb-4">
                                                                                                                                     <h4
                                                                                                                                         class="text-sm font-semibold text-gray-700">
                                                                                                                                         Top
-                                                                                                                                        5
+                                                                                                                                        10
                                                                                                                                         Diagnosa
                                                                                                                                     </h4>
                                                                                                                                     <span
@@ -547,10 +550,10 @@
                                                                                                                                         Kasus</span>
                                                                                                                                 </div>
                                                                                                                                 <div id="diagnosisList"
-                                                                                                                                    class="space-y-3 flex-1">
+                                                                                                                                    class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
                                                                                                                                     <!-- Loading state -->
                                                                                                                                     <div
-                                                                                                                                        class="flex items-center justify-center py-8">
+                                                                                                                                        class="col-span-2 flex items-center justify-center py-8">
                                                                                                                                         <div
                                                                                                                                             class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600">
                                                                                                                                         </div>
@@ -1076,7 +1079,7 @@
                                                                                                                     const params = new URLSearchParams();
                                                                                                                     if (month) params.append('month', month);
                                                                                                                     if (year) params.append('year', year);
-                                                                                                                    params.append('limit', 5);
+                                                                                                                    params.append('limit', 10);
 
                                                                                                                     const response = await fetch(`/api/dashboard/top-diagnoses?${params}`);
                                                                                                                     const data = await response.json();
@@ -1171,6 +1174,26 @@
                                                                                                                         bg: 'rgba(217, 70, 239, 0.8)',
                                                                                                                         border: 'rgb(217, 70, 239)'
                                                                                                                     }, // fuchsia
+                                                                                                                    {
+                                                                                                                        bg: 'rgba(59, 130, 246, 0.8)',
+                                                                                                                        border: 'rgb(59, 130, 246)'
+                                                                                                                    }, // blue
+                                                                                                                    {
+                                                                                                                        bg: 'rgba(168, 85, 247, 0.8)',
+                                                                                                                        border: 'rgb(168, 85, 247)'
+                                                                                                                    }, // purple-500
+                                                                                                                    {
+                                                                                                                        bg: 'rgba(244, 114, 182, 0.8)',
+                                                                                                                        border: 'rgb(244, 114, 182)'
+                                                                                                                    }, // pink-400
+                                                                                                                    {
+                                                                                                                        bg: 'rgba(167, 139, 250, 0.8)',
+                                                                                                                        border: 'rgb(167, 139, 250)'
+                                                                                                                    }, // violet-400
+                                                                                                                    {
+                                                                                                                        bg: 'rgba(192, 132, 252, 0.8)',
+                                                                                                                        border: 'rgb(192, 132, 252)'
+                                                                                                                    }, // purple-400
                                                                                                                 ];
 
                                                                                                                 diagnosisChart = new Chart(ctx, {
@@ -1187,26 +1210,26 @@
                                                                                                                     },
                                                                                                                     options: {
                                                                                                                         responsive: true,
-                                                                                                                        maintainAspectRatio: false,
-                                                                                                                        cutout: '60%',
+                                                                                                                        maintainAspectRatio: true,
+                                                                                                                        cutout: '65%',
                                                                                                                         layout: {
                                                                                                                             padding: {
-                                                                                                                                top: 20,
-                                                                                                                                bottom: 20,
-                                                                                                                                left: 20,
-                                                                                                                                right: 20
+                                                                                                                                top: 5,
+                                                                                                                                bottom: 5,
+                                                                                                                                left: 5,
+                                                                                                                                right: 5
                                                                                                                             }
                                                                                                                         },
                                                                                                                         plugins: {
                                                                                                                             legend: {
                                                                                                                                 position: 'bottom',
                                                                                                                                 labels: {
-                                                                                                                                    padding: 15,
+                                                                                                                                    padding: 8,
                                                                                                                                     font: {
-                                                                                                                                        size: 10
+                                                                                                                                        size: 9
                                                                                                                                     },
-                                                                                                                                    boxWidth: 12,
-                                                                                                                                    boxHeight: 12,
+                                                                                                                                    boxWidth: 10,
+                                                                                                                                    boxHeight: 10,
                                                                                                                                     usePointStyle: true,
                                                                                                                                     pointStyle: 'circle',
                                                                                                                                     generateLabels: function(chart) {
@@ -1218,8 +1241,8 @@
                                                                                                                                                     0);
                                                                                                                                                 const percentage = ((value / total) * 100).toFixed(1);
                                                                                                                                                 // Truncate label if too long
-                                                                                                                                                const shortLabel = label.length > 15 ? label.substring(0,
-                                                                                                                                                    15) + '...' : label;
+                                                                                                                                                const shortLabel = label.length > 12 ? label.substring(0,
+                                                                                                                                                    12) + '...' : label;
                                                                                                                                                 return {
                                                                                                                                                     text: `${shortLabel} (${percentage}%)`,
                                                                                                                                                     fillStyle: data.datasets[0].backgroundColor[i],

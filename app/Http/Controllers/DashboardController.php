@@ -207,7 +207,7 @@ class DashboardController extends Controller
     {
         $month = $request->input('month', Carbon::now()->month);
         $year = $request->input('year', Carbon::now()->year);
-        $limit = $request->input('limit', 5);
+        $limit = $request->input('limit', 10);
 
         // Get diagnosa from reguler rekam medis
         $diagnosaReguler = DB::table('keluhan')
@@ -240,9 +240,9 @@ class DashboardController extends Controller
             if ($existing) {
                 $existing->total += $diagnosa->total;
             } else {
-                $combinedDiagnosa->push((object)[
+                $combinedDiagnosa->push((object) [
                     'nama_diagnosa' => $diagnosa->nama_diagnosa,
-                    'total' => $diagnosa->total
+                    'total' => $diagnosa->total,
                 ]);
             }
         }
@@ -253,9 +253,9 @@ class DashboardController extends Controller
             if ($existing) {
                 $existing->total += $diagnosa->total;
             } else {
-                $combinedDiagnosa->push((object)[
+                $combinedDiagnosa->push((object) [
                     'nama_diagnosa' => $diagnosa->nama_diagnosa,
-                    'total' => $diagnosa->total
+                    'total' => $diagnosa->total,
                 ]);
             }
         }
@@ -267,8 +267,9 @@ class DashboardController extends Controller
         $totalAll = $topDiagnosa->sum('total');
 
         // Add percentage to each diagnosa
-        $result = $topDiagnosa->map(function($item) use ($totalAll) {
+        $result = $topDiagnosa->map(function ($item) use ($totalAll) {
             $item->percentage = $totalAll > 0 ? round(($item->total / $totalAll) * 100, 1) : 0;
+
             return $item;
         });
 
