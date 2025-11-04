@@ -244,7 +244,8 @@
                                                     <label class="text-sm font-semibold text-gray-700">Obat
                                                         #{{ $index + 1 }}</label>
                                                     <p class="text-xs text-gray-500 mt-1">{{ $obat['nama_obat'] }}</p>
-                                                    <span class="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                                    <span
+                                                        class="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
                                                         Stok: {{ $obat['stok_akhir'] ?? 0 }}
                                                     </span>
                                                 </div>
@@ -268,8 +269,7 @@
                                                     </label>
                                                     <input type="number"
                                                         name="obat_list[{{ $index }}][jumlah_obat]"
-                                                        value="{{ $obat['jumlah_obat'] }}" 
-                                                        min="1" 
+                                                        value="{{ $obat['jumlah_obat'] }}" min="1"
                                                         max="{{ $obat['stok_akhir'] ?? 100 }}"
                                                         onchange="validateStok(this, {{ $obat['stok_akhir'] ?? 100 }}, '{{ $obat['nama_obat'] }}')"
                                                         oninput="validateStok(this, {{ $obat['stok_akhir'] ?? 100 }}, '{{ $obat['nama_obat'] }}')"
@@ -462,7 +462,7 @@
                                 Jumlah <span class="text-red-500">*</span>
                             </label>
                             <input type="number" name="obat_list[${index}][jumlah_obat]"
-                                value="1" min="1" max="${stokAkhir}" 
+                                value="1" min="1" max="${stokAkhir}"
                                 onchange="validateStok(this, ${stokAkhir}, '${obatNama}')"
                                 oninput="validateStok(this, ${stokAkhir}, '${obatNama}')"
                                 required
@@ -506,7 +506,7 @@
             // Stock validation function
             function validateStok(input, maxStok, obatName) {
                 const value = parseInt(input.value);
-                
+
                 if (value > maxStok) {
                     alert(`Jumlah obat ${obatName} tidak boleh melebihi stok yang tersedia (${maxStok})`);
                     input.value = maxStok;

@@ -562,7 +562,7 @@
                         const stokHabis = obat.stok_akhir <= 0;
                         const disabledAttr = stokHabis ? 'disabled' : '';
                         const labelClass = stokHabis ? 'opacity-50 cursor-not-allowed' :
-                        'hover:bg-white cursor-pointer';
+                            'hover:bg-white cursor-pointer';
                         const stokBadge = stokHabis ?
                             '<span class="ml-2 px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded">STOK HABIS</span>' :
                             `<span class="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded">Stok: ${obat.stok_akhir}</span>`;
@@ -973,13 +973,13 @@
                 <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
                 <div class="mt-2">
                     ${errors.map(error => `
-                                                                                                        <div class="flex items-center py-1">
-                                                                                                            <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                                                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                                                                                            </svg>
-                                                                                                            <span class="text-sm text-red-700">${error}</span>
-                                                                                                        </div>
-                                                                                                    `).join('')}
+                                                                                                                <div class="flex items-center py-1">
+                                                                                                                    <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                                                                                                    </svg>
+                                                                                                                    <span class="text-sm text-red-700">${error}</span>
+                                                                                                                </div>
+                                                                                                            `).join('')}
                 </div>
             </div>
             <div class="ml-auto pl-3">
@@ -1036,7 +1036,7 @@
             // Stock validation function
             function validateStok(input, maxStok, obatName) {
                 const value = parseInt(input.value);
-                
+
                 if (value > maxStok) {
                     alert(`Jumlah obat ${obatName} tidak boleh melebihi stok yang tersedia (${maxStok})`);
                     input.value = maxStok;

@@ -1147,7 +1147,7 @@
             // Function to validate stock quantity
             function validateStok(input, maxStok, obatName) {
                 const value = parseInt(input.value);
-                
+
                 if (value > maxStok) {
                     input.value = maxStok;
                     // Show error message
