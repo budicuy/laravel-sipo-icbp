@@ -534,6 +534,7 @@ class RekamMedisController extends Controller
 
         $karyawans = Karyawan::with(['departemen:id_departemen,nama_departemen'])
             ->select('id_karyawan', 'nik_karyawan', 'nama_karyawan', 'id_departemen', 'foto')
+            ->where('status', 'aktif') // Filter hanya karyawan aktif
             ->where(function ($query) use ($search) {
                 $query->where('nik_karyawan', 'like', "%{$search}%")
                     ->orWhere('nama_karyawan', 'like', "%{$search}%");
@@ -557,6 +558,15 @@ class RekamMedisController extends Controller
     public function getFamilyMembers(Request $request)
     {
         $karyawanId = $request->input('karyawan_id');
+
+        // Verifikasi bahwa karyawan aktif
+        $karyawan = Karyawan::where('id_karyawan', $karyawanId)
+            ->where('status', 'aktif')
+            ->first();
+
+        if (!$karyawan) {
+            return response()->json([]);
+        }
 
         $familyMembers = Keluarga::with(['hubungan:kode_hubungan,hubungan'])
             ->where('id_karyawan', $karyawanId)

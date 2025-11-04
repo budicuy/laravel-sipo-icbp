@@ -61,6 +61,12 @@ class Karyawan extends Model
         return $this->jenis_kelamin;
     }
 
+    // Scope untuk filter karyawan aktif
+    public function scopeAktif($query)
+    {
+        return $query->where('status', 'aktif');
+    }
+
     public function departemen(): BelongsTo
     {
         return $this->belongsTo(Departemen::class, 'id_departemen', 'id_departemen');
