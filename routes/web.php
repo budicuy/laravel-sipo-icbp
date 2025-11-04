@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/dashboard/statistics', [DashboardController::class, 'getStatistics'])->name('api.dashboard.statistics');
     Route::get('/api/dashboard/visit-analysis', [DashboardController::class, 'getVisitAnalysis'])->name('api.dashboard.visit-analysis');
     Route::get('/api/dashboard/realtime', [DashboardController::class, 'getRealtimeData'])->name('api.dashboard.realtime');
+    Route::get('/api/dashboard/top-diagnoses', [DashboardController::class, 'getTopDiagnoses'])->name('api.dashboard.top-diagnoses');
 
     // Karyawan Routes - Custom routes BEFORE resource routes
     Route::get('/karyawan/template', [KaryawanController::class, 'downloadTemplate'])->name('karyawan.template')->middleware('role:Super Admin');

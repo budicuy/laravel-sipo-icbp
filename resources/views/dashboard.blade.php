@@ -160,6 +160,118 @@
             </div>
         </div>
 
+        <!-- Filter Periode Section -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-8">
+            <div class="flex items-center gap-2 mb-4">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-800">Filter Periode Data</h3>
+                <span class="ml-auto text-xs text-gray-500 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                    Pilih bulan & tahun untuk melihat data
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
+                    <div class="relative">
+                        <select id="monthFilter"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
+                            <option value="1" {{ date('n') == 1 ? 'selected' : '' }}>Januari</option>
+                            <option value="2" {{ date('n') == 2 ? 'selected' : '' }}>Februari</option>
+                            <option value="3" {{ date('n') == 3 ? 'selected' : '' }}>Maret</option>
+                            <option value="4" {{ date('n') == 4 ? 'selected' : '' }}>April</option>
+                            <option value="5" {{ date('n') == 5 ? 'selected' : '' }}>Mei</option>
+                            <option value="6" {{ date('n') == 6 ? 'selected' : '' }}>Juni</option>
+                            <option value="7" {{ date('n') == 7 ? 'selected' : '' }}>Juli</option>
+                            <option value="8" {{ date('n') == 8 ? 'selected' : '' }}>Agustus</option>
+                            <option value="9" {{ date('n') == 9 ? 'selected' : '' }}>September</option>
+                            <option value="10" {{ date('n') == 10 ? 'selected' : '' }}>Oktober</option>
+                            <option value="11" {{ date('n') == 11 ? 'selected' : '' }}>November</option>
+                            <option value="12" {{ date('n') == 12 ? 'selected' : '' }}>Desember</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
+                    <input type="number" id="yearFilter" value="{{ date('Y') }}" min="2000"
+                        max="2100"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <div class="flex items-end">
+                    <button onclick="filterCharts()"
+                        class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Tampilkan Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Diagnoses Section -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white p-3 rounded-lg shadow-lg">
+                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Diagnosa Terbanyak</h2>
+                        <p class="text-purple-100 text-sm" id="diagnosaPeriod">Bulan ini</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Chart Area -->
+                    <div>
+                        <div class="bg-gradient-to-br from-gray-50 to-purple-50 border border-purple-100 rounded-lg p-5">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-4">Distribusi Diagnosa</h4>
+                            <div style="height: 300px;">
+                                <canvas id="diagnosisChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- List Area -->
+                    <div>
+                        <div class="bg-gradient-to-br from-gray-50 to-pink-50 border border-pink-100 rounded-lg p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-sm font-semibold text-gray-700">Top 5 Diagnosa</h4>
+                                <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200" id="totalCases">0 Kasus</span>
+                            </div>
+                            <div id="diagnosisList" class="space-y-3">
+                                <!-- Loading state -->
+                                <div class="flex items-center justify-center py-8">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Analytics Section - Combined Card -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
             <!-- Header -->
@@ -186,78 +298,6 @@
 
             <!-- Content Wrapper -->
             <div class="p-6">
-                <!-- Filter Periode Section -->
-                <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-5 mb-6 border border-blue-100">
-                    <div class="flex items-center gap-2 mb-4">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                        </svg>
-                        <h3 class="text-sm font-semibold text-gray-800">Filter Periode</h3>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
-                            <div class="relative">
-                                <select id="monthFilter"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
-                                    <option value="1" {{ date('n') == 1 ? 'selected' : '' }}>Januari</option>
-                                    <option value="2" {{ date('n') == 2 ? 'selected' : '' }}>Februari</option>
-                                    <option value="3" {{ date('n') == 3 ? 'selected' : '' }}>Maret</option>
-                                    <option value="4" {{ date('n') == 4 ? 'selected' : '' }}>April</option>
-                                    <option value="5" {{ date('n') == 5 ? 'selected' : '' }}>Mei</option>
-                                    <option value="6" {{ date('n') == 6 ? 'selected' : '' }}>Juni</option>
-                                    <option value="7" {{ date('n') == 7 ? 'selected' : '' }}>Juli</option>
-                                    <option value="8" {{ date('n') == 8 ? 'selected' : '' }}>Agustus</option>
-                                    <option value="9" {{ date('n') == 9 ? 'selected' : '' }}>September</option>
-                                    <option value="10" {{ date('n') == 10 ? 'selected' : '' }}>Oktober</option>
-                                    <option value="11" {{ date('n') == 11 ? 'selected' : '' }}>November</option>
-                                    <option value="12" {{ date('n') == 12 ? 'selected' : '' }}>Desember</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
-                            <input type="number" id="yearFilter" value="{{ date('Y') }}" min="2000"
-                                max="2100"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        </div>
-
-                        <div class="flex items-end">
-                            <button onclick="filterCharts()"
-                                class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                                Tampilkan Data
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Divider -->
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                    <div class="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-full border border-blue-200">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                        </svg>
-                        <span class="text-xs font-semibold text-blue-700">Grafik Kunjungan</span>
-                    </div>
-                    <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                </div>
-
                 <!-- Charts Grid - Harian & Mingguan -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <!-- Chart 1 - Kunjungan Harian -->
@@ -265,7 +305,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-2">
                                 <div class="w-3 h-3 bg-teal-500 rounded-full"></div>
-                                <h4 class="text-sm font-semibold text-gray-700">Kunjungan Harian (Oktober 2025)</h4>
+                                <h4 id="dailyChartTitle" class="text-sm font-semibold text-gray-700">Kunjungan Harian</h4>
                             </div>
                             <span
                                 class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Harian</span>
@@ -280,8 +320,8 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-2">
                                 <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                                <h4 class="text-sm font-semibold text-gray-700">Kunjungan Mingguan (per minggu bulan
-                                    Oktober)</h4>
+                                <h4 id="weeklyChartTitle" class="text-sm font-semibold text-gray-700">Kunjungan Mingguan
+                                </h4>
                             </div>
                             <span
                                 class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Mingguan</span>
@@ -297,7 +337,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                            <h4 class="text-sm font-semibold text-gray-700">Kunjungan Bulanan (2025)</h4>
+                            <h4 id="monthlyChartTitle" class="text-sm font-semibold text-gray-700">Kunjungan Bulanan</h4>
                         </div>
                         <span
                             class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Bulanan</span>
@@ -314,7 +354,7 @@
 @push('scripts')
     <script>
         // Global variables for charts
-        let dailyChart, weeklyChart, monthlyChart;
+        let dailyChart, weeklyChart, monthlyChart, diagnosisChart;
 
         // Load initial data
         document.addEventListener('DOMContentLoaded', function() {
@@ -326,11 +366,15 @@
             document.getElementById('monthFilter').value = currentMonth;
             document.getElementById('yearFilter').value = currentYear;
 
+            // Initialize chart titles with current month/year
+            updateChartTitles(currentMonth, currentYear);
+
             // Start typing effect
             typeUserName('{{ $user->nama_lengkap }}');
 
             loadStatistics();
             loadVisitAnalysis(currentMonth, currentYear);
+            loadTopDiagnoses(currentMonth, currentYear);
 
             // Auto refresh every 30 seconds
             setInterval(loadStatistics, 30000);
@@ -615,18 +659,23 @@
             const year = document.getElementById('yearFilter').value;
 
             // Update chart titles
-            document.querySelector('#dailyVisitChart').parentElement.previousElementSibling.querySelector('h4')
-                .textContent =
-                `Kunjungan Harian (${getMonthName(month)} ${year})`;
-            document.querySelector('#weeklyVisitChart').parentElement.previousElementSibling.querySelector('h4')
-                .textContent =
-                `Kunjungan Mingguan (per minggu bulan ${getMonthName(month)})`;
-            document.querySelector('#monthlyVisitChart').parentElement.previousElementSibling.querySelector('h4')
-                .textContent =
-                `Kunjungan Bulanan (${year})`;
+            updateChartTitles(month, year);
 
             // Load new data from API
             loadVisitAnalysis(month, year);
+            loadTopDiagnoses(month, year);
+        }
+
+        // Update chart titles based on month and year
+        function updateChartTitles(month, year) {
+            const monthName = getMonthName(month);
+
+            document.getElementById('dailyChartTitle').textContent =
+                `Kunjungan Harian (${monthName} ${year})`;
+            document.getElementById('weeklyChartTitle').textContent =
+                `Kunjungan Mingguan (per minggu bulan ${monthName})`;
+            document.getElementById('monthlyChartTitle').textContent =
+                `Kunjungan Bulanan (${year})`;
         }
 
         function getMonthName(month) {
@@ -667,6 +716,151 @@
             // and add a custom parameter that can be handled in the controller
             const url = '{{ route('rekam-medis.index') }}?status=Close';
             window.location.href = url;
+        }
+
+        // Load top diagnoses data
+        async function loadTopDiagnoses(month = null, year = null) {
+            try {
+                const params = new URLSearchParams();
+                if (month) params.append('month', month);
+                if (year) params.append('year', year);
+                params.append('limit', 5);
+
+                const response = await fetch(`/api/dashboard/top-diagnoses?${params}`);
+                const data = await response.json();
+
+                // Update diagnosis period text
+                const monthName = getMonthName(month || new Date().getMonth() + 1);
+                document.getElementById('diagnosaPeriod').textContent = `${monthName} ${year || new Date().getFullYear()}`;
+                
+                // Update total cases
+                document.getElementById('totalCases').textContent = `${data.total_cases} Kasus`;
+
+                // Update diagnosis list
+                updateDiagnosisList(data.diagnoses);
+
+                // Update diagnosis chart
+                updateDiagnosisChart(data.diagnoses);
+
+            } catch (error) {
+                console.error('Error loading top diagnoses:', error);
+                document.getElementById('diagnosisList').innerHTML = 
+                    '<div class="text-center py-8 text-red-500">Gagal memuat data diagnosa</div>';
+            }
+        }
+
+        // Update diagnosis list
+        function updateDiagnosisList(diagnoses) {
+            const listContainer = document.getElementById('diagnosisList');
+            
+            if (!diagnoses || diagnoses.length === 0) {
+                listContainer.innerHTML = 
+                    '<div class="text-center py-8 text-gray-500">Tidak ada data diagnosa</div>';
+                return;
+            }
+
+            const colors = ['purple', 'pink', 'indigo', 'violet', 'fuchsia'];
+            
+            listContainer.innerHTML = diagnoses.map((item, index) => `
+                <div class="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-3 flex-1">
+                            <div class="flex items-center justify-center w-8 h-8 rounded-full bg-${colors[index]}-100 text-${colors[index]}-600 font-bold text-sm">
+                                ${index + 1}
+                            </div>
+                            <div class="flex-1">
+                                <h5 class="font-semibold text-gray-800 text-sm line-clamp-1">${item.nama_diagnosa}</h5>
+                            </div>
+                        </div>
+                        <div class="text-right ml-2">
+                            <p class="text-xl font-bold text-${colors[index]}-600">${item.total}</p>
+                            <p class="text-xs text-gray-500">${item.percentage}%</p>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-${colors[index]}-500 to-${colors[index]}-600 h-2 rounded-full transition-all duration-500" 
+                                style="width: ${item.percentage}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update diagnosis chart
+        function updateDiagnosisChart(diagnoses) {
+            if (diagnosisChart) {
+                diagnosisChart.destroy();
+            }
+
+            if (!diagnoses || diagnoses.length === 0) {
+                return;
+            }
+
+            const ctx = document.getElementById('diagnosisChart').getContext('2d');
+            const colors = [
+                { bg: 'rgba(147, 51, 234, 0.8)', border: 'rgb(147, 51, 234)' },  // purple
+                { bg: 'rgba(236, 72, 153, 0.8)', border: 'rgb(236, 72, 153)' },  // pink
+                { bg: 'rgba(99, 102, 241, 0.8)', border: 'rgb(99, 102, 241)' },  // indigo
+                { bg: 'rgba(139, 92, 246, 0.8)', border: 'rgb(139, 92, 246)' },  // violet
+                { bg: 'rgba(217, 70, 239, 0.8)', border: 'rgb(217, 70, 239)' },  // fuchsia
+            ];
+
+            diagnosisChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: diagnoses.map(d => d.nama_diagnosa),
+                    datasets: [{
+                        data: diagnoses.map(d => d.total),
+                        backgroundColor: colors.map(c => c.bg),
+                        borderColor: colors.map(c => c.border),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 11
+                                },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const value = data.datasets[0].data[i];
+                                            const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((value / total) * 100).toFixed(1);
+                                            return {
+                                                text: `${label} (${value} - ${percentage}%)`,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} kasus (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
     </script>
 @endpush

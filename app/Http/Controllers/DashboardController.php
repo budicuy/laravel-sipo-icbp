@@ -199,4 +199,84 @@ class DashboardController extends Controller
             'timestamp' => Carbon::now()->toISOString(),
         ]);
     }
+
+    /**
+     * Get top diagnoses for current month
+     */
+    public function getTopDiagnoses(Request $request)
+    {
+        $month = $request->input('month', Carbon::now()->month);
+        $year = $request->input('year', Carbon::now()->year);
+        $limit = $request->input('limit', 5);
+
+        // Get diagnosa from reguler rekam medis
+        $diagnosaReguler = DB::table('keluhan')
+            ->join('rekam_medis', 'keluhan.id_rekam', '=', 'rekam_medis.id_rekam')
+            ->join('diagnosa', 'keluhan.id_diagnosa', '=', 'diagnosa.id_diagnosa')
+            ->whereMonth('rekam_medis.tanggal_periksa', $month)
+            ->whereYear('rekam_medis.tanggal_periksa', $year)
+            ->whereNotNull('keluhan.id_diagnosa')
+            ->select('diagnosa.nama_diagnosa', DB::raw('COUNT(*) as total'))
+            ->groupBy('diagnosa.id_diagnosa', 'diagnosa.nama_diagnosa')
+            ->get();
+
+        // Get diagnosa from emergency rekam medis
+        $diagnosaEmergency = DB::table('keluhan')
+            ->join('rekam_medis_emergency', 'keluhan.id_emergency', '=', 'rekam_medis_emergency.id_emergency')
+            ->join('diagnosa_emergency', 'keluhan.id_diagnosa_emergency', '=', 'diagnosa_emergency.id_diagnosa_emergency')
+            ->whereMonth('rekam_medis_emergency.tanggal_periksa', $month)
+            ->whereYear('rekam_medis_emergency.tanggal_periksa', $year)
+            ->whereNotNull('keluhan.id_diagnosa_emergency')
+            ->select('diagnosa_emergency.nama_diagnosa_emergency as nama_diagnosa', DB::raw('COUNT(*) as total'))
+            ->groupBy('diagnosa_emergency.id_diagnosa_emergency', 'diagnosa_emergency.nama_diagnosa_emergency')
+            ->get();
+
+        // Combine and aggregate results
+        $combinedDiagnosa = collect();
+        
+        // Add reguler diagnosa
+        foreach ($diagnosaReguler as $diagnosa) {
+            $existing = $combinedDiagnosa->firstWhere('nama_diagnosa', $diagnosa->nama_diagnosa);
+            if ($existing) {
+                $existing->total += $diagnosa->total;
+            } else {
+                $combinedDiagnosa->push((object)[
+                    'nama_diagnosa' => $diagnosa->nama_diagnosa,
+                    'total' => $diagnosa->total
+                ]);
+            }
+        }
+
+        // Add emergency diagnosa
+        foreach ($diagnosaEmergency as $diagnosa) {
+            $existing = $combinedDiagnosa->firstWhere('nama_diagnosa', $diagnosa->nama_diagnosa);
+            if ($existing) {
+                $existing->total += $diagnosa->total;
+            } else {
+                $combinedDiagnosa->push((object)[
+                    'nama_diagnosa' => $diagnosa->nama_diagnosa,
+                    'total' => $diagnosa->total
+                ]);
+            }
+        }
+
+        // Sort by total descending and limit
+        $topDiagnosa = $combinedDiagnosa->sortByDesc('total')->take($limit)->values();
+
+        // Calculate total for percentage
+        $totalAll = $topDiagnosa->sum('total');
+
+        // Add percentage to each diagnosa
+        $result = $topDiagnosa->map(function($item) use ($totalAll) {
+            $item->percentage = $totalAll > 0 ? round(($item->total / $totalAll) * 100, 1) : 0;
+            return $item;
+        });
+
+        return response()->json([
+            'diagnoses' => $result,
+            'total_cases' => $totalAll,
+            'month' => $month,
+            'year' => $year,
+        ]);
+    }
 }
