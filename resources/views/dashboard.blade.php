@@ -192,8 +192,7 @@
                             <option value="11" {{ date('n') == 11 ? 'selected' : '' }}>November</option>
                             <option value="12" {{ date('n') == 12 ? 'selected' : '' }}>Desember</option>
                         </select>
-                        <div
-                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 9l-7 7-7-7" />
@@ -204,8 +203,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
-                    <input type="number" id="yearFilter" value="{{ date('Y') }}" min="2000"
-                        max="2100"
+                    <input type="number" id="yearFilter" value="{{ date('Y') }}" min="2000" max="2100"
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
 
@@ -258,7 +256,8 @@
                         <div class="bg-gradient-to-br from-gray-50 to-pink-50 border border-pink-100 rounded-lg p-5">
                             <div class="flex items-center justify-between mb-4">
                                 <h4 class="text-sm font-semibold text-gray-700">Top 5 Diagnosa</h4>
-                                <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200" id="totalCases">0 Kasus</span>
+                                <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200"
+                                    id="totalCases">0 Kasus</span>
                             </div>
                             <div id="diagnosisList" class="space-y-3">
                                 <!-- Loading state -->
@@ -731,8 +730,9 @@
 
                 // Update diagnosis period text
                 const monthName = getMonthName(month || new Date().getMonth() + 1);
-                document.getElementById('diagnosaPeriod').textContent = `${monthName} ${year || new Date().getFullYear()}`;
-                
+                document.getElementById('diagnosaPeriod').textContent =
+                    `${monthName} ${year || new Date().getFullYear()}`;
+
                 // Update total cases
                 document.getElementById('totalCases').textContent = `${data.total_cases} Kasus`;
 
@@ -744,7 +744,7 @@
 
             } catch (error) {
                 console.error('Error loading top diagnoses:', error);
-                document.getElementById('diagnosisList').innerHTML = 
+                document.getElementById('diagnosisList').innerHTML =
                     '<div class="text-center py-8 text-red-500">Gagal memuat data diagnosa</div>';
             }
         }
@@ -752,15 +752,15 @@
         // Update diagnosis list
         function updateDiagnosisList(diagnoses) {
             const listContainer = document.getElementById('diagnosisList');
-            
+
             if (!diagnoses || diagnoses.length === 0) {
-                listContainer.innerHTML = 
+                listContainer.innerHTML =
                     '<div class="text-center py-8 text-gray-500">Tidak ada data diagnosa</div>';
                 return;
             }
 
             const colors = ['purple', 'pink', 'indigo', 'violet', 'fuchsia'];
-            
+
             listContainer.innerHTML = diagnoses.map((item, index) => `
                 <div class="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between mb-2">
@@ -779,7 +779,7 @@
                     </div>
                     <div class="mt-2">
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-gradient-to-r from-${colors[index]}-500 to-${colors[index]}-600 h-2 rounded-full transition-all duration-500" 
+                            <div class="bg-gradient-to-r from-${colors[index]}-500 to-${colors[index]}-600 h-2 rounded-full transition-all duration-500"
                                 style="width: ${item.percentage}%"></div>
                         </div>
                     </div>
@@ -798,12 +798,26 @@
             }
 
             const ctx = document.getElementById('diagnosisChart').getContext('2d');
-            const colors = [
-                { bg: 'rgba(147, 51, 234, 0.8)', border: 'rgb(147, 51, 234)' },  // purple
-                { bg: 'rgba(236, 72, 153, 0.8)', border: 'rgb(236, 72, 153)' },  // pink
-                { bg: 'rgba(99, 102, 241, 0.8)', border: 'rgb(99, 102, 241)' },  // indigo
-                { bg: 'rgba(139, 92, 246, 0.8)', border: 'rgb(139, 92, 246)' },  // violet
-                { bg: 'rgba(217, 70, 239, 0.8)', border: 'rgb(217, 70, 239)' },  // fuchsia
+            const colors = [{
+                    bg: 'rgba(147, 51, 234, 0.8)',
+                    border: 'rgb(147, 51, 234)'
+                }, // purple
+                {
+                    bg: 'rgba(236, 72, 153, 0.8)',
+                    border: 'rgb(236, 72, 153)'
+                }, // pink
+                {
+                    bg: 'rgba(99, 102, 241, 0.8)',
+                    border: 'rgb(99, 102, 241)'
+                }, // indigo
+                {
+                    bg: 'rgba(139, 92, 246, 0.8)',
+                    border: 'rgb(139, 92, 246)'
+                }, // violet
+                {
+                    bg: 'rgba(217, 70, 239, 0.8)',
+                    border: 'rgb(217, 70, 239)'
+                }, // fuchsia
             ];
 
             diagnosisChart = new Chart(ctx, {
@@ -833,7 +847,8 @@
                                     if (data.labels.length && data.datasets.length) {
                                         return data.labels.map((label, i) => {
                                             const value = data.datasets[0].data[i];
-                                            const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                            const total = data.datasets[0].data.reduce((a, b) => a + b,
+                                                0);
                                             const percentage = ((value / total) * 100).toFixed(1);
                                             return {
                                                 text: `${label} (${value} - ${percentage}%)`,

@@ -233,7 +233,7 @@ class DashboardController extends Controller
 
         // Combine and aggregate results
         $combinedDiagnosa = collect();
-        
+
         // Add reguler diagnosa
         foreach ($diagnosaReguler as $diagnosa) {
             $existing = $combinedDiagnosa->firstWhere('nama_diagnosa', $diagnosa->nama_diagnosa);
