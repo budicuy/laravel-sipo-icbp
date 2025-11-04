@@ -136,9 +136,9 @@
                 </li>
 
                 <!-- Rekam Medis (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') ? 'true' : 'false' }} }">
+                <li x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('surat-pengantar-istirahat*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('surat-pengantar-istirahat*') ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Rekam Medis' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
@@ -185,7 +185,7 @@
                         @endif
                         <li>
                             <a href="{{ route('surat-sakit.create') }}"
-                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('surat-sakit*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
+                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('surat-sakit*') || request()->is('surat-pengantar-istirahat*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
                                 Surat Sakit
                             </a>
                         </li>
@@ -193,9 +193,9 @@
                 </li>
 
                 <!-- Manajemen Obat (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('harga-obat*') || request()->is('stok-obat*') || request()->is('monitoring*') ? 'true' : 'false' }} }">
+                <li x-data="{ open: {{ request()->is('harga-obat*') || request()->is('stok-obat*') || request()->is('stok*') || request()->is('monitoring*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('harga-obat*') || request()->is('stok-obat*') || request()->is('monitoring*') ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('harga-obat*') || request()->is('stok-obat*') || request()->is('stok*') || request()->is('monitoring*') ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Manajemen Obat' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
@@ -228,7 +228,7 @@
                         </li>
                         <li>
                             <a href="{{ route('stok.index') }}"
-                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('stok-obat*') ? 'text-indigo-600 bg-indigo-50 font-semibold' : 'text-gray-600 hover:text-indigo-600 hover:bg-indigo-50' }}">
+                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('stok-obat*') || request()->is('stok*') ? 'text-indigo-600 bg-indigo-50 font-semibold' : 'text-gray-600 hover:text-indigo-600 hover:bg-indigo-50' }}">
                                 Stok Obat
                             </a>
                         </li>
