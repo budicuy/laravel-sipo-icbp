@@ -244,6 +244,9 @@
                                                     <label class="text-sm font-semibold text-gray-700">Obat
                                                         #{{ $index + 1 }}</label>
                                                     <p class="text-xs text-gray-500 mt-1">{{ $obat['nama_obat'] }}</p>
+                                                    <span class="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                                        Stok: {{ $obat['stok_akhir'] ?? 0 }}
+                                                    </span>
                                                 </div>
                                                 <button type="button" onclick="removeObat(this)"
                                                     class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded transition-colors">
@@ -265,7 +268,11 @@
                                                     </label>
                                                     <input type="number"
                                                         name="obat_list[{{ $index }}][jumlah_obat]"
-                                                        value="{{ $obat['jumlah_obat'] }}" min="1" max="100"
+                                                        value="{{ $obat['jumlah_obat'] }}" 
+                                                        min="1" 
+                                                        max="{{ $obat['stok_akhir'] ?? 100 }}"
+                                                        onchange="validateStok(this, {{ $obat['stok_akhir'] ?? 100 }}, '{{ $obat['nama_obat'] }}')"
+                                                        oninput="validateStok(this, {{ $obat['stok_akhir'] ?? 100 }}, '{{ $obat['nama_obat'] }}')"
                                                         required
                                                         class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                         placeholder="Qty">
@@ -411,7 +418,7 @@
                     obatIndex = 0;
 
                     obats.forEach((obat, index) => {
-                        addObatItem(obat.id_obat, obat.nama_obat);
+                        addObatItem(obat.id_obat, obat.nama_obat, obat.stok_akhir || 0);
                     });
 
                 } catch (error) {
@@ -422,16 +429,22 @@
             }
 
             // Add obat item to the list
-            function addObatItem(obatId, obatNama) {
+            function addObatItem(obatId, obatNama, stokAkhir = 0) {
                 const container = document.getElementById('obat-list-container');
                 const index = obatIndex++;
 
+                const stokHabis = stokAkhir <= 0;
+                const stokBadge = stokHabis ?
+                    '<span class="ml-2 px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded">STOK HABIS</span>' :
+                    `<span class="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">Stok: ${stokAkhir}</span>`;
+                const borderClass = stokHabis ? 'border-red-300 bg-red-50' : 'border-gray-200';
+
                 const obatHtml = `
-                <div class="obat-item bg-white border border-gray-200 rounded-lg p-4" data-index="${index}">
+                <div class="obat-item bg-white border ${borderClass} rounded-lg p-4" data-index="${index}">
                     <div class="flex items-start justify-between mb-3">
                         <div class="flex-1">
                             <label class="text-sm font-semibold text-gray-700">Obat #${index + 1}</label>
-                            <p class="text-xs text-gray-500 mt-1">${obatNama}</p>
+                            <p class="text-xs text-gray-500 mt-1">${obatNama}${stokBadge}</p>
                         </div>
                         <button type="button" onclick="removeObat(this)"
                             class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded transition-colors">
@@ -449,9 +462,12 @@
                                 Jumlah <span class="text-red-500">*</span>
                             </label>
                             <input type="number" name="obat_list[${index}][jumlah_obat]"
-                                value="1" min="1" max="100" required
+                                value="1" min="1" max="${stokAkhir}" 
+                                onchange="validateStok(this, ${stokAkhir}, '${obatNama}')"
+                                oninput="validateStok(this, ${stokAkhir}, '${obatNama}')"
+                                required
                                 class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Qty">
+                                placeholder="Maks: ${stokAkhir}">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-600 mb-1">
@@ -485,6 +501,24 @@
                 document.querySelectorAll('.obat-item').forEach((item, idx) => {
                     item.querySelector('label').textContent = `Obat #${idx + 1}`;
                 });
+            }
+
+            // Stock validation function
+            function validateStok(input, maxStok, obatName) {
+                const value = parseInt(input.value);
+                
+                if (value > maxStok) {
+                    alert(`Jumlah obat ${obatName} tidak boleh melebihi stok yang tersedia (${maxStok})`);
+                    input.value = maxStok;
+                    input.classList.add('border-red-500');
+                    input.classList.remove('border-gray-300');
+                } else if (value < 1) {
+                    input.classList.add('border-red-500');
+                    input.classList.remove('border-gray-300');
+                } else {
+                    input.classList.remove('border-red-500');
+                    input.classList.add('border-gray-300');
+                }
             }
 
             // Initialize on page load

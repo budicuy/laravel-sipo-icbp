@@ -65,16 +65,20 @@ class DiagnosaController extends Controller
         $validated = $request->validate([
             'nama_diagnosa' => 'required|string|max:100',
             'deskripsi' => 'nullable|string',
+            'status' => 'required|in:aktif,non-aktif',
             'obat_ids' => 'nullable|array',
             'obat_ids.*' => 'exists:obat,id_obat'
         ], [
             'nama_diagnosa.required' => 'Nama diagnosa wajib diisi',
             'nama_diagnosa.max' => 'Nama diagnosa maksimal 100 karakter',
+            'status.required' => 'Status wajib dipilih',
+            'status.in' => 'Status harus aktif atau non-aktif',
         ]);
 
         $diagnosa = Diagnosa::create([
             'nama_diagnosa' => $validated['nama_diagnosa'],
             'deskripsi' => $validated['deskripsi'] ?? null,
+            'status' => $validated['status'],
         ]);
 
         // Attach obat yang direkomendasikan
@@ -104,16 +108,20 @@ class DiagnosaController extends Controller
         $validated = $request->validate([
             'nama_diagnosa' => 'required|string|max:100',
             'deskripsi' => 'nullable|string',
+            'status' => 'required|in:aktif,non-aktif',
             'obat_ids' => 'nullable|array',
             'obat_ids.*' => 'exists:obat,id_obat'
         ], [
             'nama_diagnosa.required' => 'Nama diagnosa wajib diisi',
             'nama_diagnosa.max' => 'Nama diagnosa maksimal 100 karakter',
+            'status.required' => 'Status wajib dipilih',
+            'status.in' => 'Status harus aktif atau non-aktif',
         ]);
 
         $diagnosa->update([
             'nama_diagnosa' => $validated['nama_diagnosa'],
             'deskripsi' => $validated['deskripsi'] ?? null,
+            'status' => $validated['status'],
         ]);
 
         // Sync obat yang direkomendasikan

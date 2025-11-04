@@ -15,6 +15,7 @@ class Diagnosa extends Model
     protected $fillable = [
         'nama_diagnosa',
         'deskripsi',
+        'status',
     ];
 
     // Relasi many-to-many dengan Obat (rekomendasi obat)

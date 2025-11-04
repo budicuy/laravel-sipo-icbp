@@ -16,13 +16,13 @@ class DiagnosaEmergencyController extends Controller
     public function index(Request $request)
     {
         $query = DiagnosaEmergency::with('obats');
-        
+
         // Search functionality
         if ($request->has('search') && !empty($request->search)) {
             $query->where('nama_diagnosa_emergency', 'like', '%' . $request->search . '%')
                   ->orWhere('deskripsi', 'like', '%' . $request->search . '%');
         }
-        
+
         // Sort functionality
         if ($request->has('sort') && !empty($request->sort)) {
             $direction = $request->has('direction') && $request->direction === 'desc' ? 'desc' : 'asc';
@@ -30,9 +30,9 @@ class DiagnosaEmergencyController extends Controller
         } else {
             $query->orderBy('id_diagnosa_emergency', 'desc');
         }
-        
+
         $diagnosaEmergencies = $query->paginate($request->get('per_page', 50));
-        
+
         return view('diagnosa-emergency.index', compact('diagnosaEmergencies'));
     }
 
@@ -53,6 +53,7 @@ class DiagnosaEmergencyController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_diagnosa_emergency' => 'required|string|max:255|unique:diagnosa_emergency,nama_diagnosa_emergency',
             'deskripsi' => 'nullable|string',
+            'status' => 'required|in:aktif,non-aktif',
             'obat_rekomendasi' => 'nullable|array',
             'obat_rekomendasi.*' => 'exists:obat,id_obat',
         ]);
@@ -68,6 +69,7 @@ class DiagnosaEmergencyController extends Controller
             $diagnosaEmergency = DiagnosaEmergency::create([
                 'nama_diagnosa_emergency' => $request->nama_diagnosa_emergency,
                 'deskripsi' => $request->deskripsi,
+                'status' => $request->status,
             ]);
 
             // Attach obat rekomendasi if provided
@@ -101,7 +103,7 @@ class DiagnosaEmergencyController extends Controller
             $query->with(['user', 'rekamMedisEmergency.externalEmployee', 'rekamMedis.keluarga.karyawan'])
                   ->orderBy('created_at', 'desc');
         }]);
-        
+
         return view('diagnosa-emergency.show', compact('diagnosaEmergency'));
     }
 
@@ -113,7 +115,7 @@ class DiagnosaEmergencyController extends Controller
         $diagnosaEmergency = DiagnosaEmergency::findOrFail($id);
         $obats = Obat::orderBy('nama_obat')->get();
         $selectedObats = $diagnosaEmergency->obats->pluck('id_obat')->toArray();
-        
+
         return view('diagnosa-emergency.edit', compact('diagnosaEmergency', 'obats', 'selectedObats'));
     }
 
@@ -123,10 +125,11 @@ class DiagnosaEmergencyController extends Controller
     public function update(Request $request, $id)
     {
         $diagnosaEmergency = DiagnosaEmergency::findOrFail($id);
-        
+
         $validator = Validator::make($request->all(), [
             'nama_diagnosa_emergency' => 'required|string|max:255|unique:diagnosa_emergency,nama_diagnosa_emergency,' . $diagnosaEmergency->id_diagnosa_emergency . ',id_diagnosa_emergency',
             'deskripsi' => 'nullable|string',
+            'status' => 'required|in:aktif,non-aktif',
             'obat_rekomendasi' => 'nullable|array',
             'obat_rekomendasi.*' => 'exists:obat,id_obat',
         ]);
@@ -142,6 +145,7 @@ class DiagnosaEmergencyController extends Controller
             $diagnosaEmergency->update([
                 'nama_diagnosa_emergency' => $request->nama_diagnosa_emergency,
                 'deskripsi' => $request->deskripsi,
+                'status' => $request->status,
             ]);
 
             // Sync obat rekomendasi
@@ -172,7 +176,7 @@ class DiagnosaEmergencyController extends Controller
     {
         try {
             $diagnosaEmergency = DiagnosaEmergency::findOrFail($id);
-            
+
             // Check if the diagnosa is being used in any keluhan
             $keluhanCount = $diagnosaEmergency->keluhans()->count();
             if ($keluhanCount > 0) {
@@ -183,7 +187,7 @@ class DiagnosaEmergencyController extends Controller
             }
 
             $diagnosaEmergency->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Diagnosa emergency berhasil dihapus'
@@ -218,7 +222,7 @@ class DiagnosaEmergencyController extends Controller
             $ids = $request->ids;
             $deletedCount = 0;
             $cannotDeleteCount = 0;
-            
+
             foreach ($ids as $id) {
                 $diagnosaEmergency = DiagnosaEmergency::find($id);
                 if ($diagnosaEmergency) {
@@ -233,12 +237,12 @@ class DiagnosaEmergencyController extends Controller
             }
 
             DB::commit();
-            
+
             $message = "Berhasil menghapus {$deletedCount} diagnosa emergency";
             if ($cannotDeleteCount > 0) {
                 $message .= ". {$cannotDeleteCount} diagnosa tidak dapat dihapus karena sudah digunakan dalam rekam medis.";
             }
-            
+
             return response()->json([
                 'success' => true,
                 'message' => $message,

@@ -387,7 +387,7 @@
                                     <option value="">-- Pilih Diagnosa Emergency --</option>
                                     @foreach ($diagnosaEmergency as $diagnosa)
                                         <option value="{{ $diagnosa->id_diagnosa_emergency }}"
-                                            data-obats="{{ json_encode($diagnosa->obats->map(function ($obat) {return ['id_obat' => $obat->id_obat, 'nama_obat' => $obat->nama_obat];})) }}"
+                                            data-obats="{{ json_encode($diagnosa->obats->map(function ($obat) {return ['id_obat' => $obat->id_obat, 'nama_obat' => $obat->nama_obat, 'stok_akhir' => $obat->stok_akhir ?? 0];})) }}"
                                             {{ old('id_diagnosa_emergency') == $diagnosa->id_diagnosa_emergency ? 'selected' : '' }}>
                                             {{ $diagnosa->nama_diagnosa_emergency }}
                                         </option>
@@ -559,14 +559,27 @@
                 } else {
                     let checkboxHTML = '<div class="space-y-2">';
                     obatData.forEach(obat => {
+                        const stokHabis = obat.stok_akhir <= 0;
+                        const disabledAttr = stokHabis ? 'disabled' : '';
+                        const labelClass = stokHabis ? 'opacity-50 cursor-not-allowed' :
+                        'hover:bg-white cursor-pointer';
+                        const stokBadge = stokHabis ?
+                            '<span class="ml-2 px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded">STOK HABIS</span>' :
+                            `<span class="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded">Stok: ${obat.stok_akhir}</span>`;
+
                         checkboxHTML += `
-                <label class="flex items-start space-x-3 p-2 hover:bg-white rounded cursor-pointer transition-colors">
+                <label class="flex items-start space-x-3 p-2 rounded transition-colors ${labelClass}">
                     <input type="checkbox"
                            class="obat-checkbox mt-1 w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
                            value="${obat.id_obat}"
                            data-obat-name="${obat.nama_obat}"
+                           data-obat-stok="${obat.stok_akhir}"
+                           ${disabledAttr}
                            onchange="updateSelectedObatList()">
-                    <span class="text-sm text-gray-700 flex-1">${obat.nama_obat}</span>
+                    <span class="text-sm text-gray-700 flex-1">
+                        ${obat.nama_obat}
+                        ${stokBadge}
+                    </span>
                 </label>
             `;
                     });
@@ -619,10 +632,14 @@
                 checkedBoxes.forEach((checkbox, index) => {
                     const obatId = checkbox.value;
                     const obatName = checkbox.getAttribute('data-obat-name');
+                    const obatStok = parseInt(checkbox.getAttribute('data-obat-stok')) || 0;
 
                     detailsHTML += `
             <div class="border border-gray-300 rounded-lg p-3 bg-white">
-                <h5 class="font-semibold text-sm text-gray-800 mb-2">${obatName}</h5>
+                <div class="flex justify-between items-center mb-2">
+                    <h5 class="font-semibold text-sm text-gray-800">${obatName}</h5>
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">Stok: ${obatStok}</span>
+                </div>
                 <input type="hidden" name="obat_list[${index}][id_obat]" value="${obatId}">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -636,9 +653,12 @@
                         <input type="number"
                                name="obat_list[${index}][jumlah_obat]"
                                min="1"
-                               max="10000"
+                               max="${obatStok}"
+                               onchange="validateStok(this, ${obatStok}, '${obatName}')"
+                               oninput="validateStok(this, ${obatStok}, '${obatName}')"
+                               required
                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                               placeholder="Masukkan jumlah obat (maks 10.000)">
+                               placeholder="Maks: ${obatStok}">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -953,13 +973,13 @@
                 <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
                 <div class="mt-2">
                     ${errors.map(error => `
-                                                                                                <div class="flex items-center py-1">
-                                                                                                    <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                                                                                    </svg>
-                                                                                                    <span class="text-sm text-red-700">${error}</span>
-                                                                                                </div>
-                                                                                            `).join('')}
+                                                                                                        <div class="flex items-center py-1">
+                                                                                                            <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                                                                                            </svg>
+                                                                                                            <span class="text-sm text-red-700">${error}</span>
+                                                                                                        </div>
+                                                                                                    `).join('')}
                 </div>
             </div>
             <div class="ml-auto pl-3">
@@ -1010,6 +1030,24 @@
                 const summary = document.getElementById('validation-summary');
                 if (summary) {
                     summary.remove();
+                }
+            }
+
+            // Stock validation function
+            function validateStok(input, maxStok, obatName) {
+                const value = parseInt(input.value);
+                
+                if (value > maxStok) {
+                    alert(`Jumlah obat ${obatName} tidak boleh melebihi stok yang tersedia (${maxStok})`);
+                    input.value = maxStok;
+                    input.classList.add('border-red-500');
+                    input.classList.remove('border-gray-300');
+                } else if (value < 1) {
+                    input.classList.add('border-red-500');
+                    input.classList.remove('border-gray-300');
+                } else {
+                    input.classList.remove('border-red-500');
+                    input.classList.add('border-gray-300');
                 }
             }
 

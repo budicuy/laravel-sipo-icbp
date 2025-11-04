@@ -958,15 +958,28 @@
                             // Build checkbox list
                             let checkboxHTML = '<div class="space-y-2">';
                             data.forEach(obat => {
+                                const stokHabis = obat.stok_akhir <= 0;
+                                const disabledAttr = stokHabis ? 'disabled' : '';
+                                const labelClass = stokHabis ? 'opacity-50 cursor-not-allowed' :
+                                    'hover:bg-white cursor-pointer';
+                                const stokBadge = stokHabis ?
+                                    '<span class="ml-2 px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded">STOK HABIS</span>' :
+                                    `<span class="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded">Stok: ${obat.stok_akhir}</span>`;
+
                                 checkboxHTML += `
-                        <label class="flex items-start space-x-3 p-2 hover:bg-white rounded cursor-pointer transition-colors">
+                        <label class="flex items-start space-x-3 p-2 rounded transition-colors ${labelClass}">
                             <input type="checkbox"
                                    class="obat-checkbox mt-1 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
                                    value="${obat.id_obat}"
                                    data-obat-name="${obat.nama_obat}"
+                                   data-obat-stok="${obat.stok_akhir}"
                                    data-keluhan-index="${keluhanIndex}"
+                                   ${disabledAttr}
                                    onchange="updateObatDetails(${keluhanIndex})">
-                            <span class="text-sm text-gray-700 flex-1">${obat.nama_obat}</span>
+                            <span class="text-sm text-gray-700 flex-1">
+                                ${obat.nama_obat}
+                                ${stokBadge}
+                            </span>
                         </label>
                     `;
                             });
@@ -1006,10 +1019,14 @@
                 checkedBoxes.forEach((checkbox, index) => {
                     const obatId = checkbox.value;
                     const obatName = checkbox.getAttribute('data-obat-name');
+                    const obatStok = parseInt(checkbox.getAttribute('data-obat-stok')) || 0;
 
                     detailsHTML += `
             <div class="border border-gray-300 rounded-lg p-3 bg-white">
-                <h5 class="font-semibold text-sm text-gray-800 mb-2">${obatName}</h5>
+                <div class="flex items-center justify-between mb-2">
+                    <h5 class="font-semibold text-sm text-gray-800">${obatName}</h5>
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded">Stok: ${obatStok}</span>
+                </div>
                 <input type="hidden" name="keluhan[${keluhanIndex}][obat_list][${index}][id_obat]" value="${obatId}">
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1018,14 +1035,18 @@
                             <svg class="w-4 h-4 inline mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                             </svg>
-                            Jumlah Obat
+                            Jumlah Obat <span class="text-red-500">*</span>
                         </label>
                         <input type="number"
                                name="keluhan[${keluhanIndex}][obat_list][${index}][jumlah_obat]"
                                min="1"
-                               max="10000"
+                               max="${obatStok}"
                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                               placeholder="Masukkan jumlah obat (maks 10.000)">
+                               placeholder="Maks: ${obatStok}"
+                               onchange="validateStok(this, ${obatStok}, '${obatName}')"
+                               oninput="validateStok(this, ${obatStok}, '${obatName}')"
+                               required>
+                        <p class="text-xs text-gray-500 mt-1">Maksimal: ${obatStok} unit</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -1120,6 +1141,23 @@
                             '<p class="text-sm text-gray-500 italic">Rekomendasi obat hanya tersedia untuk terapi "Obat".</p>';
                     }
                     detailsContainer.style.display = 'none';
+                }
+            }
+
+            // Function to validate stock quantity
+            function validateStok(input, maxStok, obatName) {
+                const value = parseInt(input.value);
+                
+                if (value > maxStok) {
+                    input.value = maxStok;
+                    // Show error message
+                    alert(`Jumlah obat ${obatName} tidak boleh melebihi stok yang tersedia (${maxStok} unit)`);
+                    input.classList.add('border-red-500', 'bg-red-50');
+                } else if (value < 1 && input.value !== '') {
+                    input.value = 1;
+                    input.classList.add('border-red-500', 'bg-red-50');
+                } else {
+                    input.classList.remove('border-red-500', 'bg-red-50');
                 }
             }
 

@@ -112,7 +112,7 @@ class RekamMedisController extends Controller
     public function create()
     {
         // Get all diagnosa and obat for keluhan inputs
-        $diagnosas = Diagnosa::orderBy('nama_diagnosa')->get();
+        $diagnosas = Diagnosa::where('status', 'aktif')->orderBy('nama_diagnosa')->get();
         $obats = Obat::orderBy('nama_obat')->get();
 
         return view('rekam-medis.create', compact('diagnosas', 'obats'));
@@ -387,7 +387,7 @@ class RekamMedisController extends Controller
             'keluhans.obat',        // relasi obat (pivot diagnosa_obat)
         ])->findOrFail($id);
 
-        $diagnosas = Diagnosa::orderBy('nama_diagnosa')->get();
+        $diagnosas = Diagnosa::where('status', 'aktif')->orderBy('nama_diagnosa')->get();
         $obats = Obat::orderBy('nama_obat')->get();
 
         return view('rekam-medis.edit', compact('rekamMedis', 'diagnosas', 'obats'));
@@ -629,10 +629,17 @@ class RekamMedisController extends Controller
             return response()->json([]);
         }
 
-        $obats = $diagnosa->obats->map(function ($obat) {
+        // Get obat IDs
+        $obatIds = $diagnosa->obats->pluck('id_obat')->toArray();
+
+        // Get sisa stok batch untuk semua obat sekaligus
+        $stokMap = \App\Models\StokBulanan::getSisaStokSaatIniBatch($obatIds);
+
+        $obats = $diagnosa->obats->map(function ($obat) use ($stokMap) {
             return [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
+                'stok_akhir' => $stokMap[$obat->id_obat] ?? 0,
             ];
         });
 

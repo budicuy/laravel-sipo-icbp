@@ -67,8 +67,23 @@ class RekamMedisEmergencyController extends Controller
 
         // Get data for dropdowns with relationships
         $externalEmployees = ExternalEmployee::with(['vendor', 'kategori'])->aktif()->get();
-        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get();
-        $diagnosas = Diagnosa::all();
+        $diagnosaEmergency = DiagnosaEmergency::where('status', 'aktif')->with('obats')->get();
+        $diagnosas = Diagnosa::where('status', 'aktif')->get();
+
+        // Kumpulkan semua obat IDs dari diagnosa emergency
+        $allObatIds = $diagnosaEmergency->flatMap(function ($diagnosa) {
+            return $diagnosa->obats->pluck('id_obat');
+        })->unique()->toArray();
+
+        // Get sisa stok batch untuk semua obat sekaligus
+        $stokMap = \App\Models\StokBulanan::getSisaStokSaatIniBatch($allObatIds);
+
+        // Tambahkan stok_akhir ke setiap obat di diagnosa
+        $diagnosaEmergency->each(function ($diagnosa) use ($stokMap) {
+            $diagnosa->obats->each(function ($obat) use ($stokMap) {
+                $obat->stok_akhir = $stokMap[$obat->id_obat] ?? 0;
+            });
+        });
 
         return view('rekam-medis-emergency.create', compact('externalEmployees', 'diagnosaEmergency', 'diagnosas'));
     }
@@ -344,8 +359,8 @@ class RekamMedisEmergencyController extends Controller
 
         // Get data for dropdowns with relationships
         $externalEmployees = ExternalEmployee::with(['vendor', 'kategori'])->aktif()->get();
-        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get();
-        $diagnosas = Diagnosa::all();
+        $diagnosaEmergency = DiagnosaEmergency::where('status', 'aktif')->with('obats')->get();
+        $diagnosas = Diagnosa::where('status', 'aktif')->get();
 
         return view('rekam-medis-emergency.edit', compact('rekamMedisEmergency', 'externalEmployees', 'diagnosaEmergency', 'diagnosas'));
     }
@@ -568,10 +583,17 @@ class RekamMedisEmergencyController extends Controller
             return response()->json([]);
         }
 
-        $obats = $diagnosa->obats->map(function ($obat) {
+        // Get obat IDs
+        $obatIds = $diagnosa->obats->pluck('id_obat')->toArray();
+
+        // Get sisa stok batch untuk semua obat sekaligus
+        $stokMap = \App\Models\StokBulanan::getSisaStokSaatIniBatch($obatIds);
+
+        $obats = $diagnosa->obats->map(function ($obat) use ($stokMap) {
             return [
                 'id_obat' => $obat->id_obat,
                 'nama_obat' => $obat->nama_obat,
+                'stok_akhir' => $stokMap[$obat->id_obat] ?? 0,
             ];
         });
 
@@ -583,19 +605,30 @@ class RekamMedisEmergencyController extends Controller
      */
     public function getDiagnosaWithObat()
     {
-        $diagnosaEmergency = DiagnosaEmergency::with('obats')->get()->map(function ($diagnosa) {
+        $diagnosaEmergency = DiagnosaEmergency::where('status', 'aktif')->with('obats')->get();
+
+        // Kumpulkan semua obat IDs
+        $allObatIds = $diagnosaEmergency->flatMap(function ($diagnosa) {
+            return $diagnosa->obats->pluck('id_obat');
+        })->unique()->toArray();
+
+        // Get sisa stok batch untuk semua obat sekaligus
+        $stokMap = \App\Models\StokBulanan::getSisaStokSaatIniBatch($allObatIds);
+
+        $result = $diagnosaEmergency->map(function ($diagnosa) use ($stokMap) {
             return [
                 'id_diagnosa_emergency' => $diagnosa->id_diagnosa_emergency,
                 'nama_diagnosa_emergency' => $diagnosa->nama_diagnosa_emergency,
-                'obats' => $diagnosa->obats->map(function ($obat) {
+                'obats' => $diagnosa->obats->map(function ($obat) use ($stokMap) {
                     return [
                         'id_obat' => $obat->id_obat,
                         'nama_obat' => $obat->nama_obat,
+                        'stok_akhir' => $stokMap[$obat->id_obat] ?? 0,
                     ];
                 }),
             ];
         });
 
-        return response()->json($diagnosaEmergency);
+        return response()->json($result);
     }
 }

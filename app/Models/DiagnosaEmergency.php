@@ -16,6 +16,7 @@ class DiagnosaEmergency extends Model
     protected $fillable = [
         'nama_diagnosa_emergency',
         'deskripsi',
+        'status',
     ];
 
     /**

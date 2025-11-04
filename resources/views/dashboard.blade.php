@@ -470,100 +470,7 @@
                                                                                                             </div>
 
                                                                                                             <!-- Top Diagnoses Section -->
-                                                                                                            <div
-                                                                                                                class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
-                                                                                                                <!-- Header -->
-                                                                                                                <div
-                                                                                                                    class="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
-                                                                                                                    <div
-                                                                                                                        class="flex items-center gap-3">
-                                                                                                                        <div
-                                                                                                                            class="bg-white p-3 rounded-lg shadow-lg">
-                                                                                                                            <svg class="w-8 h-8 text-purple-600"
-                                                                                                                                fill="none"
-                                                                                                                                stroke="currentColor"
-                                                                                                                                viewBox="0 0 24 24">
-                                                                                                                                <path
-                                                                                                                                    stroke-linecap="round"
-                                                                                                                                    stroke-linejoin="round"
-                                                                                                                                    stroke-width="2"
-                                                                                                                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                                                                                                                            </svg>
-                                                                                                                        </div>
-                                                                                                                        <div>
-                                                                                                                            <h2
-                                                                                                                                class="text-2xl font-bold text-white">
-                                                                                                                                Diagnosa
-                                                                                                                                Terbanyak
-                                                                                                                            </h2>
-                                                                                                                            <p class="text-purple-100 text-sm"
-                                                                                                                                id="diagnosaPeriod">
-                                                                                                                                Bulan
-                                                                                                                                ini
-                                                                                                                            </p>
-                                                                                                                        </div>
-                                                                                                                    </div>
-                                                                                                                </div>
 
-                                                                                                                <!-- Content -->
-                                                                                                                <div
-                                                                                                                    class="p-6">
-                                                                                                                    <div
-                                                                                                                        class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                                                                                                        <!-- Chart Area - 1 kolom -->
-                                                                                                                        <div
-                                                                                                                            class="lg:col-span-1">
-                                                                                                                            <div
-                                                                                                                                class="bg-gradient-to-br from-gray-50 to-purple-50 border border-purple-100 rounded-lg p-5 h-full flex flex-col">
-                                                                                                                                <h4
-                                                                                                                                    class="text-sm font-semibold text-gray-700 mb-4">
-                                                                                                                                    Distribusi
-                                                                                                                                    Diagnosa
-                                                                                                                                </h4>
-                                                                                                                                <div
-                                                                                                                                    class="flex-1 flex items-center justify-center">
-                                                                                                                                    <div
-                                                                                                                                        style="max-width: 280px; max-height: 280px;">
-                                                                                                                                        <canvas
-                                                                                                                                            id="diagnosisChart"></canvas>
-                                                                                                                                    </div>
-                                                                                                                                </div>
-                                                                                                                            </div>
-                                                                                                                        </div>
-
-                                                                                                                        <!-- List Area - 2 kolom -->
-                                                                                                                        <div
-                                                                                                                            class="lg:col-span-2">
-                                                                                                                            <div
-                                                                                                                                class="bg-gradient-to-br from-gray-50 to-pink-50 border border-pink-100 rounded-lg p-5 h-full flex flex-col">
-                                                                                                                                <div
-                                                                                                                                    class="flex items-center justify-between mb-4">
-                                                                                                                                    <h4
-                                                                                                                                        class="text-sm font-semibold text-gray-700">
-                                                                                                                                        Top
-                                                                                                                                        10
-                                                                                                                                        Diagnosa
-                                                                                                                                    </h4>
-                                                                                                                                    <span
-                                                                                                                                        class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200"
-                                                                                                                                        id="totalCases">0
-                                                                                                                                        Kasus</span>
-                                                                                                                                </div>
-                                                                                                                                <div id="diagnosisList"
-                                                                                                                                    class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
-                                                                                                                                    <!-- Loading state -->
-                                                                                                                                    <div
-                                                                                                                                        class="col-span-2 flex items-center justify-center py-8">
-                                                                                                                                        <div
-                                                                                                                                            class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600">
-                                                                                                                                        </div>
-                                                                                                                                    </div>
-                                                                                                                                </div>
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    </div>
-                                                                                                                </div>
-                                                                                                            </div>
 
                                                                                                             <!-- Analytics Section - Combined Card -->
                                                                                                             <div
@@ -699,6 +606,100 @@
                                                                                                                             style="height: 300px;">
                                                                                                                             <canvas
                                                                                                                                 id="monthlyVisitChart"></canvas>
+                                                                                                                        </div>
+                                                                                                                    </div>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                            <div
+                                                                                                                class="bg-white mt-10 rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
+                                                                                                                <!-- Header -->
+                                                                                                                <div
+                                                                                                                    class="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
+                                                                                                                    <div
+                                                                                                                        class="flex items-center gap-3">
+                                                                                                                        <div
+                                                                                                                            class="bg-white p-3 rounded-lg shadow-lg">
+                                                                                                                            <svg class="w-8 h-8 text-purple-600"
+                                                                                                                                fill="none"
+                                                                                                                                stroke="currentColor"
+                                                                                                                                viewBox="0 0 24 24">
+                                                                                                                                <path
+                                                                                                                                    stroke-linecap="round"
+                                                                                                                                    stroke-linejoin="round"
+                                                                                                                                    stroke-width="2"
+                                                                                                                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                                                                                                            </svg>
+                                                                                                                        </div>
+                                                                                                                        <div>
+                                                                                                                            <h2
+                                                                                                                                class="text-2xl font-bold text-white">
+                                                                                                                                Diagnosa
+                                                                                                                                Terbanyak
+                                                                                                                            </h2>
+                                                                                                                            <p class="text-purple-100 text-sm"
+                                                                                                                                id="diagnosaPeriod">
+                                                                                                                                Bulan
+                                                                                                                                ini
+                                                                                                                            </p>
+                                                                                                                        </div>
+                                                                                                                    </div>
+                                                                                                                </div>
+
+                                                                                                                <!-- Content -->
+                                                                                                                <div
+                                                                                                                    class="p-6">
+                                                                                                                    <div
+                                                                                                                        class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                                                                                                        <!-- Chart Area - 1 kolom -->
+                                                                                                                        <div
+                                                                                                                            class="lg:col-span-1">
+                                                                                                                            <div
+                                                                                                                                class="bg-gradient-to-br from-gray-50 to-purple-50 border border-purple-100 rounded-lg p-5 h-full flex flex-col">
+                                                                                                                                <h4
+                                                                                                                                    class="text-sm font-semibold text-gray-700 mb-4">
+                                                                                                                                    Distribusi
+                                                                                                                                    Diagnosa
+                                                                                                                                </h4>
+                                                                                                                                <div
+                                                                                                                                    class="flex-1 flex items-center justify-center">
+                                                                                                                                    <div
+                                                                                                                                        style="max-width: 280px; max-height: 280px;">
+                                                                                                                                        <canvas
+                                                                                                                                            id="diagnosisChart"></canvas>
+                                                                                                                                    </div>
+                                                                                                                                </div>
+                                                                                                                            </div>
+                                                                                                                        </div>
+
+                                                                                                                        <!-- List Area - 2 kolom -->
+                                                                                                                        <div
+                                                                                                                            class="lg:col-span-2">
+                                                                                                                            <div
+                                                                                                                                class="bg-gradient-to-br from-gray-50 to-pink-50 border border-pink-100 rounded-lg p-5 h-full flex flex-col">
+                                                                                                                                <div
+                                                                                                                                    class="flex items-center justify-between mb-4">
+                                                                                                                                    <h4
+                                                                                                                                        class="text-sm font-semibold text-gray-700">
+                                                                                                                                        Top
+                                                                                                                                        10
+                                                                                                                                        Diagnosa
+                                                                                                                                    </h4>
+                                                                                                                                    <span
+                                                                                                                                        class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200"
+                                                                                                                                        id="totalCases">0
+                                                                                                                                        Kasus</span>
+                                                                                                                                </div>
+                                                                                                                                <div id="diagnosisList"
+                                                                                                                                    class="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
+                                                                                                                                    <!-- Loading state -->
+                                                                                                                                    <div
+                                                                                                                                        class="col-span-2 flex items-center justify-center py-8">
+                                                                                                                                        <div
+                                                                                                                                            class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600">
+                                                                                                                                        </div>
+                                                                                                                                    </div>
+                                                                                                                                </div>
+                                                                                                                            </div>
                                                                                                                         </div>
                                                                                                                     </div>
                                                                                                                 </div>
