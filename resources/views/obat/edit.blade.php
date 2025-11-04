@@ -89,6 +89,20 @@
                             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <!-- Lokasi / Bind -->
+                    <div class="md:col-span-2">
+                        <label for="lokasi" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Lokasi / Bind
+                        </label>
+                        <input type="text" id="lokasi" name="lokasi" value="{{ old('lokasi', $obat->lokasi) }}"
+                               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 @error('lokasi') border-red-500 @enderror"
+                               placeholder="Contoh: Gudang A / Rak 2">
+                        @error('lokasi')
+                            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-gray-500">(Opsional) Lokasi penyimpanan obat atau label bind</p>
+                    </div>
                 </div>
             </div>
 

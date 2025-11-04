@@ -267,6 +267,7 @@
                                     </span>
                                 </a>
                             </th>
+                            <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Lokasi</th>
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                                 <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'keterangan', 'direction' => request('sort') == 'keterangan' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
                                     class="flex items-center justify-between group hover:text-green-300 transition-colors">
@@ -345,6 +346,7 @@
                                 <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $obat->nama_obat }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->satuanObat->nama_satuan ?? '-' }}
                                 </td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->lokasi ?? '-' }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate"
                                     title="{{ $obat->keterangan }}">{{ $obat->keterangan ?? '-' }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-600">
@@ -384,7 +386,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                <td colspan="8" class="px-4 py-8 text-center text-gray-500">
                                     <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

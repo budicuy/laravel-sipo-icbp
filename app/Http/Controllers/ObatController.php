@@ -86,6 +86,7 @@ class ObatController extends Controller
         $validated = $request->validate([
             'nama_obat' => 'required|string|max:100|unique:obat,nama_obat',
             'keterangan' => 'nullable|string',
+            'lokasi' => 'nullable|string|max:255',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
             'stok_awal' => 'required|integer|min:0',
         ], [
@@ -148,6 +149,7 @@ class ObatController extends Controller
         $validated = $request->validate([
             'nama_obat' => 'required|string|max:100|unique:obat,nama_obat,' . $id . ',id_obat',
             'keterangan' => 'nullable|string',
+            'lokasi' => 'nullable|string|max:255',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
         ], [
             'nama_obat.required' => 'Nama obat wajib diisi',
@@ -155,7 +157,7 @@ class ObatController extends Controller
             'id_satuan.required' => 'Satuan obat wajib dipilih',
         ]);
 
-        // Jangan update stok_awal saat edit
+    // Jangan update stok_awal saat edit
         unset($validated['stok_awal']);
 
         $obat->update($validated);
@@ -206,8 +208,8 @@ class ObatController extends Controller
             ->setSubject('Template Import Obat')
             ->setDescription('Template untuk import data obat');
 
-        // Header columns
-        $headers = ['Nama Obat', 'Satuan', 'Keterangan'];
+    // Header columns
+    $headers = ['Nama Obat', 'Satuan', 'Lokasi', 'Keterangan'];
         $column = 'A';
 
         foreach ($headers as $header) {
@@ -244,9 +246,10 @@ class ObatController extends Controller
         $satuanObats = SatuanObat::pluck('nama_satuan')->toArray();
 
         // Add sample data
-        $sheet->setCellValue('A2', 'Paracetamol');
-        $sheet->setCellValue('B2', 'Tablet');
-        $sheet->setCellValue('C2', 'Obat untuk menurunkan demam dan meredakan nyeri');
+    $sheet->setCellValue('A2', 'Paracetamol');
+    $sheet->setCellValue('B2', 'Tablet');
+    $sheet->setCellValue('C2', 'Gudang A / Rak 2');
+    $sheet->setCellValue('D2', 'Obat untuk menurunkan demam dan meredakan nyeri');
 
         // Style sample data
         $dataStyle = [
@@ -265,8 +268,9 @@ class ObatController extends Controller
 
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(30);
-        $sheet->getColumnDimension('B')->setWidth(15);
-        $sheet->getColumnDimension('C')->setWidth(50);
+    $sheet->getColumnDimension('B')->setWidth(15);
+    $sheet->getColumnDimension('C')->setWidth(20);
+    $sheet->getColumnDimension('D')->setWidth(50);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -354,7 +358,7 @@ class ObatController extends Controller
 
         // Header columns
         $headers = [
-            'No', 'Nama Obat', 'Satuan', 'Keterangan', 'Tanggal Update'
+            'No', 'Nama Obat', 'Satuan', 'Lokasi', 'Keterangan', 'Tanggal Update'
         ];
 
         $column = 'A';
@@ -397,8 +401,9 @@ class ObatController extends Controller
             $sheet->setCellValue('A' . $row, $no);
             $sheet->setCellValue('B' . $row, $obat->nama_obat);
             $sheet->setCellValue('C' . $row, $obat->satuanObat->nama_satuan ?? '-');
-            $sheet->setCellValue('D' . $row, $obat->keterangan ?? '-');
-            $sheet->setCellValue('E' . $row, $obat->tanggal_update ? $obat->tanggal_update->format('d-m-Y') : '-');
+            $sheet->setCellValue('D' . $row, $obat->lokasi ?? '-');
+            $sheet->setCellValue('E' . $row, $obat->keterangan ?? '-');
+            $sheet->setCellValue('F' . $row, $obat->tanggal_update ? $obat->tanggal_update->format('d-m-Y') : '-');
 
             // Style data rows
             $dataStyle = [
