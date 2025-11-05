@@ -690,4 +690,54 @@ class StokController extends Controller
             return back()->with('error', 'Gagal import data stok pakai: '.$e->getMessage());
         }
     }
+
+    /**
+     * Update stok bulanan (hanya untuk Super Admin)
+     */
+    public function updateStokBulanan(Request $request, $id)
+    {
+        // Validasi hanya Super Admin yang boleh edit
+        if (auth()->user()->role !== 'Super Admin') {
+            return back()->with('error', 'Anda tidak memiliki akses untuk mengedit stok bulanan.');
+        }
+
+        $validated = $request->validate([
+            'stok_masuk' => 'required|integer|min:0',
+            'stok_pakai' => 'required|integer|min:0',
+            'obat_id' => 'required|exists:obat,id_obat',
+        ], [
+            'stok_masuk.required' => 'Stok masuk wajib diisi',
+            'stok_masuk.integer' => 'Stok masuk harus berupa angka',
+            'stok_masuk.min' => 'Stok masuk tidak boleh negatif',
+            'stok_pakai.required' => 'Stok pakai wajib diisi',
+            'stok_pakai.integer' => 'Stok pakai harus berupa angka',
+            'stok_pakai.min' => 'Stok pakai tidak boleh negatif',
+        ]);
+
+        try {
+            $stokBulanan = StokBulanan::findOrFail($id);
+
+            // Update stok masuk dan stok pakai
+            $stokBulanan->update([
+                'stok_masuk' => $validated['stok_masuk'],
+                'stok_pakai' => $validated['stok_pakai'],
+            ]);
+
+            Log::info('Stok bulanan updated by Super Admin', [
+                'user_id' => auth()->id(),
+                'stok_bulanan_id' => $id,
+                'obat_id' => $validated['obat_id'],
+                'stok_masuk' => $validated['stok_masuk'],
+                'stok_pakai' => $validated['stok_pakai'],
+            ]);
+
+            return redirect()
+                ->route('stok.show', $validated['obat_id'])
+                ->with('success', 'Stok bulanan berhasil diperbarui');
+
+        } catch (\Exception $e) {
+            Log::error('Update stok bulanan error: '.$e->getMessage());
+            return back()->with('error', 'Gagal memperbarui stok bulanan: '.$e->getMessage());
+        }
+    }
 }

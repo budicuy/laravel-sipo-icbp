@@ -301,6 +301,12 @@
                                         class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
+                                    @if (auth()->user()->role === 'Super Admin')
+                                        <th scope="col"
+                                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Aksi
+                                        </th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -381,6 +387,21 @@
                                                 </span>
                                             @endif
                                         </td>
+                                        @if (auth()->user()->role === 'Super Admin')
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                <button
+                                                    onclick="openEditModal({{ $stok->id }}, '{{ $stok->periode }}', {{ $stok->stok_masuk }}, {{ $stok->stok_pakai }})"
+                                                    class="inline-flex items-center justify-center w-9 h-9 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
+                                                    title="Edit Stok">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -404,6 +425,86 @@
     </div>
     </div>
     </div>
+
+    <!-- Modal Edit Stok -->
+    <div id="editStokModal" class="fixed inset-0 bg-black/25 backdrop-blur-sm overflow-y-auto h-full w-full z-50 hidden">
+        <div class="relative top-60 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Stok Bulanan</h3>
+                    <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="px-7 py-3">
+                    <form id="editStokForm" method="POST"
+                        action="{{ route('stok.bulanan.update', ['id' => '__ID__']) }}">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="obat_id" value="{{ $obat->id_obat }}">
+
+                        <div class="mb-4 text-left">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Periode
+                            </label>
+                            <input type="text" id="edit_periode" readonly
+                                class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-700">
+                        </div>
+
+                        <div class="mb-4 text-left">
+                            <label for="edit_stok_masuk" class="block text-sm font-medium text-gray-700 mb-2">
+                                Stok Masuk
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="edit_stok_masuk" name="stok_masuk" min="0" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                                    placeholder="Masukkan stok masuk">
+                            </div>
+                        </div>
+
+                        <div class="mb-4 text-left">
+                            <label for="edit_stok_pakai" class="block text-sm font-medium text-gray-700 mb-2">
+                                Stok Pakai
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="edit_stok_pakai" name="stok_pakai" min="0" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                                    placeholder="Masukkan stok pakai">
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-md mb-4 text-left">
+                            <div class="flex">
+                                <svg class="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <div class="text-xs text-yellow-800">
+                                    <strong>Perhatian:</strong> Perubahan stok akan mempengaruhi perhitungan stok akhir
+                                    periode ini dan periode berikutnya.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center space-x-3">
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                Simpan
+                            </button>
+                            <button type="button" onclick="closeEditModal()"
+                                class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                                Batal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -425,6 +526,41 @@
                         }
                     }
                 });
+            }
+        });
+
+        // Fungsi untuk membuka modal edit
+        function openEditModal(id, periode, stokMasuk, stokPakai) {
+            document.getElementById('edit_periode').value = periode;
+            document.getElementById('edit_stok_masuk').value = stokMasuk;
+            document.getElementById('edit_stok_pakai').value = stokPakai;
+
+            // Update form action dengan ID yang benar
+            const form = document.getElementById('editStokForm');
+            form.action = form.action.replace('__ID__', id);
+
+            document.getElementById('editStokModal').classList.remove('hidden');
+        }
+
+        // Fungsi untuk menutup modal edit
+        function closeEditModal() {
+            document.getElementById('editStokModal').classList.add('hidden');
+            // Reset form action
+            const form = document.getElementById('editStokForm');
+            form.action = form.action.replace(/\/\d+$/, '/__ID__');
+        }
+
+        // Tutup modal jika klik di luar modal
+        document.getElementById('editStokModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        // Tutup modal dengan tombol ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEditModal();
             }
         });
     </script>
