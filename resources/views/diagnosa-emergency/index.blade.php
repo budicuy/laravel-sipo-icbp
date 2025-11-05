@@ -193,6 +193,35 @@
                                     </span>
                                 </a>
                             </th>
+                            <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                <a href="{{ route('diagnosa-emergency.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'status', 'direction' => request('sort') == 'status' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                    class="flex items-center justify-between group hover:text-red-300 transition-colors">
+                                    <span>Status</span>
+                                    <span class="ml-2">
+                                        @if (request('sort') == 'status')
+                                            @if (request('direction') == 'asc')
+                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M5 15l7-7 7 7" />
+                                                </svg>
+                                            @else
+                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            @endif
+                                        @else
+                                            <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                            </svg>
+                                        @endif
+                                    </span>
+                                </a>
+                            </th>
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Obat
                                 Rekomendasi</th>
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
@@ -225,6 +254,29 @@
                                     <div class="line-clamp-2" title="{{ $diagnosa->deskripsi }}">
                                         {{ $diagnosa->deskripsi ?? '-' }}
                                     </div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    @if ($diagnosa->status === 'aktif')
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            Aktif
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            Non-Aktif
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-4 py-4 text-sm text-gray-600">
                                     @if ($diagnosa->obats->count() > 0)
