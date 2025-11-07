@@ -32,6 +32,7 @@ Route::post('/api/chat', [LandingPageController::class, 'chat'])->name('api.chat
 Route::post('/api/auth/check-nik', [LandingPageController::class, 'checkNik'])->name('api.auth.check-nik');
 Route::post('/api/medical-history', [LandingPageController::class, 'getMedicalHistory'])->name('api.medical-history');
 Route::post('/api/family-list', [LandingPageController::class, 'getFamilyList'])->name('api.family-list');
+Route::post('/api/preload-medical-data', [LandingPageController::class, 'preloadMedicalData'])->name('api.preload-medical-data');
 
 // Alternative route to login
 Route::get('/portal', function () {

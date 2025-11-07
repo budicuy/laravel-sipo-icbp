@@ -147,7 +147,6 @@ class LandingPageController extends Controller
     /**
      * Get list of family members for patient selection
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getFamilyList(Request $request)
@@ -159,6 +158,100 @@ class LandingPageController extends Controller
         $result = $this->getFamilyMembers($request->nik);
 
         return response()->json($result);
+    }
+
+    /**
+     * Pre-load medical data for AI memory when patient is selected
+     * This prevents AI hallucination and improves performance
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function preloadMedicalData(Request $request)
+    {
+        $request->validate([
+            'user_nik' => 'required|string',
+            'id_keluarga' => 'required|integer',
+        ]);
+
+        $userNik = $request->user_nik;
+        $idKeluarga = $request->id_keluarga;
+
+        // Get medical history data
+        $historyData = $this->getMedicalHistoryData($userNik, $idKeluarga);
+
+        if (! $historyData['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data rekam medis',
+            ]);
+        }
+
+        // Format data for AI memory
+        $medicalContext = $this->formatMedicalDataForAI($historyData['data']);
+
+        return response()->json([
+            'success' => true,
+            'medical_context' => $medicalContext,
+            'patient_name' => $historyData['data']['nama'],
+            'total_visits' => $historyData['data']['total_kunjungan'],
+        ]);
+    }
+
+    /**
+     * Format medical data into AI-friendly context string
+     */
+    private function formatMedicalDataForAI($data)
+    {
+        $context = "**📋 DATA REKAM MEDIS PASIEN:**\n\n";
+        $context .= 'Nama Pasien: '.$data['nama']."\n";
+        $context .= 'NIK: '.$data['nik']."\n";
+        $context .= 'Total Kunjungan: '.$data['total_kunjungan']." kali\n\n";
+
+        if ($data['total_kunjungan'] === 0) {
+            $context .= "⚠️ Pasien ini belum memiliki riwayat kunjungan.\n";
+
+            return $context;
+        }
+
+        $context .= "**DETAIL RIWAYAT KUNJUNGAN:**\n\n";
+
+        foreach ($data['riwayat'] as $index => $kunjungan) {
+            $context .= 'Kunjungan '.($index + 1).":\n";
+            $context .= '- Tanggal: '.$kunjungan['tanggal'].' '.$kunjungan['waktu']."\n";
+            $context .= '- Pasien: '.$kunjungan['nama_pasien']."\n";
+
+            foreach ($kunjungan['keluhan'] as $keluhanIdx => $keluhan) {
+                if (count($kunjungan['keluhan']) > 1) {
+                    $context .= '  Keluhan '.($keluhanIdx + 1).":\n";
+                }
+                $context .= '  - Diagnosa: '.$keluhan['diagnosa']."\n";
+                $context .= '  - Keterangan: '.$keluhan['keterangan']."\n";
+                $context .= '  - Terapi: '.$keluhan['terapi']."\n";
+
+                if (! empty($keluhan['obat'])) {
+                    $context .= "  - Obat yang diberikan:\n";
+                    foreach ($keluhan['obat'] as $obat) {
+                        $context .= '    * '.$obat['nama_obat'].' - '.$obat['jumlah'].' '.$obat['satuan'];
+                        if (! empty($obat['aturan_pakai']) && $obat['aturan_pakai'] != '-') {
+                            $context .= ' (Aturan: '.$obat['aturan_pakai'].')';
+                        }
+                        $context .= "\n";
+                    }
+                } else {
+                    $context .= "  - Obat: Tidak ada\n";
+                }
+            }
+            $context .= "\n";
+        }
+
+        $context .= "\n**⚠️ INSTRUKSI UNTUK AI:**\n";
+        $context .= '- Data di atas adalah SEMUA riwayat medis pasien '.$data['nama']."\n";
+        $context .= '- Total kunjungan: '.$data['total_kunjungan']." kali\n";
+        $context .= "- Gunakan data ini untuk menjawab pertanyaan tentang riwayat kesehatan\n";
+        $context .= "- JANGAN menambah atau mengurangi jumlah kunjungan\n";
+        $context .= "- Jika user bertanya tentang riwayat, gunakan data ini langsung (tidak perlu generate ulang)\n";
+
+        return $context;
     }
 
     /**
@@ -193,79 +286,16 @@ class LandingPageController extends Controller
         $userName = $request->input('user_name');
         $idKeluarga = $request->input('id_keluarga'); // Get selected patient ID
 
-        // Check if user asking for medical history
-        $message = strtolower($request->message);
-        $isMedicalHistoryQuery = (
-            strpos($message, 'riwayat') !== false ||
-            strpos($message, 'kunjungan') !== false ||
-            strpos($message, 'berobat') !== false ||
-            strpos($message, 'periksa') !== false ||
-            strpos($message, 'medis') !== false
-        ) && $userNik;
+        // Log for debugging
+        Log::info('Chat request received', [
+            'user_nik' => $userNik,
+            'user_name' => $userName,
+            'id_keluarga' => $idKeluarga,
+            'message' => $request->message,
+        ]);
 
-        // Prepare additional context for AI
-        $medicalDataContext = '';
-        if ($isMedicalHistoryQuery) {
-            // Get medical history data - filtered by selected patient if provided
-            $historyData = $this->getMedicalHistoryData($userNik, $idKeluarga);
-
-            if ($historyData['success']) {
-                // Convert data to detailed text format for AI to process and format
-                $medicalDataContext = "\n\n**DATA RIWAYAT KUNJUNGAN USER:**\n";
-                $medicalDataContext .= 'Nama Pasien: '.$historyData['data']['nama']."\n";
-                $medicalDataContext .= 'NIK: '.$historyData['data']['nik']."\n";
-                $medicalDataContext .= 'Total Kunjungan: '.$historyData['data']['total_kunjungan']." kali\n\n";
-
-                $medicalDataContext .= "**DETAIL RIWAYAT KUNJUNGAN:**\n\n";
-
-                foreach ($historyData['data']['riwayat'] as $index => $kunjungan) {
-                    $medicalDataContext .= 'Kunjungan '.($index + 1).":\n";
-                    $medicalDataContext .= '- ID Rekam Medis: '.$kunjungan['id_rekam']."\n";
-                    $medicalDataContext .= '- Tanggal: '.$kunjungan['tanggal']."\n";
-                    $medicalDataContext .= '- Waktu: '.$kunjungan['waktu']."\n";
-                    $medicalDataContext .= '- Pasien: '.$kunjungan['nama_pasien']."\n";
-
-                    foreach ($kunjungan['keluhan'] as $keluhanIdx => $keluhan) {
-                        if (count($kunjungan['keluhan']) > 1) {
-                            $medicalDataContext .= '  Keluhan '.($keluhanIdx + 1).":\n";
-                        }
-                        $medicalDataContext .= '  - Diagnosa: '.$keluhan['diagnosa']."\n";
-                        $medicalDataContext .= '  - Keterangan: '.$keluhan['keterangan']."\n";
-                        $medicalDataContext .= '  - Terapi: '.$keluhan['terapi']."\n";
-
-                        if (! empty($keluhan['obat'])) {
-                            $medicalDataContext .= "  - Obat yang diberikan:\n";
-                            foreach ($keluhan['obat'] as $obat) {
-                                $medicalDataContext .= '    * '.$obat['nama_obat'].' - '.$obat['jumlah'].' '.$obat['satuan'];
-                                if (! empty($obat['aturan_pakai']) && $obat['aturan_pakai'] != '-') {
-                                    $medicalDataContext .= ' (Aturan pakai: '.$obat['aturan_pakai'].')';
-                                }
-                                $medicalDataContext .= "\n";
-                            }
-                        } else {
-                            $medicalDataContext .= "  - Obat: Tidak ada obat yang diberikan\n";
-                        }
-                    }
-                    $medicalDataContext .= "\n";
-                }
-
-                $medicalDataContext .= "\n**INSTRUKSI UNTUK AI - PENTING:**\n";
-                $medicalDataContext .= '1. Berikan salam hangat dan sebutkan total '.$historyData['data']['total_kunjungan']." kali kunjungan\n";
-                $medicalDataContext .= "2. WAJIB gunakan HTML dengan INLINE STYLES saja (JANGAN gunakan class Tailwind!)\n";
-                $medicalDataContext .= "3. DILARANG KERAS membuat PHP code (<?php, =>, dll) - Hanya HTML murni!\n";
-                $medicalDataContext .= "4. Format response:\n";
-                $medicalDataContext .= "   - Penjelasan singkat (1-2 paragraf)\n";
-                $medicalDataContext .= "   - List atau tabel riwayat kunjungan dengan inline style\n";
-                $medicalDataContext .= "   - Tips kesehatan jika ada pola berulang\n";
-                $medicalDataContext .= "5. Contoh inline style yang HARUS digunakan:\n";
-                $medicalDataContext .= "   <p style=\"margin-bottom: 12px; color: #4B5563;\">Teks</p>\n";
-                $medicalDataContext .= "   <strong style=\"color: #7C3AED; font-weight: bold;\">Bold text</strong>\n";
-                $medicalDataContext .= "   <div style=\"background: #F3F4F6; padding: 16px; border-radius: 8px; margin: 12px 0;\">Card</div>\n";
-                $medicalDataContext .= "6. Untuk setiap kunjungan, tampilkan: Tanggal, Diagnosa, Obat (jika ada)\n";
-                $medicalDataContext .= '7. Pastikan SEMUA '.$historyData['data']['total_kunjungan']." kunjungan ditampilkan\n";
-                $medicalDataContext .= "8. JANGAN gunakan variable PHP atau code apapun!\n";
-            }
-        }
+        // Medical data is already preloaded in chat history (first message after patient selection)
+        // So we don't need to fetch it again on every request - this prevents hallucination!
 
         try {
             $model = config('gemini.model', 'gemini-1.5-flash-latest');
@@ -278,11 +308,6 @@ class LandingPageController extends Controller
                 $userContext .= "- Nama: {$userName}\n";
                 $userContext .= "- NIK: {$userNik}\n";
                 $userContext .= "\nGunakan informasi ini untuk menyapa user secara personal dengan nama mereka.\n";
-            }
-
-            // Append medical data context if available
-            if (! empty($medicalDataContext)) {
-                $userContext .= $medicalDataContext;
             }
 
             // System prompt untuk konteks AI
@@ -455,6 +480,16 @@ Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan pandua
 
             // Add chat history if exists
             $history = $request->input('history', []);
+
+            // Log history for debugging
+            Log::info('AI Context Data', [
+                'user_nik' => $userNik,
+                'user_name' => $userName,
+                'id_keluarga' => $idKeluarga,
+                'history_count' => count($history),
+                'message' => $request->message,
+            ]);
+
             if (! empty($history)) {
                 foreach ($history as $message) {
                     $contents[] = [
@@ -572,8 +607,7 @@ Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan pandua
             ])
             ->orderBy('tanggal_periksa', 'desc')
             ->orderBy('waktu_periksa', 'desc')
-            ->limit(10) // Limit to last 10 visits
-            ->get();
+                ->get();
 
         // Get patient name for display
         $namaPasien = $karyawan->nama_karyawan;
@@ -635,7 +669,7 @@ Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan pandua
     {
         $karyawan = Karyawan::where('nik_karyawan', $nik)->first();
 
-        if (!$karyawan) {
+        if (! $karyawan) {
             return [
                 'success' => false,
                 'message' => 'NIK tidak ditemukan',

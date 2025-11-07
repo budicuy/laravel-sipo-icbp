@@ -284,6 +284,27 @@
             display: block;
             margin-bottom: 0.25rem;
         }
+
+        /* Responsive Header Styles */
+        @media (max-width: 640px) {
+            .gradient-bg {
+                padding: 1rem !important;
+            }
+        }
+
+        /* Truncate text helper */
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Better spacing for small screens */
+        @media (max-width: 768px) {
+            #chatMessages {
+                height: 24rem;
+            }
+        }
     </style>
     @vite('resources/css/app.css')
 </head>
@@ -362,71 +383,82 @@
             <div class="max-w-5xl mx-auto">
                 <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl shadow-2xl overflow-hidden">
                     <!-- Chat Header -->
-                    <div class="gradient-bg p-6">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
-                                <i class="fas fa-robot text-purple-600 text-2xl"></i>
+                    <div class="gradient-bg p-4 md:p-6">
+                        <!-- Main Header Row -->
+                        <div class="flex items-center gap-3 mb-3">
+                            <div
+                                class="w-12 h-12 md:w-14 md:h-14 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-robot text-purple-600 text-xl md:text-2xl"></i>
                             </div>
-                            <div class="text-white flex-1">
-                                <h3 class="text-xl font-bold">AI Assistant</h3>
-                                <p class="text-purple-100 text-sm" id="chatSubtitle">Powered by Google Gemini</p>
+                            <div class="text-white flex-1 min-w-0">
+                                <h3 class="text-lg md:text-xl font-bold">AI Assistant</h3>
+                                <p class="text-purple-100 text-xs md:text-sm truncate" id="chatSubtitle">Powered by
+                                    Google Gemini</p>
                             </div>
-                            <div class="ml-auto flex items-center gap-3">
-                                <!-- Lock Icon & Login Button (shown when NOT logged in) -->
-                                <div id="loginPrompt" class="hidden items-center gap-3">
-                                    <span
-                                        class="inline-flex items-center gap-2 bg-red-500/20 px-4 py-2 rounded-full text-white text-sm">
-                                        <i class="fas fa-lock"></i>
-                                        <span class="hidden sm:inline">Chat Terkunci</span>
-                                    </span>
-                                    <button onclick="showLoginModal()"
-                                        class="bg-white text-purple-600 px-4 py-2 rounded-full hover:bg-purple-50 transition font-semibold flex items-center gap-2">
-                                        <i class="fas fa-sign-in-alt"></i>
-                                        <span>Login</span>
-                                    </button>
-                                </div>
+                            <div class="flex items-center gap-2">
+                                <!-- Online Status -->
+                                <span
+                                    class="inline-flex items-center gap-1.5 bg-white/20 px-3 py-1.5 rounded-full text-white text-xs">
+                                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                                    <span class="hidden sm:inline">Online</span>
+                                </span>
+                            </div>
+                        </div>
 
-                                <!-- User Info (shown when logged in) -->
-                                <div id="userInfo"
-                                    class="hidden items-center gap-2 bg-white/20 px-4 py-2 rounded-full text-white text-sm">
-                                    <i class="fas fa-user"></i>
-                                    <span id="userNik"></span>
-                                </div>
+                        <!-- User Info & Actions Row -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <!-- Lock Icon & Login Button (shown when NOT logged in) -->
+                            <div id="loginPrompt" class="hidden items-center gap-2 flex-wrap">
+                                <span
+                                    class="inline-flex items-center gap-2 bg-red-500/20 px-3 py-1.5 rounded-full text-white text-xs">
+                                    <i class="fas fa-lock"></i>
+                                    <span class="hidden sm:inline">Chat Terkunci</span>
+                                </span>
+                                <button onclick="showLoginModal()"
+                                    class="bg-white text-purple-600 px-4 py-1.5 rounded-full hover:bg-purple-50 transition font-semibold flex items-center gap-2 text-sm">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    <span>Login</span>
+                                </button>
+                            </div>
 
-                                <!-- Selected Patient Info (shown when patient selected) -->
-                                <div id="patientInfo"
-                                    class="hidden items-center gap-2 bg-blue-500/30 px-4 py-2 rounded-full text-white text-sm cursor-pointer hover:bg-blue-500/40 transition"
-                                    onclick="showPatientSelectionModal()" title="Klik untuk ganti pasien">
-                                    <i class="fas fa-user-injured"></i>
-                                    <span id="selectedPatientName"></span>
-                                    <i class="fas fa-exchange-alt text-xs"></i>
-                                </div>
+                            <!-- User Info (shown when logged in) -->
+                            <div id="userInfo"
+                                class="hidden items-center gap-2 bg-white/20 px-3 py-1.5 rounded-full text-white text-xs max-w-xs">
+                                <i class="fas fa-user flex-shrink-0"></i>
+                                <span id="userNik" class="truncate"></span>
+                            </div>
+
+                            <!-- Selected Patient Info (shown when patient selected) -->
+                            <div id="patientInfo"
+                                class="hidden items-center gap-2 bg-blue-500/30 px-3 py-1.5 rounded-full text-white text-xs cursor-pointer hover:bg-blue-500/40 transition max-w-xs"
+                                onclick="showPatientSelectionModal()" title="Klik untuk ganti pasien">
+                                <i class="fas fa-user-injured flex-shrink-0"></i>
+                                <span id="selectedPatientName" class="truncate"></span>
+                                <i class="fas fa-exchange-alt text-xs flex-shrink-0"></i>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center gap-2 ml-auto">
+                                <button onclick="clearChatHistory()"
+                                    class="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full text-white text-xs transition flex items-center gap-1.5"
+                                    title="Hapus Riwayat Chat">
+                                    <i class="fas fa-trash-alt"></i>
+                                    <span class="hidden lg:inline">Hapus Riwayat</span>
+                                </button>
 
                                 <!-- Logout Button (shown when logged in) -->
                                 <button id="logoutBtn" onclick="logout()"
-                                    class="hidden bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-white text-sm transition items-center gap-2"
+                                    class="hidden bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full text-white text-xs transition items-center gap-1.5"
                                     title="Logout">
                                     <i class="fas fa-sign-out-alt"></i>
-                                    <span class="hidden sm:inline">Logout</span>
+                                    <span class="hidden lg:inline">Logout</span>
                                 </button>
-
-                                <button onclick="clearChatHistory()"
-                                    class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-white text-sm transition flex items-center gap-2"
-                                    title="Hapus Riwayat Chat">
-                                    <i class="fas fa-trash-alt"></i>
-                                    <span class="hidden sm:inline">Hapus Riwayat</span>
-                                </button>
-                                <span
-                                    class="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full text-white text-sm">
-                                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                                    Online
-                                </span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Chat Messages -->
-                    <div class="bg-white p-6 h-96 overflow-y-auto" id="chatMessages">
+                    <div class="bg-white p-6 h-[40rem] overflow-y-auto" id="chatMessages">
                         <div class="message bot">
                             <div class="flex gap-3 mb-4">
                                 <div
@@ -864,6 +896,7 @@
 
         // Chat history storage
         let chatHistory = [];
+        let currentPatientIdForHistory = null; // Track which patient the history belongs to
 
         // Main initialization on page load
         window.addEventListener('DOMContentLoaded', function() {
@@ -877,19 +910,50 @@
                 }, 500); // Small delay for smooth UX
             }
 
-            // Load chat history after checking auth
+            // Get current selected patient ID
+            const authData = JSON.parse(localStorage.getItem('sipo_auth'));
+            const selectedPatientId = authData?.selected_patient_id || null;
+            currentPatientIdForHistory = selectedPatientId;
+
+            // Load family members if authenticated (needed for patient switching)
+            if (isAuthenticated && authData?.nik) {
+                loadFamilyMembers(authData.nik).then(success => {
+                    if (success) {
+                        console.log('✅ Family members loaded on page load');
+                    }
+                });
+            }
+
+            // Load chat history after checking auth - ONLY if for same patient
             const savedHistory = localStorage.getItem('sipo_chat_history');
-            if (savedHistory && isAuthenticated) {
+            const savedPatientId = localStorage.getItem('sipo_chat_patient_id');
+
+            if (savedHistory && isAuthenticated && savedPatientId === String(selectedPatientId)) {
+                // History is for same patient, load it
                 try {
                     chatHistory = JSON.parse(savedHistory);
-                    // Restore messages in chat UI
+                    // Restore messages in chat UI - but SKIP hidden medical context
                     chatHistory.forEach(msg => {
-                        addMessageToUI(msg.role === 'user' ? 'user' : 'bot', msg.text);
+                        // Only show messages that are not hidden (medical context is hidden)
+                        if (!msg.isHidden) {
+                            addMessageToUI(msg.role === 'user' ? 'user' : 'bot', msg.text);
+                        }
                     });
+                    console.log('✅ Loaded chat history for patient:', selectedPatientId);
                 } catch (e) {
                     console.error('Error loading chat history:', e);
                     chatHistory = [];
+                    showInitialWelcomeMessage(); // Show welcome if error
                 }
+            } else {
+                // Different patient or no history - start fresh
+                console.log('🔄 Chat history cleared - different patient or no history');
+                chatHistory = [];
+                localStorage.removeItem('sipo_chat_history');
+                localStorage.removeItem('sipo_chat_patient_id');
+
+                // Show appropriate welcome message
+                showInitialWelcomeMessage();
             }
 
             // Setup login form handler
@@ -897,7 +961,76 @@
             if (loginForm) {
                 loginForm.addEventListener('submit', handleLogin);
             }
-        }); // Check if user is authenticated
+        });
+
+        // Show initial welcome message based on authentication and patient selection status
+        function showInitialWelcomeMessage() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const authData = JSON.parse(localStorage.getItem('sipo_auth'));
+            const selectedPatientName = authData?.selected_patient_name;
+
+            let welcomeMessage = '';
+
+            if (isAuthenticated && selectedPatientName) {
+                // User logged in AND has selected a patient
+                welcomeMessage = `
+                    <p style="margin-bottom: 12px; color: #374151;">👋 <strong>Halo, ${currentUserName}!</strong></p>
+                    <p style="margin-bottom: 12px; color: #374151;">✅ Pasien terpilih: <strong style="color: #7C3AED;">${selectedPatientName}</strong></p>
+                    <p style="margin-bottom: 12px; color: #374151;">Silakan tanyakan apapun tentang:</p>
+                    <ul style="margin: 12px 0; padding-left: 24px; list-style: disc;">
+                        <li style="margin-bottom: 4px;">Riwayat kesehatan pasien</li>
+                        <li style="margin-bottom: 4px;">Informasi tentang SIPO ICBP</li>
+                        <li style="margin-bottom: 4px;">Fitur-fitur sistem</li>
+                        <li style="margin-bottom: 4px;">Konsultasi kesehatan umum</li>
+                    </ul>
+                    <p style="margin-top: 12px; color: #374151;">Ada yang bisa saya bantu? 😊</p>
+                `;
+            } else if (isAuthenticated && !selectedPatientName) {
+                // User logged in but NO patient selected yet
+                welcomeMessage = `
+                    <p style="margin-bottom: 12px; color: #374151;">👋 <strong>Halo, ${currentUserName}!</strong></p>
+                    <p style="margin-bottom: 12px; color: #374151;">🔹 Untuk konsultasi tentang riwayat kesehatan, silakan <strong>pilih pasien</strong> terlebih dahulu dengan klik icon di header.</p>
+                    <p style="margin-bottom: 12px; color: #374151;">Atau Anda tetap bisa bertanya tentang:</p>
+                    <ul style="margin: 12px 0; padding-left: 24px; list-style: disc;">
+                        <li style="margin-bottom: 4px;">Sistem SIPO ICBP</li>
+                        <li style="margin-bottom: 4px;">Fitur-fitur yang tersedia</li>
+                        <li style="margin-bottom: 4px;">Informasi kesehatan umum</li>
+                    </ul>
+                    <p style="margin-top: 12px; color: #374151;">Ada yang bisa saya bantu? 😊</p>
+                `;
+            } else {
+                // User NOT logged in
+                welcomeMessage = `
+                    <p style="margin-bottom: 12px; color: #374151;">👋 <strong>Halo!</strong> Saya AI Assistant SIPO ICBP.</p>
+                    <p style="margin-bottom: 12px; color: #374151;">🔒 Untuk menggunakan fitur chat, silakan <strong>login terlebih dahulu</strong> dengan NIK Anda.</p>
+                    <p style="margin-bottom: 12px; color: #374151;">Setelah login, Anda dapat:</p>
+                    <ul style="margin: 12px 0; padding-left: 24px; list-style: disc;">
+                        <li style="margin-bottom: 4px;">📋 Melihat riwayat kunjungan medis</li>
+                        <li style="margin-bottom: 4px;">💊 Konsultasi tentang obat</li>
+                        <li style="margin-bottom: 4px;">📊 Mendapatkan analisis kesehatan</li>
+                        <li style="margin-bottom: 4px;">❓ Bertanya tentang sistem SIPO ICBP</li>
+                    </ul>
+                    <p style="margin-top: 12px; color: #374151;"><strong>Klik tombol "Login"</strong> di atas untuk memulai! 🚀</p>
+                `;
+            }
+
+            messagesContainer.innerHTML = `
+                <div class="message bot">
+                    <div class="flex gap-3 mb-4">
+                        <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-white"></i>
+                        </div>
+                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-2xl">
+                            <div class="text-gray-800 prose prose-sm max-w-none">
+                                ${welcomeMessage}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Check if user is authenticated
         function checkAuthentication() {
             const authData = localStorage.getItem('sipo_auth');
             if (authData) {
@@ -1076,6 +1209,12 @@
 
         // Select patient
         function selectPatient(idKeluarga, namaPasien) {
+            console.log('👤 Selecting patient:', {
+                id_keluarga: idKeluarga,
+                id_type: typeof idKeluarga,
+                nama_pasien: namaPasien
+            });
+
             // Store selected patient
             localStorage.setItem('selected_patient_id', idKeluarga);
             localStorage.setItem('selected_patient_name', namaPasien);
@@ -1089,13 +1228,110 @@
             authData.selected_patient_name = namaPasien;
             localStorage.setItem('sipo_auth', JSON.stringify(authData));
 
+            console.log('✅ Patient data saved to localStorage:', authData);
+
+            // IMPORTANT: Clear chat history when switching patients to avoid AI confusion
+            chatHistory = [];
+            currentPatientIdForHistory = idKeluarga; // Update current patient for history tracking
+            localStorage.removeItem('sipo_chat_history'); // Remove old history
+            localStorage.setItem('sipo_chat_patient_id', String(idKeluarga)); // Set new patient ID
+
+            console.log('🔄 Chat history cleared and patient ID updated:', idKeluarga);
+
             // Update UI
             updateAuthUI();
 
-            // Show welcome message
+            // Clear chat UI and show loading message
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = '';
+
             addMessageToUI('bot',
-                `<p>Anda telah memilih <strong>${namaPasien}</strong> untuk konsultasi.</p><p>Silakan tanyakan apapun tentang riwayat kesehatan atau konsultasi medis.</p>`
+                `<p style="margin-bottom: 12px; color: #374151;">✅ Anda telah memilih <strong style="font-weight: bold; color: #6B21A8;">${namaPasien}</strong> untuk konsultasi.</p><p style="margin-bottom: 12px; color: #374151;">⏳ Memuat data rekam medis pasien...</p>`
             );
+
+            // Pre-load medical data to AI memory
+            preloadPatientMedicalData(authData.nik, idKeluarga, namaPasien);
+        }
+
+        // Pre-load medical data to AI memory (prevents hallucination!)
+        function preloadPatientMedicalData(userNik, idKeluarga, namaPasien) {
+            console.log('🔄 Pre-loading medical data for AI memory...');
+
+            fetch('{{ route('api.preload-medical-data') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_nik: userNik,
+                        id_keluarga: idKeluarga
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('✅ Medical data preloaded:', {
+                            patient: data.patient_name,
+                            total_visits: data.total_visits
+                        });
+
+                        // Store medical context as HIDDEN first message in chat history (system memory)
+                        // isHidden = true means it won't be displayed in UI but will be sent to AI
+                        chatHistory.push({
+                            role: 'user',
+                            text: data.medical_context,
+                            isHidden: true // ← This prevents it from showing in chat UI
+                        });
+
+                        // Save to localStorage
+                        saveChatHistory();
+
+                        // Update welcome message
+                        const messagesContainer = document.getElementById('chatMessages');
+                        messagesContainer.innerHTML = '';
+
+                        let welcomeMsg =
+                            `<p style="margin-bottom: 12px; color: #374151;">✅ Anda telah memilih <strong style="font-weight: bold; color: #6B21A8;">${namaPasien}</strong> untuk konsultasi.</p>`;
+
+                        if (data.total_visits > 0) {
+                            welcomeMsg +=
+                                `<p style="margin-bottom: 12px; color: #374151;">📋 Data rekam medis telah dimuat: <strong style="color: #7C3AED;">${data.total_visits} kali kunjungan</strong></p>`;
+                            welcomeMsg +=
+                                `<p style="margin-bottom: 12px; color: #374151;">Silakan tanyakan apapun tentang riwayat kesehatan pasien ini. Data sudah tersimpan di memori AI dan siap untuk menjawab pertanyaan Anda! 🤖</p>`;
+                        } else {
+                            welcomeMsg +=
+                                `<p style="margin-bottom: 12px; color: #374151;">ℹ️ Pasien ini belum memiliki riwayat kunjungan.</p>`;
+                            welcomeMsg +=
+                                `<p style="margin-bottom: 12px; color: #374151;">Anda tetap bisa berkonsultasi tentang SIPO ICBP atau kondisi kesehatan umum.</p>`;
+                        }
+
+                        welcomeMsg +=
+                            `<p style="margin-top: 8px; padding: 8px 12px; background: #DBEAFE; border-left: 4px solid #3B82F6; border-radius: 4px; font-size: 14px; color: #1E40AF;"><strong>💡 Keuntungan:</strong> Data rekam medis sudah tersimpan di memori AI. Anda bisa bertanya berulang kali tanpa perlu AI mengambil data lagi - lebih cepat dan akurat!</p>`;
+
+                        addMessageToUI('bot', welcomeMsg);
+                    } else {
+                        console.error('Failed to preload medical data');
+
+                        // Show error message
+                        const messagesContainer = document.getElementById('chatMessages');
+                        messagesContainer.innerHTML = '';
+                        addMessageToUI('bot',
+                            `<p style="margin-bottom: 12px; color: #374151;">✅ Anda telah memilih <strong style="font-weight: bold; color: #6B21A8;">${namaPasien}</strong> untuk konsultasi.</p><p style="margin-bottom: 12px; color: #EF4444;">⚠️ Gagal memuat data rekam medis. Anda tetap bisa chat, tapi AI mungkin tidak bisa menjawab pertanyaan tentang riwayat kesehatan.</p>`
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error('Error preloading medical data:', error);
+
+                    // Show fallback message
+                    const messagesContainer = document.getElementById('chatMessages');
+                    messagesContainer.innerHTML = '';
+                    addMessageToUI('bot',
+                        `<p style="margin-bottom: 12px; color: #374151;">✅ Anda telah memilih <strong style="font-weight: bold; color: #6B21A8;">${namaPasien}</strong> untuk konsultasi.</p><p style="margin-bottom: 12px; color: #374151;">Silakan tanyakan apapun tentang SIPO ICBP atau konsultasi kesehatan.</p>`
+                    );
+                });
         }
 
         // Show login error
@@ -1248,6 +1484,11 @@
                     chatHistory = chatHistory.slice(-20);
                 }
                 localStorage.setItem('sipo_chat_history', JSON.stringify(chatHistory));
+
+                // Save current patient ID to ensure history is patient-specific
+                if (currentPatientIdForHistory !== null) {
+                    localStorage.setItem('sipo_chat_patient_id', String(currentPatientIdForHistory));
+                }
             } catch (e) {
                 console.error('Error saving chat history:', e);
             }
@@ -1257,6 +1498,8 @@
         function clearChatHistory() {
             chatHistory = [];
             localStorage.removeItem('sipo_chat_history');
+            localStorage.removeItem('sipo_chat_patient_id');
+            currentPatientIdForHistory = null;
             const messagesContainer = document.getElementById('chatMessages');
 
             // Show different message based on authentication status
@@ -1340,7 +1583,16 @@
 
             // Get selected patient ID from localStorage
             const authData = JSON.parse(localStorage.getItem('sipo_auth'));
-            const selectedPatientId = authData?.selected_patient_id || null;
+            const selectedPatientId = authData?.selected_patient_id ? parseInt(authData.selected_patient_id) : null;
+
+            // Debug logging
+            console.log('🔍 Sending chat request:', {
+                user_nik: currentUserNik,
+                user_name: currentUserName,
+                id_keluarga: selectedPatientId,
+                id_keluarga_type: typeof selectedPatientId,
+                authData: authData
+            });
 
             // Send to Gemini API via backend
             fetch('{{ route('api.chat') }}', {
