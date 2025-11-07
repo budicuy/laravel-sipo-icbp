@@ -9,6 +9,7 @@ use App\Http\Controllers\HargaObatController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KeluargaController;
 use App\Http\Controllers\KunjunganController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MonitoringHargaController;
 use App\Http\Controllers\ObatController;
@@ -23,10 +24,16 @@ use App\Models\Obat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Redirect root ke login
-Route::get('/', function () {
+// Landing Page Route
+Route::get('/', [LandingPageController::class, 'index'])->name('landing');
+
+// AI Chat API Route (for landing page)
+Route::post('/api/chat', [LandingPageController::class, 'chat'])->name('api.chat');
+
+// Alternative route to login
+Route::get('/portal', function () {
     return redirect()->route('login');
-});
+})->name('portal');
 
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
