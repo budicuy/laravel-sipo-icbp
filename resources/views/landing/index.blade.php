@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -726,7 +726,7 @@
                             class=" bg-white p-5 w-48 rounded-lg">
                     </div>
                     <p class="text-gray-400">
-                        Sistem Informasi Pelayanan Kesehatan untuk ICBP
+                        Sistem Informasi Poliklinik - Indofood CBP Sukses Makmur TBK.
                     </p>
                 </div>
                 <div>
@@ -797,43 +797,43 @@
             });
         } // Close mobile menu when clicking on links
         document.querySelectorAll('#mobileMenu a').forEach(link => {
-            link.addEventListener('click', function() {
-                mobileMenu.classList.add('hidden');
-                const icon = mobileMenuButton.querySelector('i');
-                if (icon) {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            });
-        });
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', function(event) {
-            if (mobileMenuButton && mobileMenu &&
-                !mobileMenuButton.contains(event.target) &&
-                !mobileMenu.contains(event.target)) {
-                mobileMenu.classList.add('hidden');
-                const icon = mobileMenuButton.querySelector('i');
-                if (icon) {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            }
-        });
-
-        // Smooth Scroll for Navigation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
+                    link.addEventListener('click', function() {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuButton.querySelector('i');
+                        if (icon) {
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
                     });
                 }
-            });
-        });
+
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (mobileMenuButton && mobileMenu &&
+                        !mobileMenuButton.contains(event.target) &&
+                        !mobileMenu.contains(event.target)) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuButton.querySelector('i');
+                        if (icon) {
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
+                    }
+                });
+
+                // Smooth Scroll for Navigation
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const target = document.querySelector(this.getAttribute('href'));
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    });
+                });
     </script>
 </body>
 
