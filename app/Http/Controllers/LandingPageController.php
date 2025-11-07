@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
+use App\Models\RekamMedis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -72,6 +73,94 @@ class LandingPageController extends Controller
     }
 
     /**
+     * Get medical history for a user by NIK
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getMedicalHistory(Request $request)
+    {
+        $request->validate([
+            'nik' => 'required|string',
+        ]);
+
+        $nik = $request->nik;
+
+        // Find employee by NIK
+        $karyawan = Karyawan::where('nik_karyawan', $nik)->first();
+
+        if (! $karyawan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIK tidak ditemukan',
+            ], 404);
+        }
+
+        // Get medical records through keluarga relationship
+        $riwayatKunjungan = RekamMedis::whereHas('keluarga', function ($query) use ($karyawan) {
+            $query->where('id_karyawan', $karyawan->id_karyawan);
+        })
+            ->with(['keluhans.diagnosa', 'keluhans.obat'])
+            ->orderBy('tanggal_periksa', 'desc')
+            ->orderBy('waktu_periksa', 'desc')
+            ->limit(10) // Limit to last 10 visits
+            ->get();
+
+        // Format the data
+        $formattedHistory = $riwayatKunjungan->map(function ($rekam) {
+            $keluhans = $rekam->keluhans->map(function ($keluhan) {
+                $obatArray = [];
+                if ($keluhan->obat) {
+                    $obatArray[] = [
+                        'nama_obat' => $keluhan->obat->nama_obat ?? '-',
+                        'jumlah' => $keluhan->jumlah_obat ?? 0,
+                        'satuan' => $keluhan->obat->satuan ?? '',
+                    ];
+                }
+
+                return [
+                    'diagnosa' => $keluhan->diagnosa->nama_diagnosa ?? '-',
+                    'keterangan' => $keluhan->keterangan ?? '-',
+                    'terapi' => $keluhan->terapi ?? '-',
+                    'obat' => $obatArray,
+                ];
+            });
+
+            return [
+                'tanggal' => $rekam->tanggal_periksa->format('d/m/Y'),
+                'waktu' => $rekam->waktu_periksa,
+                'keluhan' => $keluhans->toArray(),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'nama' => $karyawan->nama_karyawan,
+                'nik' => $karyawan->nik_karyawan,
+                'total_kunjungan' => $formattedHistory->count(),
+                'riwayat' => $formattedHistory,
+            ],
+        ]);
+    }
+
+    /**
+     * Get list of family members for patient selection
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getFamilyList(Request $request)
+    {
+        $request->validate([
+            'nik' => 'required|string',
+        ]);
+
+        $result = $this->getFamilyMembers($request->nik);
+
+        return response()->json($result);
+    }
+
+    /**
      * Handle AI chat request with Gemini API
      *
      * @return \Illuminate\Http\JsonResponse
@@ -85,6 +174,7 @@ class LandingPageController extends Controller
             'history.*.text' => 'required|string',
             'user_nik' => 'nullable|string',
             'user_name' => 'nullable|string',
+            'id_keluarga' => 'nullable|integer', // ID pasien yang dipilih
         ]);
 
         $apiKey = config('gemini.api_key');
@@ -97,13 +187,88 @@ class LandingPageController extends Controller
             ], 500);
         }
 
+        // Get user info
+        $userNik = $request->input('user_nik');
+        $userName = $request->input('user_name');
+        $idKeluarga = $request->input('id_keluarga'); // Get selected patient ID
+
+        // Check if user asking for medical history
+        $message = strtolower($request->message);
+        $isMedicalHistoryQuery = (
+            strpos($message, 'riwayat') !== false ||
+            strpos($message, 'kunjungan') !== false ||
+            strpos($message, 'berobat') !== false ||
+            strpos($message, 'periksa') !== false ||
+            strpos($message, 'medis') !== false
+        ) && $userNik;
+
+        // Prepare additional context for AI
+        $medicalDataContext = '';
+        if ($isMedicalHistoryQuery) {
+            // Get medical history data - filtered by selected patient if provided
+            $historyData = $this->getMedicalHistoryData($userNik, $idKeluarga);
+
+            if ($historyData['success']) {
+                // Convert data to detailed text format for AI to process and format
+                $medicalDataContext = "\n\n**DATA RIWAYAT KUNJUNGAN USER:**\n";
+                $medicalDataContext .= 'Nama Pasien: '.$historyData['data']['nama']."\n";
+                $medicalDataContext .= 'NIK: '.$historyData['data']['nik']."\n";
+                $medicalDataContext .= 'Total Kunjungan: '.$historyData['data']['total_kunjungan']." kali\n\n";
+
+                $medicalDataContext .= "**DETAIL RIWAYAT KUNJUNGAN:**\n\n";
+
+                foreach ($historyData['data']['riwayat'] as $index => $kunjungan) {
+                    $medicalDataContext .= 'Kunjungan '.($index + 1).":\n";
+                    $medicalDataContext .= '- ID Rekam Medis: '.$kunjungan['id_rekam']."\n";
+                    $medicalDataContext .= '- Tanggal: '.$kunjungan['tanggal']."\n";
+                    $medicalDataContext .= '- Waktu: '.$kunjungan['waktu']."\n";
+                    $medicalDataContext .= '- Pasien: '.$kunjungan['nama_pasien']."\n";
+
+                    foreach ($kunjungan['keluhan'] as $keluhanIdx => $keluhan) {
+                        if (count($kunjungan['keluhan']) > 1) {
+                            $medicalDataContext .= '  Keluhan '.($keluhanIdx + 1).":\n";
+                        }
+                        $medicalDataContext .= '  - Diagnosa: '.$keluhan['diagnosa']."\n";
+                        $medicalDataContext .= '  - Keterangan: '.$keluhan['keterangan']."\n";
+                        $medicalDataContext .= '  - Terapi: '.$keluhan['terapi']."\n";
+
+                        if (! empty($keluhan['obat'])) {
+                            $medicalDataContext .= "  - Obat yang diberikan:\n";
+                            foreach ($keluhan['obat'] as $obat) {
+                                $medicalDataContext .= '    * '.$obat['nama_obat'].' - '.$obat['jumlah'].' '.$obat['satuan'];
+                                if (! empty($obat['aturan_pakai']) && $obat['aturan_pakai'] != '-') {
+                                    $medicalDataContext .= ' (Aturan pakai: '.$obat['aturan_pakai'].')';
+                                }
+                                $medicalDataContext .= "\n";
+                            }
+                        } else {
+                            $medicalDataContext .= "  - Obat: Tidak ada obat yang diberikan\n";
+                        }
+                    }
+                    $medicalDataContext .= "\n";
+                }
+
+                $medicalDataContext .= "\n**INSTRUKSI UNTUK AI - PENTING:**\n";
+                $medicalDataContext .= '1. Berikan salam hangat dan sebutkan total '.$historyData['data']['total_kunjungan']." kali kunjungan\n";
+                $medicalDataContext .= "2. WAJIB gunakan HTML dengan INLINE STYLES saja (JANGAN gunakan class Tailwind!)\n";
+                $medicalDataContext .= "3. DILARANG KERAS membuat PHP code (<?php, =>, dll) - Hanya HTML murni!\n";
+                $medicalDataContext .= "4. Format response:\n";
+                $medicalDataContext .= "   - Penjelasan singkat (1-2 paragraf)\n";
+                $medicalDataContext .= "   - List atau tabel riwayat kunjungan dengan inline style\n";
+                $medicalDataContext .= "   - Tips kesehatan jika ada pola berulang\n";
+                $medicalDataContext .= "5. Contoh inline style yang HARUS digunakan:\n";
+                $medicalDataContext .= "   <p style=\"margin-bottom: 12px; color: #4B5563;\">Teks</p>\n";
+                $medicalDataContext .= "   <strong style=\"color: #7C3AED; font-weight: bold;\">Bold text</strong>\n";
+                $medicalDataContext .= "   <div style=\"background: #F3F4F6; padding: 16px; border-radius: 8px; margin: 12px 0;\">Card</div>\n";
+                $medicalDataContext .= "6. Untuk setiap kunjungan, tampilkan: Tanggal, Diagnosa, Obat (jika ada)\n";
+                $medicalDataContext .= '7. Pastikan SEMUA '.$historyData['data']['total_kunjungan']." kunjungan ditampilkan\n";
+                $medicalDataContext .= "8. JANGAN gunakan variable PHP atau code apapun!\n";
+            }
+        }
+
         try {
             $model = config('gemini.model', 'gemini-1.5-flash-latest');
             $endpoint = config('gemini.api_endpoint');
-
-            // Get user info if provided
-            $userNik = $request->input('user_nik');
-            $userName = $request->input('user_name');
 
             // Build user context
             $userContext = '';
@@ -111,9 +276,12 @@ class LandingPageController extends Controller
                 $userContext = "\n\n**INFORMASI USER YANG SEDANG BERBICARA:**\n";
                 $userContext .= "- Nama: {$userName}\n";
                 $userContext .= "- NIK: {$userNik}\n";
-                $userContext .= "\nGunakan informasi ini untuk menyapa user secara personal dengan nama mereka. ";
-                $userContext .= "HANYA gunakan nama dan NIK untuk personalisasi sapaan. ";
-                $userContext .= "JANGAN akses atau tampilkan data pribadi/medis lainnya seperti riwayat kesehatan, alamat, atau informasi sensitif.\n";
+                $userContext .= "\nGunakan informasi ini untuk menyapa user secara personal dengan nama mereka.\n";
+            }
+
+            // Append medical data context if available
+            if (! empty($medicalDataContext)) {
+                $userContext .= $medicalDataContext;
             }
 
             // System prompt untuk konteks AI
@@ -152,26 +320,59 @@ PANDUAN MENJAWAB:
 7. Jika tidak yakin atau pertanyaan di luar scope SIPO ICBP, arahkan ke kontak resmi
 8. Sertakan emoji yang relevan untuk membuat komunikasi lebih friendly (tapi tidak berlebihan)
 
-**PENTING - FORMAT HTML:**
-Gunakan tag HTML berikut untuk formatting (JANGAN gunakan markdown):
-- Heading: <h3 class="text-lg font-bold text-purple-800 mb-2">Judul</h3>
-- Bold: <strong class="font-bold text-purple-900">teks tebal</strong>
-- Italic: <em class="italic text-purple-800">teks miring</em>
-- Paragraph: <p class="mb-2">paragraf</p>
-- Bullet list: <ul class="list-disc list-inside my-2"><li>item 1</li><li>item 2</li></ul>
-- Numbered list: <ol class="list-decimal list-inside my-2"><li>item 1</li><li>item 2</li></ol>
+**PENTING - FORMAT HTML DENGAN INLINE STYLES:**
+WAJIB gunakan HTML dengan INLINE STYLES saja (DILARANG gunakan class CSS atau Tailwind!):
+- Heading: <h3 style="font-size: 18px; font-weight: bold; color: #7C3AED; margin-bottom: 12px;">Judul</h3>
+- Bold: <strong style="font-weight: bold; color: #6B21A8;">teks tebal</strong>
+- Italic: <em style="font-style: italic; color: #7C3AED;">teks miring</em>
+- Paragraph: <p style="margin-bottom: 12px; color: #374151;">paragraf</p>
+- Bullet list: <ul style="margin: 12px 0; padding-left: 24px;"><li style="margin-bottom: 4px;">item 1</li></ul>
+- Numbered list: <ol style="margin: 12px 0; padding-left: 24px;"><li style="margin-bottom: 4px;">item 1</li></ol>
+- Card/Box: <div style="background: #F3F4F6; padding: 16px; border-radius: 8px; margin: 12px 0;">content</div>
 - Line break: <br>
 
-CONTOH OUTPUT HTML:
-<p class="mb-2">👋 Terima kasih atas pertanyaan Anda!</p>
-<h3 class="text-lg font-bold text-purple-800 mb-2">Tentang SIPO ICBP</h3>
-<p class="mb-2"><strong class="font-bold text-purple-900">SIPO ICBP</strong> adalah sistem informasi kesehatan yang memiliki fitur:</p>
-<ul class="list-disc list-inside my-2">
-<li>Rekam Medis Digital</li>
-<li>Manajemen Obat</li>
-<li>AI Assistant 24/7</li>
+**DILARANG KERAS:**
+- JANGAN gunakan PHP code (<?php, =>, $variable, dll)
+- JANGAN gunakan class CSS (class="..." tidak boleh)
+- JANGAN gunakan Tailwind classes
+- Hanya gunakan style="..." untuk semua formatting
+
+**KHUSUS UNTUK RIWAYAT KUNJUNGAN/MEDICAL HISTORY:**
+Jika user menanyakan riwayat kunjungan, format dengan inline styles:
+1. Berikan salam dan total kunjungan
+2. Tampilkan setiap kunjungan dalam card/box dengan style
+3. Include: Nomor, Tanggal, Diagnosa, Obat (jika ada)
+4. Gunakan warna untuk membedakan kunjungan
+5. Tambahkan tips kesehatan di akhir jika ada pola
+
+CONTOH OUTPUT HTML DENGAN INLINE STYLES:
+<p style="margin-bottom: 12px; color: #374151;">👋 Terima kasih atas pertanyaan Anda!</p>
+<h3 style="font-size: 18px; font-weight: bold; color: #7C3AED; margin-bottom: 12px;">Tentang SIPO ICBP</h3>
+<p style="margin-bottom: 12px; color: #374151;"><strong style="font-weight: bold; color: #6B21A8;">SIPO ICBP</strong> adalah sistem informasi kesehatan yang memiliki fitur:</p>
+<ul style="margin: 12px 0; padding-left: 24px;">
+<li style="margin-bottom: 4px;">Rekam Medis Digital</li>
+<li style="margin-bottom: 4px;">Manajemen Obat</li>
+<li style="margin-bottom: 4px;">AI Assistant 24/7</li>
 </ul>
-<p class="mb-2">Ada yang bisa saya bantu? 😊</p>
+<p style="margin-bottom: 12px; color: #374151;">Ada yang bisa saya bantu? 😊</p>
+
+**CONTOH OUTPUT RIWAYAT KUNJUNGAN (INLINE STYLES):**
+<h3 style="font-size: 18px; font-weight: bold; color: #7C3AED; margin-bottom: 16px;">📋 Riwayat Kunjungan Anda</h3>
+<p style="margin-bottom: 16px; color: #374151;">Berdasarkan data SIPO ICBP, Anda tercatat <strong style="font-weight: bold; color: #6B21A8;">9 kali kunjungan</strong> ke poliklinik.</p>
+
+<div style="background: #F9FAFB; padding: 12px; border-left: 4px solid #7C3AED; border-radius: 6px; margin-bottom: 12px;">
+<p style="margin: 0; font-weight: bold; color: #6B21A8;">1. Kunjungan 14/10/2025</p>
+<p style="margin: 4px 0 0 0; font-size: 14px; color: #6B7280;">Diagnosa: <strong style="color: #374151;">Luka</strong></p>
+<p style="margin: 4px 0 0 0; font-size: 14px; color: #6B7280;">Obat: Hansaplast (2 Pcs)</p>
+</div>
+
+<div style="background: #F9FAFB; padding: 12px; border-left: 4px solid #3B82F6; border-radius: 6px; margin-bottom: 12px;">
+<p style="margin: 0; font-weight: bold; color: #1E40AF;">2. Kunjungan 10/10/2025</p>
+<p style="margin: 4px 0 0 0; font-size: 14px; color: #6B7280;">Diagnosa: <strong style="color: #374151;">Hordeolum</strong></p>
+<p style="margin: 4px 0 0 0; font-size: 14px; color: #6B7280;">Obat: Cendo Xitrol (1 Botol)</p>
+</div>
+
+<p style="margin-top: 16px; padding: 12px; background: #FEF3C7; border: 1px solid #FDE047; border-radius: 6px; font-size: 14px; color: #92400E;">💡 <strong>Tips:</strong> Anda sering mengalami alergi, disarankan konsultasi lebih lanjut.</p>
 
 PANDUAN KONSULTASI KESEHATAN:
 
@@ -333,5 +534,131 @@ Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan pandua
                 'reply' => 'Maaf, AI Assistant sedang tidak tersedia. Silakan coba lagi nanti atau hubungi administrator.',
             ], 500);
         }
+    }
+
+    /**
+     * Get medical history data (internal method)
+     * Now accepts optional id_keluarga parameter to filter by specific patient
+     */
+    private function getMedicalHistoryData($nik, $idKeluarga = null)
+    {
+        // Find employee by NIK
+        $karyawan = Karyawan::where('nik_karyawan', $nik)->first();
+
+        if (! $karyawan) {
+            return [
+                'success' => false,
+                'message' => 'NIK tidak ditemukan',
+            ];
+        }
+
+        // Build query for medical records
+        $query = RekamMedis::whereHas('keluarga', function ($q) use ($karyawan) {
+            $q->where('id_karyawan', $karyawan->id_karyawan);
+        });
+
+        // If specific id_keluarga is provided, filter by that patient only
+        if ($idKeluarga) {
+            $query->where('id_keluarga', $idKeluarga);
+        }
+
+        $riwayatKunjungan = $query
+            ->with([
+                'keluarga:id_keluarga,nama_keluarga,id_karyawan',
+                'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
+                'keluhans.obat:id_obat,nama_obat,id_satuan',
+                'keluhans.obat.satuanObat:id_satuan,nama_satuan',
+            ])
+            ->orderBy('tanggal_periksa', 'desc')
+            ->orderBy('waktu_periksa', 'desc')
+            ->limit(10) // Limit to last 10 visits
+            ->get();
+
+        // Get patient name for display
+        $namaPasien = $karyawan->nama_karyawan;
+        if ($idKeluarga) {
+            $keluarga = Keluarga::find($idKeluarga);
+            $namaPasien = $keluarga ? $keluarga->nama_keluarga : $namaPasien;
+        }
+
+        // Format the data - DO NOT GROUP, show each visit separately
+        $formattedHistory = $riwayatKunjungan->map(function ($rekam) {
+            // Build keluhan list for this specific visit
+            $keluhanList = [];
+            foreach ($rekam->keluhans as $keluhan) {
+                $diagnosaNama = $keluhan->diagnosa->nama_diagnosa ?? 'Tidak ada diagnosa';
+
+                // Build obat list for this keluhan
+                $obatList = [];
+                if ($keluhan->obat) {
+                    $obatList[] = [
+                        'nama_obat' => $keluhan->obat->nama_obat ?? '-',
+                        'jumlah' => $keluhan->jumlah_obat ?? 0,
+                        'satuan' => $keluhan->obat->satuanObat->nama_satuan ?? '',
+                        'aturan_pakai' => $keluhan->aturan_pakai ?? '-',
+                    ];
+                }
+
+                $keluhanList[] = [
+                    'diagnosa' => $diagnosaNama,
+                    'keterangan' => $keluhan->keterangan ?? '-',
+                    'terapi' => $keluhan->terapi ?? '-',
+                    'obat' => $obatList,
+                ];
+            }
+
+            return [
+                'id_rekam' => $rekam->id_rekam,
+                'tanggal' => $rekam->tanggal_periksa->format('d/m/Y'),
+                'waktu' => $rekam->waktu_periksa,
+                'nama_pasien' => $rekam->keluarga->nama_keluarga ?? '-',
+                'keluhan' => $keluhanList,
+            ];
+        });
+
+        return [
+            'success' => true,
+            'data' => [
+                'nama' => $namaPasien,
+                'nik' => $karyawan->nik_karyawan,
+                'total_kunjungan' => $formattedHistory->count(),
+                'riwayat' => $formattedHistory,
+            ],
+        ];
+    }
+
+    /**
+     * Get family members for a NIK (for patient selection)
+     */
+    private function getFamilyMembers($nik)
+    {
+        $karyawan = Karyawan::where('nik_karyawan', $nik)->first();
+
+        if (!$karyawan) {
+            return [
+                'success' => false,
+                'message' => 'NIK tidak ditemukan',
+            ];
+        }
+
+        // Get all family members including the employee
+        $keluargaList = Keluarga::where('id_karyawan', $karyawan->id_karyawan)
+            ->get()
+            ->map(function ($keluarga) {
+                return [
+                    'id_keluarga' => $keluarga->id_keluarga,
+                    'nama_pasien' => $keluarga->nama_keluarga,
+                    'hubungan' => $keluarga->hubungan ?? 'Karyawan',
+                ];
+            });
+
+        return [
+            'success' => true,
+            'data' => [
+                'nama_karyawan' => $karyawan->nama_karyawan,
+                'nik' => $karyawan->nik_karyawan,
+                'anggota_keluarga' => $keluargaList,
+            ],
+        ];
     }
 }

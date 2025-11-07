@@ -393,6 +393,15 @@
                                     <span id="userNik"></span>
                                 </div>
 
+                                <!-- Selected Patient Info (shown when patient selected) -->
+                                <div id="patientInfo"
+                                    class="hidden items-center gap-2 bg-blue-500/30 px-4 py-2 rounded-full text-white text-sm cursor-pointer hover:bg-blue-500/40 transition"
+                                    onclick="showPatientSelectionModal()" title="Klik untuk ganti pasien">
+                                    <i class="fas fa-user-injured"></i>
+                                    <span id="selectedPatientName"></span>
+                                    <i class="fas fa-exchange-alt text-xs"></i>
+                                </div>
+
                                 <!-- Logout Button (shown when logged in) -->
                                 <button id="logoutBtn" onclick="logout()"
                                     class="hidden bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-white text-sm transition items-center gap-2"
@@ -428,14 +437,16 @@
                                     class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-2xl">
                                     <div class="text-gray-800 prose prose-sm max-w-none">
                                         <p>👋 <strong>Halo!</strong> Saya AI Assistant SIPO ICBP.</p>
-                                        <p>Saya siap membantu menjawab pertanyaan Anda tentang:</p>
+                                        <p>🔒 Untuk menggunakan fitur chat, silakan <strong>login terlebih
+                                                dahulu</strong> dengan NIK Anda.</p>
+                                        <p>Setelah login, Anda dapat:</p>
                                         <ul class="list-disc list-inside space-y-1 my-2">
-                                            <li>Sistem informasi pelayanan kesehatan</li>
-                                            <li>Fitur-fitur yang tersedia</li>
-                                            <li>Cara penggunaan sistem</li>
-                                            <li>Dan informasi umum lainnya</li>
+                                            <li>📋 Melihat riwayat kunjungan medis Anda</li>
+                                            <li>💊 Konsultasi tentang obat yang pernah Anda terima</li>
+                                            <li>📊 Mendapatkan analisis kesehatan pribadi</li>
+                                            <li>❓ Bertanya tentang sistem SIPO ICBP</li>
                                         </ul>
-                                        <p>Ada yang bisa saya bantu? 😊</p>
+                                        <p><strong>Klik tombol "Login"</strong> di atas untuk memulai! �</p>
                                     </div>
                                 </div>
                             </div>
@@ -527,6 +538,32 @@
                     <i class="fas fa-shield-alt"></i> Data Anda aman dan terenkripsi
                 </p>
             </form>
+        </div>
+    </div>
+
+    <!-- Patient Selection Modal -->
+    <div id="patientSelectionModal"
+        class="fixed inset-0 bg-black/25 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+            <div class="gradient-bg text-white p-6 rounded-t-2xl">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-user-friends text-2xl"></i>
+                        <h3 class="text-2xl font-bold">Pilih Pasien</h3>
+                    </div>
+                </div>
+                <p class="text-purple-100 mt-2">Pilih pasien untuk konsultasi AI</p>
+            </div>
+
+            <div class="p-6">
+                <p class="text-sm text-gray-600 mb-4">
+                    <i class="fas fa-info-circle text-blue-500"></i> Silakan pilih nama pasien yang ingin
+                    berkonsultasi:
+                </p>
+                <div id="patientListContainer" class="space-y-2 max-h-96 overflow-y-auto">
+                    <!-- Patient list will be populated here -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -833,6 +870,13 @@
             // Check authentication first
             checkAuthentication();
 
+            // If not authenticated, show login prompt immediately
+            if (!isAuthenticated) {
+                setTimeout(() => {
+                    showLoginModal();
+                }, 500); // Small delay for smooth UX
+            }
+
             // Load chat history after checking auth
             const savedHistory = localStorage.getItem('sipo_chat_history');
             if (savedHistory && isAuthenticated) {
@@ -882,6 +926,8 @@
             currentUserName = '';
             currentUserDepartemen = '';
             updateAuthUI();
+            // Show appropriate welcome message for non-authenticated user
+            clearChatHistory();
         }
 
         // Update UI based on authentication status
@@ -889,6 +935,8 @@
             const loginPrompt = document.getElementById('loginPrompt');
             const userInfo = document.getElementById('userInfo');
             const userNikSpan = document.getElementById('userNik');
+            const patientInfo = document.getElementById('patientInfo');
+            const selectedPatientName = document.getElementById('selectedPatientName');
             const logoutBtn = document.getElementById('logoutBtn');
             const chatInput = document.getElementById('chatInput');
             const sendButton = document.getElementById('sendButton');
@@ -903,6 +951,18 @@
                 userInfo.classList.add('flex');
                 userNikSpan.innerHTML =
                     `<strong>${currentUserName}</strong> <span class="text-purple-200 text-xs">(${currentUserNik})</span>`;
+
+                // Check if patient is selected
+                const authData = JSON.parse(localStorage.getItem('sipo_auth'));
+                if (authData?.selected_patient_name) {
+                    patientInfo.classList.remove('hidden');
+                    patientInfo.classList.add('flex');
+                    selectedPatientName.textContent = authData.selected_patient_name;
+                } else {
+                    patientInfo.classList.add('hidden');
+                    patientInfo.classList.remove('flex');
+                }
+
                 // Show logout button
                 logoutBtn.classList.remove('hidden');
                 logoutBtn.classList.add('flex');
@@ -919,6 +979,9 @@
                 // Hide user info
                 userInfo.classList.add('hidden');
                 userInfo.classList.remove('flex');
+                // Hide patient info
+                patientInfo.classList.add('hidden');
+                patientInfo.classList.remove('flex');
                 // Hide logout button
                 logoutBtn.classList.add('hidden');
                 logoutBtn.classList.remove('flex');
@@ -945,9 +1008,108 @@
             const modal = document.getElementById('loginModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
-            // Clear form
             document.getElementById('loginForm').reset();
-            hideLoginError();
+        }
+
+        // Show patient selection modal
+        function showPatientSelectionModal() {
+            const modal = document.getElementById('patientSelectionModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Close patient selection modal
+        function closePatientSelectionModal() {
+            const modal = document.getElementById('patientSelectionModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Load family members for patient selection
+        async function loadFamilyMembers(nik) {
+            try {
+                const response = await fetch('{{ route('api.family-list') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        nik
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.data.anggota_keluarga) {
+                    const container = document.getElementById('patientListContainer');
+                    container.innerHTML = '';
+
+                    result.data.anggota_keluarga.forEach(member => {
+                        const button = document.createElement('button');
+                        button.className =
+                            'w-full p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition text-left flex items-center gap-3';
+                        button.innerHTML = `
+                            <div class="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-800">${member.nama_pasien}</p>
+                                <p class="text-xs text-gray-500">${member.hubungan}</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        `;
+                        button.onclick = () => selectPatient(member.id_keluarga, member.nama_pasien);
+                        container.appendChild(button);
+                    });
+
+                    return true;
+                } else {
+                    console.error('Failed to load family members');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error loading family members:', error);
+                return false;
+            }
+        }
+
+        // Select patient
+        function selectPatient(idKeluarga, namaPasien) {
+            // Store selected patient
+            localStorage.setItem('selected_patient_id', idKeluarga);
+            localStorage.setItem('selected_patient_name', namaPasien);
+
+            // Close modal
+            closePatientSelectionModal();
+
+            // Update auth data
+            const authData = JSON.parse(localStorage.getItem('sipo_auth'));
+            authData.selected_patient_id = idKeluarga;
+            authData.selected_patient_name = namaPasien;
+            localStorage.setItem('sipo_auth', JSON.stringify(authData));
+
+            // Update UI
+            updateAuthUI();
+
+            // Show welcome message
+            addMessageToUI('bot',
+                `<p>Anda telah memilih <strong>${namaPasien}</strong> untuk konsultasi.</p><p>Silakan tanyakan apapun tentang riwayat kesehatan atau konsultasi medis.</p>`
+            );
+        }
+
+        // Show login error
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            const errorMessage = document.getElementById('loginErrorMessage');
+            if (errorMessage) errorMessage.textContent = message;
+            if (errorDiv) errorDiv.classList.remove('hidden');
+        }
+
+        // Hide login error
+        function hideLoginError() {
+            const errorDiv = document.getElementById('loginError');
+            if (errorDiv) errorDiv.classList.add('hidden');
         }
 
         // Show login error
@@ -968,8 +1130,12 @@
         async function handleLogin(e) {
             e.preventDefault();
 
-            const nik = document.getElementById('loginNik').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
+            const nikInput = document.getElementById('loginNik');
+            const passInput = document.getElementById('loginPassword');
+            if (!nikInput || !passInput) return;
+
+            const nik = nikInput.value.trim();
+            const password = passInput.value.trim();
 
             // Validate NIK format (harus angka)
             if (!/^\d+$/.test(nik)) {
@@ -985,9 +1151,11 @@
 
             // Show loading state
             const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Memverifikasi...</span>';
+            const originalText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Memverifikasi...</span>';
+            }
 
             try {
                 // Call API to check NIK
@@ -1005,7 +1173,7 @@
 
                 const result = await response.json();
 
-                if (result.success) {
+                if (result && result.success) {
                     // Login successful
                     const authData = {
                         nik: result.data.nik,
@@ -1020,32 +1188,42 @@
                     currentUserName = result.data.nama;
                     currentUserDepartemen = result.data.departemen;
 
-                    // Update UI
-                    updateAuthUI();
+                    // Close login modal
                     closeLoginModal();
 
-                    // Show success message in chat
-                    addMessageToUI('bot',
-                        `<p>Selamat datang, <strong>${result.data.nama}</strong>! 👋</p><p>NIK: ${result.data.nik} | Departemen: ${result.data.departemen}</p><p>Anda telah berhasil login. Silakan tanyakan apapun tentang SIPO ICBP.</p>`
-                    );
+                    // Load family members and show patient selection if available
+                    const familyLoaded = await loadFamilyMembers(result.data.nik);
+
+                    if (familyLoaded) {
+                        showPatientSelectionModal();
+                    } else {
+                        updateAuthUI();
+                        addMessageToUI('bot',
+                            `<p>Selamat datang, <strong>${result.data.nama}</strong>! 👋</p><p>NIK: ${result.data.nik} | Departemen: ${result.data.departemen}</p><p>Anda telah berhasil login. Silakan tanyakan apapun tentang SIPO ICBP.</p>`
+                        );
+                    }
                 } else {
-                    showLoginError(result.message || 'Login gagal');
+                    showLoginError((result && result.message) ? result.message : 'Login gagal');
                 }
             } catch (error) {
                 console.error('Login error:', error);
                 showLoginError('Terjadi kesalahan saat login. Silakan coba lagi.');
             } finally {
                 // Restore button state
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
             }
         }
 
         // Logout function
         function logout() {
             if (confirm('Apakah Anda yakin ingin logout?')) {
-                // Clear authentication
+                // Clear authentication and patient selection
                 localStorage.removeItem('sipo_auth');
+                localStorage.removeItem('selected_patient_id');
+                localStorage.removeItem('selected_patient_name');
                 isAuthenticated = false;
                 currentUserNik = '';
                 currentUserName = '';
@@ -1080,6 +1258,36 @@
             chatHistory = [];
             localStorage.removeItem('sipo_chat_history');
             const messagesContainer = document.getElementById('chatMessages');
+
+            // Show different message based on authentication status
+            let welcomeMessage = '';
+            if (isAuthenticated) {
+                welcomeMessage = `
+                    <p>👋 <strong>Halo!</strong> Saya AI Assistant SIPO ICBP.</p>
+                    <p>Saya siap membantu menjawab pertanyaan Anda tentang:</p>
+                    <ul class="list-disc list-inside space-y-1 my-2">
+                        <li>Sistem informasi pelayanan kesehatan</li>
+                        <li>Fitur-fitur yang tersedia</li>
+                        <li>Cara penggunaan sistem</li>
+                        <li>Dan informasi umum lainnya</li>
+                    </ul>
+                    <p>Ada yang bisa saya bantu? 😊</p>
+                `;
+            } else {
+                welcomeMessage = `
+                    <p>👋 <strong>Halo!</strong> Saya AI Assistant SIPO ICBP.</p>
+                    <p>🔒 Untuk menggunakan fitur chat, silakan <strong>login terlebih dahulu</strong> dengan NIK Anda.</p>
+                    <p>Setelah login, Anda dapat:</p>
+                    <ul class="list-disc list-inside space-y-1 my-2">
+                        <li>📋 Melihat riwayat kunjungan medis Anda</li>
+                        <li>💊 Konsultasi tentang obat yang pernah Anda terima</li>
+                        <li>📊 Mendapatkan analisis kesehatan pribadi</li>
+                        <li>❓ Bertanya tentang sistem SIPO ICBP</li>
+                    </ul>
+                    <p><strong>Klik tombol "Login"</strong> di atas untuk memulai! 🚀</p>
+                `;
+            }
+
             messagesContainer.innerHTML = `
                 <div class="message bot">
                     <div class="flex gap-3 mb-4">
@@ -1088,15 +1296,7 @@
                         </div>
                         <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-2xl">
                             <div class="text-gray-800 prose prose-sm max-w-none">
-                                <p>👋 <strong>Halo!</strong> Saya AI Assistant SIPO ICBP.</p>
-                                <p>Saya siap membantu menjawab pertanyaan Anda tentang:</p>
-                                <ul class="list-disc list-inside space-y-1 my-2">
-                                    <li>Sistem informasi pelayanan kesehatan</li>
-                                    <li>Fitur-fitur yang tersedia</li>
-                                    <li>Cara penggunaan sistem</li>
-                                    <li>Dan informasi umum lainnya</li>
-                                </ul>
-                                <p>Ada yang bisa saya bantu? 😊</p>
+                                ${welcomeMessage}
                             </div>
                         </div>
                     </div>
@@ -1138,6 +1338,10 @@
             // Prepare history for API (exclude current message, keep last 10 exchanges)
             const historyForAPI = chatHistory.slice(0, -1).slice(-20);
 
+            // Get selected patient ID from localStorage
+            const authData = JSON.parse(localStorage.getItem('sipo_auth'));
+            const selectedPatientId = authData?.selected_patient_id || null;
+
             // Send to Gemini API via backend
             fetch('{{ route('api.chat') }}', {
                     method: 'POST',
@@ -1150,7 +1354,8 @@
                         message: message,
                         history: historyForAPI,
                         user_nik: currentUserNik,
-                        user_name: currentUserName
+                        user_name: currentUserName,
+                        id_keluarga: selectedPatientId
                     })
                 })
                 .then(response => response.json())
