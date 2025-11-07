@@ -188,25 +188,51 @@ class LandingPageController extends Controller
         $userNik = $request->user_nik;
         $idKeluarga = $request->id_keluarga;
 
-        // Get medical history data
-        $historyData = $this->getMedicalHistoryData($userNik, $idKeluarga);
+        try {
+            // Get medical history data
+            $historyData = $this->getMedicalHistoryData($userNik, $idKeluarga);
 
-        if (! $historyData['success']) {
+            if (! $historyData['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengambil data rekam medis',
+                ]);
+            }
+
+            // Format data for AI memory
+            $medicalContext = $this->formatMedicalDataForAI($historyData['data']);
+
+            // Check if medical context is too long and truncate if necessary
+            if (strlen($medicalContext) > 45000) {
+                Log::warning('Medical context too long, truncating', [
+                    'user_nik' => $userNik,
+                    'id_keluarga' => $idKeluarga,
+                    'original_length' => strlen($medicalContext),
+                    'total_visits' => $historyData['data']['total_kunjungan'],
+                ]);
+
+                // Truncate to prevent validation errors
+                $medicalContext = substr($medicalContext, 0, 45000)."\n\n⚠️ Catatan: Data riwayat medis dipotong karena terlalu panjang.";
+            }
+
+            return response()->json([
+                'success' => true,
+                'medical_context' => $medicalContext,
+                'patient_name' => $historyData['data']['nama'],
+                'total_visits' => $historyData['data']['total_kunjungan'],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in preloadMedicalData: '.$e->getMessage(), [
+                'user_nik' => $userNik,
+                'id_keluarga' => $idKeluarga,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengambil data rekam medis',
-            ]);
+                'message' => 'Terjadi kesalahan saat memuat data medis. Silakan coba lagi.',
+            ], 500);
         }
-
-        // Format data for AI memory
-        $medicalContext = $this->formatMedicalDataForAI($historyData['data']);
-
-        return response()->json([
-            'success' => true,
-            'medical_context' => $medicalContext,
-            'patient_name' => $historyData['data']['nama'],
-            'total_visits' => $historyData['data']['total_kunjungan'],
-        ]);
     }
 
     /**
@@ -227,7 +253,15 @@ class LandingPageController extends Controller
 
         $context .= "**DETAIL RIWAYAT KUNJUNGAN:**\n\n";
 
-        foreach ($data['riwayat'] as $index => $kunjungan) {
+        // Limit to last 15 visits to prevent context from being too long
+        $riwayatTerbatas = array_slice($data['riwayat'], 0, 15);
+        $jumlahDitampilkan = count($riwayatTerbatas);
+
+        if ($jumlahDitampilkan < $data['total_kunjungan']) {
+            $context .= "📝 Menampilkan {$jumlahDitampilkan} kunjungan terakhir dari {$data['total_kunjungan']} total kunjungan:\n\n";
+        }
+
+        foreach ($riwayatTerbatas as $index => $kunjungan) {
             $context .= 'Kunjungan '.($index + 1).":\n";
             $context .= '- Tanggal: '.$kunjungan['tanggal'].' '.$kunjungan['waktu']."\n";
             $context .= '- Pasien: '.$kunjungan['nama_pasien']."\n";
@@ -237,7 +271,14 @@ class LandingPageController extends Controller
                     $context .= '  Keluhan '.($keluhanIdx + 1).":\n";
                 }
                 $context .= '  - Diagnosa: '.$keluhan['diagnosa']."\n";
-                $context .= '  - Keterangan: '.$keluhan['keterangan']."\n";
+
+                // Limit keterangan to prevent overly long context
+                $keterangan = $keluhan['keterangan'];
+                if (strlen($keterangan) > 200) {
+                    $keterangan = substr($keterangan, 0, 200).'...';
+                }
+                $context .= '  - Keterangan: '.$keterangan."\n";
+
                 $context .= '  - Terapi: '.$keluhan['terapi']."\n";
 
                 if (! empty($keluhan['obat'])) {
@@ -245,7 +286,12 @@ class LandingPageController extends Controller
                     foreach ($keluhan['obat'] as $obat) {
                         $context .= '    * '.$obat['nama_obat'].' - '.$obat['jumlah'].' '.$obat['satuan'];
                         if (! empty($obat['aturan_pakai']) && $obat['aturan_pakai'] != '-') {
-                            $context .= ' (Aturan: '.$obat['aturan_pakai'].')';
+                            // Limit aturan pakai to prevent overly long context
+                            $aturanPakai = $obat['aturan_pakai'];
+                            if (strlen($aturanPakai) > 100) {
+                                $aturanPakai = substr($aturanPakai, 0, 100).'...';
+                            }
+                            $context .= ' (Aturan: '.$aturanPakai.')';
                         }
                         $context .= "\n";
                     }
@@ -257,8 +303,11 @@ class LandingPageController extends Controller
         }
 
         $context .= "\n**⚠️ INSTRUKSI UNTUK AI:**\n";
-        $context .= '- Data di atas adalah SEMUA riwayat medis pasien '.$data['nama']."\n";
+        $context .= '- Data di atas adalah riwayat medis pasien '.$data['nama']."\n";
         $context .= '- Total kunjungan: '.$data['total_kunjungan']." kali\n";
+        if ($jumlahDitampilkan < $data['total_kunjungan']) {
+            $context .= "- Hanya {$jumlahDitampilkan} kunjungan terakhir yang ditampilkan untuk menghemat memori\n";
+        }
         $context .= "- Gunakan data ini untuk menjawab pertanyaan tentang riwayat kesehatan\n";
         $context .= "- JANGAN menambah atau mengurangi jumlah kunjungan\n";
         $context .= "- Jika user bertanya tentang riwayat, gunakan data ini langsung (tidak perlu generate ulang)\n";
@@ -273,15 +322,30 @@ class LandingPageController extends Controller
      */
     public function chat(Request $request)
     {
-        $request->validate([
-            'message' => 'required|string|max:5000',
-            'history' => 'nullable|array',
-            'history.*.role' => 'required|string|in:user,model|max:10',
-            'history.*.text' => 'required|string|max:5000',
-            'user_nik' => 'nullable|string|max:20',
-            'user_name' => 'nullable|string|max:100',
-            'id_keluarga' => 'nullable|integer', // ID pasien yang dipilih
-        ]);
+        try {
+            $request->validate([
+                'message' => 'required|string|max:5000',
+                'history' => 'nullable|array',
+                'history.*.role' => 'required|string|in:user,model|max:10',
+                'history.*.text' => 'required|string|max:50000', // Increased to accommodate medical context
+                'user_nik' => 'nullable|string|max:20',
+                'user_name' => 'nullable|string|max:100',
+                'id_keluarga' => 'nullable|integer', // ID pasien yang dipilih
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Log validation error for debugging
+            Log::error('Chat validation failed', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all(),
+                'user_nik' => $request->input('user_nik'),
+            ]);
+
+            // Return user-friendly error message
+            return response()->json([
+                'success' => false,
+                'reply' => '⚠️ Terjadi kesalahan validasi. Mohon refresh halaman dan coba lagi. Jika masalah berlanjut, hubungi administrator.',
+            ], 422);
+        }
 
         // Get user info
         $userNik = $request->input('user_nik');
@@ -562,6 +626,7 @@ Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan pandua
             ])
             ->orderBy('tanggal_periksa', 'desc')
             ->orderBy('waktu_periksa', 'desc')
+            ->limit(20) // Limit to prevent memory issues and long context
             ->get();
 
         // Get patient name for display
