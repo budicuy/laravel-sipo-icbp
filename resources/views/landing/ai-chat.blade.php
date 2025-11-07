@@ -249,6 +249,13 @@
             <div class="gradient-bg p-4 md:p-6 sticky top-0 left-0 w-full z-[9999] shadow-md">
                 <!-- Main Header Row -->
                 <div class="flex items-center gap-3 mb-3">
+                    <!-- Tombol Kembali ke Beranda -->
+                    <a href="{{ route('landing') }}"
+                        class="w-10 h-10 md:w-12 md:h-12 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 group"
+                        title="Kembali ke Beranda">
+                        <i
+                            class="fas fa-home text-white text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
+                    </a>
                     <div
                         class="w-12 h-12 md:w-14 md:h-14 bg-white rounded-full flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-robot text-purple-600 text-xl md:text-2xl"></i>
@@ -325,7 +332,7 @@
 
                     <div class="">
                         <textarea id="chatInput" placeholder="Ketik pertanyaan Anda di sini..."
-                            class="w-full px-10 mb-2 min-h-8 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
+                            class="w-full px-4 md:px-10 mb-2 min-h-8 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
                             autocomplete="off"></textarea>
 
                         <button type="submit" id="sendButton"
