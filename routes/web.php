@@ -29,6 +29,7 @@ Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 
 // AI Chat API Route (for landing page)
 Route::post('/api/chat', [LandingPageController::class, 'chat'])->name('api.chat');
+Route::post('/api/auth/check-nik', [LandingPageController::class, 'checkNik'])->name('api.auth.check-nik');
 
 // Alternative route to login
 Route::get('/portal', function () {

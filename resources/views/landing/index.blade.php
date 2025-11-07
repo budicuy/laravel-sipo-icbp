@@ -367,11 +367,40 @@
                             <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
                                 <i class="fas fa-robot text-purple-600 text-2xl"></i>
                             </div>
-                            <div class="text-white">
+                            <div class="text-white flex-1">
                                 <h3 class="text-xl font-bold">AI Assistant</h3>
-                                <p class="text-purple-100 text-sm">Powered by Google Gemini</p>
+                                <p class="text-purple-100 text-sm" id="chatSubtitle">Powered by Google Gemini</p>
                             </div>
                             <div class="ml-auto flex items-center gap-3">
+                                <!-- Lock Icon & Login Button (shown when NOT logged in) -->
+                                <div id="loginPrompt" class="hidden items-center gap-3">
+                                    <span
+                                        class="inline-flex items-center gap-2 bg-red-500/20 px-4 py-2 rounded-full text-white text-sm">
+                                        <i class="fas fa-lock"></i>
+                                        <span class="hidden sm:inline">Chat Terkunci</span>
+                                    </span>
+                                    <button onclick="showLoginModal()"
+                                        class="bg-white text-purple-600 px-4 py-2 rounded-full hover:bg-purple-50 transition font-semibold flex items-center gap-2">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                        <span>Login</span>
+                                    </button>
+                                </div>
+
+                                <!-- User Info (shown when logged in) -->
+                                <div id="userInfo"
+                                    class="hidden items-center gap-2 bg-white/20 px-4 py-2 rounded-full text-white text-sm">
+                                    <i class="fas fa-user"></i>
+                                    <span id="userNik"></span>
+                                </div>
+
+                                <!-- Logout Button (shown when logged in) -->
+                                <button id="logoutBtn" onclick="logout()"
+                                    class="hidden bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-white text-sm transition items-center gap-2"
+                                    title="Logout">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span class="hidden sm:inline">Logout</span>
+                                </button>
+
                                 <button onclick="clearChatHistory()"
                                     class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full text-white text-sm transition flex items-center gap-2"
                                     title="Hapus Riwayat Chat">
@@ -419,8 +448,8 @@
                             <input type="text" id="chatInput" placeholder="Ketik pertanyaan Anda di sini..."
                                 class="flex-1 px-6 py-4 border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
                                 autocomplete="off">
-                            <button type="submit"
-                                class="gradient-bg text-white px-8 py-4 rounded-full hover:opacity-90 transition font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl">
+                            <button type="submit" id="sendButton"
+                                class="gradient-bg text-white px-8 py-4 rounded-full hover:opacity-90 transition font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
                                 <i class="fas fa-paper-plane"></i>
                                 <span>Kirim</span>
                             </button>
@@ -430,7 +459,8 @@
                             chat sebelumnya
                         </p>
                         <p class="text-xs text-gray-400 mt-1 text-center">
-                            <i class="fas fa-info-circle"></i> Dapat menjawab pertanyaan tentang SIPO ICBP, fitur-fitur,
+                            <i class="fas fa-info-circle"></i> Dapat menjawab pertanyaan tentang SIPO ICBP,
+                            fitur-fitur,
                             dan informasi umum
                         </p>
                     </div>
@@ -438,6 +468,67 @@
             </div>
         </div>
     </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/25 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+            <div class="gradient-bg text-white p-6 rounded-t-2xl">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-lock text-2xl"></i>
+                        <h3 class="text-2xl font-bold">Login AI Chat</h3>
+                    </div>
+                    <button onclick="closeLoginModal()" class="hover:bg-white/20 p-2 rounded-full transition">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <p class="text-purple-100 mt-2">Silakan login dengan NIK Anda</p>
+            </div>
+
+            <form id="loginForm" class="p-6 space-y-4">
+                <div id="loginError" class="hidden bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                        <p class="text-red-700 text-sm font-medium" id="loginErrorMessage"></p>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="loginNik" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-user"></i> NIK
+                    </label>
+                    <input type="text" id="loginNik" name="nik" placeholder="Contoh: 1231231"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        required>
+                    <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-info-circle"></i> Masukkan NIK Anda (hanya angka)
+                    </p>
+                </div>
+
+                <div>
+                    <label for="loginPassword" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-key"></i> Password
+                    </label>
+                    <input type="password" id="loginPassword" name="password" placeholder="NIK Anda"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        required>
+                    <p class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-info-circle"></i> Password sama dengan NIK Anda
+                    </p>
+                </div>
+
+                <button type="submit"
+                    class="w-full gradient-bg text-white py-3 rounded-lg hover:opacity-90 transition font-semibold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </button>
+
+                <p class="text-xs text-gray-500 text-center mt-4">
+                    <i class="fas fa-shield-alt"></i> Data Anda aman dan terenkripsi
+                </p>
+            </form>
+        </div>
+    </div>
 
     <!-- Features Section -->
     <section id="features" class="py-20 bg-gray-50">
@@ -728,13 +819,23 @@
     </footer>
 
     <script>
+        // Authentication System
+        let isAuthenticated = false;
+        let currentUserNik = '';
+        let currentUserName = '';
+        let currentUserDepartemen = '';
+
         // Chat history storage
         let chatHistory = [];
 
-        // Load chat history from localStorage on page load
+        // Main initialization on page load
         window.addEventListener('DOMContentLoaded', function() {
+            // Check authentication first
+            checkAuthentication();
+
+            // Load chat history after checking auth
             const savedHistory = localStorage.getItem('sipo_chat_history');
-            if (savedHistory) {
+            if (savedHistory && isAuthenticated) {
                 try {
                     chatHistory = JSON.parse(savedHistory);
                     // Restore messages in chat UI
@@ -746,7 +847,220 @@
                     chatHistory = [];
                 }
             }
-        });
+
+            // Setup login form handler
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+        }); // Check if user is authenticated
+        function checkAuthentication() {
+            const authData = localStorage.getItem('sipo_auth');
+            if (authData) {
+                try {
+                    const auth = JSON.parse(authData);
+                    if (auth.nik && auth.nama && auth.timestamp) {
+                        // Check if session is still valid (24 hours)
+                        const now = Date.now();
+                        const sessionDuration = 24 * 60 * 60 * 1000; // 24 hours
+                        if (now - auth.timestamp < sessionDuration) {
+                            isAuthenticated = true;
+                            currentUserNik = auth.nik;
+                            currentUserName = auth.nama;
+                            currentUserDepartemen = auth.departemen || '';
+                            updateAuthUI();
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error checking authentication:', e);
+                }
+            }
+            // Not authenticated
+            isAuthenticated = false;
+            currentUserNik = '';
+            currentUserName = '';
+            currentUserDepartemen = '';
+            updateAuthUI();
+        }
+
+        // Update UI based on authentication status
+        function updateAuthUI() {
+            const loginPrompt = document.getElementById('loginPrompt');
+            const userInfo = document.getElementById('userInfo');
+            const userNikSpan = document.getElementById('userNik');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const chatInput = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatSubtitle = document.getElementById('chatSubtitle');
+
+            if (isAuthenticated) {
+                // Hide login prompt
+                loginPrompt.classList.add('hidden');
+                loginPrompt.classList.remove('flex');
+                // Show user info
+                userInfo.classList.remove('hidden');
+                userInfo.classList.add('flex');
+                userNikSpan.innerHTML =
+                    `<strong>${currentUserName}</strong> <span class="text-purple-200 text-xs">(${currentUserNik})</span>`;
+                // Show logout button
+                logoutBtn.classList.remove('hidden');
+                logoutBtn.classList.add('flex');
+                // Enable chat input and button
+                chatInput.disabled = false;
+                chatInput.placeholder = 'Ketik pertanyaan Anda di sini...';
+                sendButton.disabled = false;
+                // Update chat subtitle with user name
+                chatSubtitle.innerHTML = `Melayani <strong>${currentUserName}</strong> | ${currentUserDepartemen}`;
+            } else {
+                // Show login prompt
+                loginPrompt.classList.remove('hidden');
+                loginPrompt.classList.add('flex');
+                // Hide user info
+                userInfo.classList.add('hidden');
+                userInfo.classList.remove('flex');
+                // Hide logout button
+                logoutBtn.classList.add('hidden');
+                logoutBtn.classList.remove('flex');
+                // Disable chat input and button
+                chatInput.disabled = true;
+                chatInput.placeholder = 'Silakan login terlebih dahulu untuk menggunakan AI Chat...';
+                sendButton.disabled = true;
+                // Reset chat subtitle
+                chatSubtitle.textContent = 'Powered by Google Gemini';
+            }
+        }
+
+        // Show login modal
+        function showLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            // Clear previous errors
+            hideLoginError();
+        }
+
+        // Close login modal
+        function closeLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            // Clear form
+            document.getElementById('loginForm').reset();
+            hideLoginError();
+        }
+
+        // Show login error
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            const errorMessage = document.getElementById('loginErrorMessage');
+            errorMessage.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        // Hide login error
+        function hideLoginError() {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.classList.add('hidden');
+        }
+
+        // Handle login form submission
+        async function handleLogin(e) {
+            e.preventDefault();
+
+            const nik = document.getElementById('loginNik').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            // Validate NIK format (harus angka)
+            if (!/^\d+$/.test(nik)) {
+                showLoginError('NIK harus berupa angka saja');
+                return;
+            }
+
+            // Validate password matches NIK
+            if (password !== nik) {
+                showLoginError('Password harus sama dengan NIK Anda');
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Memverifikasi...</span>';
+
+            try {
+                // Call API to check NIK
+                const response = await fetch('/api/auth/check-nik', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    body: JSON.stringify({
+                        nik,
+                        password
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Login successful
+                    const authData = {
+                        nik: result.data.nik,
+                        nama: result.data.nama,
+                        departemen: result.data.departemen,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem('sipo_auth', JSON.stringify(authData));
+
+                    isAuthenticated = true;
+                    currentUserNik = result.data.nik;
+                    currentUserName = result.data.nama;
+                    currentUserDepartemen = result.data.departemen;
+
+                    // Update UI
+                    updateAuthUI();
+                    closeLoginModal();
+
+                    // Show success message in chat
+                    addMessageToUI('bot',
+                        `<p>Selamat datang, <strong>${result.data.nama}</strong>! 👋</p><p>NIK: ${result.data.nik} | Departemen: ${result.data.departemen}</p><p>Anda telah berhasil login. Silakan tanyakan apapun tentang SIPO ICBP.</p>`
+                    );
+                } else {
+                    showLoginError(result.message || 'Login gagal');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoginError('Terjadi kesalahan saat login. Silakan coba lagi.');
+            } finally {
+                // Restore button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Apakah Anda yakin ingin logout?')) {
+                // Clear authentication
+                localStorage.removeItem('sipo_auth');
+                isAuthenticated = false;
+                currentUserNik = '';
+                currentUserName = '';
+                currentUserDepartemen = '';
+
+                // Clear chat history
+                clearChatHistory();
+
+                // Update UI
+                updateAuthUI();
+
+                // Show login modal
+                showLoginModal();
+            }
+        }
 
         // Save chat history to localStorage
         function saveChatHistory() {
@@ -794,6 +1108,12 @@
         function sendMessage(event) {
             event.preventDefault();
 
+            // Check authentication first
+            if (!isAuthenticated) {
+                showLoginModal();
+                return;
+            }
+
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
 
@@ -828,7 +1148,9 @@
                     },
                     body: JSON.stringify({
                         message: message,
-                        history: historyForAPI
+                        history: historyForAPI,
+                        user_nik: currentUserNik,
+                        user_name: currentUserName
                     })
                 })
                 .then(response => response.json())
@@ -853,62 +1175,31 @@
                 });
         }
 
-        // Format AI response text with markdown-like formatting
-        function formatAIResponse(text) {
-            // Escape HTML to prevent XSS
-            text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        // Sanitize and prepare AI HTML response
+        function sanitizeAIResponse(html) {
+            // Create a temporary div to parse HTML
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
 
-            // Convert headings (must be done before bold conversion)
-            // #### or more hashes - treat as h3 (smallest heading we support)
-            text = text.replace(/^#{4,}\s+(.+)$/gm, '<h3 class="text-lg font-bold text-purple-800 mt-3 mb-2">$1</h3>');
-            // ### Heading 3
-            text = text.replace(/^###\s+(.+)$/gm, '<h3 class="text-lg font-bold text-purple-800 mt-3 mb-2">$1</h3>');
-            // ## Heading 2
-            text = text.replace(/^##\s+(.+)$/gm, '<h2 class="text-xl font-bold text-purple-800 mt-4 mb-2">$1</h2>');
-            // # Heading 1
-            text = text.replace(/^#\s+(.+)$/gm, '<h1 class="text-2xl font-bold text-purple-900 mt-4 mb-3">$1</h1>');
+            // Allowed tags for security
+            const allowedTags = ['P', 'BR', 'STRONG', 'EM', 'UL', 'OL', 'LI', 'H1', 'H2', 'H3', 'SPAN', 'DIV'];
 
-            // Convert **bold** to <strong> (before single asterisk)
-            text = text.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-purple-900">$1</strong>');
+            // Remove any script tags or dangerous content
+            const scripts = temp.querySelectorAll('script, iframe, object, embed');
+            scripts.forEach(script => script.remove());
 
-            // Convert bullet points with asterisk at start of line (before italic conversion)
-            // This handles: "* Item" or "  * Item"
-            text = text.replace(/^(\s*)\*\s+(.+)$/gm, '<li class="ml-4">$2</li>');
-
-            // Convert other bullet points (lines starting with - or •)
-            text = text.replace(/^[\-•]\s+(.+)$/gm, '<li class="ml-4">$1</li>');
-
-            // Convert *italic* to <em> (after bullet points to avoid conflict)
-            text = text.replace(/\*([^*\n]+)\*/g, '<em class="italic text-purple-800">$1</em>');
-
-            // Wrap consecutive <li> items in <ul>
-            text = text.replace(/(<li.*?<\/li>\n?)+/g, '<ul class="list-disc list-inside my-2">$&</ul>');
-
-            // Convert numbered lists (1. 2. 3. etc)
-            text = text.replace(/^\d+\.\s+(.+)$/gm, '<li class="ml-4">$1</li>');
-            text = text.replace(/(<li.*?<\/li>\n?)+/g, (match) => {
-                if (!match.includes('list-disc')) {
-                    return '<ol class="list-decimal list-inside my-2">' + match + '</ol>';
+            // Get all elements and check if they're allowed
+            const allElements = temp.getElementsByTagName('*');
+            for (let i = allElements.length - 1; i >= 0; i--) {
+                const element = allElements[i];
+                if (!allowedTags.includes(element.tagName)) {
+                    // Replace disallowed tags with their text content
+                    const textNode = document.createTextNode(element.textContent);
+                    element.parentNode.replaceChild(textNode, element);
                 }
-                return match;
-            });
-
-            // Convert double line breaks to paragraphs
-            text = text.split(/\n\n+/).map(para => {
-                para = para.trim();
-                if (para && !para.startsWith('<ul') && !para.startsWith('<ol') && !para.startsWith('<li') && !para
-                    .startsWith('<h')) {
-                    return '<p class="mb-2">' + para.replace(/\n/g, '<br>') + '</p>';
-                }
-                return para;
-            }).join('');
-
-            // Convert single line breaks to <br> if not already in a paragraph
-            if (!text.includes('<p')) {
-                text = text.replace(/\n/g, '<br>');
             }
 
-            return text;
+            return temp.innerHTML;
         }
 
         // Add Message to Chat (UI only, doesn't affect history)
@@ -923,8 +1214,8 @@
             messageDiv.className = `message ${sender}`;
 
             if (sender === 'bot') {
-                // Format AI response
-                const formattedText = formatAIResponse(text);
+                // Sanitize AI HTML response
+                const sanitizedHTML = sanitizeAIResponse(text);
 
                 messageDiv.innerHTML = `
                     <div class="flex gap-3 mb-4">
@@ -932,7 +1223,7 @@
                             <i class="fas fa-robot text-white"></i>
                         </div>
                         <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-2xl">
-                            <div class="text-gray-800 prose prose-sm max-w-none">${formattedText}</div>
+                            <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
                         </div>
                     </div>
                 `;

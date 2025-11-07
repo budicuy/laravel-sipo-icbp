@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -19,6 +20,58 @@ class LandingPageController extends Controller
     }
 
     /**
+     * Check NIK and return employee data
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkNik(Request $request)
+    {
+        $request->validate([
+            'nik' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        $nik = $request->nik;
+        $password = $request->password;
+
+        // Validate NIK format (must be numeric)
+        if (! preg_match('/^\d+$/', $nik)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIK harus berupa angka saja',
+            ], 400);
+        }
+
+        // Validate password matches NIK
+        if ($password !== $nik) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password harus sama dengan NIK Anda',
+            ], 400);
+        }
+
+        // Find employee by NIK
+        $karyawan = Karyawan::where('nik_karyawan', $nik)->first();
+
+        if (! $karyawan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIK tidak ditemukan dalam database',
+            ], 404);
+        }
+
+        // Return employee data
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'nik' => $karyawan->nik_karyawan,
+                'nama' => $karyawan->nama_karyawan,
+                'departemen' => $karyawan->departemen->nama_departemen ?? 'Tidak ada departemen',
+            ],
+        ]);
+    }
+
+    /**
      * Handle AI chat request with Gemini API
      *
      * @return \Illuminate\Http\JsonResponse
@@ -30,16 +83,9 @@ class LandingPageController extends Controller
             'history' => 'nullable|array',
             'history.*.role' => 'required|string|in:user,model',
             'history.*.text' => 'required|string',
+            'user_nik' => 'nullable|string',
+            'user_name' => 'nullable|string',
         ]);
-
-        // Try fallback response first for common questions
-        $fallbackReply = $this->getFallbackResponse($request->message);
-        if ($fallbackReply) {
-            return response()->json([
-                'success' => true,
-                'reply' => $fallbackReply,
-            ]);
-        }
 
         $apiKey = config('gemini.api_key');
 
@@ -54,6 +100,21 @@ class LandingPageController extends Controller
         try {
             $model = config('gemini.model', 'gemini-1.5-flash-latest');
             $endpoint = config('gemini.api_endpoint');
+
+            // Get user info if provided
+            $userNik = $request->input('user_nik');
+            $userName = $request->input('user_name');
+
+            // Build user context
+            $userContext = '';
+            if ($userName && $userNik) {
+                $userContext = "\n\n**INFORMASI USER YANG SEDANG BERBICARA:**\n";
+                $userContext .= "- Nama: {$userName}\n";
+                $userContext .= "- NIK: {$userNik}\n";
+                $userContext .= "\nGunakan informasi ini untuk menyapa user secara personal dengan nama mereka. ";
+                $userContext .= "HANYA gunakan nama dan NIK untuk personalisasi sapaan. ";
+                $userContext .= "JANGAN akses atau tampilkan data pribadi/medis lainnya seperti riwayat kesehatan, alamat, atau informasi sensitif.\n";
+            }
 
             // System prompt untuk konteks AI
             $systemPrompt = 'Anda adalah AI Assistant resmi untuk SIPO ICBP (Sistem Informasi Poliklinik ICBP) - PT. Indofood CBP Sukses Makmur Tbk.
@@ -72,6 +133,8 @@ FITUR UTAMA SIPO ICBP:
 5. **Laporan & Analitik**: Dashboard komprehensif dengan visualisasi data kesehatan dan tren penyakit
 6. **Keamanan Data**: Enkripsi data, role-based access control, dan audit trail lengkap
 
+'.$userContext.'
+
 KONTAK INFORMASI:
 - Telepon: (+62-21) 5795 8822
 - Fax: (+62-21) 5793 5960
@@ -80,7 +143,7 @@ KONTAK INFORMASI:
 - Email: corporate@indofood.co.id
 
 PANDUAN MENJAWAB:
-1. Gunakan formatting markdown untuk readability (### untuk heading, **bold** untuk emphasis, - untuk bullet points, 1. untuk numbered lists)
+1. **FORMAT OUTPUT: GUNAKAN HTML** - Semua response harus dalam format HTML yang valid
 2. Jawab dengan struktur yang jelas: Greeting → Jawaban Inti → Detail Pendukung → Call-to-Action (jika perlu)
 3. Selalu profesional, ramah, dan informatif dalam Bahasa Indonesia
 4. Jika ditanya tentang fitur, jelaskan manfaat konkret untuk pengguna
@@ -88,6 +151,27 @@ PANDUAN MENJAWAB:
 6. Gunakan konteks percakapan sebelumnya untuk jawaban yang lebih relevan dan koheren
 7. Jika tidak yakin atau pertanyaan di luar scope SIPO ICBP, arahkan ke kontak resmi
 8. Sertakan emoji yang relevan untuk membuat komunikasi lebih friendly (tapi tidak berlebihan)
+
+**PENTING - FORMAT HTML:**
+Gunakan tag HTML berikut untuk formatting (JANGAN gunakan markdown):
+- Heading: <h3 class="text-lg font-bold text-purple-800 mb-2">Judul</h3>
+- Bold: <strong class="font-bold text-purple-900">teks tebal</strong>
+- Italic: <em class="italic text-purple-800">teks miring</em>
+- Paragraph: <p class="mb-2">paragraf</p>
+- Bullet list: <ul class="list-disc list-inside my-2"><li>item 1</li><li>item 2</li></ul>
+- Numbered list: <ol class="list-decimal list-inside my-2"><li>item 1</li><li>item 2</li></ol>
+- Line break: <br>
+
+CONTOH OUTPUT HTML:
+<p class="mb-2">👋 Terima kasih atas pertanyaan Anda!</p>
+<h3 class="text-lg font-bold text-purple-800 mb-2">Tentang SIPO ICBP</h3>
+<p class="mb-2"><strong class="font-bold text-purple-900">SIPO ICBP</strong> adalah sistem informasi kesehatan yang memiliki fitur:</p>
+<ul class="list-disc list-inside my-2">
+<li>Rekam Medis Digital</li>
+<li>Manajemen Obat</li>
+<li>AI Assistant 24/7</li>
+</ul>
+<p class="mb-2">Ada yang bisa saya bantu? 😊</p>
 
 PANDUAN KONSULTASI KESEHATAN:
 
@@ -249,42 +333,5 @@ Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan pandua
                 'reply' => 'Maaf, AI Assistant sedang tidak tersedia. Silakan coba lagi nanti atau hubungi administrator.',
             ], 500);
         }
-    }
-
-    /**
-     * Get fallback response for common questions
-     *
-     * @param  string  $message
-     * @return string|null
-     */
-    private function getFallbackResponse($message)
-    {
-        $lowercaseMsg = strtolower($message);
-
-        $responses = [
-            'sipo' => 'SIPO ICBP adalah Sistem Informasi Poliklinik untuk Indofood. Sistem ini dirancang untuk mengelola data kesehatan karyawan dengan efisien dan modern. 🏥',
-            'apa itu sipo' => 'SIPO ICBP adalah Sistem Informasi Poliklinik untuk Indofood yang membantu mengelola rekam medis, obat, dan layanan kesehatan karyawan secara digital.',
-            'fitur' => 'SIPO ICBP memiliki fitur unggulan: 📋 Rekam Medis Digital, 💊 Manajemen Obat, 🤖 AI Assistant, 📄 Surat Keterangan, 📊 Laporan & Analitik, dan 🔒 Keamanan Data yang terjamin.',
-            'login' => 'Untuk login ke sistem SIPO ICBP, klik tombol "Login" di pojok kanan atas halaman. Gunakan kredensial yang telah diberikan oleh administrator. 🔐',
-            'kontak' => 'Anda dapat menghubungi kami melalui:\n📞 Telepon: (+62-21) 5795 8822\n📠 Fax: (+62-21) 5793 5960\n🎧 Call Center: +62 800 1122 888\n💬 WhatsApp: +62 889 1122 888\n📧 Email: corporate@indofood.co.id',
-            'hubungi' => 'Silakan hubungi kami di:\n📞 Call Center: +62 800 1122 888\n💬 WhatsApp: +62 889 1122 888\n📧 Email: corporate@indofood.co.id\nKami siap membantu Anda 24/7! ✨',
-            'telepon' => 'Nomor telepon kami: (+62-21) 5795 8822. Call Center 24/7: +62 800 1122 888. WhatsApp: +62 889 1122 888',
-            'email' => 'Email kami: corporate@indofood.co.id. Kami akan merespons email Anda sesegera mungkin. 📧',
-            'alamat' => 'Alamat kami: Jalan Ayani KM. 32 Liang Anggang, Pandahan, Kec. Bati Bati, Kabupaten Tanah Laut, Kalimantan Selatan 70723. 📍',
-            'rekam medis' => 'Fitur Rekam Medis Digital memungkinkan pencatatan lengkap riwayat kesehatan karyawan secara aman dan mudah diakses. Semua data terenkripsi untuk keamanan maksimal. 🏥',
-            'obat' => 'Sistem Manajemen Obat kami membantu mengelola stok obat dengan tracking otomatis, alert stok menipis, dan riwayat penggunaan yang terperinci. 💊',
-            'laporan' => 'Dashboard Laporan & Analitik menyediakan visualisasi data kesehatan, tren penyakit, dan laporan keuangan secara komprehensif. 📊',
-            'keamanan' => 'Sistem kami dilengkapi keamanan berlapis dengan enkripsi data, role-based access control, dan audit trail lengkap untuk melindungi informasi kesehatan Anda. 🔒',
-            'jam kerja' => 'Sistem SIPO ICBP dapat diakses 24/7. Untuk layanan customer support, hubungi Call Center kami di +62 800 1122 888 yang tersedia 24 jam. ⏰',
-        ];
-
-        // Check for exact or partial matches
-        foreach ($responses as $keyword => $response) {
-            if (strpos($lowercaseMsg, $keyword) !== false) {
-                return $response;
-            }
-        }
-
-        return null;
     }
 }
