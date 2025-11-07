@@ -272,10 +272,10 @@ class LandingPageController extends Controller
     public function chat(Request $request)
     {
         $request->validate([
-            'message' => 'required|string|max:1000',
+            'message' => 'required|string|max:5000',
             'history' => 'nullable|array',
             'history.*.role' => 'required|string|in:user,model',
-            'history.*.text' => 'required|string',
+            'history.*.text' => 'required|string|max:5000',
             'user_nik' => 'nullable|string',
             'user_name' => 'nullable|string',
             'id_keluarga' => 'nullable|integer', // ID pasien yang dipilih

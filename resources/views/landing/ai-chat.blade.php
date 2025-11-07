@@ -14,6 +14,14 @@
             font-family: 'Inter', sans-serif;
         }
 
+        textarea {
+            field-sizing: content;
+            min-height: 4rem;
+            /* Optional: Set a minimum height */
+            resize: none;
+            /* Optional: Prevent manual resizing by the user */
+        }
+
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
@@ -332,8 +340,18 @@
 
                     <div class="">
                         <textarea id="chatInput" placeholder="Ketik pertanyaan Anda di sini..."
-                            class="w-full px-4 md:px-10 mb-2 min-h-8 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
-                            autocomplete="off"></textarea>
+                            class="w-full px-4 md:px-10 min-h-8 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
+                            maxlength="5000" autocomplete="off"></textarea>
+                        <div class="flex justify-between items-center px-4 md:px-10 mb-6">
+                            <span class="text-xs text-gray-500">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="charCount">0</span>/5000 karakter
+                            </span>
+                            <button type="button" onclick="clearInput()"
+                                class="text-xs text-gray-500 hover:text-red-500 transition">
+                                <i class="fas fa-eraser"></i> Hapus
+                            </button>
+                        </div>
 
                         <button type="submit" id="sendButton"
                             class="w-full gradient-bg text-white px-8 py-4 rounded-full hover:opacity-90 transition font-semibold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
@@ -507,6 +525,18 @@
             if (loginForm) {
                 loginForm.addEventListener('submit', handleLogin);
             }
+
+            // Setup character counter for chat input
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.addEventListener('input', updateCharCount);
+                chatInput.addEventListener('paste', () => {
+                    // Update character count after paste with small delay
+                    setTimeout(updateCharCount, 10);
+                });
+                // Initialize character count
+                updateCharCount();
+            }
         });
 
         // Show initial welcome message based on authentication and patient selection status
@@ -566,7 +596,7 @@
                         <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-robot text-white"></i>
                         </div>
-                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-2xl">
+                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-4xl">
                             <div class="text-gray-800 prose prose-sm max-w-none">
                                 ${welcomeMessage}
                             </div>
@@ -1069,7 +1099,7 @@
                         <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-robot text-white"></i>
                         </div>
-                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-2xl">
+                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-4xl">
                             <div class="text-gray-800 prose prose-sm max-w-none">
                                 ${welcomeMessage}
                             </div>
@@ -1077,6 +1107,31 @@
                     </div>
                 </div>
             `;
+        }
+
+        // Character counter and input validation
+        function updateCharCount() {
+            const input = document.getElementById('chatInput');
+            const charCount = document.getElementById('charCount');
+            const currentLength = input.value.length;
+
+            charCount.textContent = currentLength;
+
+            // Change color based on character count
+            if (currentLength > 4500) {
+                charCount.className = 'text-red-500 font-semibold';
+            } else if (currentLength > 4000) {
+                charCount.className = 'text-orange-500 font-semibold';
+            } else {
+                charCount.className = '';
+            }
+        }
+
+        // Clear input function
+        function clearInput() {
+            const input = document.getElementById('chatInput');
+            input.value = '';
+            updateCharCount();
         }
 
         // Send Message Function
@@ -1094,6 +1149,14 @@
 
             if (message === '') return;
 
+            // Client-side validation for message length
+            if (message.length > 5000) {
+                addMessage('bot',
+                    '<p style="color: #EF4444;">⚠️ Pesan terlalu panjang. Maksimal 5000 karakter diperbolehkan. Silakan perpendek pesan Anda.</p>'
+                );
+                return;
+            }
+
             // Add user message to chat history
             chatHistory.push({
                 role: 'user',
@@ -1103,8 +1166,9 @@
             // Add user message to chat UI
             addMessage('user', message);
 
-            // Clear input
+            // Clear input and update character count
             input.value = '';
+            updateCharCount();
 
             // Show typing indicator
             showTypingIndicator();
@@ -1210,7 +1274,7 @@
                         <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-robot text-white"></i>
                         </div>
-                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-2xl">
+                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-4xl">
                             <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
                         </div>
                     </div>
@@ -1221,7 +1285,7 @@
 
                 messageDiv.innerHTML = `
                     <div class="flex gap-3 mb-4 justify-end">
-                        <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-2xl">
+                        <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-4xl">
                             <p class="text-white">${escapedText}</p>
                         </div>
                         <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
