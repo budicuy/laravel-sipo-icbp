@@ -27,6 +27,16 @@
                         </svg>
                         Tambah Rekam Medis
                     </button>
+                    @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                        <button type="button" onclick="exportData('regular')" id="export-regular-btn"
+                            class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Export Rekam Medis
+                        </button>
+                    @endif
                     @if (auth()->user()->role === 'Super Admin')
                         <button type="button" onclick="openImportModal()" id="import-excel-btn"
                             class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
@@ -34,7 +44,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            Import Excel
+                            Import Rekam Medis
                         </button>
                     @endif
                 </div>
@@ -1332,6 +1342,54 @@
                             });
                     }
                 });
+            }
+
+            // Export data function
+            function exportData(type) {
+                // Get current filter values
+                const urlParams = new URLSearchParams(window.location.search);
+                const dariTanggal = urlParams.get('dari_tanggal') || '';
+                const sampaiTanggal = urlParams.get('sampai_tanggal') || '';
+                const search = urlParams.get('q') || '';
+                const status = urlParams.get('status') || '';
+
+                // Build export URL with all current filters
+                let exportUrl;
+                if (type === 'emergency') {
+                    exportUrl = `{{ route('rekam-medis-emergency.export') }}`;
+                } else {
+                    exportUrl = `{{ route('rekam-medis.export') }}`;
+                }
+                
+                if (dariTanggal) exportUrl += `?dari_tanggal=${encodeURIComponent(dariTanggal)}`;
+                else exportUrl += '?';
+                
+                if (sampaiTanggal) exportUrl += `&sampai_tanggal=${encodeURIComponent(sampaiTanggal)}`;
+                if (search) exportUrl += `&q=${encodeURIComponent(search)}`;
+                if (status) exportUrl += `&status=${encodeURIComponent(status)}`;
+
+                // Show loading
+                Swal.fire({
+                    title: 'Sedang Mengekspor...',
+                    html: 'Mohon tunggu, data sedang diekspor',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Create temporary link to download
+                const link = document.createElement('a');
+                link.href = exportUrl;
+                link.download = '';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Close loading after a delay
+                setTimeout(() => {
+                    Swal.close();
+                }, 2000);
             }
         </script>
     @endpush

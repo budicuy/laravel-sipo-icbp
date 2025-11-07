@@ -13,6 +13,11 @@ use App\Models\RekamMedisEmergency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class RekamMedisEmergencyController extends Controller
 {
@@ -630,5 +635,253 @@ class RekamMedisEmergencyController extends Controller
         });
 
         return response()->json($result);
+    }
+
+    /**
+     * Export data rekam medis emergency ke Excel
+     */
+    public function export(Request $request)
+    {
+        // Get filter parameters
+        $dariTanggal = $request->input('dari_tanggal');
+        $sampaiTanggal = $request->input('sampai_tanggal');
+        $search = $request->input('q');
+        $status = $request->input('status');
+
+        try {
+            // Query for emergency medical records
+            $query = RekamMedisEmergency::with([
+                'user:id_user,username,nama_lengkap',
+                'externalEmployee',
+                'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency',
+                'keluhans.obat:id_obat,nama_obat',
+            ]);
+
+            // Apply filters
+            if ($search) {
+                $query->search($search);
+            }
+
+            if ($dariTanggal) {
+                $query->where('tanggal_periksa', '>=', $dariTanggal);
+            }
+
+            if ($sampaiTanggal) {
+                $query->where('tanggal_periksa', '<=', $sampaiTanggal);
+            }
+
+            if ($status) {
+                $query->where('status', $status);
+            }
+
+            // Get all data (no pagination for export)
+            $rekamMedisEmergency = $query->orderBy('id_emergency', 'desc')->get();
+
+            // Create spreadsheet
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Data Rekam Medis Emergency');
+
+            // Set document properties
+            $spreadsheet->getProperties()
+                ->setCreator('SIPO ICBP')
+                ->setTitle('Export Data Rekam Medis Emergency')
+                ->setSubject('Export Data Rekam Medis Emergency')
+                ->setDescription('Export data rekam medis emergency');
+
+            // Headers - Format sama dengan template import
+            $headers = [
+                'Hari / Tgl', 'Waktu Periksa', 'NIK', 'Nama Karyawan', 'Kode RM', 'Nama Pasien',
+                'Diagnosa 1', 'Keluhan 1', 'Obat 1-1', 'Qty', 'Obat 1-2', 'Qty', 'Obat 1-3', 'Qty',
+                'Diagnosa 2', 'Keluhan 2', 'Obat 2-1', 'Qty', 'Obat 2-2', 'Qty', 'Obat 2-3', 'Qty',
+                'Diagnosa 3', 'Keluhan 3', 'Obat 3-1', 'Qty', 'Obat 3-2', 'Qty', 'Obat 3-3', 'Qty',
+                'Petugas', 'Status',
+            ];
+
+            $column = 'A';
+            foreach ($headers as $header) {
+                $sheet->setCellValue($column . '1', $header);
+                $column++;
+            }
+
+            // Style header
+            $headerStyle = [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => 'FFFFFF'],
+                    'size' => 12,
+                ],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => 'DC2626'],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A1:AF1')->applyFromArray($headerStyle);
+
+            // Data
+            $row = 2;
+            foreach ($rekamMedisEmergency as $index => $rm) {
+                // Group data by diagnosa
+                $diagnosaGroups = [];
+                foreach ($rm->keluhans as $keluhan) {
+                    $diagnosaId = $keluhan->id_diagnosa_emergency;
+                    $diagnosaName = $keluhan->diagnosaEmergency->nama_diagnosa_emergency ?? '-';
+                    
+                    if (!isset($diagnosaGroups[$diagnosaId])) {
+                        $diagnosaGroups[$diagnosaId] = [
+                            'diagnosa' => $diagnosaName,
+                            'keluhan' => $keluhan->keterangan ?? '-',
+                            'obats' => []
+                        ];
+                    }
+                    
+                    if ($keluhan->obat) {
+                        $diagnosaGroups[$diagnosaId]['obats'][] = [
+                            'nama_obat' => $keluhan->obat->nama_obat,
+                            'jumlah_obat' => $keluhan->jumlah_obat ?? 0
+                        ];
+                    }
+                }
+
+                // Convert to array and ensure we have 3 diagnosa groups
+                $diagnosaArray = array_values($diagnosaGroups);
+                while (count($diagnosaArray) < 3) {
+                    $diagnosaArray[] = [
+                        'diagnosa' => '-',
+                        'keluhan' => '-',
+                        'obats' => []
+                    ];
+                }
+
+                $sheet->setCellValue('A' . $row, is_string($rm->tanggal_periksa) ? $rm->tanggal_periksa : $rm->tanggal_periksa->format('d/m/Y'));
+                $sheet->setCellValue('B' . $row, $rm->waktu_periksa ? (is_string($rm->waktu_periksa) ? $rm->waktu_periksa : $rm->waktu_periksa->format('H:i')) : '-');
+                $sheet->setCellValue('C' . $row, $rm->externalEmployee->nik_employee ?? '-');
+                $sheet->setCellValue('D' . $row, $rm->externalEmployee->nama_employee ?? '-');
+                $sheet->setCellValue('E' . $row, $rm->externalEmployee->kode_rm ?? '-');
+                $sheet->setCellValue('F' . $row, $rm->externalEmployee->nama_employee ?? '-');
+
+                // Diagnosa 1
+                $sheet->setCellValue('G' . $row, $diagnosaArray[0]['diagnosa']);
+                $sheet->setCellValue('H' . $row, $diagnosaArray[0]['keluhan']);
+                
+                // Obat 1-1, 1-2, 1-3
+                $obat1 = $diagnosaArray[0]['obats'];
+                $sheet->setCellValue('I' . $row, isset($obat1[0]) ? $obat1[0]['nama_obat'] : '-');
+                $sheet->setCellValue('J' . $row, isset($obat1[0]) ? $obat1[0]['jumlah_obat'] : '-');
+                $sheet->setCellValue('K' . $row, isset($obat1[1]) ? $obat1[1]['nama_obat'] : '-');
+                $sheet->setCellValue('L' . $row, isset($obat1[1]) ? $obat1[1]['jumlah_obat'] : '-');
+                $sheet->setCellValue('M' . $row, isset($obat1[2]) ? $obat1[2]['nama_obat'] : '-');
+                $sheet->setCellValue('N' . $row, isset($obat1[2]) ? $obat1[2]['jumlah_obat'] : '-');
+
+                // Diagnosa 2
+                $sheet->setCellValue('O' . $row, $diagnosaArray[1]['diagnosa']);
+                $sheet->setCellValue('P' . $row, $diagnosaArray[1]['keluhan']);
+                
+                // Obat 2-1, 2-2, 2-3
+                $obat2 = $diagnosaArray[1]['obats'];
+                $sheet->setCellValue('Q' . $row, isset($obat2[0]) ? $obat2[0]['nama_obat'] : '-');
+                $sheet->setCellValue('R' . $row, isset($obat2[0]) ? $obat2[0]['jumlah_obat'] : '-');
+                $sheet->setCellValue('S' . $row, isset($obat2[1]) ? $obat2[1]['nama_obat'] : '-');
+                $sheet->setCellValue('T' . $row, isset($obat2[1]) ? $obat2[1]['jumlah_obat'] : '-');
+                $sheet->setCellValue('U' . $row, isset($obat2[2]) ? $obat2[2]['nama_obat'] : '-');
+                $sheet->setCellValue('V' . $row, isset($obat2[2]) ? $obat2[2]['jumlah_obat'] : '-');
+
+                // Diagnosa 3
+                $sheet->setCellValue('W' . $row, $diagnosaArray[2]['diagnosa']);
+                $sheet->setCellValue('X' . $row, $diagnosaArray[2]['keluhan']);
+                
+                // Obat 3-1, 3-2, 3-3
+                $obat3 = $diagnosaArray[2]['obats'];
+                $sheet->setCellValue('Y' . $row, isset($obat3[0]) ? $obat3[0]['nama_obat'] : '-');
+                $sheet->setCellValue('Z' . $row, isset($obat3[0]) ? $obat3[0]['jumlah_obat'] : '-');
+                $sheet->setCellValue('AA' . $row, isset($obat3[1]) ? $obat3[1]['nama_obat'] : '-');
+                $sheet->setCellValue('AB' . $row, isset($obat3[1]) ? $obat3[1]['jumlah_obat'] : '-');
+                $sheet->setCellValue('AC' . $row, isset($obat3[2]) ? $obat3[2]['nama_obat'] : '-');
+                $sheet->setCellValue('AD' . $row, isset($obat3[2]) ? $obat3[2]['jumlah_obat'] : '-');
+
+                $sheet->setCellValue('AE' . $row, $rm->user->nama_lengkap ?? '-');
+                $sheet->setCellValue('AF' . $row, $rm->status ?? '-');
+
+                $row++;
+            }
+
+            // Style data
+            $dataStyle = [
+                'alignment' => [
+                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => 'CCCCCC'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A2:AF' . ($row - 1))->applyFromArray($dataStyle);
+
+            // Set column widths
+            $sheet->getColumnDimension('A')->setWidth(15);
+            $sheet->getColumnDimension('B')->setWidth(15);
+            $sheet->getColumnDimension('C')->setWidth(10);
+            $sheet->getColumnDimension('D')->setWidth(20);
+            $sheet->getColumnDimension('E')->setWidth(15);
+            $sheet->getColumnDimension('F')->setWidth(20);
+            $sheet->getColumnDimension('G')->setWidth(20);
+            $sheet->getColumnDimension('H')->setWidth(25);
+            $sheet->getColumnDimension('I')->setWidth(15);
+            $sheet->getColumnDimension('J')->setWidth(10);
+            $sheet->getColumnDimension('K')->setWidth(15);
+            $sheet->getColumnDimension('L')->setWidth(10);
+            $sheet->getColumnDimension('M')->setWidth(15);
+            $sheet->getColumnDimension('N')->setWidth(10);
+            $sheet->getColumnDimension('O')->setWidth(15);
+            $sheet->getColumnDimension('P')->setWidth(25);
+            $sheet->getColumnDimension('Q')->setWidth(15);
+            $sheet->getColumnDimension('R')->setWidth(10);
+            $sheet->getColumnDimension('S')->setWidth(15);
+            $sheet->getColumnDimension('T')->setWidth(10);
+            $sheet->getColumnDimension('U')->setWidth(15);
+            $sheet->getColumnDimension('V')->setWidth(10);
+            $sheet->getColumnDimension('W')->setWidth(15);
+            $sheet->getColumnDimension('X')->setWidth(25);
+            $sheet->getColumnDimension('Y')->setWidth(15);
+            $sheet->getColumnDimension('Z')->setWidth(10);
+            $sheet->getColumnDimension('AA')->setWidth(15);
+            $sheet->getColumnDimension('AB')->setWidth(10);
+            $sheet->getColumnDimension('AC')->setWidth(15);
+            $sheet->getColumnDimension('AD')->setWidth(10);
+            $sheet->getColumnDimension('AE')->setWidth(20);
+            $sheet->getColumnDimension('AF')->setWidth(15);
+
+            // Set row height for header
+            $sheet->getRowDimension(1)->setRowHeight(25);
+
+            // Create Excel file
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $filename = 'export_rekam_medis_emergency_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            // Set headers for download
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            $writer->save('php://output');
+            exit;
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal export data: ' . $e->getMessage());
+        }
     }
 }

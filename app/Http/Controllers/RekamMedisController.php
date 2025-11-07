@@ -703,11 +703,11 @@ class RekamMedisController extends Controller
 
         // Header columns - Updated for new format with AD column
         $headers = [
-            'A=Hari / Tgl', 'B=Time', 'C=NIK', 'D=Nama Karyawan', 'E=Kode RM', 'F=Nama Pasien',
-            'G=Diagnosa 1', 'H=Keluhan 1', 'I=Obat 1-1', 'J=Qty', 'K=Obat 1-2', 'L=Qty', 'M=Obat 1-3', 'N=Qty',
-            'O=Diagnosa 2', 'P=Keluhan 2', 'Q=Obat 2-1', 'R=Qty', 'S=Obat 2-2', 'T=Qty', 'U=Obat 2-3', 'V=Qty',
-            'W=Diagnosa 3', 'X=Keluhan 3', 'Y=Obat 3-1', 'Z=Qty', 'AA=Obat 3-2', 'AB=Qty', 'AC=Obat 3-3', 'AD=Qty',
-            'AE=Petugas', 'AF=Status',
+            'Hari / Tgl', 'Time', 'NIK', 'Nama Karyawan', 'Kode RM', 'Nama Pasien',
+            'Diagnosa 1', 'Keluhan 1', 'Obat 1-1', 'Qty', 'Obat 1-2', 'Qty', 'Obat 1-3', 'Qty',
+            'Diagnosa 2', 'Keluhan 2', 'Obat 2-1', 'Qty', 'Obat 2-2', 'Qty', 'Obat 2-3', 'Qty',
+            'Diagnosa 3', 'Keluhan 3', 'Obat 3-1', 'Qty', 'Obat 3-2', 'Qty', 'Obat 3-3', 'Qty',
+            'Petugas', 'Status',
         ];
 
         $column = 'A';
@@ -1899,5 +1899,464 @@ class RekamMedisController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
         }
+    }
+
+    /**
+     * Export data rekam medis ke Excel
+     */
+    public function export(Request $request)
+    {
+        // Get filter parameters
+        $dariTanggal = $request->input('dari_tanggal');
+        $sampaiTanggal = $request->input('sampai_tanggal');
+        $search = $request->input('q');
+        $status = $request->input('status');
+        $tab = $request->input('tab', 'regular');
+
+        try {
+            if ($tab === 'emergency') {
+                return $this->exportEmergency($request);
+            }
+
+            // Query for regular medical records
+            $query = RekamMedis::with([
+                'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
+                'keluarga.hubungan:kode_hubungan,hubungan',
+                'user:id_user,username,nama_lengkap',
+                'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
+                'keluhans.obat:id_obat,nama_obat',
+            ]);
+
+            // Apply filters
+            if ($search) {
+                $query->where(function ($sub) use ($search) {
+                    $sub->whereHas('keluarga', function ($keluarga) use ($search) {
+                        $keluarga->where('nama_keluarga', 'like', "%$search%")
+                            ->orWhere('no_rm', 'like', "%$search%")
+                            ->orWhere('bpjs_id', 'like', "%$search%")
+                            ->orWhereHas('karyawan', function ($karyawan) use ($search) {
+                                $karyawan->where('nik_karyawan', 'like', "%$search%");
+                            });
+                    });
+                });
+            }
+
+            if ($dariTanggal) {
+                $query->where('tanggal_periksa', '>=', $dariTanggal);
+            }
+
+            if ($sampaiTanggal) {
+                $query->where('tanggal_periksa', '<=', $sampaiTanggal);
+            }
+
+            if ($status) {
+                $query->where('status', $status);
+            }
+
+            // Get all data (no pagination for export)
+            $rekamMedis = $query->orderBy('id_rekam', 'desc')->get();
+
+            // Create spreadsheet
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Data Rekam Medis Reguler');
+
+            // Set document properties
+            $spreadsheet->getProperties()
+                ->setCreator('SIPO ICBP')
+                ->setTitle('Export Data Rekam Medis Reguler')
+                ->setSubject('Export Data Rekam Medis Reguler')
+                ->setDescription('Export data rekam medis reguler');
+
+            // Headers - Format sama dengan template import
+            $headers = [
+                'Hari / Tgl', 'Waktu Periksa', 'NIK', 'Nama Karyawan', 'Kode RM', 'Nama Pasien',
+                'Diagnosa 1', 'Keluhan 1', 'Obat 1-1', 'Qty', 'Obat 1-2', 'Qty', 'Obat 1-3', 'Qty',
+                'Diagnosa 2', 'Keluhan 2', 'Obat 2-1', 'Qty', 'Obat 2-2', 'Qty', 'Obat 2-3', 'Qty',
+                'Diagnosa 3', 'Keluhan 3', 'Obat 3-1', 'Qty', 'Obat 3-2', 'Qty', 'Obat 3-3', 'Qty',
+                'Petugas', 'Status',
+            ];
+
+            $column = 'A';
+            foreach ($headers as $header) {
+                $sheet->setCellValue($column . '1', $header);
+                $column++;
+            }
+
+            // Style header
+            $headerStyle = [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => 'FFFFFF'],
+                    'size' => 12,
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '059669'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A1:AF1')->applyFromArray($headerStyle);
+
+            // Data
+            $row = 2;
+            foreach ($rekamMedis as $index => $rm) {
+                // Group data by diagnosa
+                $diagnosaGroups = [];
+                foreach ($rm->keluhans as $keluhan) {
+                    $diagnosaId = $keluhan->id_diagnosa;
+                    $diagnosaName = $keluhan->diagnosa->nama_diagnosa ?? '-';
+                    
+                    if (!isset($diagnosaGroups[$diagnosaId])) {
+                        $diagnosaGroups[$diagnosaId] = [
+                            'diagnosa' => $diagnosaName,
+                            'keluhan' => $keluhan->keterangan ?? '-',
+                            'obats' => []
+                        ];
+                    }
+                    
+                    if ($keluhan->obat) {
+                        $diagnosaGroups[$diagnosaId]['obats'][] = [
+                            'nama_obat' => $keluhan->obat->nama_obat,
+                            'jumlah_obat' => $keluhan->jumlah_obat ?? 0
+                        ];
+                    }
+                }
+
+                // Convert to array and ensure we have 3 diagnosa groups
+                $diagnosaArray = array_values($diagnosaGroups);
+                while (count($diagnosaArray) < 3) {
+                    $diagnosaArray[] = [
+                        'diagnosa' => '-',
+                        'keluhan' => '-',
+                        'obats' => []
+                    ];
+                }
+
+                $sheet->setCellValue('A' . $row, is_string($rm->tanggal_periksa) ? $rm->tanggal_periksa : $rm->tanggal_periksa->format('d/m/Y'));
+                $sheet->setCellValue('B' . $row, $rm->waktu_periksa ? (is_string($rm->waktu_periksa) ? $rm->waktu_periksa : $rm->waktu_periksa->format('H:i')) : '-');
+                $sheet->setCellValue('C' . $row, $rm->keluarga->karyawan->nik_karyawan ?? '-');
+                $sheet->setCellValue('D' . $row, $rm->keluarga->karyawan->nama_karyawan ?? '-');
+                $sheet->setCellValue('E' . $row, ($rm->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rm->keluarga->kode_hubungan ?? ''));
+                $sheet->setCellValue('F' . $row, $rm->keluarga->nama_keluarga ?? '-');
+
+                // Diagnosa 1
+                $sheet->setCellValue('G' . $row, $diagnosaArray[0]['diagnosa']);
+                $sheet->setCellValue('H' . $row, $diagnosaArray[0]['keluhan']);
+                
+                // Obat 1-1, 1-2, 1-3
+                $obat1 = $diagnosaArray[0]['obats'];
+                $sheet->setCellValue('I' . $row, isset($obat1[0]) ? $obat1[0]['nama_obat'] : '-');
+                $sheet->setCellValue('J' . $row, isset($obat1[0]) ? $obat1[0]['jumlah_obat'] : '-');
+                $sheet->setCellValue('K' . $row, isset($obat1[1]) ? $obat1[1]['nama_obat'] : '-');
+                $sheet->setCellValue('L' . $row, isset($obat1[1]) ? $obat1[1]['jumlah_obat'] : '-');
+                $sheet->setCellValue('M' . $row, isset($obat1[2]) ? $obat1[2]['nama_obat'] : '-');
+                $sheet->setCellValue('N' . $row, isset($obat1[2]) ? $obat1[2]['jumlah_obat'] : '-');
+
+                // Diagnosa 2
+                $sheet->setCellValue('O' . $row, $diagnosaArray[1]['diagnosa']);
+                $sheet->setCellValue('P' . $row, $diagnosaArray[1]['keluhan']);
+                
+                // Obat 2-1, 2-2, 2-3
+                $obat2 = $diagnosaArray[1]['obats'];
+                $sheet->setCellValue('Q' . $row, isset($obat2[0]) ? $obat2[0]['nama_obat'] : '-');
+                $sheet->setCellValue('R' . $row, isset($obat2[0]) ? $obat2[0]['jumlah_obat'] : '-');
+                $sheet->setCellValue('S' . $row, isset($obat2[1]) ? $obat2[1]['nama_obat'] : '-');
+                $sheet->setCellValue('T' . $row, isset($obat2[1]) ? $obat2[1]['jumlah_obat'] : '-');
+                $sheet->setCellValue('U' . $row, isset($obat2[2]) ? $obat2[2]['nama_obat'] : '-');
+                $sheet->setCellValue('V' . $row, isset($obat2[2]) ? $obat2[2]['jumlah_obat'] : '-');
+
+                // Diagnosa 3
+                $sheet->setCellValue('W' . $row, $diagnosaArray[2]['diagnosa']);
+                $sheet->setCellValue('X' . $row, $diagnosaArray[2]['keluhan']);
+                
+                // Obat 3-1, 3-2, 3-3
+                $obat3 = $diagnosaArray[2]['obats'];
+                $sheet->setCellValue('Y' . $row, isset($obat3[0]) ? $obat3[0]['nama_obat'] : '-');
+                $sheet->setCellValue('Z' . $row, isset($obat3[0]) ? $obat3[0]['jumlah_obat'] : '-');
+                $sheet->setCellValue('AA' . $row, isset($obat3[1]) ? $obat3[1]['nama_obat'] : '-');
+                $sheet->setCellValue('AB' . $row, isset($obat3[1]) ? $obat3[1]['jumlah_obat'] : '-');
+                $sheet->setCellValue('AC' . $row, isset($obat3[2]) ? $obat3[2]['nama_obat'] : '-');
+                $sheet->setCellValue('AD' . $row, isset($obat3[2]) ? $obat3[2]['jumlah_obat'] : '-');
+
+                $sheet->setCellValue('AE' . $row, $rm->user->nama_lengkap ?? '-');
+                $sheet->setCellValue('AF' . $row, $rm->status ?? '-');
+
+                $row++;
+            }
+
+            // Style data
+            $dataStyle = [
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => 'CCCCCC'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A2:AF' . ($row - 1))->applyFromArray($dataStyle);
+
+            // Set column widths
+            $sheet->getColumnDimension('A')->setWidth(15);
+            $sheet->getColumnDimension('B')->setWidth(15);
+            $sheet->getColumnDimension('C')->setWidth(10);
+            $sheet->getColumnDimension('D')->setWidth(20);
+            $sheet->getColumnDimension('E')->setWidth(15);
+            $sheet->getColumnDimension('F')->setWidth(20);
+            $sheet->getColumnDimension('G')->setWidth(20);
+            $sheet->getColumnDimension('H')->setWidth(25);
+            $sheet->getColumnDimension('I')->setWidth(15);
+            $sheet->getColumnDimension('J')->setWidth(10);
+            $sheet->getColumnDimension('K')->setWidth(15);
+            $sheet->getColumnDimension('L')->setWidth(10);
+            $sheet->getColumnDimension('M')->setWidth(15);
+            $sheet->getColumnDimension('N')->setWidth(10);
+            $sheet->getColumnDimension('O')->setWidth(15);
+            $sheet->getColumnDimension('P')->setWidth(25);
+            $sheet->getColumnDimension('Q')->setWidth(15);
+            $sheet->getColumnDimension('R')->setWidth(10);
+            $sheet->getColumnDimension('S')->setWidth(15);
+            $sheet->getColumnDimension('T')->setWidth(10);
+            $sheet->getColumnDimension('U')->setWidth(15);
+            $sheet->getColumnDimension('V')->setWidth(10);
+            $sheet->getColumnDimension('W')->setWidth(15);
+            $sheet->getColumnDimension('X')->setWidth(25);
+            $sheet->getColumnDimension('Y')->setWidth(15);
+            $sheet->getColumnDimension('Z')->setWidth(10);
+            $sheet->getColumnDimension('AA')->setWidth(15);
+            $sheet->getColumnDimension('AB')->setWidth(10);
+            $sheet->getColumnDimension('AC')->setWidth(15);
+            $sheet->getColumnDimension('AD')->setWidth(10);
+            $sheet->getColumnDimension('AE')->setWidth(20);
+            $sheet->getColumnDimension('AF')->setWidth(15);
+
+            // Set row height for header
+            $sheet->getRowDimension(1)->setRowHeight(25);
+
+            // Create Excel file
+            $writer = new Xlsx($spreadsheet);
+            $filename = 'export_rekam_medis_reguler_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            // Set headers for download
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            $writer->save('php://output');
+            exit;
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal export data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export data rekam medis emergency ke Excel
+     */
+    private function exportEmergency(Request $request)
+    {
+        // Get filter parameters
+        $dariTanggal = $request->input('dari_tanggal');
+        $sampaiTanggal = $request->input('sampai_tanggal');
+        $search = $request->input('q');
+        $status = $request->input('status');
+
+        // Query for emergency medical records
+        $query = \App\Models\RekamMedisEmergency::with([
+            'user:id_user,username,nama_lengkap',
+            'externalEmployee',
+            'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency',
+            'keluhans.obat:id_obat,nama_obat',
+        ]);
+
+        // Apply filters
+        if ($search) {
+            $query->search($search);
+        }
+
+        if ($dariTanggal) {
+            $query->where('tanggal_periksa', '>=', $dariTanggal);
+        }
+
+        if ($sampaiTanggal) {
+            $query->where('tanggal_periksa', '<=', $sampaiTanggal);
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        // Get all data (no pagination for export)
+        $rekamMedisEmergency = $query->orderBy('id_emergency', 'desc')->get();
+
+        // Create spreadsheet
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Data Rekam Medis Emergency');
+
+        // Set document properties
+        $spreadsheet->getProperties()
+            ->setCreator('SIPO ICBP')
+            ->setTitle('Export Data Rekam Medis Emergency')
+            ->setSubject('Export Data Rekam Medis Emergency')
+            ->setDescription('Export data rekam medis emergency');
+
+        // Headers
+        $headers = [
+            'No', 'Tanggal Periksa', 'Waktu', 'NIK Karyawan', 'Nama Karyawan', 'Kode RM',
+            'Nama Pasien', 'Diagnosa', 'Terapi', 'Obat', 'Anamnesa', 'Status', 'Petugas Medis'
+        ];
+
+        $column = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($column . '1', $header);
+            $column++;
+        }
+
+        // Style header
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 12,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'DC2626'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ];
+
+        $sheet->getStyle('A1:M1')->applyFromArray($headerStyle);
+
+        // Data
+        $row = 2;
+        foreach ($rekamMedisEmergency as $index => $rm) {
+            // Process diagnosa
+            $uniqueDiagnosa = [];
+            foreach ($rm->keluhans as $keluhan) {
+                if ($keluhan->diagnosaEmergency) {
+                    $diagnosaName = $keluhan->diagnosaEmergency->nama_diagnosa_emergency;
+                    if (!in_array($diagnosaName, $uniqueDiagnosa)) {
+                        $uniqueDiagnosa[] = $diagnosaName;
+                    }
+                }
+            }
+            $diagnosaText = !empty($uniqueDiagnosa) ? implode(', ', $uniqueDiagnosa) : '-';
+
+            // Process terapi
+            $uniqueTerapi = [];
+            foreach ($rm->keluhans as $keluhan) {
+                if (!in_array($keluhan->terapi, $uniqueTerapi)) {
+                    $uniqueTerapi[] = $keluhan->terapi;
+                }
+            }
+            $terapiText = implode(', ', $uniqueTerapi);
+
+            // Process obat
+            $uniqueObat = [];
+            foreach ($rm->keluhans as $keluhan) {
+                if ($keluhan->obat) {
+                    $obatName = $keluhan->obat->nama_obat;
+                    if (!in_array($obatName, $uniqueObat)) {
+                        $uniqueObat[] = $obatName;
+                    }
+                }
+            }
+            $obatText = !empty($uniqueObat) ? implode(', ', $uniqueObat) : '-';
+
+            // Process anamnesa
+            $keteranganText = '';
+            foreach ($rm->keluhans as $keluhan) {
+                if (!empty($keluhan->keterangan)) {
+                    $keteranganText = $keluhan->keterangan;
+                    break;
+                }
+            }
+
+            $sheet->setCellValue('A' . $row, $index + 1);
+            $sheet->setCellValue('B' . $row, is_string($rm->tanggal_periksa) ? $rm->tanggal_periksa : $rm->tanggal_periksa->format('d-m-Y'));
+            $sheet->setCellValue('C' . $row, $rm->waktu_periksa ? (is_string($rm->waktu_periksa) ? $rm->waktu_periksa : $rm->waktu_periksa->format('H:i')) : '-');
+            $sheet->setCellValue('D' . $row, $rm->externalEmployee->nik_employee ?? '-');
+            $sheet->setCellValue('E' . $row, $rm->externalEmployee->nama_employee ?? '-');
+            $sheet->setCellValue('F' . $row, $rm->externalEmployee->kode_rm ?? '-');
+            $sheet->setCellValue('G' . $row, $rm->externalEmployee->nama_employee ?? '-');
+            $sheet->setCellValue('H' . $row, $diagnosaText);
+            $sheet->setCellValue('I' . $row, $terapiText);
+            $sheet->setCellValue('J' . $row, $obatText);
+            $sheet->setCellValue('K' . $row, !empty($keteranganText) ? $keteranganText : '-');
+            $sheet->setCellValue('L' . $row, $rm->status ?? '-');
+            $sheet->setCellValue('M' . $row, $rm->user->nama_lengkap ?? '-');
+
+            $row++;
+        }
+
+        // Style data
+        $dataStyle = [
+            'alignment' => [
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'CCCCCC'],
+                ],
+            ],
+        ];
+
+        $sheet->getStyle('A2:M' . ($row - 1))->applyFromArray($dataStyle);
+
+        // Set column widths
+        $sheet->getColumnDimension('A')->setWidth(5);
+        $sheet->getColumnDimension('B')->setWidth(15);
+        $sheet->getColumnDimension('C')->setWidth(10);
+        $sheet->getColumnDimension('D')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(20);
+        $sheet->getColumnDimension('F')->setWidth(15);
+        $sheet->getColumnDimension('G')->setWidth(20);
+        $sheet->getColumnDimension('H')->setWidth(25);
+        $sheet->getColumnDimension('I')->setWidth(15);
+        $sheet->getColumnDimension('J')->setWidth(25);
+        $sheet->getColumnDimension('K')->setWidth(30);
+        $sheet->getColumnDimension('L')->setWidth(12);
+        $sheet->getColumnDimension('M')->setWidth(20);
+
+        // Set row height for header
+        $sheet->getRowDimension(1)->setRowHeight(25);
+
+        // Create Excel file
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'export_rekam_medis_emergency_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        // Set headers for download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
     }
 }

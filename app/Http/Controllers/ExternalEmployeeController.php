@@ -458,9 +458,109 @@ class ExternalEmployeeController extends Controller
 
     public function export(Request $request)
     {
-        // Implementation for export functionality can be added here
-        return redirect()->route('external-employee.index')
-            ->with('info', 'Fitur export akan segera tersedia');
+        // Build query with same filters as index
+        $query = ExternalEmployee::with(['vendor', 'kategori']);
+
+        // Filter by nama (search)
+        if ($request->has('search') && $request->search != '') {
+            $query->where('nama_employee', 'like', '%'.$request->search.'%');
+        }
+
+        // Filter by jenis kelamin
+        if ($request->has('jenis_kelamin') && $request->jenis_kelamin != '') {
+            $query->where('jenis_kelamin', $request->jenis_kelamin);
+        }
+
+        // Filter by vendor
+        if ($request->has('id_vendor') && $request->id_vendor != '') {
+            $query->byVendor($request->id_vendor);
+        }
+
+        // Filter by kategori
+        if ($request->has('id_kategori') && $request->id_kategori != '') {
+            $query->byKategori($request->id_kategori);
+        }
+
+        // Filter by status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        // Apply sorting
+        $sortField = $request->get('sort', 'id');
+        $sortDirection = $request->get('direction', 'asc');
+
+        // Validate sort field to prevent SQL injection
+        $allowedSortFields = ['id', 'nik_employee', 'nama_employee', 'jenis_kelamin', 'id_vendor', 'id_kategori', 'no_hp', 'status', 'tanggal_lahir'];
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        }
+
+        // Get all data (no pagination for export)
+        $externalEmployees = $query->get();
+
+        // Create temporary directory if not exists
+        $tempDir = storage_path('app/temp');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $filename = 'external-employee-export-'.date('Y-m-d-H-i-s').'.csv';
+        $filePath = $tempDir.'/'.$filename;
+
+        // Open file for writing
+        $file = fopen($filePath, 'w');
+
+        // Add UTF-8 BOM for proper Excel display
+        fwrite($file, "\xEF\xBB\xBF");
+
+        // CSV Header - sesuai spesifikasi yang diminta
+        $headers = [
+            'NO',
+            'NIK Employee',
+            'Nama Employee',
+            'Kode RM',
+            'Tanggal Lahir',
+            'Jenis Kelamin',
+            'Alamat',
+            'No HP',
+            'Nama Vendor',
+            'BPJS ID',
+            'Kategori'
+        ];
+        fputcsv($file, $headers, ';');
+
+        // Data rows
+        $rowNumber = 1;
+        foreach ($externalEmployees as $employee) {
+            // Format kategori like "X - Guest", "Y - Outsourcing", etc.
+            $kategoriFormatted = '';
+            if ($employee->kategori) {
+                $kategoriFormatted = strtoupper($employee->kategori->kode_kategori) . ' - ' . $employee->kategori->nama_kategori;
+            }
+
+            $rowData = [
+                $rowNumber,
+                $employee->nik_employee,
+                $employee->nama_employee,
+                $employee->kode_rm,
+                $employee->tanggal_lahir ? $employee->tanggal_lahir->format('Y-m-d') : '',
+                $employee->jenis_kelamin,
+                $employee->alamat,
+                $employee->no_hp,
+                $employee->vendor ? $employee->vendor->nama_vendor : '',
+                $employee->bpjs_id,
+                $kategoriFormatted
+            ];
+
+            fputcsv($file, $rowData, ';');
+            $rowNumber++;
+        }
+
+        fclose($file);
+
+        // Download file and delete after
+        return response()->download($filePath, $filename)->deleteFileAfterSend(true);
     }
 
     public function bulkDelete(Request $request)

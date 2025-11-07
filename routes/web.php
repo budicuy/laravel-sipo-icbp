@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
 
     // Karyawan Routes - Custom routes BEFORE resource routes
     Route::get('/karyawan/template', [KaryawanController::class, 'downloadTemplate'])->name('karyawan.template')->middleware('role:Super Admin');
+    Route::get('/karyawan/export', [KaryawanController::class, 'export'])->name('karyawan.export')->middleware('role:Admin,Super Admin');
     Route::post('/karyawan/import', [KaryawanController::class, 'import'])->name('karyawan.import')->middleware('role:Super Admin');
     Route::post('/karyawan/bulk-delete', [KaryawanController::class, 'bulkDelete'])->name('karyawan.bulkDelete');
 
@@ -56,6 +57,7 @@ Route::middleware('auth')->group(function () {
     // Keluarga Routes - Custom routes BEFORE resource routes
     Route::get('/keluarga/search-karyawan', [KeluargaController::class, 'searchKaryawan'])->name('keluarga.searchKaryawan');
     Route::get('/keluarga/download-template', [KeluargaController::class, 'downloadTemplate'])->name('keluarga.downloadTemplate')->middleware('role:Super Admin');
+    Route::get('/keluarga/export', [KeluargaController::class, 'export'])->name('keluarga.export')->middleware('role:Admin,Super Admin');
     Route::post('/keluarga/import', [KeluargaController::class, 'import'])->name('keluarga.import')->middleware('role:Super Admin');
     Route::post('/keluarga/bulk-delete', [KeluargaController::class, 'bulkDelete'])->name('keluarga.bulkDelete');
 
@@ -107,6 +109,7 @@ Route::middleware('auth')->group(function () {
 
     // Diagnosa Routes - Custom routes BEFORE resource routes
     Route::get('/diagnosa/template', [DiagnosaController::class, 'downloadTemplate'])->name('diagnosa.template')->middleware('role:Super Admin');
+    Route::get('/diagnosa/export', [DiagnosaController::class, 'export'])->name('diagnosa.export')->middleware('role:Admin,Super Admin');
     Route::post('/diagnosa/import', [DiagnosaController::class, 'import'])->name('diagnosa.import')->middleware('role:Super Admin');
     Route::post('/diagnosa/bulk-delete', [DiagnosaController::class, 'bulkDelete'])->name('diagnosa.bulkDelete');
 
@@ -151,6 +154,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/rekam-medis/{id}/update-status', [RekamMedisController::class, 'updateStatus'])->name('rekam-medis.updateStatus');
     Route::get('/rekam-medis/template', [RekamMedisController::class, 'downloadTemplate'])->name('rekam-medis.template')->middleware('role:Super Admin');
     Route::post('/rekam-medis/import', [RekamMedisController::class, 'import'])->name('rekam-medis.import')->middleware('role:Super Admin');
+    Route::get('/rekam-medis/export', [RekamMedisController::class, 'export'])->name('rekam-medis.export')->middleware('role:Admin,Super Admin');
     Route::get('/rekam-medis/choose-type', [RekamMedisController::class, 'chooseType'])->name('rekam-medis.chooseType');
     Route::get('/rekam-medis/create-emergency', [RekamMedisController::class, 'createEmergency'])->name('rekam-medis.createEmergency')->middleware('role:User,Admin,Super Admin');
     Route::post('/rekam-medis/store-emergency', [RekamMedisController::class, 'storeEmergency'])->name('rekam-medis.storeEmergency')->middleware('role:User,Admin,Super Admin');
@@ -202,19 +206,22 @@ Route::middleware('auth')->group(function () {
     Route::delete('/rekam-medis-emergency/{id}', [RekamMedisEmergencyController::class, 'destroy'])->name('rekam-medis-emergency.destroy')->middleware('role:Admin,Super Admin');
     Route::get('/rekam-medis-emergency/get-obat-by-diagnosa', [RekamMedisEmergencyController::class, 'getObatByDiagnosa'])->name('rekam-medis-emergency.getObatByDiagnosa');
     Route::get('/rekam-medis-emergency/get-diagnosa-with-obat', [RekamMedisEmergencyController::class, 'getDiagnosaWithObat'])->name('rekam-medis-emergency.getDiagnosaWithObat');
+    Route::get('/rekam-medis-emergency/export', [RekamMedisEmergencyController::class, 'export'])->name('rekam-medis-emergency.export')->middleware('role:Admin,Super Admin');
 
-    // External Employee Routes
+    // External Employee Routes - Custom routes BEFORE resource routes
     Route::get('/external-employee', [ExternalEmployeeController::class, 'index'])->name('external-employee.index');
     Route::get('/external-employee/create', [ExternalEmployeeController::class, 'create'])->name('external-employee.create');
     Route::post('/external-employee', [ExternalEmployeeController::class, 'store'])->name('external-employee.store');
+    Route::post('/external-employee/import', [ExternalEmployeeController::class, 'import'])->name('external-employee.import')->middleware('role:Super Admin');
+    Route::get('/external-employee/export', [ExternalEmployeeController::class, 'export'])->name('external-employee.export')->middleware('role:Admin,Super Admin');
+    Route::post('/external-employee/bulk-delete', [ExternalEmployeeController::class, 'bulkDelete'])->name('external-employee.bulkDelete');
+    Route::get('/external-employee/template', [ExternalEmployeeController::class, 'downloadTemplate'])->name('external-employee.template')->middleware('role:Super Admin');
+    
+    // External Employee Resource Routes
     Route::get('/external-employee/{id}', [ExternalEmployeeController::class, 'show'])->name('external-employee.show');
     Route::get('/external-employee/{id}/edit', [ExternalEmployeeController::class, 'edit'])->name('external-employee.edit');
     Route::put('/external-employee/{id}', [ExternalEmployeeController::class, 'update'])->name('external-employee.update');
     Route::delete('/external-employee/{id}', [ExternalEmployeeController::class, 'destroy'])->name('external-employee.destroy');
-    Route::post('/external-employee/import', [ExternalEmployeeController::class, 'import'])->name('external-employee.import')->middleware('role:Super Admin');
-    Route::get('/external-employee/export', [ExternalEmployeeController::class, 'export'])->name('external-employee.export')->middleware('role:Super Admin');
-    Route::post('/external-employee/bulk-delete', [ExternalEmployeeController::class, 'bulkDelete'])->name('external-employee.bulkDelete');
-    Route::get('/external-employee/template', [ExternalEmployeeController::class, 'downloadTemplate'])->name('external-employee.template')->middleware('role:Super Admin');
 
     // Surat Pengantar Istirahat Routes
     Route::get('/surat-pengantar-istirahat/search-rekam-medis', [SuratPengantarIstirahatController::class, 'searchRekamMedis'])->name('surat-pengantar-istirahat.searchRekamMedis');

@@ -721,4 +721,108 @@ class KaryawanController extends Controller
             'message' => 'Tidak ada foto untuk dihapus',
         ], 404);
     }
+
+    public function export(Request $request)
+    {
+        // Build query with same filters as index
+        $query = Karyawan::with('departemen:id_departemen,nama_departemen');
+
+        // Apply same filters as index method
+        if ($request->filled('departemen')) {
+            $query->where('id_departemen', $request->input('departemen'));
+        }
+        if ($request->filled('jenis_kelamin')) {
+            $query->where('jenis_kelamin', $request->input('jenis_kelamin'));
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nik_karyawan', 'like', "%$q%")
+                    ->orWhere('nama_karyawan', 'like', "%$q%");
+            });
+        }
+
+        // Handle sorting
+        $allowedSorts = ['id_karyawan', 'nik_karyawan', 'nama_karyawan', 'jenis_kelamin', 'id_departemen', 'no_hp', 'tanggal_lahir', 'alamat'];
+        $sortField = $request->input('sort', 'id_karyawan');
+        $sortDirection = $request->input('direction', 'asc');
+
+        if (!in_array($sortField, $allowedSorts)) {
+            $sortField = 'id_karyawan';
+        }
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+
+        $query->orderBy($sortField, $sortDirection);
+
+        // Get all data (no pagination for export)
+        $karyawans = $query->get();
+
+        // Create temporary directory if not exists
+        $tempDir = storage_path('app/temp');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $filename = 'karyawan-export-'.date('Y-m-d-H-i-s').'.csv';
+        $filePath = $tempDir.'/'.$filename;
+
+        // Open file for writing
+        $file = fopen($filePath, 'w');
+
+        // Add UTF-8 BOM for proper Excel display
+        fwrite($file, "\xEF\xBB\xBF");
+
+        // CSV Header
+        $headers = [
+            'NO',
+            'NIK',
+            'Nama Karyawan',
+            'Jenis Kelamin',
+            'Departemen',
+            'No HP',
+            'Email',
+            'BPJS ID',
+            'Tanggal Lahir',
+            'Alamat',
+            'Status'
+        ];
+        fputcsv($file, $headers, ';');
+
+        // Data rows
+        $rowNumber = 1;
+        foreach ($karyawans as $karyawan) {
+            // Format jenis kelamin
+            $jenisKelamin = 'Laki-laki';
+            if (strtolower($karyawan->jenis_kelamin) == 'p' || strtolower($karyawan->jenis_kelamin) == 'perempuan') {
+                $jenisKelamin = 'Perempuan';
+            }
+
+            $rowData = [
+                $rowNumber,
+                $karyawan->nik_karyawan,
+                $karyawan->nama_karyawan,
+                $jenisKelamin,
+                optional($karyawan->departemen)->nama_departemen,
+                $karyawan->no_hp,
+                $karyawan->email ?? '',
+                $karyawan->bpjs_id ?? '',
+                $karyawan->tanggal_lahir ? $karyawan->tanggal_lahir->format('Y-m-d') : '',
+                $karyawan->alamat,
+                ucfirst($karyawan->status)
+            ];
+
+            fputcsv($file, $rowData, ';');
+            $rowNumber++;
+        }
+
+        fclose($file);
+
+        // Download file and delete after
+        return response()->download($filePath, $filename)->deleteFileAfterSend(true);
+    }
 }

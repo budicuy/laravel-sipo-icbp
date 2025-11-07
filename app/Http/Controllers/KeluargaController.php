@@ -466,4 +466,125 @@ class KeluargaController extends Controller
                 ->with('error', 'Gagal import data: ' . $e->getMessage());
         }
     }
+
+    public function export(Request $request)
+    {
+        // Build query with same filters as index
+        $query = Keluarga::with([
+            'karyawan:id_karyawan,nik_karyawan,nama_karyawan',
+            'hubungan:kode_hubungan,hubungan'
+        ]);
+
+        // Apply same filters as index method
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nama_keluarga', 'like', "%$q%")
+                    ->orWhereHas('karyawan', function($karyawan) use ($q) {
+                        $karyawan->where('nik_karyawan', 'like', "%$q%")
+                                ->orWhere('nama_karyawan', 'like', "%$q%");
+                    });
+            });
+        }
+
+        // Filter jenis kelamin
+        if ($request->filled('jenis_kelamin')) {
+            $jenisKelamin = $request->input('jenis_kelamin');
+            if ($jenisKelamin === 'L') {
+                $query->where('jenis_kelamin', 'Laki - Laki');
+            } elseif ($jenisKelamin === 'P') {
+                $query->where('jenis_kelamin', 'Perempuan');
+            }
+        }
+
+        // Filter hubungan
+        if ($request->filled('kode_hubungan')) {
+            $query->where('kode_hubungan', $request->input('kode_hubungan'));
+        }
+
+        // Handle sorting
+        $allowedSorts = ['id_keluarga', 'id_karyawan', 'nama_keluarga', 'tanggal_lahir', 'jenis_kelamin', 'kode_hubungan', 'alamat'];
+        $sortField = $request->input('sort', 'id_keluarga');
+        $sortDirection = $request->input('direction', 'asc');
+
+        if (!in_array($sortField, $allowedSorts)) {
+            $sortField = 'id_keluarga';
+        }
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+
+        $query->orderBy($sortField, $sortDirection);
+
+        // Get all data (no pagination for export)
+        $keluargas = $query->get();
+
+        // Create temporary directory if not exists
+        $tempDir = storage_path('app/temp');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $filename = 'keluarga-export-'.date('Y-m-d-H-i-s').'.csv';
+        $filePath = $tempDir.'/'.$filename;
+
+        // Open file for writing
+        $file = fopen($filePath, 'w');
+
+        // Add UTF-8 BOM for proper Excel display
+        fwrite($file, "\xEF\xBB\xBF");
+
+        // CSV Header
+        $headers = [
+            'NO',
+            'NIK',
+            'NAMA',
+            'TANGGAL LAHIR',
+            'KODE HUBUNGAN',
+            'FAMILY RELATIONSHIP',
+            'ALAMAT',
+            'JK',
+            'BPJS ID'
+        ];
+        fputcsv($file, $headers, ';');
+
+        // Data rows
+        $rowNumber = 1;
+        foreach ($keluargas as $keluarga) {
+            // Format jenis kelamin (L atau P)
+            $jenisKelamin = $keluarga->jenis_kelamin;
+            if ($jenisKelamin === 'Laki - Laki') {
+                $jenisKelamin = 'L';
+            } else {
+                $jenisKelamin = 'P';
+            }
+
+            // Generate kode hubungan format: NIK-Kode
+            $kodeHubungan = optional($keluarga->karyawan)->nik_karyawan . '-' . $keluarga->kode_hubungan;
+
+            $rowData = [
+                $rowNumber,
+                optional($keluarga->karyawan)->nik_karyawan,
+                $keluarga->nama_keluarga,
+                $keluarga->tanggal_lahir ? $keluarga->tanggal_lahir->format('Y-m-d') : '',
+                $kodeHubungan,
+                optional($keluarga->hubungan)->hubungan,
+                $keluarga->alamat,
+                $jenisKelamin,
+                $keluarga->bpjs_id ?? ''
+            ];
+
+            fputcsv($file, $rowData, ';');
+            $rowNumber++;
+        }
+
+        // Add summary info at the bottom
+        fputcsv($file, [], ';'); // Empty row
+        fputcsv($file, ['SUMMARY:', 'Total Keluarga: ' . $keluargas->count(), 'Export Date: ' . date('d/m/Y H:i:s')], ';');
+
+        fclose($file);
+
+        // Download file and delete after
+        return response()->download($filePath, $filename)->deleteFileAfterSend(true);
+    }
 }
