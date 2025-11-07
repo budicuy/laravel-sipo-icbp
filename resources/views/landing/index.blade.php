@@ -305,6 +305,45 @@
                 height: 24rem;
             }
         }
+
+        /* Mobile Menu Styles */
+        #mobileMenu {
+            transition: all 0.3s ease;
+            transform-origin: top;
+        }
+
+        #mobileMenu.hidden {
+            transform: scaleY(0);
+            opacity: 0;
+        }
+
+        #mobileMenu:not(.hidden) {
+            transform: scaleY(1);
+            opacity: 1;
+        }
+
+        /* Mobile menu animation */
+        @keyframes slideDown {
+            from {
+                transform: scaleY(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+        }
+
+        #mobileMenu:not(.hidden) {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        /* Ensure mobile menu is above other content */
+        #mobileMenu {
+            position: relative;
+            z-index: 40;
+        }
     </style>
     @vite('resources/css/app.css')
 </head>
@@ -328,9 +367,24 @@
                         Login
                     </a>
                 </div>
-                <button class="md:hidden text-gray-700">
+                <button id="mobileMenuButton" class="md:hidden text-gray-700 hover:text-purple-600 transition">
                     <i class="fas fa-bars text-2xl"></i>
                 </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white/95 backdrop-blur-md shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-3">
+                <a href="#home" class="block text-gray-700 hover:text-purple-600 transition py-2">Beranda</a>
+                <a href="#ai-chat" class="block text-gray-700 hover:text-purple-600 transition py-2">AI Chat</a>
+                <a href="#features" class="block text-gray-700 hover:text-purple-600 transition py-2">Fitur</a>
+                <a href="#about" class="block text-gray-700 hover:text-purple-600 transition py-2">Tentang</a>
+                <a href="#contact" class="block text-gray-700 hover:text-purple-600 transition py-2">Kontak</a>
+                <a href="{{ route('login') }}"
+                    class="block gradient-bg text-white px-6 py-2 rounded-full hover:opacity-90 transition text-center">
+                    Login
+                </a>
             </div>
         </div>
     </nav>
@@ -341,8 +395,7 @@
             <div class="grid md:grid-cols-2 gap-8 items-center h-full">
                 <div class="text-white z-10 py-32">
                     <h1 class="text-5xl font-bold mb-6 leading-tight">
-                        Sistem Informasi Pelayanan Kesehatan
-                        <span class="block text-yellow-300">ICBP</span>
+                        Sistem Informasi Poliklinik
                     </h1>
                     <p class="text-xl mb-8 text-purple-100">
                         Solusi digital terpadu untuk manajemen pelayanan kesehatan karyawan yang efisien, modern, dan
@@ -487,15 +540,30 @@
 
                     <!-- Chat Input -->
                     <div class="bg-gray-50 p-6 border-t border-gray-200">
-                        <form onsubmit="sendMessage(event)" class="flex gap-3">
-                            <input type="text" id="chatInput" placeholder="Ketik pertanyaan Anda di sini..."
-                                class="flex-1 px-6 py-4 border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
-                                autocomplete="off">
-                            <button type="submit" id="sendButton"
-                                class="gradient-bg text-white px-8 py-4 rounded-full hover:opacity-90 transition font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
-                                <i class="fas fa-paper-plane"></i>
-                                <span>Kirim</span>
-                            </button>
+                        <form onsubmit="sendMessage(event)" class="space-y-3">
+                            <!-- Desktop Layout (side by side) -->
+                            <div class="hidden md:flex gap-3">
+                                <input type="text" id="chatInput" placeholder="Ketik pertanyaan Anda di sini..."
+                                    class="flex-1 px-6 py-4 border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
+                                    autocomplete="off">
+                                <button type="submit" id="sendButton"
+                                    class="gradient-bg text-white px-8 py-4 rounded-full hover:opacity-90 transition font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span>Kirim</span>
+                                </button>
+                            </div>
+
+                            <!-- Mobile Layout (stacked) -->
+                            <div class="md:hidden space-y-3">
+                                <input type="text" id="chatInput" placeholder="Ketik pertanyaan Anda di sini..."
+                                    class="w-full px-6 py-4 border-2 border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-lg"
+                                    autocomplete="off">
+                                <button type="submit" id="sendButton"
+                                    class="w-full gradient-bg text-white px-8 py-4 rounded-full hover:opacity-90 transition font-semibold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span>Kirim</span>
+                                </button>
+                            </div>
                         </form>
                         <p class="text-xs text-gray-500 mt-3 text-center">
                             <i class="fas fa-brain"></i> AI ini memiliki memori percakapan dan dapat mengingat konteks
@@ -903,12 +971,8 @@
             // Check authentication first
             checkAuthentication();
 
-            // If not authenticated, show login prompt immediately
-            if (!isAuthenticated) {
-                setTimeout(() => {
-                    showLoginModal();
-                }, 500); // Small delay for smooth UX
-            }
+            // Don't auto-show login modal - let user click "Login" button instead
+            // This provides better UX and doesn't interrupt user on page load
 
             // Get current selected patient ID
             const authData = JSON.parse(localStorage.getItem('sipo_auth'));
@@ -1737,6 +1801,54 @@
                 typingIndicator.remove();
             }
         }
+
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+
+                // Toggle icon between bars and times
+                const icon = this.querySelector('i');
+                if (icon) {
+                    if (mobileMenu.classList.contains('hidden')) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    } else {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    }
+                }
+            });
+        }
+
+        // Close mobile menu when clicking on links
+        document.querySelectorAll('#mobileMenu a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.add('hidden');
+                const icon = mobileMenuButton.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (mobileMenuButton && mobileMenu &&
+                !mobileMenuButton.contains(event.target) &&
+                !mobileMenu.contains(event.target)) {
+                mobileMenu.classList.add('hidden');
+                const icon = mobileMenuButton.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
 
         // Smooth Scroll for Navigation
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

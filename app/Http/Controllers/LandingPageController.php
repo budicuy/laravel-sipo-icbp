@@ -22,6 +22,16 @@ class LandingPageController extends Controller
     }
 
     /**
+     * Display the AI Chat page.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function aiChat()
+    {
+        return view('landing.ai-chat');
+    }
+
+    /**
      * Check NIK and return employee data
      *
      * @return \Illuminate\Http\JsonResponse
@@ -607,7 +617,7 @@ Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan pandua
             ])
             ->orderBy('tanggal_periksa', 'desc')
             ->orderBy('waktu_periksa', 'desc')
-                ->get();
+            ->get();
 
         // Get patient name for display
         $namaPasien = $karyawan->nama_karyawan;
