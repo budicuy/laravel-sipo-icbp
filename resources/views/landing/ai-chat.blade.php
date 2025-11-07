@@ -554,10 +554,10 @@
                     <p style="margin-bottom: 12px; color: #374151;">✅ Pasien terpilih: <strong style="color: #7C3AED;">${selectedPatientName}</strong></p>
                     <p style="margin-bottom: 12px; color: #374151;">Silakan tanyakan apapun tentang:</p>
                     <ul style="margin: 12px 0; padding-left: 24px; list-style: disc;">
-                        <li style="margin-bottom: 4px;">Riwayat kesehatan pasien</li>
-                        <li style="margin-bottom: 4px;">Informasi tentang SIPO ICBP</li>
-                        <li style="margin-bottom: 4px;">Fitur-fitur sistem</li>
-                        <li style="margin-bottom: 4px;">Konsultasi kesehatan umum</li>
+                        <li>Riwayat kesehatan pasien</li>
+                        <li>Informasi tentang SIPO ICBP</li>
+                        <li>Fitur-fitur sistem</li>
+                        <li>Konsultasi kesehatan umum</li>
                     </ul>
                     <p style="margin-top: 12px; color: #374151;">Ada yang bisa saya bantu? 😊</p>
                 `;
@@ -568,9 +568,9 @@
                     <p style="margin-bottom: 12px; color: #374151;">🔹 Untuk konsultasi tentang riwayat kesehatan, silakan <strong>pilih pasien</strong> terlebih dahulu dengan klik icon di header.</p>
                     <p style="margin-bottom: 12px; color: #374151;">Atau Anda tetap bisa bertanya tentang:</p>
                     <ul style="margin: 12px 0; padding-left: 24px; list-style: disc;">
-                        <li style="margin-bottom: 4px;">Sistem SIPO ICBP</li>
-                        <li style="margin-bottom: 4px;">Fitur-fitur yang tersedia</li>
-                        <li style="margin-bottom: 4px;">Informasi kesehatan umum</li>
+                        <li>Sistem SIPO ICBP</li>
+                        <li>Fitur-fitur yang tersedia</li>
+                        <li>Informasi kesehatan umum</li>
                     </ul>
                     <p style="margin-top: 12px; color: #374151;">Ada yang bisa saya bantu? 😊</p>
                 `;
@@ -581,10 +581,10 @@
                     <p style="margin-bottom: 12px; color: #374151;">🔒 Untuk menggunakan fitur chat, silakan <strong>login terlebih dahulu</strong> dengan NIK Anda.</p>
                     <p style="margin-bottom: 12px; color: #374151;">Setelah login, Anda dapat:</p>
                     <ul style="margin: 12px 0; padding-left: 24px; list-style: disc;">
-                        <li style="margin-bottom: 4px;">📋 Melihat riwayat kunjungan medis</li>
-                        <li style="margin-bottom: 4px;">💊 Konsultasi tentang obat</li>
-                        <li style="margin-bottom: 4px;">📊 Mendapatkan analisis kesehatan</li>
-                        <li style="margin-bottom: 4px;">❓ Bertanya tentang sistem SIPO ICBP</li>
+                        <li>📋 Melihat riwayat kunjungan medis</li>
+                        <li>💊 Konsultasi tentang obat</li>
+                        <li>📊 Mendapatkan analisis kesehatan</li>
+                        <li>❓ Bertanya tentang sistem SIPO ICBP</li>
                     </ul>
                     <p style="margin-top: 12px; color: #374151;"><strong>Klik tombol "Login"</strong> di atas untuk memulai! 🚀</p>
                 `;
@@ -1229,97 +1229,136 @@
 
         // Sanitize and prepare AI HTML response
         function sanitizeAIResponse(html) {
-            // Create a temporary div to parse HTML
-            const temp = document.createElement('div');
-            temp.innerHTML = html;
+            // First, clean up markdown code blocks and other formatting issues
+            let cleanedHtml = html;
 
-            // Allowed tags for security
-            const allowedTags = ['P', 'BR', 'STRONG', 'EM', 'UL', 'OL', 'LI', 'H1', 'H2', 'H3', 'SPAN', 'DIV'];
+            // Remove markdown code blocks (```html...```, ```...```)
+            cleanedHtml = cleanedHtml.replace(/```html\s*\n?([\s\S]*?)\n?```/gi, '$1');
+            cleanedHtml = cleanedHtml.replace(/```\s*\n?([\s\S]*?)\n?```/gi, '$1');
 
-            // Remove any script tags or dangerous content
-            const scripts = temp.querySelectorAll('script, iframe, object, embed');
-            scripts.forEach(script => script.remove());
+            // Remove inline code blocks (`...`)
+            cleanedHtml = cleanedHtml.replace(/`([^`]+)`/g, '$1');
 
-            // Get all elements and check if they're allowed
-            const allElements = temp.getElementsByTagName('*');
-            for (let i = allElements.length - 1; i >= 0; i--) {
-                const element = allElements[i];
-                if (!allowedTags.includes(element.tagName)) {
-                    // Replace disallowed tags with their text content
-                    const textNode = document.createTextNode(element.textContent);
-                    element.parentNode.replaceChild(textNode, element);
-                }
+        // Convert markdown bold (**text**) to HTML strong if not already HTML
+        cleanedHtml = cleanedHtml.replace(/\*\*([^*]+)\*\*/g,
+            '<strong style="font-weight: bold; color: #6B21A8;">$1</strong>');
+
+        // Convert markdown italic (*text*) to HTML em if not already HTML
+        cleanedHtml = cleanedHtml.replace(/\*([^*]+)\*/g, '<em style="font-style: italic; color: #7C3AED;">$1</em>');
+
+        // Convert markdown headers to HTML if not already HTML
+        cleanedHtml = cleanedHtml.replace(/^### (.+)$/gm,
+            '<h3 style="font-size: 18px; font-weight: bold; color: #7C3AED; margin-bottom: 12px;">$1</h3>');
+        cleanedHtml = cleanedHtml.replace(/^## (.+)$/gm,
+            '<h2 style="font-size: 20px; font-weight: bold; color: #5B21B6; margin-bottom: 12px;">$1</h2>');
+        cleanedHtml = cleanedHtml.replace(/^# (.+)$/gm,
+            '<h1 style="font-size: 22px; font-weight: bold; color: #4C1D95; margin-bottom: 12px;">$1</h1>');
+
+        // Convert markdown lists to HTML if not already HTML
+        cleanedHtml = cleanedHtml.replace(/^\* (.+)$/gm, '<li style="margin-bottom: 4px;">$1</li>');
+        cleanedHtml = cleanedHtml.replace(/(<li.*>.*<\/li>)/s,
+            '<ul style="margin: 12px 0; padding-left: 24px;">$1</ul>');
+
+        // Convert line breaks to <br> if not already HTML
+        cleanedHtml = cleanedHtml.replace(/\n\n/g, '</p><p style="margin-bottom: 12px; color: #374151;">');
+
+        // Wrap in paragraphs if not already wrapped
+        if (!cleanedHtml.includes('<p>') && !cleanedHtml.includes('<div>') && !cleanedHtml.includes('<h1>') && !
+            cleanedHtml.includes('<h2>') && !cleanedHtml.includes('<h3>')) {
+            cleanedHtml = '<p style="margin-bottom: 12px; color: #374151;">' + cleanedHtml + '</p>';
+        }
+
+        // Create a temporary div to parse HTML
+        const temp = document.createElement('div');
+        temp.innerHTML = cleanedHtml;
+
+        // Allowed tags for security
+        const allowedTags = ['P', 'BR', 'STRONG', 'EM', 'UL', 'OL', 'LI', 'H1', 'H2', 'H3', 'SPAN', 'DIV'];
+
+        // Remove any script tags or dangerous content
+        const scripts = temp.querySelectorAll('script, iframe, object, embed');
+        scripts.forEach(script => script.remove());
+
+        // Get all elements and check if they're allowed
+        const allElements = temp.getElementsByTagName('*');
+        for (let i = allElements.length - 1; i >= 0; i--) {
+            const element = allElements[i];
+            if (!allowedTags.includes(element.tagName)) {
+                // Replace disallowed tags with their text content
+                const textNode = document.createTextNode(element.textContent);
+                element.parentNode.replaceChild(textNode, element);
             }
-
-            return temp.innerHTML;
         }
 
-        // Add Message to Chat (UI only, doesn't affect history)
-        function addMessage(sender, text) {
-            addMessageToUI(sender, text);
+        return temp.innerHTML;
+    }
+
+    // Add Message to Chat (UI only, doesn't affect history)
+    function addMessage(sender, text) {
+        addMessageToUI(sender, text);
+    }
+
+    // Add Message to UI
+    function addMessageToUI(sender, text) {
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+
+        if (sender === 'bot') {
+            // Sanitize AI HTML response
+            const sanitizedHTML = sanitizeAIResponse(text);
+
+            messageDiv.innerHTML = `
+                                        <div class="flex gap-3 mb-4">
+                                            <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-robot text-white"></i>
+                                            </div>
+                                            <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-4xl">
+                                                <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
+                                            </div>
+                                        </div>
+                                    `;
+        } else {
+            // Escape user input for security
+            const escapedText = text.replace(/</g, '<').replace(/>/g, '>');
+
+            messageDiv.innerHTML = `
+                                        <div class="flex gap-3 mb-4 justify-end">
+                                            <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-4xl">
+                                                <p class="text-white">${escapedText}</p>
+                                            </div>
+                                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-user text-gray-600"></i>
+                                            </div>
+                                        </div>
+                                    `;
         }
 
-        // Add Message to UI
-        function addMessageToUI(sender, text) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
 
-            if (sender === 'bot') {
-                // Sanitize AI HTML response
-                const sanitizedHTML = sanitizeAIResponse(text);
+    // Show Typing Indicator
+    function showTypingIndicator() {
+        const messagesContainer = document.getElementById('chatMessages');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot';
+        typingDiv.id = 'typingIndicator';
 
-                messageDiv.innerHTML = `
-                    <div class="flex gap-3 mb-4">
-                        <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-robot text-white"></i>
-                        </div>
-                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-4xl">
-                            <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                // Escape user input for security
-                const escapedText = text.replace(/</g, '<').replace(/>/g, '>').replace(/\n/g, '<br>');
-
-                messageDiv.innerHTML = `
-                    <div class="flex gap-3 mb-4 justify-end">
-                        <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-4xl">
-                            <p class="text-white">${escapedText}</p>
-                        </div>
-                        <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-user text-gray-600"></i>
-                        </div>
-                    </div>
-                `;
-            }
-
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // Show Typing Indicator
-        function showTypingIndicator() {
-            const messagesContainer = document.getElementById('chatMessages');
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message bot';
-            typingDiv.id = 'typingIndicator';
-
-            typingDiv.innerHTML = `
-                <div class="flex gap-3 mb-4">
-                    <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-robot text-white"></i>
-                    </div>
-                    <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-4">
-                        <div class="flex gap-1">
-                            <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                            <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                            <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
+        typingDiv.innerHTML = `
+                                    <div class="flex gap-3 mb-4">
+                                        <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-robot text-white"></i>
+                                        </div>
+                                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-4">
+                                            <div class="flex gap-1">
+                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
 
             messagesContainer.appendChild(typingDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;

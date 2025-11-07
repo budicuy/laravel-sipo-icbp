@@ -39,8 +39,8 @@ class LandingPageController extends Controller
     public function checkNik(Request $request)
     {
         $request->validate([
-            'nik' => 'required|string',
-            'password' => 'required|string',
+            'nik' => 'required|string|max:20',
+            'password' => 'required|string|max:20',
         ]);
 
         $nik = $request->nik;
@@ -91,7 +91,7 @@ class LandingPageController extends Controller
     public function getMedicalHistory(Request $request)
     {
         $request->validate([
-            'nik' => 'required|string',
+            'nik' => 'required|string|max:20',
         ]);
 
         $nik = $request->nik;
@@ -162,7 +162,7 @@ class LandingPageController extends Controller
     public function getFamilyList(Request $request)
     {
         $request->validate([
-            'nik' => 'required|string',
+            'nik' => 'required|string|max:20',
         ]);
 
         $result = $this->getFamilyMembers($request->nik);
@@ -179,7 +179,7 @@ class LandingPageController extends Controller
     public function preloadMedicalData(Request $request)
     {
         $request->validate([
-            'user_nik' => 'required|string',
+            'user_nik' => 'required|string|max:20',
             'id_keluarga' => 'required|integer',
         ]);
 
@@ -274,10 +274,10 @@ class LandingPageController extends Controller
         $request->validate([
             'message' => 'required|string|max:5000',
             'history' => 'nullable|array',
-            'history.*.role' => 'required|string|in:user,model',
+            'history.*.role' => 'required|string|in:user,model|max:10',
             'history.*.text' => 'required|string|max:5000',
-            'user_nik' => 'nullable|string',
-            'user_name' => 'nullable|string',
+            'user_nik' => 'nullable|string|max:20',
+            'user_name' => 'nullable|string|max:100',
             'id_keluarga' => 'nullable|integer', // ID pasien yang dipilih
         ]);
 
@@ -347,7 +347,7 @@ KONTAK INFORMASI:
 - Email: corporate@indofood.co.id
 
 PANDUAN MENJAWAB:
-1. **FORMAT OUTPUT: GUNAKAN HTML** - Semua response harus dalam format HTML yang valid
+1. **FORMAT OUTPUT: GUNAKAN HTML MURNI** - Semua response harus dalam format HTML yang valid TANPA markdown
 2. Jawab dengan struktur yang jelas: Greeting → Jawaban Inti → Detail Pendukung → Call-to-Action (jika perlu)
 3. Selalu profesional, ramah, dan informatif dalam Bahasa Indonesia
 4. Jika ditanya tentang fitur, jelaskan manfaat konkret untuk pengguna
@@ -356,22 +356,27 @@ PANDUAN MENJAWAB:
 7. Jika tidak yakin atau pertanyaan di luar scope SIPO ICBP, arahkan ke kontak resmi
 8. Sertakan emoji yang relevan untuk membuat komunikasi lebih friendly (tapi tidak berlebihan)
 
-**PENTING - FORMAT HTML DENGAN INLINE STYLES:**
+**KRITIS - FORMAT HTML MURNI DENGAN INLINE STYLES:**
 WAJIB gunakan HTML dengan INLINE STYLES saja (DILARANG gunakan class CSS atau Tailwind!):
 - Heading: <h3 style="font-size: 18px; font-weight: bold; color: #7C3AED; margin-bottom: 12px;">Judul</h3>
 - Bold: <strong style="font-weight: bold; color: #6B21A8;">teks tebal</strong>
 - Italic: <em style="font-style: italic; color: #7C3AED;">teks miring</em>
 - Paragraph: <p style="margin-bottom: 12px; color: #374151;">paragraf</p>
-- Bullet list: <ul style="margin: 12px 0; padding-left: 24px;"><li style="margin-bottom: 4px;">item 1</li></ul>
-- Numbered list: <ol style="margin: 12px 0; padding-left: 24px;"><li style="margin-bottom: 4px;">item 1</li></ol>
+- Bullet list: <ul style="margin: 12px 0; padding-left: 24px;"><li>item 1</li></ul>
+- Numbered list: <ol style="margin: 12px 0; padding-left: 24px;"><li>item 1</li></ol>
 - Card/Box: <div style="background: #F3F4F6; padding: 16px; border-radius: 8px; margin: 12px 0;">content</div>
-- Line break: <br>
 
-**DILARANG KERAS:**
+**DILARANG KERAS - JANGAN GUNAKAN FORMAT INI:**
 - JANGAN gunakan PHP code (<?php, =>, $variable, dll)
 - JANGAN gunakan class CSS (class="..." tidak boleh)
 - JANGAN gunakan Tailwind classes
 - Hanya gunakan style="..." untuk semua formatting
+- JANGAN gunakan markdown formatting (```html, **text**, *text*, # heading, dll)
+- JANGAN gunakan code blocks atau backticks
+- JANGAN gunakan ```html``` atau ``` apapun ```
+- JANGAN gunakan asterisks untuk formatting
+- JANGAN gunakan backticks `
+- JANGAN gunakan *** text *** formatting
 
 **KHUSUS UNTUK RIWAYAT KUNJUNGAN/MEDICAL HISTORY:**
 Jika user menanyakan riwayat kunjungan, format dengan inline styles:
@@ -386,9 +391,9 @@ CONTOH OUTPUT HTML DENGAN INLINE STYLES:
 <h3 style="font-size: 18px; font-weight: bold; color: #7C3AED; margin-bottom: 12px;">Tentang SIPO ICBP</h3>
 <p style="margin-bottom: 12px; color: #374151;"><strong style="font-weight: bold; color: #6B21A8;">SIPO ICBP</strong> adalah sistem informasi kesehatan yang memiliki fitur:</p>
 <ul style="margin: 12px 0; padding-left: 24px;">
-<li style="margin-bottom: 4px;">Rekam Medis Digital</li>
-<li style="margin-bottom: 4px;">Manajemen Obat</li>
-<li style="margin-bottom: 4px;">AI Assistant 24/7</li>
+<li>Rekam Medis Digital</li>
+<li>Manajemen Obat</li>
+<li>AI Assistant 24/7</li>
 </ul>
 <p style="margin-bottom: 12px; color: #374151;">Ada yang bisa saya bantu? 😊</p>
 
