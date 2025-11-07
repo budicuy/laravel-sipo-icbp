@@ -265,8 +265,8 @@
                             class="fas fa-home text-white text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
                     </a>
                     <div
-                        class="w-12 h-12 md:w-14 md:h-14 bg-white rounded-full flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-robot text-purple-600 text-xl md:text-2xl"></i>
+                        class="w-12 h-12 md:w-14 md:h-14 bg-white rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
                     </div>
                     <div class="text-white flex-1 min-w-0">
                         <h1 class="text-xl md:text-2xl font-bold">AI Assistant SIPO ICBP</h1>
@@ -593,8 +593,8 @@
             messagesContainer.innerHTML = `
                 <div class="message bot">
                     <div class="flex gap-3 mb-4">
-                        <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-robot text-white"></i>
+                        <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
                         </div>
                         <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
                             <div class="text-gray-800 prose prose-sm max-w-none">
@@ -1096,8 +1096,8 @@
             messagesContainer.innerHTML = `
                 <div class="message bot">
                     <div class="flex gap-3 mb-4">
-                        <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-robot text-white"></i>
+                        <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
                         </div>
                         <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
                             <div class="text-gray-800 prose prose-sm max-w-none">
@@ -1309,29 +1309,29 @@
             const sanitizedHTML = sanitizeAIResponse(text);
 
             messageDiv.innerHTML = `
-                                                <div class="flex gap-3 mb-4">
-                                                    <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
-                                                        <i class="fas fa-robot text-white"></i>
-                                                    </div>
-                                                    <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
-                                                        <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
-                                                    </div>
-                                                </div>
-                                            `;
+                                                        <div class="flex gap-3 mb-4">
+                                                            <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                                <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
+                                                            </div>
+                                                            <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
+                                                                <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
+                                                            </div>
+                                                        </div>
+                                                    `;
         } else {
             // Escape user input for security
             const escapedText = text.replace(/</g, '<').replace(/>/g, '>');
 
             messageDiv.innerHTML = `
-                                                <div class="flex gap-3 mb-4 justify-end">
-                                                    <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-5xl">
-                                                        <p class="text-white">${escapedText}</p>
-                                                    </div>
-                                                    <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                                                        <i class="fas fa-user text-gray-600"></i>
-                                                    </div>
-                                                </div>
-                                            `;
+                                                        <div class="flex gap-3 mb-4 justify-end">
+                                                            <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-5xl">
+                                                                <p class="text-white">${escapedText}</p>
+                                                            </div>
+                                                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                                                                <i class="fas fa-user text-gray-600"></i>
+                                                            </div>
+                                                        </div>
+                                                    `;
         }
 
         messagesContainer.appendChild(messageDiv);
@@ -1346,19 +1346,19 @@
         typingDiv.id = 'typingIndicator';
 
         typingDiv.innerHTML = `
-                                            <div class="flex gap-3 mb-4">
-                                                <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
-                                                    <i class="fas fa-robot text-white"></i>
-                                                </div>
-                                                <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-4">
-                                                    <div class="flex gap-1">
-                                                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                                                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                                                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                                                    <div class="flex gap-3 mb-4">
+                                                        <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                            <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
+                                                        </div>
+                                                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-4">
+                                                            <div class="flex gap-1">
+                                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        `;
+                                                `;
 
             messagesContainer.appendChild(typingDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
