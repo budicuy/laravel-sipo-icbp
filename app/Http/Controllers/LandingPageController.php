@@ -243,7 +243,8 @@ class LandingPageController extends Controller
         $context = "**📋 DATA REKAM MEDIS PASIEN:**\n\n";
         $context .= 'Nama Pasien: '.$data['nama']."\n";
         $context .= 'NIK: '.$data['nik']."\n";
-        $context .= 'Total Kunjungan: '.$data['total_kunjungan']." kali\n\n";
+        $context .= 'Total Kunjungan: '.$data['total_kunjungan']." kali\n";
+        $context .= 'Waktu Sekarang: '.now('Asia/Makassar')->format('d/m/Y H:i').' WITA'."\n\n";
 
         if ($data['total_kunjungan'] === 0) {
             $context .= "⚠️ Pasien ini belum memiliki riwayat kunjungan.\n";
@@ -254,8 +255,8 @@ class LandingPageController extends Controller
         $context .= "**DETAIL RIWAYAT KUNJUNGAN:**\n\n";
 
         // Limit to last 15 visits to prevent context from being too long
-        $riwayatTerbatas = array_slice($data['riwayat'], 0, 15);
-        $jumlahDitampilkan = count($riwayatTerbatas);
+        $riwayatTerbatas = $data['riwayat']->slice(0, 15);
+        $jumlahDitampilkan = $riwayatTerbatas->count();
 
         if ($jumlahDitampilkan < $data['total_kunjungan']) {
             $context .= "📝 Menampilkan {$jumlahDitampilkan} kunjungan terakhir dari {$data['total_kunjungan']} total kunjungan:\n\n";
@@ -266,8 +267,9 @@ class LandingPageController extends Controller
             $context .= '- Tanggal: '.$kunjungan['tanggal'].' '.$kunjungan['waktu']."\n";
             $context .= '- Pasien: '.$kunjungan['nama_pasien']."\n";
 
-            foreach ($kunjungan['keluhan'] as $keluhanIdx => $keluhan) {
-                if (count($kunjungan['keluhan']) > 1) {
+            $keluhanList = $kunjungan['keluhan'];
+            foreach ($keluhanList as $keluhanIdx => $keluhan) {
+                if (count($keluhanList) > 1) {
                     $context .= '  Keluhan '.($keluhanIdx + 1).":\n";
                 }
                 $context .= '  - Diagnosa: '.$keluhan['diagnosa']."\n";
@@ -306,10 +308,14 @@ class LandingPageController extends Controller
         $context .= '- Data di atas adalah riwayat medis pasien '.$data['nama']."\n";
         $context .= '- Total kunjungan: '.$data['total_kunjungan']." kali\n";
         if ($jumlahDitampilkan < $data['total_kunjungan']) {
-            $context .= "- Hanya {$jumlahDitampilkan} kunjungan terakhir yang ditampilkan untuk menghemat memori\n";
+            $context .= "- ⚠️ **PENTING**: Hanya {$jumlahDitampilkan} kunjungan terakhir yang ditampilkan. Anda hanya bisa melihat dan merujuk {$jumlahDitampilkan} kunjungan terakhir ini.\n";
+            $context .= '- JANGAN menyebutkan atau merujuk kunjungan sebelum kunjungan ke-'.($data['total_kunjungan'] - $jumlahDitampilkan + 1)." karena data tidak tersedia.\n";
+            $context .= "- Jika user bertanya tentang kunjungan lama, jelaskan bahwa hanya data {$jumlahDitampilkan} kunjungan terakhir yang tersedia.\n";
+        } else {
+            $context .= "- Semua kunjungan tersedia untuk dianalisis.\n";
         }
         $context .= "- Gunakan data ini untuk menjawab pertanyaan tentang riwayat kesehatan\n";
-        $context .= "- JANGAN menambah atau mengurangi jumlah kunjungan\n";
+        $context .= "- JANGAN menambah atau mengurangi jumlah kunjungan yang terlihat\n";
         $context .= "- Jika user bertanya tentang riwayat, gunakan data ini langsung (tidak perlu generate ulang)\n";
 
         return $context;
@@ -373,8 +379,22 @@ class LandingPageController extends Controller
                 $userContext .= "\nGunakan informasi ini untuk menyapa user secara personal dengan nama mereka.\n";
             }
 
+            // Add current time context
+            $currentTime = now('Asia/Makassar')->format('d/m/Y H:i');
+            $timeContext = "\n\n**INFORMASI WAKTU SAAT INI:**\n";
+            $timeContext .= "- Waktu Sekarang: {$currentTime} WITA\n";
+            $timeContext .= "- Gunakan informasi waktu ini untuk memberikan konteks yang relevan dalam jawaban Anda.\n";
+            $timeContext .= "- Jika user bertanya tentang kondisi saat ini, pertimbangkan waktu dan tanggal saat ini.\n";
+
             // System prompt untuk konteks AI
             $systemPrompt = 'Anda adalah AI Assistant resmi untuk SIPO ICBP (Sistem Informasi Poliklinik ICBP) - PT. Indofood CBP Sukses Makmur Tbk.
+
+**GAYA BAHASA YANG DIGUNAKAN:**
+- Gunakan "Anda" untuk merujuk kepada user (netral, formal)
+- Gunakan "Kamu" untuk gaya yang lebih santai tapi tetap netral
+- JANGAN gunakan "Bapak", "Ibu", "Bapak/Ibu", "Perempuan", "Laki-laki", atau sebutan gender spesifik lainnya
+- Hindari asumsi gender user berdasarkan nama atau pertanyaan
+- Tetap profesional dan ramah kepada semua user tanpa membedakan gender
 
 IDENTITAS SISTEM:
 - Nama: SIPO ICBP (Sistem Informasi Poliklinik ICBP)
@@ -392,6 +412,8 @@ FITUR UTAMA SIPO ICBP:
 
 '.$userContext.'
 
+'.$timeContext.'
+
 KONTAK INFORMASI:
 - Telepon: (+62-21) 5795 8822
 - Fax: (+62-21) 5793 5960
@@ -408,6 +430,14 @@ PANDUAN MENJAWAB:
 6. Gunakan konteks percakapan sebelumnya untuk jawaban yang lebih relevan dan koheren
 7. Jika tidak yakin atau pertanyaan di luar scope SIPO ICBP, arahkan ke kontak resmi
 8. Sertakan emoji yang relevan untuk membuat komunikasi lebih friendly (tapi tidak berlebihan)
+
+**GAYA BAHASA DAN PENYAPAAN:**
+- Gunakan "Anda" untuk merujuk kepada user (formal, profesional)
+- Gunakan "Kamu" untuk gaya yang lebih santai tapi tetap netral
+- JANGAN gunakan "Bapak", "Ibu", "Bapak/Ibu", "Perempuan", "Laki-laki", atau sebutan gender spesifik
+- Hindari asumsi gender user berdasarkan nama atau pertanyaan
+- Tetap profesional dan ramah kepada semua user tanpa membedakan gender
+- Gunakan bahasa yang inklusif dan tidak diskriminatif
 
 **KRITIS - FORMAT HTML MURNI DENGAN INLINE STYLES:**
 WAJIB gunakan HTML dengan INLINE STYLES saja (DILARANG gunakan class CSS atau Tailwind!):
@@ -438,6 +468,12 @@ Jika user menanyakan riwayat kunjungan, format dengan inline styles:
 3. Include: Nomor, Tanggal, Diagnosa, Obat (jika ada)
 4. Gunakan warna untuk membedakan kunjungan
 5. Tambahkan tips kesehatan di akhir jika ada pola
+
+**⚠️ BATASAN DATA RIWAYAT:**
+- Jika total kunjungan > 15, Anda hanya akan melihat 15 kunjungan terakhir
+- JANGAN merujuk atau menyebutkan kunjungan di luar 15 terakhir
+- Jika user tanya tentang kunjungan lama, jelaskan bahwa hanya 15 kunjungan terakhir yang tersedia
+- Selalu sebutkan "15 kunjungan terakhir" saat membahas riwayat
 
 CONTOH OUTPUT HTML DENGAN INLINE STYLES:
 <p style="margin-bottom: 12px; color: #374151;">👋 Terima kasih atas pertanyaan Anda!</p>
@@ -624,8 +660,8 @@ Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan pandua
                 'keluhans.obat:id_obat,nama_obat,id_satuan',
                 'keluhans.obat.satuanObat:id_satuan,nama_satuan',
             ])
-            ->orderBy('tanggal_periksa', 'desc')
-            ->orderBy('waktu_periksa', 'desc')
+            ->orderBy('tanggal_periksa', 'asc')
+            ->orderBy('waktu_periksa', 'asc')
             ->limit(20) // Limit to prevent memory issues and long context
             ->get();
 
