@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -181,7 +182,7 @@ class DiagnosaController extends Controller
             ->setDescription('Template untuk import data diagnosa');
 
         // Header columns
-        $headers = ['Nama Diagnosa', 'Deskripsi'];
+        $headers = ['Nama Diagnosa', 'Deskripsi', 'Status', 'Rekomendasi Obat'];
         $column = 'A';
 
         foreach ($headers as $header) {
@@ -212,11 +213,13 @@ class DiagnosaController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A1:B1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:D1')->applyFromArray($headerStyle);
 
         // Add sample data
         $sheet->setCellValue('A2', 'Demam Berdarah');
         $sheet->setCellValue('B2', 'Demam yang disertai ruam merah dan penurunan trombosit');
+        $sheet->setCellValue('C2', 'aktif');
+        $sheet->setCellValue('D2', 'Paracetamol, Vitamin C');
 
         // Style sample data
         $dataStyle = [
@@ -231,11 +234,13 @@ class DiagnosaController extends Controller
             ],
         ];
 
-        $sheet->getStyle('A2:B2')->applyFromArray($dataStyle);
+        $sheet->getStyle('A2:D2')->applyFromArray($dataStyle);
 
         // Set column widths
         $sheet->getColumnDimension('A')->setWidth(30);
         $sheet->getColumnDimension('B')->setWidth(50);
+        $sheet->getColumnDimension('C')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(40);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -245,10 +250,12 @@ class DiagnosaController extends Controller
         $sheet->setCellValue('A4', 'CATATAN:');
         $sheet->setCellValue('A5', '• Nama Diagnosa wajib diisi');
         $sheet->setCellValue('A6', '• Deskripsi bersifat opsional, bisa dikosongkan');
-        $sheet->setCellValue('A7', '• Format yang diharapkan: Nama Diagnosa | Deskripsi');
+        $sheet->setCellValue('A7', '• Status: aktif atau non-aktif');
+        $sheet->setCellValue('A8', '• Rekomendasi Obat: pisahkan dengan koma (,)');
+        $sheet->setCellValue('A9', '• Format yang diharapkan: Nama Diagnosa | Deskripsi | Status | Rekomendasi Obat');
 
         $sheet->getStyle('A4')->getFont()->setBold(true);
-        $sheet->getStyle('A5:A7')->getFont()->setItalic(true)->setSize(10);
+        $sheet->getStyle('A5:A9')->getFont()->setItalic(true)->setSize(10);
 
         // Create Excel file
         $writer = new Xlsx($spreadsheet);
@@ -266,10 +273,10 @@ class DiagnosaController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls'],
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
         ], [
             'file.required' => 'File harus dipilih',
-            'file.mimes' => 'File harus berformat Excel (.xlsx atau .xls)',
+            'file.mimes' => 'File harus berformat Excel (.xlsx, .xls) atau CSV (.csv)',
         ]);
 
         try {
@@ -289,6 +296,8 @@ class DiagnosaController extends Controller
                 // Read cell values
                 $namaDiagnosa = trim($sheet->getCell('A' . $rowNumber)->getValue() ?? '');
                 $deskripsi = trim($sheet->getCell('B' . $rowNumber)->getValue() ?? '');
+                $status = trim($sheet->getCell('C' . $rowNumber)->getValue() ?? 'aktif');
+                $rekomendasiObat = trim($sheet->getCell('D' . $rowNumber)->getValue() ?? '');
 
                 // Skip empty rows
                 if (empty($namaDiagnosa)) {
@@ -307,16 +316,47 @@ class DiagnosaController extends Controller
                     continue;
                 }
 
+                // Validate status
+                if (!empty($status) && !in_array($status, ['aktif', 'non-aktif'])) {
+                    $errors[] = "Baris $rowNumber: Status harus 'aktif' atau 'non-aktif'";
+                    continue;
+                }
+
                 // Check if update or create
                 $exists = Diagnosa::where('nama_diagnosa', $namaDiagnosa)->exists();
 
                 // Create or update diagnosa
-                Diagnosa::updateOrCreate(
+                $diagnosa = Diagnosa::updateOrCreate(
                     ['nama_diagnosa' => $namaDiagnosa],
                     [
                         'deskripsi' => !empty($deskripsi) ? $deskripsi : null,
+                        'status' => !empty($status) ? $status : 'aktif',
                     ]
                 );
+
+                // Handle rekomendasi obat
+                if (!empty($rekomendasiObat)) {
+                    // Split by comma and clean up
+                    $obatNames = array_map('trim', explode(',', $rekomendasiObat));
+                    $obatIds = [];
+                    
+                    foreach ($obatNames as $obatName) {
+                        if (!empty($obatName)) {
+                            $obat = Obat::where('nama_obat', 'like', '%' . $obatName . '%')->first();
+                            if ($obat) {
+                                $obatIds[] = $obat->id_obat;
+                            }
+                        }
+                    }
+                    
+                    // Sync obat relationships
+                    if (!empty($obatIds)) {
+                        $diagnosa->obats()->sync($obatIds);
+                    }
+                } else {
+                    // If no rekomendasi obat, clear existing relationships
+                    $diagnosa->obats()->detach();
+                }
 
                 if ($exists) {
                     $updated++;
@@ -408,5 +448,82 @@ class DiagnosaController extends Controller
 
             return response()->json(['success' => false, 'message' => 'Gagal menghapus data diagnosa'], 500);
         }
+    }
+
+    public function export(Request $request)
+    {
+        $query = Diagnosa::with('obats:id_obat,nama_obat');
+
+        // Apply search filter if exists
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where('nama_diagnosa', 'like', '%' . $search . '%');
+        }
+
+        // Apply sorting if exists
+        $sortField = $request->get('sort', 'id_diagnosa');
+        $sortDirection = $request->get('direction', 'desc');
+        $allowedSortFields = ['id_diagnosa', 'nama_diagnosa', 'deskripsi', 'created_at', 'updated_at'];
+
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            $query->orderBy('id_diagnosa', 'desc');
+        }
+
+        // Get all data for export
+        $diagnosas = $query->get();
+
+        // Create temporary directory if not exists
+        $tempDir = storage_path('app/temp');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $filename = 'export_diagnosa_' . date('Y-m-d-H-i-s') . '.csv';
+        $filePath = $tempDir . '/' . $filename;
+
+        // Open file for writing
+        $file = fopen($filePath, 'w');
+
+        // Add UTF-8 BOM for proper Excel display
+        fwrite($file, "\xEF\xBB\xBF");
+
+        // CSV Header
+        $headers = [
+            'NO',
+            'NAMA DIAGNOSA',
+            'DESKRIPSI',
+            'STATUS',
+            'REKOMENDASI OBAT'
+        ];
+        fputcsv($file, $headers, ';');
+
+        // Data rows
+        $rowNumber = 1;
+        foreach ($diagnosas as $diagnosa) {
+            // Get obat names as comma-separated string
+            $obatNames = $diagnosa->obats->pluck('nama_obat')->implode(', ');
+
+            $rowData = [
+                $rowNumber,
+                $diagnosa->nama_diagnosa,
+                $diagnosa->deskripsi ?? '',
+                $diagnosa->status ?? 'aktif',
+                $obatNames
+            ];
+
+            fputcsv($file, $rowData, ';');
+            $rowNumber++;
+        }
+
+        // Add summary info at the bottom
+        fputcsv($file, [], ';'); // Empty row
+        fputcsv($file, ['SUMMARY:', 'Total Diagnosa: ' . $diagnosas->count(), 'Export Date: ' . date('d/m/Y H:i:s')], ';');
+
+        fclose($file);
+
+        // Download file and delete after
+        return response()->download($filePath, $filename)->deleteFileAfterSend(true);
     }
 }
