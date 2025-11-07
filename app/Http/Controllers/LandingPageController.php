@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
+use App\Models\Keluarga;
 use App\Models\RekamMedis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -641,14 +642,21 @@ Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan pandua
             ];
         }
 
-        // Get all family members including the employee
+        // Get all family members including the employee with hubungan relationship
         $keluargaList = Keluarga::where('id_karyawan', $karyawan->id_karyawan)
+            ->with('hubungan') // Eager load hubungan relationship
             ->get()
             ->map(function ($keluarga) {
+                // Get hubungan text from relationship
+                $hubunganText = 'Karyawan';
+                if ($keluarga->hubungan && isset($keluarga->hubungan->hubungan)) {
+                    $hubunganText = $keluarga->hubungan->hubungan;
+                }
+
                 return [
                     'id_keluarga' => $keluarga->id_keluarga,
                     'nama_pasien' => $keluarga->nama_keluarga,
-                    'hubungan' => $keluarga->hubungan ?? 'Karyawan',
+                    'hubungan' => $hubunganText,
                 ];
             });
 
