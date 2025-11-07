@@ -596,7 +596,7 @@
                         <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-robot text-white"></i>
                         </div>
-                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-4xl">
+                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
                             <div class="text-gray-800 prose prose-sm max-w-none">
                                 ${welcomeMessage}
                             </div>
@@ -1041,9 +1041,9 @@
         // Save chat history to localStorage
         function saveChatHistory() {
             try {
-                // Keep only last 20 messages to avoid token limits
-                if (chatHistory.length > 20) {
-                    chatHistory = chatHistory.slice(-20);
+                // Keep only last 50 messages to avoid token limits (increased from 20)
+                if (chatHistory.length > 50) {
+                    chatHistory = chatHistory.slice(-50);
                 }
                 localStorage.setItem('sipo_chat_history', JSON.stringify(chatHistory));
 
@@ -1099,7 +1099,7 @@
                         <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
                             <i class="fas fa-robot text-white"></i>
                         </div>
-                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-4xl">
+                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
                             <div class="text-gray-800 prose prose-sm max-w-none">
                                 ${welcomeMessage}
                             </div>
@@ -1173,8 +1173,8 @@
             // Show typing indicator
             showTypingIndicator();
 
-            // Prepare history for API (exclude current message, keep last 10 exchanges)
-            const historyForAPI = chatHistory.slice(0, -1).slice(-20);
+            // Prepare history for API (exclude current message, keep last 25 exchanges - increased from 20)
+            const historyForAPI = chatHistory.slice(0, -1).slice(-50);
 
             // Get selected patient ID from localStorage
             const authData = JSON.parse(localStorage.getItem('sipo_auth'));
@@ -1309,29 +1309,29 @@
             const sanitizedHTML = sanitizeAIResponse(text);
 
             messageDiv.innerHTML = `
-                                        <div class="flex gap-3 mb-4">
-                                            <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
-                                                <i class="fas fa-robot text-white"></i>
-                                            </div>
-                                            <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-4xl">
-                                                <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
-                                            </div>
-                                        </div>
-                                    `;
+                                                <div class="flex gap-3 mb-4">
+                                                    <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
+                                                        <i class="fas fa-robot text-white"></i>
+                                                    </div>
+                                                    <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
+                                                        <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
+                                                    </div>
+                                                </div>
+                                            `;
         } else {
             // Escape user input for security
             const escapedText = text.replace(/</g, '<').replace(/>/g, '>');
 
             messageDiv.innerHTML = `
-                                        <div class="flex gap-3 mb-4 justify-end">
-                                            <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-4xl">
-                                                <p class="text-white">${escapedText}</p>
-                                            </div>
-                                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                                                <i class="fas fa-user text-gray-600"></i>
-                                            </div>
-                                        </div>
-                                    `;
+                                                <div class="flex gap-3 mb-4 justify-end">
+                                                    <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-5xl">
+                                                        <p class="text-white">${escapedText}</p>
+                                                    </div>
+                                                    <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                                                        <i class="fas fa-user text-gray-600"></i>
+                                                    </div>
+                                                </div>
+                                            `;
         }
 
         messagesContainer.appendChild(messageDiv);
@@ -1346,19 +1346,19 @@
         typingDiv.id = 'typingIndicator';
 
         typingDiv.innerHTML = `
-                                    <div class="flex gap-3 mb-4">
-                                        <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
-                                            <i class="fas fa-robot text-white"></i>
-                                        </div>
-                                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-4">
-                                            <div class="flex gap-1">
-                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                                            <div class="flex gap-3 mb-4">
+                                                <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0">
+                                                    <i class="fas fa-robot text-white"></i>
+                                                </div>
+                                                <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-4">
+                                                    <div class="flex gap-1">
+                                                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                                                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                                                        <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                `;
+                                        `;
 
             messagesContainer.appendChild(typingDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;

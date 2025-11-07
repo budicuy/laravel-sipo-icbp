@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Karyawan;
 use App\Models\Keluarga;
 use App\Models\RekamMedis;
+use Gemini\Data\Content;
+use Gemini\Enums\Role;
+use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class LandingPageController extends Controller
@@ -281,16 +283,6 @@ class LandingPageController extends Controller
             'id_keluarga' => 'nullable|integer', // ID pasien yang dipilih
         ]);
 
-        $apiKey = config('gemini.api_key');
-
-        // Check if API key is configured
-        if (empty($apiKey)) {
-            return response()->json([
-                'success' => false,
-                'reply' => 'Maaf, AI Assistant belum dikonfigurasi. Untuk informasi lebih lanjut, hubungi kami di Call Center +62 800 1122 888.',
-            ], 500);
-        }
-
         // Get user info
         $userNik = $request->input('user_nik');
         $userName = $request->input('user_name');
@@ -304,12 +296,9 @@ class LandingPageController extends Controller
             'message' => $request->message,
         ]);
 
-        // Medical data is already preloaded in chat history (first message after patient selection)
-        // So we don't need to fetch it again on every request - this prevents hallucination!
-
         try {
-            $model = config('gemini.model', 'gemini-1.5-flash-latest');
-            $endpoint = config('gemini.api_endpoint');
+            // Initialize Gemini chat with enhanced memory configuration
+            $chat = Gemini::chat(model: config('gemini.model', 'gemini-2.0-flash'));
 
             // Build user context
             $userContext = '';
@@ -362,8 +351,8 @@ WAJIB gunakan HTML dengan INLINE STYLES saja (DILARANG gunakan class CSS atau Ta
 - Bold: <strong style="font-weight: bold; color: #6B21A8;">teks tebal</strong>
 - Italic: <em style="font-style: italic; color: #7C3AED;">teks miring</em>
 - Paragraph: <p style="margin-bottom: 12px; color: #374151;">paragraf</p>
-- Bullet list: <ul style="margin: 12px 0; padding-left: 24px;"><li>item 1</li></ul>
-- Numbered list: <ol style="margin: 12px 0; padding-left: 24px;"><li>item 1</li></ol>
+- Bullet list: <ul style="margin: 12px 0; padding-left: 24px;"><li style="margin-bottom: 4px;">item 1</li></ul>
+- Numbered list: <ol style="margin: 12px 0; padding-left: 24px;"><li style="margin-bottom: 4px;">item 1</li></ol>
 - Card/Box: <div style="background: #F3F4F6; padding: 16px; border-radius: 8px; margin: 12px 0;">content</div>
 
 **DILARANG KERAS - JANGAN GUNAKAN FORMAT INI:**
@@ -391,9 +380,9 @@ CONTOH OUTPUT HTML DENGAN INLINE STYLES:
 <h3 style="font-size: 18px; font-weight: bold; color: #7C3AED; margin-bottom: 12px;">Tentang SIPO ICBP</h3>
 <p style="margin-bottom: 12px; color: #374151;"><strong style="font-weight: bold; color: #6B21A8;">SIPO ICBP</strong> adalah sistem informasi kesehatan yang memiliki fitur:</p>
 <ul style="margin: 12px 0; padding-left: 24px;">
-<li>Rekam Medis Digital</li>
-<li>Manajemen Obat</li>
-<li>AI Assistant 24/7</li>
+<li style="margin-bottom: 4px;">Rekam Medis Digital</li>
+<li style="margin-bottom: 4px;">Manajemen Obat</li>
+<li style="margin-bottom: 4px;">AI Assistant 24/7</li>
 </ul>
 <p style="margin-bottom: 12px; color: #374151;">Ada yang bisa saya bantu? 😊</p>
 
@@ -489,94 +478,44 @@ BATASAN UMUM:
 SELALU GUNAKAN MEDICAL DISCLAIMER:
 "⚠️ **Disclaimer**: Informasi ini bersifat umum dan tidak menggantikan konsultasi medis profesional. Setiap individu memiliki kondisi kesehatan yang unik. Untuk diagnosis dan perawatan yang tepat, silakan konsultasi dengan dokter."
 
+**PERINGATAN KRITIS - FORMAT OUTPUT:**
+- JANGAN gunakan markdown formatting apapun
+- JANGAN gunakan code blocks ```html``` atau ``` apapun ```
+- JANGAN gunakan backticks `
+- JANGAN gunakan asterisks ** atau * untuk formatting
+- JANGAN gunakan ```html``` di awal atau akhir response
+- LANGSUNG output HTML murni tanpa pembungkus markdown
+
 Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan panduan di atas.';
 
-            // Build conversation history
-            $contents = [];
-
-            // Add chat history if exists
+            // Get chat history from request
             $history = $request->input('history', []);
 
-            // Log history for debugging
-            Log::info('AI Context Data', [
-                'user_nik' => $userNik,
-                'user_name' => $userName,
-                'id_keluarga' => $idKeluarga,
-                'history_count' => count($history),
-                'message' => $request->message,
-            ]);
-
+            // Convert history to Gemini format using Content objects
+            $chatHistory = [];
             if (! empty($history)) {
                 foreach ($history as $message) {
-                    $contents[] = [
-                        'role' => $message['role'],
-                        'parts' => [
-                            ['text' => $message['text']],
-                        ],
-                    ];
+                    $role = $message['role'] === 'user' ? Role::USER : Role::MODEL;
+                    $chatHistory[] = Content::parse(
+                        part: $message['text'],
+                        role: $role
+                    );
                 }
             }
 
-            // Add current user message
-            $contents[] = [
-                'role' => 'user',
-                'parts' => [
-                    ['text' => $systemPrompt."\n\nPertanyaan: ".$request->message],
-                ],
-            ];
+            // Start chat with history
+            $chatSession = $chat->startChat(history: $chatHistory);
 
-            // Call Gemini API
-            $response = Http::timeout(30)->post("{$endpoint}/{$model}:generateContent?key={$apiKey}", [
-                'contents' => $contents,
-                'generationConfig' => [
-                    'temperature' => (float) config('gemini.temperature', 0.7),
-                    'maxOutputTokens' => (int) config('gemini.max_tokens', 1024),
-                    'topP' => (float) config('gemini.top_p', 0.95),
-                    'topK' => (int) config('gemini.top_k', 40),
-                ],
+            // Send message with system prompt
+            $result = $chatSession->sendMessage($systemPrompt."\n\nPertanyaan: ".$request->message);
+
+            // Extract AI reply from response
+            $aiReply = $result->text() ?? 'Maaf, saya tidak dapat memproses permintaan Anda saat ini.';
+
+            return response()->json([
+                'success' => true,
+                'reply' => $aiReply,
             ]);
-
-            if ($response->successful()) {
-                $result = $response->json();
-
-                // Extract AI reply from response
-                $aiReply = $result['candidates'][0]['content']['parts'][0]['text']
-                    ?? 'Maaf, saya tidak dapat memproses permintaan Anda saat ini.';
-
-                return response()->json([
-                    'success' => true,
-                    'reply' => $aiReply,
-                ]);
-            } else {
-                $statusCode = $response->status();
-                $responseBody = $response->json();
-
-                Log::error('Gemini API Error', [
-                    'status' => $statusCode,
-                    'body' => $response->body(),
-                ]);
-
-                // Handle specific error codes
-                $errorMessage = 'Maaf, terjadi kesalahan saat menghubungi AI Assistant. Silakan coba lagi nanti.';
-
-                if ($statusCode === 429) {
-                    // Rate limit or quota exceeded
-                    $errorMessage = 'Maaf, AI Assistant sedang sibuk. Silakan coba lagi dalam beberapa saat. '
-                        .'Atau hubungi kami melalui telepon/email yang tersedia di bawah halaman.';
-                } elseif ($statusCode === 401 || $statusCode === 403) {
-                    // Authentication error
-                    $errorMessage = 'Maaf, AI Assistant belum tersedia saat ini. '
-                        .'Silakan hubungi administrator atau gunakan kontak lain yang tersedia.';
-                } elseif ($statusCode === 400) {
-                    // Bad request
-                    $errorMessage = 'Maaf, permintaan tidak valid. Silakan coba dengan pertanyaan yang berbeda.';
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'reply' => $errorMessage,
-                ], 500);
-            }
 
         } catch (\Exception $e) {
             Log::error('Gemini API Exception: '.$e->getMessage());
