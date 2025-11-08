@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Karyawan;
 use App\Models\Keluarga;
 use App\Models\RekamMedis;
+use Gemini\Data\Content;
+use Gemini\Enums\Role;
+use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class LandingPageController extends Controller
@@ -22,6 +24,16 @@ class LandingPageController extends Controller
     }
 
     /**
+     * Display the AI Chat page.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function aiChat()
+    {
+        return view('landing.ai-chat');
+    }
+
+    /**
      * Check NIK and return employee data
      *
      * @return \Illuminate\Http\JsonResponse
@@ -29,8 +41,8 @@ class LandingPageController extends Controller
     public function checkNik(Request $request)
     {
         $request->validate([
-            'nik' => 'required|string',
-            'password' => 'required|string',
+            'nik' => 'required|string|max:20',
+            'password' => 'required|string|max:20',
         ]);
 
         $nik = $request->nik;
@@ -81,7 +93,7 @@ class LandingPageController extends Controller
     public function getMedicalHistory(Request $request)
     {
         $request->validate([
-            'nik' => 'required|string',
+            'nik' => 'required|string|max:20',
         ]);
 
         $nik = $request->nik;
@@ -152,7 +164,7 @@ class LandingPageController extends Controller
     public function getFamilyList(Request $request)
     {
         $request->validate([
-            'nik' => 'required|string',
+            'nik' => 'required|string|max:20',
         ]);
 
         $result = $this->getFamilyMembers($request->nik);
@@ -169,32 +181,58 @@ class LandingPageController extends Controller
     public function preloadMedicalData(Request $request)
     {
         $request->validate([
-            'user_nik' => 'required|string',
+            'user_nik' => 'required|string|max:20',
             'id_keluarga' => 'required|integer',
         ]);
 
         $userNik = $request->user_nik;
         $idKeluarga = $request->id_keluarga;
 
-        // Get medical history data
-        $historyData = $this->getMedicalHistoryData($userNik, $idKeluarga);
+        try {
+            // Get medical history data
+            $historyData = $this->getMedicalHistoryData($userNik, $idKeluarga);
 
-        if (! $historyData['success']) {
+            if (! $historyData['success']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengambil data rekam medis',
+                ]);
+            }
+
+            // Format data for AI memory
+            $medicalContext = $this->formatMedicalDataForAI($historyData['data']);
+
+            // Check if medical context is too long and truncate if necessary
+            if (strlen($medicalContext) > 45000) {
+                Log::warning('Medical context too long, truncating', [
+                    'user_nik' => $userNik,
+                    'id_keluarga' => $idKeluarga,
+                    'original_length' => strlen($medicalContext),
+                    'total_visits' => $historyData['data']['total_kunjungan'],
+                ]);
+
+                // Truncate to prevent validation errors
+                $medicalContext = substr($medicalContext, 0, 45000)."\n\n⚠️ Catatan: Data riwayat medis dipotong karena terlalu panjang.";
+            }
+
+            return response()->json([
+                'success' => true,
+                'medical_context' => $medicalContext,
+                'patient_name' => $historyData['data']['nama'],
+                'total_visits' => $historyData['data']['total_kunjungan'],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in preloadMedicalData: '.$e->getMessage(), [
+                'user_nik' => $userNik,
+                'id_keluarga' => $idKeluarga,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengambil data rekam medis',
-            ]);
+                'message' => 'Terjadi kesalahan saat memuat data medis. Silakan coba lagi.',
+            ], 500);
         }
-
-        // Format data for AI memory
-        $medicalContext = $this->formatMedicalDataForAI($historyData['data']);
-
-        return response()->json([
-            'success' => true,
-            'medical_context' => $medicalContext,
-            'patient_name' => $historyData['data']['nama'],
-            'total_visits' => $historyData['data']['total_kunjungan'],
-        ]);
     }
 
     /**
@@ -205,7 +243,8 @@ class LandingPageController extends Controller
         $context = "**📋 DATA REKAM MEDIS PASIEN:**\n\n";
         $context .= 'Nama Pasien: '.$data['nama']."\n";
         $context .= 'NIK: '.$data['nik']."\n";
-        $context .= 'Total Kunjungan: '.$data['total_kunjungan']." kali\n\n";
+        $context .= 'Total Kunjungan: '.$data['total_kunjungan']." kali\n";
+        $context .= 'Waktu Sekarang: '.now('Asia/Makassar')->format('d/m/Y H:i').' WITA'."\n\n";
 
         if ($data['total_kunjungan'] === 0) {
             $context .= "⚠️ Pasien ini belum memiliki riwayat kunjungan.\n";
@@ -215,17 +254,33 @@ class LandingPageController extends Controller
 
         $context .= "**DETAIL RIWAYAT KUNJUNGAN:**\n\n";
 
-        foreach ($data['riwayat'] as $index => $kunjungan) {
+        // Limit to last 15 visits to prevent context from being too long
+        $riwayatTerbatas = $data['riwayat']->slice(0, 15);
+        $jumlahDitampilkan = $riwayatTerbatas->count();
+
+        if ($jumlahDitampilkan < $data['total_kunjungan']) {
+            $context .= "📝 Menampilkan {$jumlahDitampilkan} kunjungan terakhir dari {$data['total_kunjungan']} total kunjungan:\n\n";
+        }
+
+        foreach ($riwayatTerbatas as $index => $kunjungan) {
             $context .= 'Kunjungan '.($index + 1).":\n";
             $context .= '- Tanggal: '.$kunjungan['tanggal'].' '.$kunjungan['waktu']."\n";
             $context .= '- Pasien: '.$kunjungan['nama_pasien']."\n";
 
-            foreach ($kunjungan['keluhan'] as $keluhanIdx => $keluhan) {
-                if (count($kunjungan['keluhan']) > 1) {
+            $keluhanList = $kunjungan['keluhan'];
+            foreach ($keluhanList as $keluhanIdx => $keluhan) {
+                if (count($keluhanList) > 1) {
                     $context .= '  Keluhan '.($keluhanIdx + 1).":\n";
                 }
                 $context .= '  - Diagnosa: '.$keluhan['diagnosa']."\n";
-                $context .= '  - Keterangan: '.$keluhan['keterangan']."\n";
+
+                // Limit keterangan to prevent overly long context
+                $keterangan = $keluhan['keterangan'];
+                if (strlen($keterangan) > 200) {
+                    $keterangan = substr($keterangan, 0, 200).'...';
+                }
+                $context .= '  - Keterangan: '.$keterangan."\n";
+
                 $context .= '  - Terapi: '.$keluhan['terapi']."\n";
 
                 if (! empty($keluhan['obat'])) {
@@ -233,7 +288,12 @@ class LandingPageController extends Controller
                     foreach ($keluhan['obat'] as $obat) {
                         $context .= '    * '.$obat['nama_obat'].' - '.$obat['jumlah'].' '.$obat['satuan'];
                         if (! empty($obat['aturan_pakai']) && $obat['aturan_pakai'] != '-') {
-                            $context .= ' (Aturan: '.$obat['aturan_pakai'].')';
+                            // Limit aturan pakai to prevent overly long context
+                            $aturanPakai = $obat['aturan_pakai'];
+                            if (strlen($aturanPakai) > 100) {
+                                $aturanPakai = substr($aturanPakai, 0, 100).'...';
+                            }
+                            $context .= ' (Aturan: '.$aturanPakai.')';
                         }
                         $context .= "\n";
                     }
@@ -245,10 +305,17 @@ class LandingPageController extends Controller
         }
 
         $context .= "\n**⚠️ INSTRUKSI UNTUK AI:**\n";
-        $context .= '- Data di atas adalah SEMUA riwayat medis pasien '.$data['nama']."\n";
+        $context .= '- Data di atas adalah riwayat medis pasien '.$data['nama']."\n";
         $context .= '- Total kunjungan: '.$data['total_kunjungan']." kali\n";
+        if ($jumlahDitampilkan < $data['total_kunjungan']) {
+            $context .= "- ⚠️ **PENTING**: Hanya {$jumlahDitampilkan} kunjungan terakhir yang ditampilkan. Anda hanya bisa melihat dan merujuk {$jumlahDitampilkan} kunjungan terakhir ini.\n";
+            $context .= '- JANGAN menyebutkan atau merujuk kunjungan sebelum kunjungan ke-'.($data['total_kunjungan'] - $jumlahDitampilkan + 1)." karena data tidak tersedia.\n";
+            $context .= "- Jika user bertanya tentang kunjungan lama, jelaskan bahwa hanya data {$jumlahDitampilkan} kunjungan terakhir yang tersedia.\n";
+        } else {
+            $context .= "- Semua kunjungan tersedia untuk dianalisis.\n";
+        }
         $context .= "- Gunakan data ini untuk menjawab pertanyaan tentang riwayat kesehatan\n";
-        $context .= "- JANGAN menambah atau mengurangi jumlah kunjungan\n";
+        $context .= "- JANGAN menambah atau mengurangi jumlah kunjungan yang terlihat\n";
         $context .= "- Jika user bertanya tentang riwayat, gunakan data ini langsung (tidak perlu generate ulang)\n";
 
         return $context;
@@ -261,24 +328,29 @@ class LandingPageController extends Controller
      */
     public function chat(Request $request)
     {
-        $request->validate([
-            'message' => 'required|string|max:1000',
-            'history' => 'nullable|array',
-            'history.*.role' => 'required|string|in:user,model',
-            'history.*.text' => 'required|string',
-            'user_nik' => 'nullable|string',
-            'user_name' => 'nullable|string',
-            'id_keluarga' => 'nullable|integer', // ID pasien yang dipilih
-        ]);
+        try {
+            $request->validate([
+                'message' => 'required|string|max:5000',
+                'history' => 'nullable|array',
+                'history.*.role' => 'required|string|in:user,model|max:10',
+                'history.*.text' => 'required|string|max:50000', // Increased to accommodate medical context
+                'user_nik' => 'nullable|string|max:20',
+                'user_name' => 'nullable|string|max:100',
+                'id_keluarga' => 'nullable|integer', // ID pasien yang dipilih
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Log validation error for debugging
+            Log::error('Chat validation failed', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all(),
+                'user_nik' => $request->input('user_nik'),
+            ]);
 
-        $apiKey = config('gemini.api_key');
-
-        // Check if API key is configured
-        if (empty($apiKey)) {
+            // Return user-friendly error message
             return response()->json([
                 'success' => false,
-                'reply' => 'Maaf, AI Assistant belum dikonfigurasi. Untuk informasi lebih lanjut, hubungi kami di Call Center +62 800 1122 888.',
-            ], 500);
+                'reply' => '⚠️ Terjadi kesalahan validasi. Mohon refresh halaman dan coba lagi. Jika masalah berlanjut, hubungi administrator.',
+            ], 422);
         }
 
         // Get user info
@@ -294,12 +366,9 @@ class LandingPageController extends Controller
             'message' => $request->message,
         ]);
 
-        // Medical data is already preloaded in chat history (first message after patient selection)
-        // So we don't need to fetch it again on every request - this prevents hallucination!
-
         try {
-            $model = config('gemini.model', 'gemini-1.5-flash-latest');
-            $endpoint = config('gemini.api_endpoint');
+            // Initialize Gemini chat with enhanced memory configuration
+            $chat = Gemini::chat(model: config('gemini.model', 'gemini-2.0-flash'));
 
             // Build user context
             $userContext = '';
@@ -310,8 +379,22 @@ class LandingPageController extends Controller
                 $userContext .= "\nGunakan informasi ini untuk menyapa user secara personal dengan nama mereka.\n";
             }
 
+            // Add current time context
+            $currentTime = now('Asia/Makassar')->format('d/m/Y H:i');
+            $timeContext = "\n\n**INFORMASI WAKTU SAAT INI:**\n";
+            $timeContext .= "- Waktu Sekarang: {$currentTime} WITA\n";
+            $timeContext .= "- Gunakan informasi waktu ini untuk memberikan konteks yang relevan dalam jawaban Anda.\n";
+            $timeContext .= "- Jika user bertanya tentang kondisi saat ini, pertimbangkan waktu dan tanggal saat ini.\n";
+
             // System prompt untuk konteks AI
             $systemPrompt = 'Anda adalah AI Assistant resmi untuk SIPO ICBP (Sistem Informasi Poliklinik ICBP) - PT. Indofood CBP Sukses Makmur Tbk.
+
+**GAYA BAHASA YANG DIGUNAKAN:**
+- Gunakan "Anda" untuk merujuk kepada user (netral, formal)
+- Gunakan "Kamu" untuk gaya yang lebih santai tapi tetap netral
+- JANGAN gunakan "Bapak", "Ibu", "Bapak/Ibu", "Perempuan", "Laki-laki", atau sebutan gender spesifik lainnya
+- Hindari asumsi gender user berdasarkan nama atau pertanyaan
+- Tetap profesional dan ramah kepada semua user tanpa membedakan gender
 
 IDENTITAS SISTEM:
 - Nama: SIPO ICBP (Sistem Informasi Poliklinik ICBP)
@@ -329,6 +412,8 @@ FITUR UTAMA SIPO ICBP:
 
 '.$userContext.'
 
+'.$timeContext.'
+
 KONTAK INFORMASI:
 - Telepon: (+62-21) 5795 8822
 - Fax: (+62-21) 5793 5960
@@ -337,7 +422,7 @@ KONTAK INFORMASI:
 - Email: corporate@indofood.co.id
 
 PANDUAN MENJAWAB:
-1. **FORMAT OUTPUT: GUNAKAN HTML** - Semua response harus dalam format HTML yang valid
+1. **FORMAT OUTPUT: GUNAKAN HTML MURNI** - Semua response harus dalam format HTML yang valid TANPA markdown
 2. Jawab dengan struktur yang jelas: Greeting → Jawaban Inti → Detail Pendukung → Call-to-Action (jika perlu)
 3. Selalu profesional, ramah, dan informatif dalam Bahasa Indonesia
 4. Jika ditanya tentang fitur, jelaskan manfaat konkret untuk pengguna
@@ -346,7 +431,15 @@ PANDUAN MENJAWAB:
 7. Jika tidak yakin atau pertanyaan di luar scope SIPO ICBP, arahkan ke kontak resmi
 8. Sertakan emoji yang relevan untuk membuat komunikasi lebih friendly (tapi tidak berlebihan)
 
-**PENTING - FORMAT HTML DENGAN INLINE STYLES:**
+**GAYA BAHASA DAN PENYAPAAN:**
+- Gunakan "Anda" untuk merujuk kepada user (formal, profesional)
+- Gunakan "Kamu" untuk gaya yang lebih santai tapi tetap netral
+- JANGAN gunakan "Bapak", "Ibu", "Bapak/Ibu", "Perempuan", "Laki-laki", atau sebutan gender spesifik
+- Hindari asumsi gender user berdasarkan nama atau pertanyaan
+- Tetap profesional dan ramah kepada semua user tanpa membedakan gender
+- Gunakan bahasa yang inklusif dan tidak diskriminatif
+
+**KRITIS - FORMAT HTML MURNI DENGAN INLINE STYLES:**
 WAJIB gunakan HTML dengan INLINE STYLES saja (DILARANG gunakan class CSS atau Tailwind!):
 - Heading: <h3 style="font-size: 18px; font-weight: bold; color: #7C3AED; margin-bottom: 12px;">Judul</h3>
 - Bold: <strong style="font-weight: bold; color: #6B21A8;">teks tebal</strong>
@@ -355,13 +448,18 @@ WAJIB gunakan HTML dengan INLINE STYLES saja (DILARANG gunakan class CSS atau Ta
 - Bullet list: <ul style="margin: 12px 0; padding-left: 24px;"><li style="margin-bottom: 4px;">item 1</li></ul>
 - Numbered list: <ol style="margin: 12px 0; padding-left: 24px;"><li style="margin-bottom: 4px;">item 1</li></ol>
 - Card/Box: <div style="background: #F3F4F6; padding: 16px; border-radius: 8px; margin: 12px 0;">content</div>
-- Line break: <br>
 
-**DILARANG KERAS:**
+**DILARANG KERAS - JANGAN GUNAKAN FORMAT INI:**
 - JANGAN gunakan PHP code (<?php, =>, $variable, dll)
 - JANGAN gunakan class CSS (class="..." tidak boleh)
 - JANGAN gunakan Tailwind classes
 - Hanya gunakan style="..." untuk semua formatting
+- JANGAN gunakan markdown formatting (```html, **text**, *text*, # heading, dll)
+- JANGAN gunakan code blocks atau backticks
+- JANGAN gunakan ```html``` atau ``` apapun ```
+- JANGAN gunakan asterisks untuk formatting
+- JANGAN gunakan backticks `
+- JANGAN gunakan *** text *** formatting
 
 **KHUSUS UNTUK RIWAYAT KUNJUNGAN/MEDICAL HISTORY:**
 Jika user menanyakan riwayat kunjungan, format dengan inline styles:
@@ -370,6 +468,12 @@ Jika user menanyakan riwayat kunjungan, format dengan inline styles:
 3. Include: Nomor, Tanggal, Diagnosa, Obat (jika ada)
 4. Gunakan warna untuk membedakan kunjungan
 5. Tambahkan tips kesehatan di akhir jika ada pola
+
+**⚠️ BATASAN DATA RIWAYAT:**
+- Jika total kunjungan > 15, Anda hanya akan melihat 15 kunjungan terakhir
+- JANGAN merujuk atau menyebutkan kunjungan di luar 15 terakhir
+- Jika user tanya tentang kunjungan lama, jelaskan bahwa hanya 15 kunjungan terakhir yang tersedia
+- Selalu sebutkan "15 kunjungan terakhir" saat membahas riwayat
 
 CONTOH OUTPUT HTML DENGAN INLINE STYLES:
 <p style="margin-bottom: 12px; color: #374151;">👋 Terima kasih atas pertanyaan Anda!</p>
@@ -453,6 +557,7 @@ Untuk kondisi berikut, JANGAN berikan saran medis, LANGSUNG redirect ke dokter/e
 - Kehamilan dengan komplikasi
 - Diabetes tidak terkontrol
 - Penyakit kronis yang memburuk
+- Dan sakit lainnya yang memerlukan evaluasi medis segera
 
 **Format Jawaban untuk Kondisi Berat:**
 "Berdasarkan gejala yang Anda sebutkan, ini termasuk kondisi yang memerlukan evaluasi medis profesional segera. Saya sangat menyarankan Anda untuk:
@@ -473,94 +578,44 @@ BATASAN UMUM:
 SELALU GUNAKAN MEDICAL DISCLAIMER:
 "⚠️ **Disclaimer**: Informasi ini bersifat umum dan tidak menggantikan konsultasi medis profesional. Setiap individu memiliki kondisi kesehatan yang unik. Untuk diagnosis dan perawatan yang tepat, silakan konsultasi dengan dokter."
 
+**PERINGATAN KRITIS - FORMAT OUTPUT:**
+- JANGAN gunakan markdown formatting apapun
+- JANGAN gunakan code blocks ```html``` atau ``` apapun ```
+- JANGAN gunakan backticks `
+- JANGAN gunakan asterisks ** atau * untuk formatting
+- JANGAN gunakan ```html``` di awal atau akhir response
+- LANGSUNG output HTML murni tanpa pembungkus markdown
+
 Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan panduan di atas.';
 
-            // Build conversation history
-            $contents = [];
-
-            // Add chat history if exists
+            // Get chat history from request
             $history = $request->input('history', []);
 
-            // Log history for debugging
-            Log::info('AI Context Data', [
-                'user_nik' => $userNik,
-                'user_name' => $userName,
-                'id_keluarga' => $idKeluarga,
-                'history_count' => count($history),
-                'message' => $request->message,
-            ]);
-
+            // Convert history to Gemini format using Content objects
+            $chatHistory = [];
             if (! empty($history)) {
                 foreach ($history as $message) {
-                    $contents[] = [
-                        'role' => $message['role'],
-                        'parts' => [
-                            ['text' => $message['text']],
-                        ],
-                    ];
+                    $role = $message['role'] === 'user' ? Role::USER : Role::MODEL;
+                    $chatHistory[] = Content::parse(
+                        part: $message['text'],
+                        role: $role
+                    );
                 }
             }
 
-            // Add current user message
-            $contents[] = [
-                'role' => 'user',
-                'parts' => [
-                    ['text' => $systemPrompt."\n\nPertanyaan: ".$request->message],
-                ],
-            ];
+            // Start chat with history
+            $chatSession = $chat->startChat(history: $chatHistory);
 
-            // Call Gemini API
-            $response = Http::timeout(30)->post("{$endpoint}/{$model}:generateContent?key={$apiKey}", [
-                'contents' => $contents,
-                'generationConfig' => [
-                    'temperature' => (float) config('gemini.temperature', 0.7),
-                    'maxOutputTokens' => (int) config('gemini.max_tokens', 1024),
-                    'topP' => (float) config('gemini.top_p', 0.95),
-                    'topK' => (int) config('gemini.top_k', 40),
-                ],
+            // Send message with system prompt
+            $result = $chatSession->sendMessage($systemPrompt."\n\nPertanyaan: ".$request->message);
+
+            // Extract AI reply from response
+            $aiReply = $result->text() ?? 'Maaf, saya tidak dapat memproses permintaan Anda saat ini.';
+
+            return response()->json([
+                'success' => true,
+                'reply' => $aiReply,
             ]);
-
-            if ($response->successful()) {
-                $result = $response->json();
-
-                // Extract AI reply from response
-                $aiReply = $result['candidates'][0]['content']['parts'][0]['text']
-                    ?? 'Maaf, saya tidak dapat memproses permintaan Anda saat ini.';
-
-                return response()->json([
-                    'success' => true,
-                    'reply' => $aiReply,
-                ]);
-            } else {
-                $statusCode = $response->status();
-                $responseBody = $response->json();
-
-                Log::error('Gemini API Error', [
-                    'status' => $statusCode,
-                    'body' => $response->body(),
-                ]);
-
-                // Handle specific error codes
-                $errorMessage = 'Maaf, terjadi kesalahan saat menghubungi AI Assistant. Silakan coba lagi nanti.';
-
-                if ($statusCode === 429) {
-                    // Rate limit or quota exceeded
-                    $errorMessage = 'Maaf, AI Assistant sedang sibuk. Silakan coba lagi dalam beberapa saat. '
-                        .'Atau hubungi kami melalui telepon/email yang tersedia di bawah halaman.';
-                } elseif ($statusCode === 401 || $statusCode === 403) {
-                    // Authentication error
-                    $errorMessage = 'Maaf, AI Assistant belum tersedia saat ini. '
-                        .'Silakan hubungi administrator atau gunakan kontak lain yang tersedia.';
-                } elseif ($statusCode === 400) {
-                    // Bad request
-                    $errorMessage = 'Maaf, permintaan tidak valid. Silakan coba dengan pertanyaan yang berbeda.';
-                }
-
-                return response()->json([
-                    'success' => false,
-                    'reply' => $errorMessage,
-                ], 500);
-            }
 
         } catch (\Exception $e) {
             Log::error('Gemini API Exception: '.$e->getMessage());
@@ -605,9 +660,10 @@ Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan pandua
                 'keluhans.obat:id_obat,nama_obat,id_satuan',
                 'keluhans.obat.satuanObat:id_satuan,nama_satuan',
             ])
-            ->orderBy('tanggal_periksa', 'desc')
-            ->orderBy('waktu_periksa', 'desc')
-                ->get();
+            ->orderBy('tanggal_periksa', 'asc')
+            ->orderBy('waktu_periksa', 'asc')
+            ->limit(20) // Limit to prevent memory issues and long context
+            ->get();
 
         // Get patient name for display
         $namaPasien = $karyawan->nama_karyawan;

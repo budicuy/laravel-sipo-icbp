@@ -27,6 +27,9 @@ use Illuminate\Support\Facades\Route;
 // Landing Page Route
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 
+// AI Chat Page Route
+Route::get('/ai-chat', [LandingPageController::class, 'aiChat'])->name('ai-chat');
+
 // AI Chat API Route (for landing page)
 Route::post('/api/chat', [LandingPageController::class, 'chat'])->name('api.chat');
 Route::post('/api/auth/check-nik', [LandingPageController::class, 'checkNik'])->name('api.auth.check-nik');
