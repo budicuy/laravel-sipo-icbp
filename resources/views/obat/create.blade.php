@@ -93,10 +93,10 @@
                                 kali</p>
                         </div>
 
-                        <!-- Lokasi / Bind -->
+                        <!-- Lokasi / Bin -->
                         <div>
                             <label for="lokasi" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Lokasi / Bind
+                                Lokasi / Bin
                             </label>
                             <input type="text" id="lokasi" name="lokasi" value="{{ old('lokasi') }}"
                                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('lokasi') border-red-500 @enderror"
@@ -104,7 +104,24 @@
                             @error('lokasi')
                                 <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                             @enderror
-                            <p class="mt-1 text-xs text-gray-500">(Opsional) Lokasi penyimpanan obat atau label bind</p>
+                            <p class="mt-1 text-xs text-gray-500">(Opsional) Lokasi penyimpanan obat atau label bin</p>
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Status <span class="text-red-500">*</span>
+                            </label>
+                            <select id="status" name="status" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white @error('status') border-red-500 @enderror">
+                                <option value="">Pilih Status</option>
+                                <option value="aktif" {{ old('status', 'aktif') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="non-aktif" {{ old('status') == 'non-aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                            </select>
+                            @error('status')
+                                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1 text-xs text-gray-500">Obat non-aktif tidak akan muncul saat membuat diagnosa</p>
                         </div>
 
                         <!-- Keterangan (Full Width) -->

@@ -41,7 +41,7 @@ class DiagnosaEmergencyController extends Controller
      */
     public function create()
     {
-        $obats = Obat::orderBy('nama_obat')->get();
+        $obats = Obat::aktif()->orderBy('nama_obat')->get();
         return view('diagnosa-emergency.create', compact('obats'));
     }
 
@@ -113,7 +113,7 @@ class DiagnosaEmergencyController extends Controller
     public function edit($id)
     {
         $diagnosaEmergency = DiagnosaEmergency::findOrFail($id);
-        $obats = Obat::orderBy('nama_obat')->get();
+        $obats = Obat::aktif()->orderBy('nama_obat')->get();
         $selectedObats = $diagnosaEmergency->obats->pluck('id_obat')->toArray();
 
         return view('diagnosa-emergency.edit', compact('diagnosaEmergency', 'obats', 'selectedObats'));

@@ -43,11 +43,16 @@ class ObatController extends Controller
             $query->where('id_satuan', $request->satuan_obat);
         }
 
-        // Sorting
-        $sortField = $request->get('sort', 'id_obat');
-        $sortDirection = $request->get('direction', 'desc');
+        // Filter by status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
 
-        if (in_array($sortField, ['nama_obat', 'satuan_obat', 'keterangan', 'tanggal_update'])) {
+        // Sorting
+        $sortField = $request->get('sort', 'nama_obat');
+        $sortDirection = $request->get('direction', 'asc');
+
+        if (in_array($sortField, ['nama_obat', 'satuan_obat', 'keterangan', 'status', 'tanggal_update'])) {
             // Handle sorting for related fields
             if ($sortField === 'satuan_obat') {
                 $query->join('satuan_obat', 'obat.id_satuan', '=', 'satuan_obat.id_satuan')
@@ -57,7 +62,7 @@ class ObatController extends Controller
                 $query->orderBy($sortField, $sortDirection);
             }
         } else {
-            $query->orderBy('id_obat', 'desc');
+            $query->orderBy('nama_obat', 'asc');
         }
 
         // Pagination dengan nilai dinamis
@@ -87,11 +92,14 @@ class ObatController extends Controller
             'nama_obat' => 'required|string|max:100|unique:obat,nama_obat',
             'keterangan' => 'nullable|string',
             'lokasi' => 'nullable|string|max:255',
+            'status' => 'required|in:aktif,non-aktif',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
             'stok_awal' => 'required|integer|min:0',
         ], [
             'nama_obat.required' => 'Nama obat wajib diisi',
             'nama_obat.unique' => 'Nama obat sudah terdaftar',
+            'status.required' => 'Status wajib dipilih',
+            'status.in' => 'Status harus aktif atau non-aktif',
             'id_satuan.required' => 'Satuan obat wajib dipilih',
             'stok_awal.required' => 'Stok awal wajib diisi',
             'stok_awal.min' => 'Stok awal tidak boleh negatif',
@@ -150,10 +158,13 @@ class ObatController extends Controller
             'nama_obat' => 'required|string|max:100|unique:obat,nama_obat,' . $id . ',id_obat',
             'keterangan' => 'nullable|string',
             'lokasi' => 'nullable|string|max:255',
+            'status' => 'required|in:aktif,non-aktif',
             'id_satuan' => 'required|exists:satuan_obat,id_satuan',
         ], [
             'nama_obat.required' => 'Nama obat wajib diisi',
             'nama_obat.unique' => 'Nama obat sudah terdaftar',
+            'status.required' => 'Status wajib dipilih',
+            'status.in' => 'Status harus aktif atau non-aktif',
             'id_satuan.required' => 'Satuan obat wajib dipilih',
         ]);
 
@@ -358,7 +369,7 @@ class ObatController extends Controller
 
         // Header columns
         $headers = [
-            'No', 'Nama Obat', 'Satuan', 'Lokasi', 'Keterangan', 'Tanggal Update'
+            'No', 'Nama Obat', 'Satuan', 'Lokasi', 'Status', 'Keterangan', 'Tanggal Update'
         ];
 
         $column = 'A';
@@ -402,8 +413,9 @@ class ObatController extends Controller
             $sheet->setCellValue('B' . $row, $obat->nama_obat);
             $sheet->setCellValue('C' . $row, $obat->satuanObat->nama_satuan ?? '-');
             $sheet->setCellValue('D' . $row, $obat->lokasi ?? '-');
-            $sheet->setCellValue('E' . $row, $obat->keterangan ?? '-');
-            $sheet->setCellValue('F' . $row, $obat->tanggal_update ? $obat->tanggal_update->format('d-m-Y') : '-');
+            $sheet->setCellValue('E' . $row, $obat->status ?? 'aktif');
+            $sheet->setCellValue('F' . $row, $obat->keterangan ?? '-');
+            $sheet->setCellValue('G' . $row, $obat->tanggal_update ? $obat->tanggal_update->format('d-m-Y') : '-');
 
             // Style data rows
             $dataStyle = [
@@ -428,8 +440,10 @@ class ObatController extends Controller
         $sheet->getColumnDimension('A')->setWidth(5);
         $sheet->getColumnDimension('B')->setWidth(30);
         $sheet->getColumnDimension('C')->setWidth(15);
-        $sheet->getColumnDimension('D')->setWidth(50);
-        $sheet->getColumnDimension('E')->setWidth(15);
+        $sheet->getColumnDimension('D')->setWidth(20);
+        $sheet->getColumnDimension('E')->setWidth(10);
+        $sheet->getColumnDimension('F')->setWidth(50);
+        $sheet->getColumnDimension('G')->setWidth(15);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);
@@ -554,6 +568,7 @@ class ObatController extends Controller
                 $data = [
                     'nama_obat' => $namaObat,
                     'keterangan' => !empty($keterangan) ? $keterangan : null,
+                    'status' => 'aktif', // Default status for imported obat
                     'id_satuan' => $satuanObatNames[$satuan],
                     'tanggal_update' => now(),
                 ];

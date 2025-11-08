@@ -55,8 +55,8 @@ class DiagnosaController extends Controller
 
     public function create()
     {
-        $obats = Cache::remember('obats_all', 60, function () {
-            return Obat::orderBy('nama_obat', 'asc')->get();
+        $obats = Cache::remember('obats_aktif', 60, function () {
+            return Obat::aktif()->orderBy('nama_obat', 'asc')->get();
         });
         return view('diagnosa.create', compact('obats'));
     }
@@ -88,7 +88,7 @@ class DiagnosaController extends Controller
         }
 
         // Clear cache
-        Cache::forget('obats_all');
+        Cache::forget('obats_aktif');
 
         return redirect()->route('diagnosa.index')->with('success', 'Data diagnosa berhasil ditambahkan');
     }
@@ -96,8 +96,8 @@ class DiagnosaController extends Controller
     public function edit($id)
     {
         $diagnosa = Diagnosa::with('obats')->findOrFail($id);
-        $obats = Cache::remember('obats_all', 60, function () {
-            return Obat::orderBy('nama_obat', 'asc')->get();
+        $obats = Cache::remember('obats_aktif', 60, function () {
+            return Obat::aktif()->orderBy('nama_obat', 'asc')->get();
         });
         return view('diagnosa.edit', compact('diagnosa', 'obats'));
     }
@@ -133,7 +133,7 @@ class DiagnosaController extends Controller
         }
 
         // Clear cache
-        Cache::forget('obats_all');
+        Cache::forget('obats_aktif');
 
         return redirect()->route('diagnosa.index')->with('success', 'Data diagnosa berhasil diperbarui');
     }
@@ -155,7 +155,7 @@ class DiagnosaController extends Controller
             Log::info('Diagnosa deleted');
 
             // Clear cache
-            Cache::forget('obats_all');
+            Cache::forget('obats_aktif');
             Log::info('Cache cleared');
 
             return response()->json(['success' => true, 'message' => 'Data diagnosa berhasil dihapus']);
@@ -437,7 +437,7 @@ class DiagnosaController extends Controller
             Log::info('Deleted ' . $count . ' diagnosas');
 
             // Clear cache
-            Cache::forget('obats_all');
+            Cache::forget('obats_aktif');
             Log::info('Cache cleared');
 
             return response()->json(['success' => true, 'message' => "{$count} data diagnosa berhasil dihapus!"]);

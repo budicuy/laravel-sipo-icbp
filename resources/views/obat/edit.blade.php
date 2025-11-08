@@ -80,6 +80,23 @@
                             @enderror
                         </div>
 
+                        <!-- Status -->
+                        <div>
+                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
+                                Status <span class="text-red-500">*</span>
+                            </label>
+                            <select id="status" name="status" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 bg-white @error('status') border-red-500 @enderror">
+                                <option value="">Pilih Status</option>
+                                <option value="aktif" {{ old('status', $obat->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                <option value="non-aktif" {{ old('status', $obat->status) == 'non-aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                            </select>
+                            @error('status')
+                                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1 text-xs text-gray-500">Obat non-aktif tidak akan muncul saat membuat diagnosa</p>
+                        </div>
+
                         <!-- Keterangan (Full Width) -->
                         <div class="md:col-span-2">
                             <label for="keterangan" class="block text-sm font-semibold text-gray-700 mb-2">

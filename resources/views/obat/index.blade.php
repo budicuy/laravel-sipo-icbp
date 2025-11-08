@@ -155,6 +155,16 @@
                         </select>
                     </div>
 
+                    <div class="min-w-[150px]">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select name="status"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
+                            <option value="">Semua Status</option>
+                            <option value="aktif" {{ request('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                            <option value="non-aktif" {{ request('status') == 'non-aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                        </select>
+                    </div>
+
                     <div class="flex gap-2">
                         <button type="submit"
                             class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
@@ -181,6 +191,9 @@
                         @endif
                         @if (request('satuan_obat'))
                             <input type="hidden" name="satuan_obat" value="{{ request('satuan_obat') }}">
+                        @endif
+                        @if (request('status'))
+                            <input type="hidden" name="status" value="{{ request('status') }}">
                         @endif
                         <select name="per_page" onchange="document.getElementById('perPageForm').submit()"
                             class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
@@ -210,12 +223,12 @@
                             @endif
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No</th>
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nama_obat', 'direction' => request('sort') == 'nama_obat' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nama_obat', 'direction' => request('sort') == 'nama_obat' && request('direction') == 'desc' ? 'asc' : 'asc'])) }}"
                                     class="flex items-center justify-between group hover:text-green-300 transition-colors">
                                     <span>Nama Obat</span>
                                     <span class="ml-2">
                                         @if (request('sort') == 'nama_obat')
-                                            @if (request('direction') == 'asc')
+                                            @if (request('direction') == 'desc')
                                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -239,12 +252,12 @@
                                 </a>
                             </th>
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'satuan_obat', 'direction' => request('sort') == 'satuan_obat' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'satuan_obat', 'direction' => request('sort') == 'satuan_obat' && request('direction') == 'desc' ? 'asc' : 'asc'])) }}"
                                     class="flex items-center justify-between group hover:text-green-300 transition-colors">
                                     <span>Satuan</span>
                                     <span class="ml-2">
                                         @if (request('sort') == 'satuan_obat')
-                                            @if (request('direction') == 'asc')
+                                            @if (request('direction') == 'desc')
                                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -270,12 +283,12 @@
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Lokasi
                             </th>
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'keterangan', 'direction' => request('sort') == 'keterangan' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'status', 'direction' => request('sort') == 'status' && request('direction') == 'desc' ? 'asc' : 'asc'])) }}"
                                     class="flex items-center justify-between group hover:text-green-300 transition-colors">
-                                    <span>Keterangan</span>
+                                    <span>Status</span>
                                     <span class="ml-2">
-                                        @if (request('sort') == 'keterangan')
-                                            @if (request('direction') == 'asc')
+                                        @if (request('sort') == 'status')
+                                            @if (request('direction') == 'desc')
                                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -299,12 +312,41 @@
                                 </a>
                             </th>
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'tanggal_update', 'direction' => request('sort') == 'tanggal_update' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'keterangan', 'direction' => request('sort') == 'keterangan' && request('direction') == 'desc' ? 'asc' : 'asc'])) }}"
+                                    class="flex items-center justify-between group hover:text-green-300 transition-colors">
+                                    <span>Keterangan</span>
+                                    <span class="ml-2">
+                                        @if (request('sort') == 'keterangan')
+                                            @if (request('direction') == 'desc')
+                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M5 15l7-7 7 7" />
+                                                </svg>
+                                            @else
+                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            @endif
+                                        @else
+                                            <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                            </svg>
+                                        @endif
+                                    </span>
+                                </a>
+                            </th>
+                            <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                <a href="{{ route('obat.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'tanggal_update', 'direction' => request('sort') == 'tanggal_update' && request('direction') == 'desc' ? 'asc' : 'asc'])) }}"
                                     class="flex items-center justify-between group hover:text-green-300 transition-colors">
                                     <span>Tanggal Update</span>
                                     <span class="ml-2">
                                         @if (request('sort') == 'tanggal_update')
-                                            @if (request('direction') == 'asc')
+                                            @if (request('direction') == 'desc')
                                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -348,6 +390,9 @@
                                 <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->satuanObat->nama_satuan ?? '-' }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-600">{{ $obat->lokasi ?? '-' }}</td>
+                                <td class="px-4 py-3 text-sm">
+                                    {!! $obat->status_label !!}
+                                </td>
                                 <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate"
                                     title="{{ $obat->keterangan }}">{{ $obat->keterangan ?? '-' }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-600">
@@ -387,7 +432,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                                <td colspan="9" class="px-4 py-8 text-center text-gray-500">
                                     <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -17,6 +17,7 @@ class Obat extends Model
         'nama_obat',
         'keterangan',
         'lokasi',
+        'status',
         'id_satuan',
         'stok_awal',
         'tanggal_update',
@@ -142,5 +143,39 @@ class Obat extends Model
     public function getRiwayatStok($limit = 12)
     {
         return StokBulanan::getRiwayatStok($this->id_obat, $limit);
+    }
+
+    /**
+     * Scope untuk mendapatkan obat yang aktif
+     */
+    public function scopeAktif($query)
+    {
+        return $query->where('status', 'aktif');
+    }
+
+    /**
+     * Scope untuk mendapatkan obat yang non-aktif
+     */
+    public function scopeNonAktif($query)
+    {
+        return $query->where('status', 'non-aktif');
+    }
+
+    /**
+     * Accessor untuk format status
+     */
+    public function getStatusLabelAttribute()
+    {
+        return $this->status === 'aktif'
+            ? '<span class="badge bg-success">Aktif</span>'
+            : '<span class="badge bg-danger">Non-Aktif</span>';
+    }
+
+    /**
+     * Cek apakah obat aktif
+     */
+    public function isAktif()
+    {
+        return $this->status === 'aktif';
     }
 }

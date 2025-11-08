@@ -96,6 +96,7 @@ class ObatSeeder extends Seeder
                         Obat::create([
                             'nama_obat' => $namaObat,
                             'keterangan' => $keterangan,
+                            'status' => 'aktif', // Default status untuk data dari seeder
                             'id_satuan' => $idSatuan,
                             'tanggal_update' => now(),
                         ]);
