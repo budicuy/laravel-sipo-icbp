@@ -281,6 +281,7 @@ Route::middleware('auth')->group(function () {
     // Fingerprint Routes
     Route::get('/fingerprint', [FingerprintController::class, 'index'])->name('fingerprint.index');
     Route::get('/fingerprint/family-members', [FingerprintController::class, 'getFamilyMembers'])->name('fingerprint.family-members');
+    Route::get('/fingerprint/search-family-members', [FingerprintController::class, 'searchFamilyMembers'])->name('fingerprint.search-family-members');
     Route::get('/fingerprint/templates', [FingerprintController::class, 'getFingerprintTemplates'])->name('fingerprint.templates');
     Route::post('/fingerprint/save', [FingerprintController::class, 'saveFingerprint'])->name('fingerprint.save');
     Route::post('/fingerprint/delete', [FingerprintController::class, 'deleteFingerprint'])->name('fingerprint.delete');

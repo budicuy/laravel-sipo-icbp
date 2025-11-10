@@ -11,12 +11,31 @@ class FingerprintController extends Controller
     /**
      * Display fingerprint management page
      */
-    public function index()
+    public function index(Request $request)
     {
-        $keluargas = Keluarga::whereNotNull('fingerprint_template')
-            ->with('karyawan')
-            ->orderBy('fingerprint_enrolled_at', 'desc')
-            ->get();
+        $query = Keluarga::whereNotNull('fingerprint_template')
+            ->with(['karyawan', 'hubungan']);
+
+        // Handle sorting
+        $sort = $request->get('sort', 'fingerprint_enrolled_at');
+        $direction = $request->get('direction', 'desc');
+
+        switch ($sort) {
+            case 'nama_keluarga':
+                $query->orderBy('nama_keluarga', $direction);
+                break;
+            case 'karyawan.nama_karyawan':
+                $query->orderByHas('karyawan', function ($q) use ($direction) {
+                    $q->orderBy('nama_karyawan', $direction);
+                });
+                break;
+            case 'fingerprint_enrolled_at':
+            default:
+                $query->orderBy('fingerprint_enrolled_at', $direction);
+                break;
+        }
+
+        $keluargas = $query->get();
 
         return view('fingerprint.index', compact('keluargas'));
     }
@@ -26,8 +45,29 @@ class FingerprintController extends Controller
      */
     public function getFamilyMembers(): JsonResponse
     {
-        $keluargas = Keluarga::with('karyawan')
+        $keluargas = Keluarga::with(['karyawan', 'hubungan'])
             ->orderBy('nama_keluarga')
+            ->get();
+
+        return response()->json($keluargas);
+    }
+
+    /**
+     * Search family members by name or NIK
+     */
+    public function searchFamilyMembers(Request $request): JsonResponse
+    {
+        $search = $request->get('search', '');
+
+        $keluargas = Keluarga::with(['karyawan', 'hubungan'])
+            ->where(function($query) use ($search) {
+                $query->where('nama_keluarga', 'like', '%' . $search . '%')
+                      ->orWhereHas('karyawan', function($q) use ($search) {
+                          $q->where('nik_karyawan', 'like', '%' . $search . '%');
+                      });
+            })
+            ->orderBy('nama_keluarga')
+            ->limit(20)
             ->get();
 
         return response()->json($keluargas);
@@ -61,8 +101,8 @@ class FingerprintController extends Controller
     public function getFingerprintTemplates(): JsonResponse
     {
         $templates = Keluarga::whereNotNull('fingerprint_template')
-            ->with('karyawan')
-            ->get(['id_keluarga', 'nama_keluarga', 'fingerprint_template', 'id_karyawan']);
+            ->with(['karyawan', 'hubungan'])
+            ->get(['id_keluarga', 'nama_keluarga', 'fingerprint_template', 'id_karyawan', 'kode_hubungan']);
 
         return response()->json($templates);
     }
