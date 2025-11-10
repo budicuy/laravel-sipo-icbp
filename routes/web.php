@@ -238,20 +238,6 @@ Route::middleware('auth')->group(function () {
     Route::put('/external-employee/{id}', [ExternalEmployeeController::class, 'update'])->name('external-employee.update');
     Route::delete('/external-employee/{id}', [ExternalEmployeeController::class, 'destroy'])->name('external-employee.destroy');
 
-    // Fingerprint Routes
-    Route::get('/fingerprint', [FingerprintController::class, 'index'])->name('fingerprint.index');
-    Route::post('/fingerprint/capture', [FingerprintController::class, 'captureFingerprint'])->name('fingerprint.capture');
-    Route::post('/fingerprint/enroll', [FingerprintController::class, 'enrollFingerprint'])->name('fingerprint.enroll');
-    Route::post('/fingerprint/verify', [FingerprintController::class, 'verifyFingerprint'])->name('fingerprint.verify');
-    Route::delete('/fingerprint/remove/{id_keluarga}', [FingerprintController::class, 'removeFingerprint'])->name('fingerprint.remove');
-
-    // Fingerprint Routes
-    Route::get('/fingerprint', [FingerprintController::class, 'index'])->name('fingerprint.index');
-    Route::post('/fingerprint/capture', [FingerprintController::class, 'captureFingerprint'])->name('fingerprint.capture');
-    Route::post('/fingerprint/enroll', [FingerprintController::class, 'enrollFingerprint'])->name('fingerprint.enroll');
-    Route::post('/fingerprint/verify', [FingerprintController::class, 'verifyFingerprint'])->name('fingerprint.verify');
-    Route::delete('/fingerprint/remove/{id_keluarga}', [FingerprintController::class, 'removeFingerprint'])->name('fingerprint.remove');
-
     // Surat Pengantar Istirahat Routes
     Route::get('/surat-pengantar-istirahat/search-rekam-medis', [SuratPengantarIstirahatController::class, 'searchRekamMedis'])->name('surat-pengantar-istirahat.searchRekamMedis');
     Route::get('/surat-pengantar-istirahat/get-rekam-medis-detail/{id_rekam}', [SuratPengantarIstirahatController::class, 'getRekamMedisDetail'])->name('surat-pengantar-istirahat.getRekamMedisDetail');
@@ -291,6 +277,13 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:Super Admin')->group(function () {
         // Tambahkan routes khusus Super Admin di sini
     });
+
+    // Fingerprint Routes
+    Route::get('/fingerprint', [FingerprintController::class, 'index'])->name('fingerprint.index');
+    Route::get('/fingerprint/family-members', [FingerprintController::class, 'getFamilyMembers'])->name('fingerprint.family-members');
+    Route::get('/fingerprint/templates', [FingerprintController::class, 'getFingerprintTemplates'])->name('fingerprint.templates');
+    Route::post('/fingerprint/save', [FingerprintController::class, 'saveFingerprint'])->name('fingerprint.save');
+    Route::post('/fingerprint/delete', [FingerprintController::class, 'deleteFingerprint'])->name('fingerprint.delete');
 
     // Routes untuk Admin
     Route::middleware('role:Admin,Super Admin')->group(function () {

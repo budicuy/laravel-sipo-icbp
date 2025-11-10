@@ -62,16 +62,14 @@
                             request()->is('obat*') ||
                             request()->is('diagnosa*') ||
                             request()->is('user*') ||
-                            request()->is('external-employee*') ||
-                            request()->is('fingerprint*')
+                            request()->is('external-employee*')
                                 ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
                                 : 'text-gray-700 hover:bg-gray-100')
                             : (request()->is('karyawan*') ||
                             request()->is('keluarga*') ||
                             request()->is('obat*') ||
                             request()->is('diagnosa*') ||
-                            request()->is('external-employee*') ||
-                            request()->is('fingerprint*')
+                            request()->is('external-employee*')
                                 ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
                                 : 'text-gray-700 hover:bg-gray-100') }}"
                         :title="!sidebarOpen ? 'Master Data' : ''">
@@ -137,7 +135,7 @@
                         <li>
                             <a href="{{ route('fingerprint.index') }}"
                                 class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('fingerprint*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
-                                <i class="fas fa-fingerprint mr-2"></i> Fingerprint
+                                Data Fingerprint
                             </a>
                         </li>
                     </ul>

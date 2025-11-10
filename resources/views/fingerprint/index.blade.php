@@ -2,608 +2,477 @@
 
 @section('title', 'Manajemen Fingerprint')
 
-@push('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-/* Custom animations for fingerprint */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.fingerprint-pulse {
-    animation: pulse 2s infinite;
-}
-
-/* Custom gradient backgrounds */
-.bg-gradient-purple {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.bg-gradient-green {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-}
-
-.bg-gradient-red {
-    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-}
-
-/* Custom transitions */
-.transition-all-300 {
-    transition: all 0.3s ease;
-}
-
-/* Hover effects */
-.hover-lift:hover {
-    transform: translateY(-5px);
-}
-
-.hover-lift-sm:hover {
-    transform: translateY(-2px);
-}
-
-/* Custom shadows */
-.shadow-glow {
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.shadow-hover:hover {
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-</style>
-@endpush
-
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="bg-white rounded-2xl shadow-lg hover-lift transition-all-300">
-                <div class="bg-gradient-purple text-white p-6 rounded-t-2xl">
-                    <h3 class="text-xl font-bold flex items-center">
-                        <i class="fas fa-fingerprint mr-3"></i> Manajemen Fingerprint Keluarga
-                    </h3>
-                </div>
-                <div class="p-6">
-                    <!-- Tabs -->
-                    <ul class="flex space-x-2 mb-6" id="fingerprintTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="px-6 py-3 rounded-t-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all-300 hover-lift-sm font-semibold active"
-                                    id="enroll-tab"
-                                    data-bs-toggle="tab"
-                                    data-bs-target="#enroll"
-                                    type="button"
-                                    role="tab"
-                                    aria-controls="enroll"
-                                    aria-selected="true">
-                                <i class="fas fa-user-plus mr-2"></i> Pendaftaran Fingerprint
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="px-6 py-3 rounded-t-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all-300 hover-lift-sm font-semibold"
-                                    id="verify-tab"
-                                    data-bs-toggle="tab"
-                                    data-bs-target="#verify"
-                                    type="button"
-                                    role="tab"
-                                    aria-controls="verify"
-                                    aria-selected="false">
-                                <i class="fas fa-check-circle mr-2"></i> Verifikasi Fingerprint
-                            </button>
-                        </li>
-                    </ul>
+<div class="p-6 bg-gray-50 min-h-screen" x-data="fingerprintSystem()">
+    <!-- Header Section -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-3 rounded-lg shadow-lg">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
+                </svg>
+            </div>
+            Sistem Sidik Jari SecuGen
+        </h1>
+        <p class="text-gray-600 mt-2 ml-1">Manajemen fingerprint data keluarga karyawan</p>
+    </div>
 
-                    <!-- Tab Content -->
-                    <div id="fingerprintTabsContent">
-                        <!-- Enroll Tab -->
-                        <div class="tab-pane fade show active" id="enroll" role="tabpanel" aria-labelledby="enroll-tab">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                                <div class="bg-white rounded-2xl shadow-lg hover-lift transition-all-300">
-                                    <div class="bg-gradient-purple text-white p-4 rounded-t-2xl">
-                                        <h5 class="text-lg font-bold flex items-center">
-                                            <i class="fas fa-user-plus mr-2"></i> Daftar Fingerprint Baru
-                                        </h5>
-                                    </div>
-                                    <div class="p-6">
-                                        <form id="enrollForm">
-                                            <div class="mb-4">
-                                                <label for="id_keluarga" class="block text-sm font-medium text-gray-700 mb-2">Pilih Anggota Keluarga</label>
-                                                <select class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all-300"
-                                                        id="id_keluarga"
-                                                        name="id_keluarga"
-                                                        required>
-                                                    <option value="">-- Pilih Anggota Keluarga --</option>
-                                                    @foreach($allKeluarga as $keluarga)
-                                                        <option value="{{ $keluarga->id_keluarga }}"
-                                                                @if($keluarga->fingerprint_template) disabled @endif>
-                                                            {{ $keluarga->nama_keluarga }}
-                                                            ({{ $keluarga->hubungan->hubungan ?? 'Tidak diketahui' }})
-                                                            @if($keluarga->fingerprint_template) - Sudah terdaftar @endif
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="mb-4 flex space-x-3">
-                                                <button type="button"
-                                                        id="captureBtn"
-                                                        class="bg-gradient-purple text-white px-6 py-3 rounded-xl font-semibold hover-lift-sm transition-all-300 shadow-hover">
-                                                    <i class="fas fa-fingerprint mr-2"></i> Capture Sidik Jari
-                                                </button>
-                                                <button type="submit"
-                                                        id="enrollBtn"
-                                                        class="bg-gradient-green text-white px-6 py-3 rounded-xl font-semibold hover-lift-sm transition-all-300 shadow-hover"
-                                                        disabled>
-                                                    <i class="fas fa-save mr-2"></i> Simpan Fingerprint
-                                                </button>
-                                            </div>
-                                        </form>
+    <!-- Main Card -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <!-- Tabs -->
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px">
+                <button @click="activeTab = 'enroll'"
+                    :class="activeTab === 'enroll' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="py-4 px-6 text-sm font-medium border-b-2 transition-colors duration-200 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                    </svg>
+                    Pendaftaran Fingerprint
+                </button>
+                <button @click="activeTab = 'verify'"
+                    :class="activeTab === 'verify' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="py-4 px-6 text-sm font-medium border-b-2 transition-colors duration-200 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    Verifikasi Fingerprint
+                </button>
+            </nav>
+        </div>
 
-                                        <div id="captureStatus" class="hidden bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-xl mb-4">
-                                            <i class="fas fa-spinner fa-spin mr-2"></i> Menangkap sidik jari...
-                                        </div>
+        <!-- Tab Content -->
+        <div class="p-6">
+            <!-- Enroll Tab -->
+            <div x-show="activeTab === 'enroll'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Enrollment Form -->
+                    <div class="border rounded-lg p-6 bg-gray-50">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            </svg>
+                            Daftar Fingerprint Baru
+                        </h2>
 
-                                        <div id="fingerprintPreview" class="hidden mt-4">
-                                            <h6 class="text-sm font-medium text-gray-700 mb-2">Preview Sidik Jari:</h6>
-                                            <img id="fingerprintImage" class="rounded-xl border-2 border-gray-200 max-w-xs">
-                                            <div id="fingerprintInfo" class="mt-2 text-sm text-gray-600"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bg-white rounded-2xl shadow-lg hover-lift transition-all-300">
-                                    <div class="bg-gradient-purple text-white p-4 rounded-t-2xl">
-                                        <h5 class="text-lg font-bold flex items-center">
-                                            <i class="fas fa-list mr-2"></i> Daftar Fingerprint Terdaftar ({{ $keluargaList->count() }})
-                                        </h5>
-                                    </div>
-                                    <div class="p-6">
-                                        @if($keluargaList->isEmpty())
-                                            <div class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-xl">
-                                                <i class="fas fa-exclamation-triangle mr-2"></i> Belum ada fingerprint yang terdaftar
-                                            </div>
-                                        @else
-                                            <div class="overflow-x-auto">
-                                                <table class="w-full">
-                                                    <thead>
-                                                        <tr class="bg-gradient-purple text-white">
-                                                            <th class="px-4 py-3 text-left text-sm font-medium">Nama</th>
-                                                            <th class="px-4 py-3 text-left text-sm font-medium">Hubungan</th>
-                                                            <th class="px-4 py-3 text-left text-sm font-medium">Tanggal Daftar</th>
-                                                            <th class="px-4 py-3 text-left text-sm font-medium">Aksi</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class="divide-y divide-gray-200">
-                                                        @foreach($keluargaList as $keluarga)
-                                                            <tr class="hover:bg-gray-50 transition-colors">
-                                                                <td class="px-4 py-3 text-sm">{{ $keluarga->nama_keluarga }}</td>
-                                                                <td class="px-4 py-3 text-sm">{{ $keluarga->hubungan->hubungan ?? 'Tidak diketahui' }}</td>
-                                                                <td class="px-4 py-3 text-sm">{{ $keluarga->fingerprint_enrolled_at ? $keluarga->fingerprint_enrolled_at->format('d/m/Y H:i') : '-' }}</td>
-                                                                <td class="px-4 py-3 text-sm">
-                                                                    <button type="button"
-                                                                            class="bg-gradient-red text-white px-3 py-1 rounded-lg text-xs font-medium hover-lift-sm transition-all-300 shadow-hover btn-remove-fingerprint"
-                                                                            data-id="{{ $keluarga->id_keluarga }}"
-                                                                            data-name="{{ $keluarga->nama_keluarga }}">
-                                                                        <i class="fas fa-trash mr-1"></i> Hapus
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Anggota Keluarga</label>
+                            <select x-model="selectedFamilyMember" @change="onFamilyMemberChange()"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="">-- Pilih Anggota Keluarga --</option>
+                                <template x-for="member in familyMembers" :key="member.id_keluarga">
+                                    <option :value="member.id_keluarga" x-text="`${member.nama_keluarga} - ${member.karyawan?.nama_karyawan || ''}`"></option>
+                                </template>
+                            </select>
                         </div>
 
-                        <!-- Verify Tab -->
-                        <div class="tab-pane fade" id="verify" role="tabpanel" aria-labelledby="verify-tab">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                                <div class="bg-white rounded-2xl shadow-lg hover-lift transition-all-300">
-                                    <div class="bg-gradient-green text-white p-4 rounded-t-2xl">
-                                        <h5 class="text-lg font-bold flex items-center">
-                                            <i class="fas fa-check-circle mr-2"></i> Verifikasi Sidik Jari
-                                        </h5>
-                                    </div>
-                                    <div class="p-6">
-                                        <p class="text-gray-600 mb-6">Letakkan jari di scanner untuk memverifikasi identitas</p>
+                        <div x-show="selectedFamilyMember" class="mb-4 p-3 bg-blue-50 rounded-lg">
+                            <p class="text-sm text-blue-800">
+                                <strong>Terpilih:</strong> <span x-text="getSelectedMemberName()"></span>
+                            </p>
+                        </div>
 
-                                        <button type="button"
-                                                id="verifyBtn"
-                                                class="bg-gradient-green text-white px-8 py-4 rounded-xl font-semibold text-lg hover-lift-sm transition-all-300 shadow-hover">
-                                            <i class="fas fa-fingerprint mr-3"></i> Verifikasi Sekarang
-                                        </button>
+                        <button @click="enrollFingerprint()"
+                            :disabled="!selectedFamilyMember || isCapturing"
+                            class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
+                            <svg x-show="!isCapturing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            <svg x-show="isCapturing" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <span x-text="isCapturing ? 'Menangkap Sidik Jari...' : 'Capture & Daftar'"></span>
+                        </button>
+                    </div>
 
-                                        <div id="verifyStatus" class="hidden bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-xl mt-4">
-                                            <i class="fas fa-spinner fa-spin mr-2"></i> Memverifikasi...
-                                        </div>
+                    <!-- Fingerprint Preview -->
+                    <div class="border rounded-lg p-6 bg-gray-50">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            Preview Sidik Jari
+                        </h2>
 
-                                        <div id="verifyResult" class="mt-4"></div>
-                                    </div>
+                        <div x-show="!lastCaptured" class="text-center py-8 text-gray-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
+                            </svg>
+                            <p>Belum ada sidik jari yang ditangkap</p>
+                        </div>
+
+                        <div x-show="lastCaptured" class="space-y-4">
+                            <img :src="`data:image/bmp;base64,${lastCaptured.image}`"
+                                alt="Fingerprint" class="w-full border rounded-lg">
+
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div class="bg-white p-3 rounded border">
+                                    <span class="font-semibold">Kualitas:</span>
+                                    <span x-text="lastCaptured.quality" class="ml-2"></span>
                                 </div>
-
-                                <div class="bg-white rounded-2xl shadow-lg hover-lift transition-all-300">
-                                    <div class="bg-gradient-green text-white p-4 rounded-t-2xl">
-                                        <h5 class="text-lg font-bold flex items-center">
-                                            <i class="fas fa-info-circle mr-2"></i> Hasil Verifikasi
-                                        </h5>
-                                    </div>
-                                    <div class="p-6">
-                                        <div id="verificationResult" class="text-center">
-                                            <i class="fas fa-fingerprint text-6xl text-gray-400 mb-4 fingerprint-pulse"></i>
-                                            <p class="text-gray-600">Belum ada verifikasi dilakukan</p>
-                                        </div>
-                                    </div>
+                                <div class="bg-white p-3 rounded border">
+                                    <span class="font-semibold">NFIQ:</span>
+                                    <span x-text="lastCaptured.nfiq" class="ml-2"></span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Hidden form for fingerprint template -->
-<input type="hidden" id="fingerprintTemplate" name="fingerprintTemplate">
+            <!-- Verify Tab -->
+            <div x-show="activeTab === 'verify'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                <div class="max-w-2xl mx-auto">
+                    <div class="border rounded-lg p-6 bg-gray-50">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            Verifikasi Sidik Jari
+                        </h2>
 
-<!-- Confirmation Modal -->
-<div class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" id="confirmModal">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
-        <div class="bg-gradient-purple text-white p-6 rounded-t-2xl flex justify-between items-center">
-            <h5 class="text-lg font-bold">Konfirmasi Hapus</h5>
-            <button type="button" class="text-white hover:text-gray-200 transition-colors" onclick="document.getElementById('confirmModal').classList.add('hidden')">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="p-6">
-            <p class="text-gray-700">Apakah Anda yakin ingin menghapus fingerprint untuk <strong id="confirmName"></strong>?</p>
-        </div>
-        <div class="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end space-x-3">
-            <button type="button"
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors"
-                    onclick="document.getElementById('confirmModal').classList.add('hidden')">
-                Batal
-            </button>
-            <button type="button"
-                    id="confirmDelete"
-                    class="bg-gradient-red text-white px-4 py-2 rounded-xl hover-lift-sm transition-all-300 shadow-hover">
-                Hapus
-            </button>
-        </div>
-    </div>
-</div>
+                        <p class="text-gray-600 mb-6">Letakkan jari di scanner untuk memverifikasi identitas</p>
 
-<script>
-let capturedTemplate = null;
-let currentDeleteId = null;
+                        <button @click="verifyFingerprint()"
+                            :disabled="isCapturing || fingerprintTemplates.length === 0"
+                            class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
+                            <svg x-show="!isCapturing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            <svg x-show="isCapturing" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <span x-text="isCapturing ? 'Memverifikasi...' : 'Verifikasi Sekarang'"></span>
+                        </button>
 
-// Tab switching functionality
-document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-    tab.addEventListener('click', function() {
-        // Remove active class from all tabs and panes
-        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(t => {
-            t.classList.remove('active', 'bg-gradient-purple', 'text-white');
-            t.classList.add('bg-gray-100', 'text-gray-600');
-        });
-        document.querySelectorAll('.tab-pane').forEach(pane => {
-            pane.classList.remove('show', 'active');
-        });
-
-        // Add active class to clicked tab
-        this.classList.add('active', 'bg-gradient-purple', 'text-white');
-        this.classList.remove('bg-gray-100', 'text-gray-600');
-
-        // Show corresponding pane
-        const target = this.getAttribute('data-bs-target');
-        document.querySelector(target).classList.add('show', 'active');
-    });
-});
-
-// Capture fingerprint
-document.getElementById('captureBtn').addEventListener('click', async function() {
-    const btn = this;
-    const statusDiv = document.getElementById('captureStatus');
-    const previewDiv = document.getElementById('fingerprintPreview');
-    const enrollBtn = document.getElementById('enrollBtn');
-
-    btn.disabled = true;
-    statusDiv.classList.remove('hidden');
-    previewDiv.classList.add('hidden');
-    enrollBtn.disabled = true;
-
-    try {
-        const response = await fetch('/fingerprint/capture', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            capturedTemplate = data.template;
-            document.getElementById('fingerprintTemplate').value = data.template;
-            document.getElementById('fingerprintImage').src = 'data:image/bmp;base64,' + data.image;
-            document.getElementById('fingerprintInfo').innerHTML = `
-                <span class="text-xs">
-                    Kualitas: ${data.quality}, NFIQ: ${data.nfiq}
-                </span>
-            `;
-            previewDiv.classList.remove('hidden');
-            enrollBtn.disabled = false;
-
-            showAlert('success', data.message);
-        } else {
-            showAlert('danger', data.message);
-        }
-    } catch (error) {
-        showAlert('danger', 'Error: ' + error.message);
-    } finally {
-        btn.disabled = false;
-        statusDiv.classList.add('hidden');
-    }
-});
-
-// Enroll fingerprint
-document.getElementById('enrollForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const id_keluarga = document.getElementById('id_keluarga').value;
-
-    if (!capturedTemplate) {
-        showAlert('warning', 'Silakan capture fingerprint terlebih dahulu!');
-        return;
-    }
-
-    try {
-        const response = await fetch('/fingerprint/enroll', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                id_keluarga: id_keluarga,
-                fingerprint_template: capturedTemplate
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            showAlert('success', data.message);
-            // Reset form
-            this.reset();
-            document.getElementById('fingerprintPreview').classList.add('hidden');
-            document.getElementById('enrollBtn').disabled = true;
-            capturedTemplate = null;
-
-            // Reload page after 2 seconds
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        } else {
-            showAlert('danger', data.message);
-        }
-    } catch (error) {
-        showAlert('danger', 'Error: ' + error.message);
-    }
-});
-
-// Verify fingerprint
-document.getElementById('verifyBtn').addEventListener('click', async function() {
-    const btn = this;
-    const statusDiv = document.getElementById('verifyStatus');
-    const resultDiv = document.getElementById('verifyResult');
-    const verificationResult = document.getElementById('verificationResult');
-
-    btn.disabled = true;
-    statusDiv.classList.remove('hidden');
-    resultDiv.innerHTML = '';
-
-    try {
-        // First capture fingerprint
-        const captureResponse = await fetch('/fingerprint/capture', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
-
-        const captureData = await captureResponse.json();
-
-        if (!captureData.success) {
-            showAlert('danger', captureData.message);
-            return;
-        }
-
-        // Then verify
-        const verifyResponse = await fetch('/fingerprint/verify', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                fingerprint_template: captureData.template
-            })
-        });
-
-        const verifyData = await verifyResponse.json();
-
-        if (verifyData.success) {
-            resultDiv.innerHTML = `
-                <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
-                    <h6 class="font-medium"><i class="fas fa-check-circle mr-2"></i> ${verifyData.message}</h6>
+                        <div x-show="fingerprintTemplates.length === 0" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p class="text-sm text-yellow-800">
+                                <strong>Perhatian:</strong> Belum ada data fingerprint yang terdaftar. Silakan daftarkan fingerprint terlebih dahulu.
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            `;
-
-            verificationResult.innerHTML = `
-                <div class="bg-green-50 border border-green-200 text-green-700 px-6 py-8 rounded-xl">
-                    <i class="fas fa-user-check text-5xl mb-4"></i>
-                    <h5 class="text-lg font-bold mb-2">${verifyData.keluarga.nama_keluarga}</h5>
-                    <p class="text-sm"><strong>Hubungan:</strong> ${verifyData.keluarga.hubungan?.hubungan || 'Tidak diketahui'}</p>
-                    <p class="text-sm"><strong>Karyawan:</strong> ${verifyData.keluarga.karyawan?.nama_karyawan || 'Tidak diketahui'}</p>
-                    <p class="text-sm"><strong>Score:</strong> ${verifyData.score}/199</p>
-                </div>
-            `;
-        } else {
-            resultDiv.innerHTML = `
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-                    <h6 class="font-medium"><i class="fas fa-times-circle mr-2"></i> ${verifyData.message}</h6>
-                </div>
-            `;
-
-            verificationResult.innerHTML = `
-                <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-8 rounded-xl">
-                    <i class="fas fa-user-times text-5xl mb-4"></i>
-                    <p class="text-sm">Sidik jari tidak dikenali</p>
-                    <p class="text-sm"><strong>Score tertinggi:</strong> ${verifyData.score}/199</p>
-                </div>
-            `;
-        }
-    } catch (error) {
-        showAlert('danger', 'Error: ' + error.message);
-        resultDiv.innerHTML = `
-            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-                Error: ${error.message}
             </div>
-        `;
-    } finally {
-        btn.disabled = false;
-        statusDiv.classList.add('hidden');
-    }
-});
+        </div>
 
-// Remove fingerprint
-document.querySelectorAll('.btn-remove-fingerprint').forEach(btn => {
-    btn.addEventListener('click', function() {
-        currentDeleteId = this.dataset.id;
-        document.getElementById('confirmName').textContent = this.dataset.name;
-        document.getElementById('confirmModal').classList.remove('hidden');
-        document.getElementById('confirmModal').classList.add('flex');
-    });
-});
+        <!-- Message Display -->
+        <div x-show="message" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            class="m-6 p-4 rounded-lg"
+            :class="messageType === 'success' ? 'bg-green-100 text-green-800' :
+                    messageType === 'error' ? 'bg-red-100 text-red-800' :
+                    'bg-blue-100 text-blue-800'">
+            <div class="flex items-center gap-2">
+                <svg x-show="messageType === 'success'" class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <svg x-show="messageType === 'error'" class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <svg x-show="messageType === 'info'" class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span x-text="message"></span>
+            </div>
+        </div>
 
-document.getElementById('confirmDelete').addEventListener('click', async function() {
-    if (!currentDeleteId) return;
+        <!-- Registered Fingerprints List -->
+        <div class="border-t border-gray-200 p-6">
+            <h2 class="text-xl font-semibold mb-4">Data Fingerprint Terdaftar ({{ count($keluargas) }})</h2>
 
-    try {
-        const response = await fetch(`/fingerprint/remove/${currentDeleteId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            <div x-show="{{ count($keluargas) === 0 }}" class="text-center py-8 text-gray-500">
+                <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
+                </svg>
+                <p>Belum ada data fingerprint yang terdaftar</p>
+            </div>
+
+            <div x-show="{{ count($keluargas) > 0 }}" class="space-y-3">
+                <template x-for="keluarga in keluargas" :key="keluarga.id_keluarga">
+                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div>
+                            <p class="font-semibold text-gray-800" x-text="keluarga.nama_keluarga"></p>
+                            <p class="text-sm text-gray-500">
+                                Karyawan: <span x-text="keluarga.karyawan?.nama_karyawan || '-'"></span>
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                Terdaftar: <span x-text="new Date(keluarga.fingerprint_enrolled_at).toLocaleString('id-ID')"></span>
+                            </p>
+                        </div>
+                        <button @click="deleteFingerprint(keluarga.id_keluarga)"
+                            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-200">
+                            Hapus
+                        </button>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                <strong class="text-yellow-800">Catatan Penting:</strong>
+                <ul class="text-sm text-yellow-700 mt-2 space-y-1">
+                    <li>• Pastikan SGIBIOSRV berjalan di localhost:8443</li>
+                    <li>• Fingerprint reader harus terhubung dengan benar</li>
+                    <li>• Pastikan koneksi SSL ke SecuGen API berjalan dengan baik</li>
+                    <li>• Kualitas fingerprint minimal 50 untuk pendaftaran</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function fingerprintSystem() {
+    return {
+        activeTab: 'enroll',
+        familyMembers: [],
+        fingerprintTemplates: [],
+        selectedFamilyMember: '',
+        isCapturing: false,
+        message: '',
+        messageType: 'info',
+        lastCaptured: null,
+        keluargas: @json($keluargas),
+
+        init() {
+            this.loadFamilyMembers();
+            this.loadFingerprintTemplates();
+        },
+
+        async loadFamilyMembers() {
+            try {
+                const response = await fetch('/fingerprint/family-members');
+                this.familyMembers = await response.json();
+            } catch (error) {
+                console.error('Error loading family members:', error);
+                this.showMessage('Gagal memuat data anggota keluarga', 'error');
             }
-        });
+        },
 
-        const data = await response.json();
+        async loadFingerprintTemplates() {
+            try {
+                const response = await fetch('/fingerprint/templates');
+                this.fingerprintTemplates = await response.json();
+            } catch (error) {
+                console.error('Error loading fingerprint templates:', error);
+            }
+        },
 
-        if (data.success) {
-            showAlert('success', data.message);
-            document.getElementById('confirmModal').classList.add('hidden');
-            document.getElementById('confirmModal').classList.remove('flex');
+        onFamilyMemberChange() {
+            // Reset last captured when family member changes
+            this.lastCaptured = null;
+        },
 
-            // Reload page after 2 seconds
+        getSelectedMemberName() {
+            const member = this.familyMembers.find(m => m.id_keluarga == this.selectedFamilyMember);
+            return member ? `${member.nama_keluarga} - ${member.karyawan?.nama_karyawan || ''}` : '';
+        },
+
+        async captureFingerprint() {
+            this.isCapturing = true;
+            this.showMessage('Menangkap sidik jari...', 'info');
+
+            try {
+                const params = new URLSearchParams({
+                    Timeout: '10000',
+                    Quality: '50',
+                    licstr: '',
+                    templateFormat: 'ISO',
+                    imageWSQRate: '0.75'
+                });
+
+                const response = await fetch('https://localhost:8443/SGIFPCapture', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params.toString()
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.ErrorCode === 0) {
+                    this.lastCaptured = {
+                        template: data.TemplateBase64,
+                        image: data.BMPBase64,
+                        quality: data.ImageQuality,
+                        nfiq: data.NFIQ
+                    };
+                    this.showMessage(`Sidik jari berhasil ditangkap! Kualitas: ${data.ImageQuality}, NFIQ: ${data.NFIQ}`, 'success');
+                    return data.TemplateBase64;
+                } else {
+                    this.showMessage(`Error: ${data.ErrorCode} - ${this.getErrorDescription(data.ErrorCode)}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                this.showMessage(`Error koneksi: ${error.message}. Pastikan SGIBIOSRV berjalan di port 8443`, 'error');
+                return null;
+            } finally {
+                this.isCapturing = false;
+            }
+        },
+
+        getErrorDescription(code) {
+            const errors = {
+                51: 'System file load failure',
+                52: 'Sensor chip initialization failed',
+                53: 'Device not found',
+                54: 'Fingerprint image capture timeout',
+                55: 'No device available',
+                56: 'Driver load failed',
+                57: 'Wrong Image',
+                58: 'Lack of bandwidth',
+                59: 'Device Busy',
+                60: 'Cannot get serial number',
+                61: 'Unsupported device',
+                63: 'SgiBioSrv tidak berjalan'
+            };
+            return errors[code] || 'Unknown error';
+        },
+
+        async enrollFingerprint() {
+            if (!this.selectedFamilyMember) {
+                this.showMessage('Pilih anggota keluarga terlebih dahulu!', 'error');
+                return;
+            }
+
+            const template = await this.captureFingerprint();
+            if (template) {
+                try {
+                    const response = await fetch('/fingerprint/save', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            id_keluarga: this.selectedFamilyMember,
+                            fingerprint_template: template
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.showMessage(result.message, 'success');
+                        this.selectedFamilyMember = '';
+                        this.lastCaptured = null;
+                        this.loadFingerprintTemplates();
+                        // Reload page to show updated data
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                        this.showMessage('Gagal menyimpan fingerprint', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error saving fingerprint:', error);
+                    this.showMessage('Gagal menyimpan fingerprint', 'error');
+                }
+            }
+        },
+
+        async verifyFingerprint() {
+            if (this.fingerprintTemplates.length === 0) {
+                this.showMessage('Belum ada fingerprint terdaftar!', 'error');
+                return;
+            }
+
+            const template = await this.captureFingerprint();
+            if (!template) return;
+
+            this.showMessage('Memverifikasi...', 'info');
+            let bestMatch = null;
+            let bestScore = 0;
+
+            for (const user of this.fingerprintTemplates) {
+                try {
+                    const params = new URLSearchParams({
+                        Template1: template,
+                        Template2: user.fingerprint_template,
+                        licstr: '',
+                        templateFormat: 'ISO'
+                    });
+
+                    const response = await fetch('https://localhost:8443/SGIMatchScore', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: params.toString()
+                    });
+
+                    const data = await response.json();
+
+                    if (data.ErrorCode === 0 && data.MatchingScore > bestScore) {
+                        bestScore = data.MatchingScore;
+                        bestMatch = user;
+                    }
+                } catch (error) {
+                    console.error('Error matching:', error);
+                    this.showMessage(`Error matching: ${error.message}`, 'error');
+                    return;
+                }
+            }
+
+            if (bestScore > 100 && bestMatch) {
+                this.showMessage(`✓ Verifikasi Berhasil! ${bestMatch.nama_keluarga} - ${bestMatch.karyawan?.nama_karyawan || ''} (Score: ${bestScore}/199)`, 'success');
+            } else {
+                this.showMessage(`✗ Sidik jari tidak cocok. Score tertinggi: ${bestScore}/199`, 'error');
+            }
+        },
+
+        async deleteFingerprint(id_keluarga) {
+            if (!confirm('Apakah Anda yakin ingin menghapus fingerprint ini?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/fingerprint/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ id_keluarga })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    this.showMessage(result.message, 'success');
+                    // Reload page to show updated data
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    this.showMessage('Gagal menghapus fingerprint', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting fingerprint:', error);
+                this.showMessage('Gagal menghapus fingerprint', 'error');
+            }
+        },
+
+        showMessage(msg, type = 'info') {
+            this.message = msg;
+            this.messageType = type;
+
+            // Auto hide message after 5 seconds
             setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        } else {
-            showAlert('danger', data.message);
+                this.message = '';
+            }, 5000);
         }
-    } catch (error) {
-        showAlert('danger', 'Error: ' + error.message);
     }
-});
-
-// Helper function to show alerts
-function showAlert(type, message) {
-    const colors = {
-        success: 'bg-green-50 border-green-200 text-green-700',
-        danger: 'bg-red-50 border-red-200 text-red-700',
-        warning: 'bg-yellow-50 border-yellow-200 text-yellow-700'
-    };
-
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `${colors[type]} border px-4 py-3 rounded-xl mb-4 flex justify-between items-center`;
-    alertDiv.innerHTML = `
-        <span>${message}</span>
-        <button type="button" class="ml-4 text-current hover:opacity-75" onclick="this.parentElement.remove()">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-
-    const container = document.querySelector('.container-fluid');
-    container.insertBefore(alertDiv, container.firstChild);
-
-    // Auto dismiss after 5 seconds
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
 }
-
-// Initialize tooltips and other Bootstrap components
-document.addEventListener('DOMContentLoaded', function() {
-    // Add loading animation to buttons
-    document.querySelectorAll('button').forEach(button => {
-        button.addEventListener('click', function() {
-            if (!this.disabled && this.id !== 'confirmDelete') {
-                const originalText = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + originalText;
-                this.disabled = true;
-
-                // Re-enable after 3 seconds if not manually handled
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                }, 3000);
-            }
-        });
-    });
-
-    // Add smooth scroll to top when tabs change
-    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-        tab.addEventListener('click', function (e) {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-    });
-});
-
-// Enhanced error handling for fingerprint operations
-window.addEventListener('unhandledrejection', function(event) {
-    console.error('Unhandled promise rejection:', event.reason);
-    showAlert('danger', 'Terjadi kesalahan yang tidak terduga. Silakan coba lagi.');
-});
-
-// Add keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    // Ctrl+C for capture
-    if (e.ctrlKey && e.key === 'c' && document.activeElement.tagName !== 'INPUT') {
-        e.preventDefault();
-        document.getElementById('captureBtn')?.click();
-    }
-
-    // Ctrl+V for verify
-    if (e.ctrlKey && e.key === 'v' && document.activeElement.tagName !== 'INPUT') {
-        e.preventDefault();
-        document.getElementById('verifyBtn')?.click();
-    }
-
-    // Escape to close modals
-    if (e.key === 'Escape') {
-        const modal = document.getElementById('confirmModal');
-        if (modal && !modal.classList.contains('hidden')) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-    }
-});
 </script>
+@endpush
 @endsection
