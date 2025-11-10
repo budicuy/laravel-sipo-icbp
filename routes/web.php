@@ -20,6 +20,7 @@ use App\Http\Controllers\StokMasukController;
 use App\Http\Controllers\SuratPengantarIstirahatController;
 use App\Http\Controllers\TokenEmergencyController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\FingerprintController;
 use App\Models\Obat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -230,12 +231,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/external-employee/export', [ExternalEmployeeController::class, 'export'])->name('external-employee.export')->middleware('role:Admin,Super Admin');
     Route::post('/external-employee/bulk-delete', [ExternalEmployeeController::class, 'bulkDelete'])->name('external-employee.bulkDelete');
     Route::get('/external-employee/template', [ExternalEmployeeController::class, 'downloadTemplate'])->name('external-employee.template')->middleware('role:Super Admin');
-    
+
     // External Employee Resource Routes
     Route::get('/external-employee/{id}', [ExternalEmployeeController::class, 'show'])->name('external-employee.show');
     Route::get('/external-employee/{id}/edit', [ExternalEmployeeController::class, 'edit'])->name('external-employee.edit');
     Route::put('/external-employee/{id}', [ExternalEmployeeController::class, 'update'])->name('external-employee.update');
     Route::delete('/external-employee/{id}', [ExternalEmployeeController::class, 'destroy'])->name('external-employee.destroy');
+
+    // Fingerprint Routes
+    Route::get('/fingerprint', [FingerprintController::class, 'index'])->name('fingerprint.index');
+    Route::post('/fingerprint/capture', [FingerprintController::class, 'captureFingerprint'])->name('fingerprint.capture');
+    Route::post('/fingerprint/enroll', [FingerprintController::class, 'enrollFingerprint'])->name('fingerprint.enroll');
+    Route::post('/fingerprint/verify', [FingerprintController::class, 'verifyFingerprint'])->name('fingerprint.verify');
+    Route::delete('/fingerprint/remove/{id_keluarga}', [FingerprintController::class, 'removeFingerprint'])->name('fingerprint.remove');
+
+    // Fingerprint Routes
+    Route::get('/fingerprint', [FingerprintController::class, 'index'])->name('fingerprint.index');
+    Route::post('/fingerprint/capture', [FingerprintController::class, 'captureFingerprint'])->name('fingerprint.capture');
+    Route::post('/fingerprint/enroll', [FingerprintController::class, 'enrollFingerprint'])->name('fingerprint.enroll');
+    Route::post('/fingerprint/verify', [FingerprintController::class, 'verifyFingerprint'])->name('fingerprint.verify');
+    Route::delete('/fingerprint/remove/{id_keluarga}', [FingerprintController::class, 'removeFingerprint'])->name('fingerprint.remove');
 
     // Surat Pengantar Istirahat Routes
     Route::get('/surat-pengantar-istirahat/search-rekam-medis', [SuratPengantarIstirahatController::class, 'searchRekamMedis'])->name('surat-pengantar-istirahat.searchRekamMedis');
