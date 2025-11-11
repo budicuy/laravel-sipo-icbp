@@ -139,6 +139,10 @@
             <input type="hidden" id="kunjungan_id" name="kunjungan_id"
                 value="{{ old('kunjungan_id', $rekamMedis->kunjungan_id) }}">
 
+            <!-- Hidden field for id_karyawan -->
+            <input type="hidden" id="id_karyawan" name="id_karyawan"
+                value="{{ old('id_karyawan', $rekamMedis->keluarga->id_karyawan) }}" required>
+
             <!-- Data Pasien Section -->
             <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
                 <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
@@ -153,32 +157,6 @@
 
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Pilih Karyawan dengan Search -->
-                        <div class="md:col-span-2">
-                            <label for="search_karyawan" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Pilih Karyawan <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <input type="hidden" id="id_karyawan" name="id_karyawan"
-                                    value="{{ old('id_karyawan', $rekamMedis->keluarga->id_karyawan) }}" required>
-                                <input type="text" id="search_karyawan"
-                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    placeholder="Cari karyawan (Format: NIK-Nama Karyawan)..." autocomplete="off"
-                                    value="{{ ($rekamMedis->keluarga->karyawan->nik_karyawan ?? '') . '-' . ($rekamMedis->keluarga->karyawan->nama_karyawan ?? '') }}">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
-                                <!-- Search Results Dropdown for Karyawan -->
-                                <div id="karyawan_search_results"
-                                    class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                    <!-- Results will be populated by JavaScript -->
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- Info Karyawan (Auto-filled) -->
                         <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg">
@@ -232,7 +210,6 @@
                                 <select id="id_keluarga" name="id_keluarga"
                                     class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
                                     required>
-                                    <option value="">-- Pilih karyawan terlebih dahulu --</option>
                                     @if ($rekamMedis->keluarga)
                                         <option value="{{ $rekamMedis->keluarga->id_keluarga }}" selected
                                             data-no-rm="{{ $rekamMedis->keluarga->no_rm ?? '' }}"
@@ -443,9 +420,53 @@
             </div>
 
             <!-- Combined Diagnosa & Resep Section -->
-            <div id="keluhan-container">
+            <div id="keluhan-container" style="display: block;">
                 <!-- Keluhan sections will be populated by JavaScript based on existing data -->
             </div>
+
+            <!-- Initialize keluhan sections immediately after container -->
+            <script>
+                // Pass data from Blade to JavaScript
+                window.rekamMedisData = {
+                    jumlah_keluhan: @json($rekamMedis->jumlah_keluhan),
+                    keluhans: @json($rekamMedis->keluhans ?? [])
+                };
+
+                // Simple initialization function that will be called from multiple places
+                window.initializeKeluhanSections = function() {
+                    const jumlahKeluhan = window.rekamMedisData.jumlah_keluhan;
+                    const container = document.getElementById('keluhan-container');
+
+                    if (!container) {
+                        return;
+                    }
+
+                    // Force container to be visible
+                    container.style.display = 'block';
+
+                    // Try to initialize if function exists
+                    if (typeof updateKeluhanSections === 'function') {
+                        try {
+                            updateKeluhanSections(jumlahKeluhan);
+                        } catch (error) {
+                            // Silently handle error
+                        }
+                    }
+                };
+
+                // Initialize immediately without waiting for DOMContentLoaded
+                (function() {
+                    // Try to initialize immediately
+                    window.initializeKeluhanSections();
+                })();
+
+                // Fallback initialization after DOM is fully loaded
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(function() {
+                        window.initializeKeluhanSections();
+                    }, 100);
+                });
+            </script>
 
             <!-- Form Actions -->
             <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -475,43 +496,46 @@
             let searchTimeout;
 
             // Data keluhan existing dari server
-            const existingKeluhans = @json($rekamMedis->keluhans);
+            const existingKeluhans = @json($rekamMedis->keluhans ?? []);
 
-            // Search karyawan dengan AJAX
-            document.getElementById('search_karyawan').addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                const searchValue = this.value.trim();
+            // Search karyawan dengan AJAX - add null check
+            const searchKaryawanElement = document.getElementById('search_karyawan');
+            if (searchKaryawanElement) {
+                searchKaryawanElement.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    const searchValue = this.value.trim();
 
-                if (searchValue.length < 2) {
-                    document.getElementById('karyawan_search_results').classList.add('hidden');
-                    return;
-                }
+                    if (searchValue.length < 2) {
+                        document.getElementById('karyawan_search_results').classList.add('hidden');
+                        return;
+                    }
 
-                searchTimeout = setTimeout(function() {
-                    fetch(`{{ route('rekam-medis.searchKaryawan') }}?q=${encodeURIComponent(searchValue)}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const resultsDiv = document.getElementById('karyawan_search_results');
+                    searchTimeout = setTimeout(function() {
+                        fetch(`{{ route('rekam-medis.searchKaryawan') }}?q=${encodeURIComponent(searchValue)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const resultsDiv = document.getElementById('karyawan_search_results');
 
-                            if (data.length === 0) {
-                                resultsDiv.innerHTML =
-                                    '<div class="px-4 py-3 text-gray-500 text-sm">Tidak ada karyawan ditemukan</div>';
-                            } else {
-                                resultsDiv.innerHTML = data.map(karyawan => `
+                                if (data.length === 0) {
+                                    resultsDiv.innerHTML =
+                                        '<div class="px-4 py-3 text-gray-500 text-sm">Tidak ada karyawan ditemukan</div>';
+                                } else {
+                                    resultsDiv.innerHTML = data.map(karyawan => `
                         <div class="px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 transition-colors" onclick="selectKaryawan(${JSON.stringify(karyawan).replace(/"/g, '"')})">
                             <div class="font-medium text-gray-900">${karyawan.nik_karyawan} - ${karyawan.nama_karyawan}</div>
                             <div class="text-sm text-gray-600">Departemen: ${karyawan.nama_departemen || '-'}</div>
                         </div>
                     `).join('');
-                            }
+                                }
 
-                            resultsDiv.classList.remove('hidden');
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                }, 300);
-            });
+                                resultsDiv.classList.remove('hidden');
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
+                    }, 300);
+                });
+            }
 
             // Select karyawan from dropdown
             function selectKaryawan(karyawan) {
@@ -634,8 +658,18 @@
                 }
             });
 
-            // Add event listener for keluarga dropdown
-            document.getElementById('id_keluarga').addEventListener('change', selectKeluarga);
+            // Add event listener for keluarga dropdown - add null check
+            const idKeluargaElement = document.getElementById('id_keluarga');
+            if (idKeluargaElement) {
+                idKeluargaElement.addEventListener('change', selectKeluarga);
+            }
+
+            // Initialize patient data when page loads for edit form
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    initializePatientData();
+                }, 200);
+            });
 
             // Handle multiple keluhan sections
             function updateKeluhanSections(value) {
@@ -732,7 +766,19 @@
                 }
 
                 // Re-attach event listeners for all diagnosa selects and terapi selects
-                attachDiagnosaChangeListeners();
+                setTimeout(() => {
+                    attachDiagnosaChangeListeners();
+
+                    // Also ensure jumlah_keluhan select has event listener
+                    const jumlahKeluhanSelect = document.getElementById('jumlah_keluhan');
+                    if (jumlahKeluhanSelect) {
+                        jumlahKeluhanSelect.removeEventListener('change', handleJumlahKeluhanChange);
+                        jumlahKeluhanSelect.addEventListener('change', handleJumlahKeluhanChange);
+                    }
+
+                    // Make sure the keluhan sections are visible
+                    container.style.display = 'block';
+                }, 100);
             }
 
             function createKeluhanTemplate() {
@@ -843,70 +889,79 @@
 
                 // Jika diagnosa ada, tampilkan obat
                 if (keluhanData.id_diagnosa) {
-                    handleDiagnosaChange({
-                        target: diagnosaSelect
-                    });
-
-                    // Tahap 1: tandai checkbox dulu setelah daftar obat termuat
+                    // Tambahkan delay untuk memastikan DOM siap
                     setTimeout(() => {
-                        const keluhansUntukDiagnosaIni = existingKeluhans.filter(
-                            k => k.id_diagnosa === keluhanData.id_diagnosa
-                        );
-
-                        keluhansUntukDiagnosaIni.forEach(keluhanObat => {
-                            const checkbox = section.querySelector(
-                                `input[type="checkbox"][value="${keluhanObat.id_obat}"]`
-                            );
-                            if (checkbox) {
-                                checkbox.checked = true;
-                            }
+                        handleDiagnosaChange({
+                            target: diagnosaSelect
                         });
 
-                        // Tahap 2: tampilkan form detail obat
-                        updateObatDetails(index);
-
-                        // Tahap 3: isi ulang jumlah_obat & aturan_pakai
+                        // Tahap 1: tandai checkbox dulu setelah daftar obat termuat
                         setTimeout(() => {
-                            const checkedBoxes = section.querySelectorAll(
-                                `.obat-checkbox[data-keluhan-index="${index}"]:checked`);
-                            let obatIndex = 0;
+                            const keluhansUntukDiagnosaIni = existingKeluhans.filter(
+                                k => k.id_diagnosa === keluhanData.id_diagnosa
+                            );
 
-                            // Urutkan keluhansUntukDiagnosaIni agar sesuai dengan urutan checkbox yang dicentang
-                            const sortedKeluhans = [];
-                            checkedBoxes.forEach(checkbox => {
-                                const obatId = checkbox.value;
-                                const matchingKeluhan = keluhansUntukDiagnosaIni.find(k => k.id_obat ==
-                                    obatId);
-                                if (matchingKeluhan) {
-                                    sortedKeluhans.push(matchingKeluhan);
+                            keluhansUntukDiagnosaIni.forEach(keluhanObat => {
+                                const checkbox = section.querySelector(
+                                    `input[type="checkbox"][value="${keluhanObat.id_obat}"]`
+                                );
+                                if (checkbox) {
+                                    checkbox.checked = true;
                                 }
                             });
 
-                            sortedKeluhans.forEach(keluhanObat => {
-                                const jumlahInput = section.querySelector(
-                                    `input[name="keluhan[${index}][obat_list][${obatIndex}][jumlah_obat]"]`
-                                );
-                                const aturanInput = section.querySelector(
-                                    `input[name="keluhan[${index}][obat_list][${obatIndex}][aturan_pakai]"]`
-                                );
-                                const diskonInput = section.querySelector(
-                                    `select[name="keluhan[${index}][obat_list][${obatIndex}][diskon]"]`
-                                );
+                            // Tahap 2: tampilkan form detail obat
+                            updateObatDetails(index);
 
-                                if (jumlahInput && keluhanObat.jumlah_obat) {
-                                    jumlahInput.value = keluhanObat.jumlah_obat;
-                                }
-                                if (aturanInput && keluhanObat.aturan_pakai) {
-                                    aturanInput.value = keluhanObat.aturan_pakai;
-                                }
-                                if (diskonInput && keluhanObat.diskon !== undefined) {
-                                    diskonInput.value = keluhanObat.diskon;
-                                }
+                            // Tahap 3: isi ulang jumlah_obat & aturan_pakai
+                            setTimeout(() => {
+                                const checkedBoxes = section.querySelectorAll(
+                                    `.obat-checkbox[data-keluhan-index="${index}"]:checked`);
+                                let obatIndex = 0;
 
-                                obatIndex++;
-                            });
-                        }, 500); // tunggu hingga detail obat muncul
-                    }, 600); // tunggu daftar obat muncul dulu
+                                // Urutkan keluhansUntukDiagnosaIni agar sesuai dengan urutan checkbox yang dicentang
+                                const sortedKeluhans = [];
+                                checkedBoxes.forEach(checkbox => {
+                                    const obatId = checkbox.value;
+                                    const matchingKeluhan = keluhansUntukDiagnosaIni.find(k => k
+                                        .id_obat ==
+                                        obatId);
+                                    if (matchingKeluhan) {
+                                        sortedKeluhans.push(matchingKeluhan);
+                                    }
+                                });
+
+                                sortedKeluhans.forEach(keluhanObat => {
+                                    const jumlahInput = section.querySelector(
+                                        `input[name="keluhan[${index}][obat_list][${obatIndex}][jumlah_obat]"]`
+                                    );
+                                    const aturanInput = section.querySelector(
+                                        `select[name="keluhan[${index}][obat_list][${obatIndex}][aturan_pakai]"]`
+                                    );
+                                    const diskonInput = section.querySelector(
+                                        `select[name="keluhan[${index}][obat_list][${obatIndex}][diskon]"]`
+                                    );
+
+                                    if (jumlahInput && keluhanObat.jumlah_obat) {
+                                        jumlahInput.value = keluhanObat.jumlah_obat;
+                                    }
+                                    if (aturanInput && keluhanObat.aturan_pakai) {
+                                        aturanInput.value = keluhanObat.aturan_pakai;
+                                    }
+                                    if (diskonInput && keluhanObat.diskon !== undefined) {
+                                        diskonInput.value = keluhanObat.diskon;
+                                    }
+
+                                    obatIndex++;
+                                });
+
+                                // Re-attach event listeners for form validation after filling data
+                                setTimeout(() => {
+                                    attachDiagnosaChangeListeners();
+                                }, 100);
+                            }, 500); // tunggu hingga detail obat muncul
+                        }, 800); // tunggu daftar obat muncul dulu
+                    }, 100); // delay kecil untuk memastikan DOM siap
                 }
             }
 
@@ -985,6 +1040,11 @@
                             });
                             checkboxHTML += '</div>';
                             obatList.innerHTML = checkboxHTML;
+
+                            // Re-attach event listeners for the new checkboxes
+                            setTimeout(() => {
+                                attachDiagnosaChangeListeners();
+                            }, 50);
                         } else {
                             obatList.innerHTML =
                                 '<p class="text-sm text-gray-500 italic">Tidak ada obat terkait dengan diagnosa ini.</p>';
@@ -1090,6 +1150,17 @@
                 });
 
                 detailsList.innerHTML = detailsHTML;
+
+                // Re-attach event listeners for form validation after updating the DOM
+                setTimeout(() => {
+                    attachDiagnosaChangeListeners();
+                }, 50);
+            }
+
+            // Function to handle jumlah keluhan change
+            function handleJumlahKeluhanChange(event) {
+                const value = event.target.value;
+                updateKeluhanSections(value);
             }
 
             // Attach event listeners to all diagnosa selects
@@ -1108,6 +1179,15 @@
                     // Add new listener
                     select.addEventListener('change', handleTerapiChange);
                 });
+
+                // Also add event listeners to jumlah_keluhan select
+                const jumlahKeluhanSelect = document.getElementById('jumlah_keluhan');
+                if (jumlahKeluhanSelect) {
+                    // Remove old listener if exists (to prevent duplicate)
+                    jumlahKeluhanSelect.removeEventListener('change', handleJumlahKeluhanChange);
+                    // Add new listener
+                    jumlahKeluhanSelect.addEventListener('change', handleJumlahKeluhanChange);
+                }
             }
 
             // Function to handle terapi change
@@ -1122,9 +1202,12 @@
 
                 // Trigger diagnosa change to refresh obat list based on new terapi value
                 if (diagnosaSelect && diagnosaSelect.value) {
-                    handleDiagnosaChange({
-                        target: diagnosaSelect
-                    });
+                    // Add small delay to ensure DOM is ready
+                    setTimeout(() => {
+                        handleDiagnosaChange({
+                            target: diagnosaSelect
+                        });
+                    }, 50);
                 } else if (!diagnosaSelect || !diagnosaSelect.value) {
                     // If no diagnosa selected, show appropriate message
                     const obatContainer = keluhanSection.querySelector('.obat-checkbox-container[data-keluhan-index="' +
@@ -1163,20 +1246,64 @@
 
             // Initialize on page load
             document.addEventListener('DOMContentLoaded', function() {
-                // Initialize keluhan sections with existing data
-                updateKeluhanSections({{ $rekamMedis->jumlah_keluhan }});
+                // Initialize NO RM and patient data on page load
+                try {
+                    initializeNoRM();
+                    initializePatientData();
+                } catch (error) {
+                    // Silently handle error
+                }
 
-                // Initialize NO RM on page load
-                initializeNoRM();
+                // Initialize keluhan sections with existing data IMMEDIATELY
+                const jumlahKeluhan = {{ $rekamMedis->jumlah_keluhan }};
 
-                // Form validation
+                // Force immediate update with multiple fallbacks
+                try {
+                    updateKeluhanSections(jumlahKeluhan);
+                } catch (error) {
+                    // Silently handle error
+                }
+
+                // Fallback 1: force container to be visible and update again
+                setTimeout(() => {
+                    const container = document.getElementById('keluhan-container');
+                    if (container) {
+                        container.style.display = 'block';
+
+                        // Try updating again if still empty
+                        if (container.innerHTML.trim() === '') {
+                            try {
+                                updateKeluhanSections(jumlahKeluhan);
+                            } catch (error) {
+                                // Silently handle error
+                            }
+                        }
+                    }
+                }, 50);
+
+                // Fallback 2: final attempt with longer delay
+                setTimeout(() => {
+                    const container = document.getElementById('keluhan-container');
+                    if (container && container.innerHTML.trim() === '') {
+                        try {
+                            updateKeluhanSections(jumlahKeluhan);
+                            container.style.display = 'block';
+                        } catch (error) {
+                            // Silently handle error
+                        }
+                    }
+                }, 300);
+
+                // Form validation - add null check
                 const form = document.getElementById('rekamMedisForm');
-                form.addEventListener('submit', validateForm);
+                if (form) {
+                    form.addEventListener('submit', validateForm);
 
-                // Real-time validation
-                form.addEventListener('input', function(e) {
-                    validateField(e.target);
-                });
+                    // Real-time validation
+                    form.addEventListener('input', function(e) {
+                        validateField(e.target);
+                    });
+                }
 
                 // Auto-hide success messages after 5 seconds
                 setTimeout(function() {
@@ -1200,7 +1327,23 @@
 
                     // Generate NO RM otomatis dari NIK-Kode Hubungan
                     const noRM = generateNoRM(nikKaryawan, kodeHubungan);
-                    document.getElementById('no_rm').value = noRM;
+                    // document.getElementById('no_rm').value = noRM;
+                }
+            }
+
+            // Fungsi untuk menginisialisasi data pasien saat halaman edit dimuat
+            function initializePatientData() {
+                const selectedKeluarga = document.getElementById('id_keluarga');
+                const selectedOption = selectedKeluarga.options[selectedKeluarga.selectedIndex];
+
+                if (selectedOption && selectedOption.value) {
+                    // Update patient information
+                    // document.getElementById('nama_pasien').value = selectedOption.textContent.split(' (')[0];
+                    document.getElementById('jenis_kelamin').value = selectedOption.getAttribute('data-jenis-kelamin') || '';
+                    document.getElementById('hubungan').value = selectedOption.getAttribute('data-hubungan') || '';
+
+                    // Update NO RM
+                    initializeNoRM();
                 }
             }
 
@@ -1273,7 +1416,7 @@
                 // Validate pasien
                 const pasienInput = form.querySelector('#id_keluarga');
                 if (!pasienInput.value) {
-                    showFieldError(pasienInput);
+                    showFieldError(pasienInput, 'Pasien harus dipilih. Silakan pilih anggota keluarga.');
                     isValid = false;
                 }
 
