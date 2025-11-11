@@ -3,7 +3,201 @@
 @section('page-title', 'Tambah Rekam Medis')
 
 @section('content')
-    <div class="p-6 bg-gray-50 min-h-screen">
+    <div class="p-6 bg-gray-50 min-h-screen" x-data="rekamMedisFingerprint()">
+        <!-- Fingerprint Verification Modal -->
+        <div x-show="showFingerprintModal" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 overflow-y-auto bg-black/10 backdrop-blur-sm"
+            style="display: none;">
+            <div class="flex min-h-screen items-center justify-center p-4">
+                <div x-show="showFingerprintModal" x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 transform scale-95"
+                    x-transition:enter-end="opacity-100 transform scale-100"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 transform scale-100"
+                    x-transition:leave-end="opacity-0 transform scale-95"
+                    class="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl">
+
+                    <!-- Modal Header -->
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-xl">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-3">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                                </svg>
+                                Verifikasi Sidik Jari Karyawan
+                            </h3>
+                            <button onclick="window.location.href='{{ route('rekam-medis.index') }}'"
+                                class="bg-white text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-100 font-semibold transition-colors duration-200 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                                Kembali
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div class="p-6">
+                        <!-- Instructions -->
+                        <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="text-sm text-blue-800">
+                                    <p class="font-semibold mb-2">Verifikasi Identitas Karyawan:</p>
+                                    <ul class="list-disc list-inside space-y-1 text-xs">
+                                        <li>Silakan tempelkan <strong>jempol</strong> Anda pada sensor fingerprint</li>
+                                        <li>Pastikan jari dalam kondisi bersih dan kering</li>
+                                        <li>Tekan jari dengan cukup kuat pada sensor</li>
+                                        <li>Tahan posisi jari hingga proses verifikasi selesai</li>
+                                        <li>Verifikasi berhasil diperlukan untuk melanjutkan pendaftaran rekam medis</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Verification Status -->
+                        <div x-show="!verifyResult" class="text-center py-8">
+                            <div class="mb-6">
+                                <svg class="w-20 h-20 mx-auto text-gray-300" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                                </svg>
+                            </div>
+
+                            <button @click="verifyFingerprint()"
+                                :disabled="isCapturing || fingerprintTemplates.length === 0"
+                                class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2 mx-auto">
+                                <svg x-show="!isCapturing" class="w-5 h-5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                <svg x-show="isCapturing" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                <span x-text="isCapturing ? 'Memverifikasi...' : 'Verifikasi Sidik Jari'"></span>
+                            </button>
+
+                        </div>
+
+                        <!-- Verification Result -->
+                        <div x-show="verifyResult" class="space-y-4">
+                            <div x-show="verifyResult?.success"
+                                class="p-4 bg-green-50 border-2 border-green-500 rounded-lg">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="font-bold text-green-800">Verifikasi Berhasil!</span>
+                                </div>
+
+                                <div class="flex gap-4">
+                                    <div class="w-24 flex-shrink-0">
+                                        <img :src="`data:image/bmp;base64,${verifyResult.image}`" alt="Fingerprint"
+                                            class="w-full h-auto border-2 border-green-500 rounded-lg shadow-sm">
+                                    </div>
+
+                                    <div class="flex-1">
+                                        <div
+                                            class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200 shadow-sm">
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg">
+                                                    <span
+                                                        x-text="verifyResult.data?.nama_karyawan?.charAt(0).toUpperCase()"></span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs text-green-600 font-medium mb-1">Karyawan
+                                                        Terverifikasi</p>
+                                                    <p class="text-xl font-bold text-gray-900"
+                                                        x-text="verifyResult.data?.nama_karyawan"></p>
+                                                    <p class="text-sm text-gray-600"
+                                                        x-text="verifyResult.data?.nik_karyawan"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div x-show="!verifyResult?.success" class="p-4 bg-red-50 border-2 border-red-500 rounded-lg">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="font-bold text-red-800">Verifikasi Gagal!</span>
+                                </div>
+
+                                <div class="flex gap-4">
+                                    <div class="w-24 flex-shrink-0">
+                                        <img :src="`data:image/bmp;base64,${verifyResult.image}`" alt="Fingerprint"
+                                            class="w-full h-auto border-2 border-red-500 rounded-lg shadow-sm">
+                                    </div>
+
+                                    <div class="flex-1">
+                                        <div
+                                            class="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-lg border border-red-200 shadow-sm">
+                                            <div class="flex items-start gap-3">
+                                                <div
+                                                    class="w-12 h-12 flex-shrink-0 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center text-white shadow-lg">
+                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <p class="text-xs text-red-600 font-medium mb-1">Sidik Jari Tidak
+                                                        Dikenali</p>
+                                                    <p class="text-sm text-gray-700">Tidak ada data fingerprint yang cocok.
+                                                        Silakan coba lagi atau gunakan jari yang sama saat pendaftaran.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button x-show="verifyResult" @click="resetVerification()"
+                                    class="flex-1 bg-gray-500 text-white py-2.5 rounded-lg hover:bg-gray-600 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    Coba Lagi
+                                </button>
+
+                                <button x-show="verifyResult?.success" @click="proceedWithVerifiedEmployee()"
+                                    class="flex-1 bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                    Lanjutkan Pendaftaran
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Header Section -->
         <div class="mb-6">
             <div class="flex items-center gap-3 mb-3">
@@ -11,7 +205,8 @@
                     <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
                         <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">
                             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
                             </svg>
                         </div>
                         Tambah Rekam Medis
@@ -132,6 +327,9 @@
             <!-- Hidden field for kunjungan_id -->
             <input type="hidden" id="kunjungan_id" name="kunjungan_id" value="{{ old('kunjungan_id') }}">
 
+            <!-- Hidden field for id_karyawan -->
+            <input type="hidden" id="id_karyawan" name="id_karyawan" value="{{ old('id_karyawan') }}" required>
+
             <!-- Data Pasien Section -->
             <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
                 <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
@@ -146,31 +344,6 @@
 
                 <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Pilih Karyawan dengan Search -->
-                        <div class="md:col-span-2">
-                            <label for="search_karyawan" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Pilih Karyawan <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <input type="hidden" id="id_karyawan" name="id_karyawan" required>
-                                <input type="text" id="search_karyawan"
-                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    placeholder="Cari karyawan (Format: NIK-Nama Karyawan)..." autocomplete="off">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
-                                <!-- Search Results Dropdown for Karyawan -->
-                                <div id="karyawan_search_results"
-                                    class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                    <!-- Results will be populated by JavaScript -->
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Info Karyawan (Auto-filled) -->
                         <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg">
                             <h3 class="text-sm font-semibold text-gray-700 mb-2">Informasi Karyawan</h3>
@@ -581,76 +754,238 @@
 
     @push('scripts')
         <script>
-            let searchTimeout;
+            // Fingerprint verification functionality for Rekam Medis
+            function rekamMedisFingerprint() {
+                return {
+                    showFingerprintModal: true,
+                    isCapturing: false,
+                    fingerprintTemplates: [],
+                    verifyResult: null,
+                    verifiedEmployee: null,
 
-            // Search karyawan dengan AJAX
-            document.getElementById('search_karyawan').addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                const searchValue = this.value.trim();
+                    init() {
+                        this.loadFingerprintTemplates();
+                    },
 
-                if (searchValue.length < 2) {
-                    document.getElementById('karyawan_search_results').classList.add('hidden');
-                    return;
-                }
+                    async loadFingerprintTemplates() {
+                        try {
+                            const response = await fetch('/fingerprint/templates');
+                            this.fingerprintTemplates = await response.json();
+                        } catch (error) {
+                            // Error handling for fingerprint templates
+                        }
+                    },
 
-                searchTimeout = setTimeout(function() {
-                    fetch(`{{ route('rekam-medis.searchKaryawan') }}?q=${encodeURIComponent(searchValue)}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const resultsDiv = document.getElementById('karyawan_search_results');
+                    getErrorDescription(code) {
+                        const errors = {
+                            51: 'System file load failure',
+                            52: 'Sensor chip initialization failed',
+                            53: 'Device not found',
+                            54: 'Fingerprint image capture timeout',
+                            55: 'No device available',
+                            56: 'Driver load failed',
+                            57: 'Wrong Image',
+                            58: 'Lack of bandwidth',
+                            59: 'Device Busy',
+                            60: 'Cannot get serial number',
+                            61: 'Unsupported device',
+                            63: 'SgiBioSrv tidak berjalan'
+                        };
+                        return errors[code] || 'Unknown error';
+                    },
 
-                            if (data.length === 0) {
-                                resultsDiv.innerHTML =
-                                    '<div class="px-4 py-3 text-gray-500 text-sm">Tidak ada karyawan ditemukan</div>';
-                            } else {
-                                resultsDiv.innerHTML = data.map(karyawan => `
-                        <div class="px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 transition-colors" onclick="selectKaryawan(${JSON.stringify(karyawan).replace(/"/g, '&quot;')})">
-                            <div class="font-medium text-gray-900">${karyawan.nik_karyawan} - ${karyawan.nama_karyawan}</div>
-                            <div class="text-sm text-gray-600">Departemen: ${karyawan.nama_departemen || '-'}</div>
-                        </div>
-                    `).join('');
+                    async verifyFingerprint() {
+                        if (this.fingerprintTemplates.length === 0) {
+                            this.showMessage('Belum ada fingerprint terdaftar!', 'error');
+                            return;
+                        }
+
+                        this.isCapturing = true;
+
+                        try {
+                            const params = new URLSearchParams({
+                                Timeout: '10000',
+                                Quality: '50',
+                                licstr: '',
+                                templateFormat: 'ISO',
+                                imageWSQRate: '0.75'
+                            });
+
+                            const response = await fetch('https://localhost:8443/SGIFPCapture', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: params.toString()
+                            });
+
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}`);
                             }
 
-                            resultsDiv.classList.remove('hidden');
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                }, 300);
-            });
+                            const data = await response.json();
 
-            // Select pasien from dropdown
-            function selectKaryawan(karyawan) {
-                // Set karyawan values
-                document.getElementById('id_karyawan').value = karyawan.id_karyawan;
-                document.getElementById('search_karyawan').value = `${karyawan.nik_karyawan}-${karyawan.nama_karyawan}`;
+                            if (data.ErrorCode !== 0) {
+                                this.showMessage(`Error: ${data.ErrorCode} - ${this.getErrorDescription(data.ErrorCode)}`,
+                                    'error');
+                                return;
+                            }
 
-                // Update info karyawan
-                document.getElementById('info_nik').textContent = karyawan.nik_karyawan;
-                document.getElementById('info_nama').textContent = karyawan.nama_karyawan;
-                document.getElementById('info_departemen').textContent = karyawan.nama_departemen;
+                            const template = data.TemplateBase64;
 
-                // Update foto karyawan
-                const fotoElement = document.getElementById('foto_karyawan');
-                const noFotoElement = document.getElementById('no_foto');
+                            let bestMatch = null;
+                            let bestScore = 0;
 
-                if (karyawan.foto) {
-                    fotoElement.src = `/storage/${karyawan.foto}`;
-                    fotoElement.classList.remove('hidden');
-                    noFotoElement.classList.add('hidden');
-                } else {
-                    fotoElement.classList.add('hidden');
-                    noFotoElement.classList.remove('hidden');
+                            for (const user of this.fingerprintTemplates) {
+                                try {
+                                    const matchParams = new URLSearchParams({
+                                        Template1: template,
+                                        Template2: user.fingerprint_template,
+                                        licstr: '',
+                                        templateFormat: 'ISO'
+                                    });
+
+                                    const matchResponse = await fetch('https://localhost:8443/SGIMatchScore', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                        },
+                                        body: matchParams.toString()
+                                    });
+
+                                    const matchData = await matchResponse.json();
+
+                                    if (matchData.ErrorCode === 0 && matchData.MatchingScore > bestScore) {
+                                        bestScore = matchData.MatchingScore;
+                                        bestMatch = user;
+                                    }
+                                } catch (error) {
+                                    // Error handling for fingerprint matching
+                                }
+                            }
+
+                            if (bestScore > 100 && bestMatch) {
+                                this.verifyResult = {
+                                    success: true,
+                                    data: bestMatch,
+                                    score: bestScore,
+                                    image: data.BMPBase64
+                                };
+                                this.verifiedEmployee = bestMatch;
+                                this.showMessage(
+                                    `✓ Verifikasi Berhasil! ${bestMatch.nama_karyawan} - ${bestMatch.nik_karyawan || ''}`,
+                                    'success');
+                            } else {
+                                this.verifyResult = {
+                                    success: false,
+                                    data: null,
+                                    score: bestScore,
+                                    image: data.BMPBase64
+                                };
+                                this.showMessage('✗ Sidik jari tidak cocok', 'error');
+                            }
+                        } catch (error) {
+                            this.showMessage(`Error koneksi: ${error.message}. Pastikan SGIBIOSRV berjalan di port 8443`,
+                                'error');
+                        } finally {
+                            this.isCapturing = false;
+                        }
+                    },
+
+                    resetVerification() {
+                        this.verifyResult = null;
+                    },
+
+                    closeFingerprintModal() {
+                        if (this.verifiedEmployee) {
+                            this.showFingerprintModal = false;
+                        } else {
+                            this.showMessage('Anda harus melakukan verifikasi fingerprint terlebih dahulu!', 'warning');
+                        }
+                    },
+
+                    proceedWithVerifiedEmployee() {
+                        if (this.verifiedEmployee) {
+                            // Auto-fill form with verified employee data
+                            this.selectKaryawan(this.verifiedEmployee);
+                            this.showFingerprintModal = false;
+                            this.showMessage(
+                                `Selamat datang, ${this.verifiedEmployee.nama_karyawan}! Silakan pilih anggota keluarga untuk melanjutkan.`,
+                                'success');
+                        }
+                    },
+
+                    selectKaryawan(karyawan) {
+                        // Set karyawan values
+                        document.getElementById('id_karyawan').value = karyawan.id_karyawan;
+
+                        // Update info karyawan
+                        document.getElementById('info_nik').textContent = karyawan.nik_karyawan;
+                        document.getElementById('info_nama').textContent = karyawan.nama_karyawan;
+                        document.getElementById('info_departemen').textContent = karyawan.departemen?.nama_departemen || '-';
+
+                        // Update foto karyawan
+                        const fotoElement = document.getElementById('foto_karyawan');
+                        const noFotoElement = document.getElementById('no_foto');
+
+                        if (karyawan.foto) {
+                            fotoElement.src = `/storage/${karyawan.foto}`;
+                            fotoElement.classList.remove('hidden');
+                            noFotoElement.classList.add('hidden');
+                        } else {
+                            fotoElement.classList.add('hidden');
+                            noFotoElement.classList.remove('hidden');
+                        }
+
+                        // Load family members for this employee
+                        loadFamilyMembersLegacy(karyawan.id_karyawan);
+                    },
+
+                    async loadFamilyMembers(karyawanId) {
+                        try {
+                            const response = await fetch(`/rekam-medis/get-family-members?karyawan_id=${karyawanId}`);
+                            const data = await response.json();
+
+                            const selectElement = document.getElementById('id_keluarga');
+                            selectElement.innerHTML = '<option value="">-- Pilih Anggota Keluarga --</option>';
+
+                            if (data.length > 0) {
+                                data.forEach(member => {
+                                    const option = document.createElement('option');
+                                    option.value = member.id_keluarga;
+                                    option.textContent = `${member.nama_keluarga} (${member.hubungan})`;
+                                    option.setAttribute('data-no-rm', member.kode_hubungan || '');
+                                    option.setAttribute('data-jenis-kelamin', member.jenis_kelamin || '');
+                                    option.setAttribute('data-hubungan', member.hubungan || '');
+                                    selectElement.appendChild(option);
+                                });
+                                selectElement.disabled = false;
+                            } else {
+                                selectElement.innerHTML = '<option value="">-- Tidak ada anggota keluarga --</option>';
+                                selectElement.disabled = true;
+                            }
+                        } catch (error) {
+                            // Error handling for family members loading
+                            const selectElement = document.getElementById('id_keluarga');
+                            selectElement.innerHTML = '<option value="">-- Error memuat data --</option>';
+                            selectElement.disabled = true;
+                        }
+                    },
+
+                    showMessage(msg, type = 'info') {
+                        // Use SweetAlert if available
+                        if (typeof window.showSweetAlert === 'function') {
+                            window.showSweetAlert(msg, type);
+                        } else {
+                            // Fallback to
+                        }
+                    }
                 }
-
-                // Load family members for this employee
-                loadFamilyMembers(karyawan.id_karyawan);
-
-                // Hide results
-                document.getElementById('karyawan_search_results').classList.add('hidden');
             }
 
-            function loadFamilyMembers(karyawanId) {
+            // Original form functionality
+
+            function loadFamilyMembersLegacy(karyawanId) {
                 fetch(`{{ route('rekam-medis.getFamilyMembers') }}?karyawan_id=${karyawanId}`)
                     .then(response => response.json())
                     .then(data => {
@@ -662,7 +997,6 @@
                                 const option = document.createElement('option');
                                 option.value = member.id_keluarga;
                                 option.textContent = `${member.nama_keluarga} (${member.hubungan})`;
-                                // 🔹 Ganti dari member.no_rm ke member.kode_hubungan
                                 option.setAttribute('data-no-rm', member.kode_hubungan || '');
                                 option.setAttribute('data-jenis-kelamin', member.jenis_kelamin || '');
                                 option.setAttribute('data-hubungan', member.hubungan || '');
@@ -675,7 +1009,7 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
+                        // Error handling for legacy family members loading
                         const selectElement = document.getElementById('id_keluarga');
                         selectElement.innerHTML = '<option value="">-- Error memuat data --</option>';
                         selectElement.disabled = true;
@@ -689,7 +1023,7 @@
                 if (selectedOption && selectedOption.value) {
                     // Ambil data dari pilihan keluarga
                     const namaPasien = selectedOption.textContent.split(' (')[0];
-                    const kodeHubungan = selectedOption.getAttribute('data-no-rm') || ''; // ini kode_hubungan (A/B/C/D/E)
+                    const kodeHubungan = selectedOption.getAttribute('data-no-rm') || '';
                     const hubungan = selectedOption.getAttribute('data-hubungan') || '';
                     const jenisKelamin = selectedOption.getAttribute('data-jenis-kelamin') || '';
 
@@ -712,15 +1046,10 @@
                 }
             }
 
-            // Hide search results when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('#search_karyawan') && !e.target.closest('#karyawan_search_results')) {
-                    document.getElementById('karyawan_search_results').classList.add('hidden');
-                }
-            });
-
             // Add event listener for keluarga dropdown
-            document.getElementById('id_keluarga').addEventListener('change', selectKeluarga);
+            document.getElementById('id_keluarga').addEventListener('change', function() {
+                selectKeluarga();
+            });
 
             // Handle multiple keluhan sections
             function updateKeluhanSections(value) {
@@ -852,7 +1181,7 @@
                         }
                     })
                     .catch(error => {
-                        console.error('Error fetching obat:', error);
+                        // Error handling for obat fetching
                         obatList.innerHTML = '<p class="text-sm text-red-500 italic">Error memuat daftar obat.</p>';
                     });
             }
@@ -1030,19 +1359,23 @@
                 // Clear previous error states
                 clearValidationErrors();
 
-                // Validate kunjungan (skip validation for hidden field)
-                // const kunjunganId = document.getElementById('kunjungan_id').value;
-                // if (!kunjunganId) {
-                //     showFieldError('kunjungan_id', 'Kunjungan ID harus diisi');
-                //     errorMessages.push('Kunjungan ID harus diisi');
-                //     isValid = false;
-                // }
+                // Check if fingerprint verification was completed
+                // Access Alpine component data correctly
+                const alpineElement = document.querySelector('[x-data="rekamMedisFingerprint()"]');
+                const fingerprintComponent = alpineElement ? alpineElement._x_dataStack?.[0] : null;
+                const fingerprintVerified = fingerprintComponent?.verifiedEmployee;
 
-                // Validate karyawan selection
+                if (!fingerprintVerified) {
+                    errorMessages.push('Anda harus melakukan verifikasi fingerprint terlebih dahulu');
+                    showValidationSummary(errorMessages);
+                    return false;
+                }
+
+
+                // Validate karyawan selection (now through fingerprint verification)
                 const idKaryawan = document.getElementById('id_karyawan').value;
                 if (!idKaryawan) {
-                    showFieldError('search_karyawan', 'Silakan pilih karyawan terlebih dahulu');
-                    errorMessages.push('Karyawan harus dipilih');
+                    errorMessages.push('Verifikasi fingerprint karyawan belum dilakukan');
                     isValid = false;
                 }
 
@@ -1217,13 +1550,13 @@
                 <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
                 <div class="mt-2">
                     ${errors.map(error => `
-                                                                <div class="flex items-center py-1">
-                                                                    <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                                                    </svg>
-                                                                    <span class="text-sm text-red-700">${error}</span>
-                                                                </div>
-                                                            `).join('')}
+                                                        <div class="flex items-center py-1">
+                                                            <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                            <span class="text-sm text-red-700">${error}</span>
+                                                        </div>
+                                                    `).join('')}
                 </div>
             </div>
             <div class="ml-auto pl-3">
@@ -1282,15 +1615,6 @@
                 attachDiagnosaChangeListeners();
 
                 // Add real-time validation for critical fields
-                document.getElementById('search_karyawan').addEventListener('blur', function() {
-                    const idKaryawan = document.getElementById('id_karyawan').value;
-                    if (!idKaryawan) {
-                        showFieldError(this, 'Silakan pilih karyawan dari daftar yang muncul');
-                    } else {
-                        clearFieldError(this);
-                    }
-                });
-
                 document.getElementById('id_keluarga').addEventListener('blur', function() {
                     const idKeluarga = this.value;
                     if (!idKeluarga) {
