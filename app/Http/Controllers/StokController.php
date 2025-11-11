@@ -740,4 +740,186 @@ class StokController extends Controller
             return back()->with('error', 'Gagal memperbarui stok bulanan: '.$e->getMessage());
         }
     }
+
+    /**
+     * Export data stok opname per bulan ke Excel
+     */
+    public function exportStockOpname(Request $request)
+    {
+        // Validasi hanya Admin dan Super Admin yang boleh export
+        if (!in_array(auth()->user()->role, ['Admin', 'Super Admin'])) {
+            return back()->with('error', 'Anda tidak memiliki akses untuk export data stok opname.');
+        }
+
+        $request->validate([
+            'bulan' => 'nullable|integer|min:1|max:12',
+            'tahun' => 'nullable|integer|min:2020|max:2100',
+        ], [
+            'bulan.integer' => 'Bulan harus berupa angka',
+            'bulan.min' => 'Bulan minimal 1',
+            'bulan.max' => 'Bulan maksimal 12',
+            'tahun.integer' => 'Tahun harus berupa angka',
+            'tahun.min' => 'Tahun minimal 2020',
+            'tahun.max' => 'Tahun maksimal 2100',
+        ]);
+
+        try {
+            // Default ke bulan dan tahun sekarang jika tidak ada filter
+            $bulan = $request->get('bulan', now()->month);
+            $tahun = $request->get('tahun', now()->year);
+
+            // Ambil semua obat untuk ditampilkan
+            $allObats = Obat::select('id_obat', 'nama_obat')->orderBy('nama_obat', 'asc')->get();
+            
+            // Ambil semua ID obat untuk batch processing
+            $obatIds = $allObats->pluck('id_obat')->toArray();
+            
+            // Hitung stok akhir untuk semua obat pada periode yang dipilih
+            $stokAkhirMap = StokBulanan::getSisaStokHinggaBatch($obatIds, $tahun, $bulan);
+            
+            // Map data untuk export
+            $stokData = $allObats->map(function ($obat) use ($bulan, $tahun, $stokAkhirMap) {
+                $stokBulanan = new StokBulanan();
+                $stokBulanan->obat_id = $obat->id_obat;
+                $stokBulanan->tahun = $tahun;
+                $stokBulanan->bulan = $bulan;
+                $stokBulanan->stok_akhir = $stokAkhirMap->get($obat->id_obat, 0);
+                $stokBulanan->setRelation('obat', $obat);
+                return $stokBulanan;
+            });
+
+            // Create new Spreadsheet object
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Laporan Stok Opname');
+
+            // Set document properties
+            $spreadsheet->getProperties()
+                ->setCreator('SIPO ICBP')
+                ->setTitle('Laporan Stok Opname')
+                ->setSubject('Laporan Stok Opname Bulanan')
+                ->setDescription("Laporan stok opname periode " . self::getNamaBulan($bulan) . " " . $tahun);
+
+            // Header columns
+            $headers = ['Nama Obat', 'Bulan dan Tahun', 'Stok Akhir'];
+            $column = 'A';
+            foreach ($headers as $header) {
+                $sheet->setCellValue($column . '1', $header);
+                $column++;
+            }
+
+            // Style header
+            $headerStyle = [
+                'font' => [
+                    'bold' => true,
+                    'color' => ['rgb' => 'FFFFFF'],
+                    'size' => 12,
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '059669'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ];
+
+            $lastColumn = chr(ord('A') + count($headers) - 1);
+            $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray($headerStyle);
+
+            // Data rows
+            $row = 2;
+            foreach ($stokData as $stok) {
+                $sheet->setCellValue('A' . $row, $stok->obat->nama_obat);
+                $sheet->setCellValue('B' . $row, self::getNamaBulan($bulan) . ' ' . $tahun);
+                $sheet->setCellValue('C' . $row, $stok->stok_akhir);
+                $row++;
+            }
+
+            // Style data
+            $dataStyle = [
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => 'CCCCCC'],
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A2:' . $lastColumn . ($row - 1))->applyFromArray($dataStyle);
+
+            // Set column widths
+            $sheet->getColumnDimension('A')->setWidth(40);
+            $sheet->getColumnDimension('B')->setWidth(20);
+            $sheet->getColumnDimension('C')->setWidth(15);
+
+            // Set row heights
+            $sheet->getRowDimension(1)->setRowHeight(25);
+            for ($i = 2; $i < $row; $i++) {
+                $sheet->getRowDimension($i)->setRowHeight(20);
+            }
+
+            // Add summary info
+            $sheet->setCellValue('A' . ($row + 1), 'RINGKASAN:');
+            $sheet->getStyle('A' . ($row + 1))->getFont()->setBold(true);
+
+            $totalObat = $stokData->count();
+            $totalStokAkhir = $stokData->sum('stok_akhir');
+
+            $sheet->setCellValue('A' . ($row + 2), "Total Jenis Obat: $totalObat");
+            $sheet->setCellValue('A' . ($row + 3), "Total Stok Akhir: $totalStokAkhir");
+            $sheet->setCellValue('A' . ($row + 4), "Periode: " . self::getNamaBulan($bulan) . ' ' . $tahun);
+            $sheet->setCellValue('A' . ($row + 5), "Tanggal Export: " . now()->format('d-m-Y H:i:s'));
+
+            // Style summary
+            for ($i = ($row + 1); $i <= ($row + 5); $i++) {
+                $sheet->getStyle('A' . $i)->getFont()->setItalic(true)->setSize(10);
+            }
+
+            // Create filename
+            $filename = 'laporan_stok_opname_' . sprintf('%02d-%d', $bulan, $tahun) . '_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            // Create Excel file
+            $writer = new Xlsx($spreadsheet);
+
+            // Set headers for download
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+            header('Expires: 0');
+            header('Pragma: public');
+
+            $writer->save('php://output');
+            exit;
+
+        } catch (\Exception $e) {
+            Log::error('Export stock opname error: ' . $e->getMessage());
+            
+            return back()->with('error', 'Gagal export data stok opname: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Helper function untuk mendapatkan nama bulan
+     */
+    private static function getNamaBulan($bulan)
+    {
+        $namaBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+        ];
+
+        return $namaBulan[$bulan] ?? 'Unknown';
+    }
 }

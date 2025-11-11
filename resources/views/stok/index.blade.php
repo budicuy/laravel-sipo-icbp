@@ -51,6 +51,17 @@
                         </button>
                     @endif
 
+                    @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                        <button type="button" onclick="openExportStockOpnameModal()"
+                            class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Export Stock Opname
+                        </button>
+                    @endif
+
                     <button type="button" id="refreshBtn"
                         class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -685,6 +696,86 @@
                                 confirmButtonColor: '#ea580c'
                             });
                         });
+                }
+            });
+        }
+
+        // Export Stock Opname Modal Functions
+        function openExportStockOpnameModal() {
+            Swal.fire({
+                title: 'Export Laporan Stock Opname',
+                html: `
+            <div class="text-left">
+                <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h4 class="font-semibold text-green-900 mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Informasi Export
+                    </h4>
+                    <ul class="text-sm text-green-800 space-y-1 ml-7">
+                        <li>• Format file: Excel (.xlsx)</li>
+                        <li>• Struktur kolom: Nama Obat, Bulan dan Tahun, Stok Akhir</li>
+                        <li>• Filter berdasarkan bulan dan tahun</li>
+                        <li>• Default: bulan dan tahun saat ini</li>
+                        <li>• Stok Akhir = Stok Awal + Total Stok Masuk - Total Stok Pakai</li>
+                    </ul>
+                </div>
+
+                <form id="exportForm" action="{{ route('stok.export.stock-opname') }}" method="GET">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
+                        <select name="bulan" id="exportBulan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
+                            <option value="">Pilih Bulan</option>
+                            <option value="1" {{ now()->month == 1 ? 'selected' : '' }}>Januari</option>
+                            <option value="2" {{ now()->month == 2 ? 'selected' : '' }}>Februari</option>
+                            <option value="3" {{ now()->month == 3 ? 'selected' : '' }}>Maret</option>
+                            <option value="4" {{ now()->month == 4 ? 'selected' : '' }}>April</option>
+                            <option value="5" {{ now()->month == 5 ? 'selected' : '' }}>Mei</option>
+                            <option value="6" {{ now()->month == 6 ? 'selected' : '' }}>Juni</option>
+                            <option value="7" {{ now()->month == 7 ? 'selected' : '' }}>Juli</option>
+                            <option value="8" {{ now()->month == 8 ? 'selected' : '' }}>Agustus</option>
+                            <option value="9" {{ now()->month == 9 ? 'selected' : '' }}>September</option>
+                            <option value="10" {{ now()->month == 10 ? 'selected' : '' }}>Oktober</option>
+                            <option value="11" {{ now()->month == 11 ? 'selected' : '' }}>November</option>
+                            <option value="12" {{ now()->month == 12 ? 'selected' : '' }}>Desember</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
+                        <select name="tahun" id="exportTahun" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white shadow-sm">
+                            <option value="">Pilih Tahun</option>
+                            @for($year = now()->year; $year >= now()->year - 5; $year--)
+                                <option value="{{ $year }}" {{ now()->year == $year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                </form>
+            </div>
+        `,
+                showCancelButton: true,
+                confirmButtonText: 'Export Excel',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#059669',
+                cancelButtonColor: '#6b7280',
+                width: '500px',
+                customClass: {
+                    confirmButton: 'px-5 py-2.5 rounded-lg font-medium',
+                    cancelButton: 'px-5 py-2.5 rounded-lg font-medium'
+                },
+                preConfirm: () => {
+                    const bulan = document.getElementById('exportBulan').value;
+                    const tahun = document.getElementById('exportTahun').value;
+
+                    if (!bulan || !tahun) {
+                        Swal.showValidationMessage('Silakan pilih bulan dan tahun');
+                        return false;
+                    }
+
+                    // Submit form
+                    document.getElementById('exportForm').submit();
+                    return true;
                 }
             });
         }

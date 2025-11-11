@@ -94,6 +94,10 @@ Route::middleware('auth')->group(function () {
 
     // Sistem Stok Baru (Automated)
     Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
+    
+    // Stok Opname Export Routes (diletakkan sebelum route dengan parameter)
+    Route::get('/stok/export-stock-opname', [StokController::class, 'exportStockOpname'])->name('stok.export.stock-opname');
+    
     Route::get('/stok/{obat_id}', [StokController::class, 'show'])->name('stok.show');
 
     // Stok Bulanan Update (Super Admin only)
