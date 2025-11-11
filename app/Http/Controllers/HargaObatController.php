@@ -622,7 +622,7 @@ class HargaObatController extends Controller
 
         // Header columns
         $headers = [
-            'No', 'Nama Obat', 'Satuan', 'Periode',
+            'Nama Obat', 'Satuan', 'Periode',
             'Jumlah per Kemasan', 'Harga per Kemasan', 'Harga per Satuan', 'Tanggal Update'
         ];
 
@@ -660,17 +660,15 @@ class HargaObatController extends Controller
 
         // Fill data
         $row = 2;
-        $no = 1;
 
         foreach ($hargaObats as $hargaObat) {
-            $sheet->setCellValue('A' . $row, $no);
-            $sheet->setCellValue('B' . $row, $hargaObat->obat->nama_obat);
-            $sheet->setCellValue('C' . $row, $hargaObat->obat->satuanObat->nama_satuan ?? '-');
-            $sheet->setCellValue('D' . $row, $hargaObat->periode);
-            $sheet->setCellValue('E' . $row, $hargaObat->jumlah_per_kemasan);
-            $sheet->setCellValue('F' . $row, $hargaObat->harga_per_kemasan);
-            $sheet->setCellValue('G' . $row, $hargaObat->harga_per_satuan);
-            $sheet->setCellValue('H' . $row, $hargaObat->updated_at ? $hargaObat->updated_at->format('d-m-Y') : '-');
+            $sheet->setCellValue('A' . $row, $hargaObat->obat->nama_obat);
+            $sheet->setCellValue('B' . $row, $hargaObat->obat->satuanObat->nama_satuan ?? '-');
+            $sheet->setCellValue('C' . $row, $hargaObat->periode);
+            $sheet->setCellValue('D' . $row, $hargaObat->jumlah_per_kemasan);
+            $sheet->setCellValue('E' . $row, $hargaObat->harga_per_kemasan);
+            $sheet->setCellValue('F' . $row, $hargaObat->harga_per_satuan);
+            $sheet->setCellValue('G' . $row, $hargaObat->updated_at ? $hargaObat->updated_at->format('d-m-Y') : '-');
 
             // Style data rows
             $dataStyle = [
@@ -688,18 +686,16 @@ class HargaObatController extends Controller
             $sheet->getStyle('A' . $row . ':' . $lastColumn . $row)->applyFromArray($dataStyle);
 
             $row++;
-            $no++;
         }
 
         // Set column widths
-        $sheet->getColumnDimension('A')->setWidth(5);
-        $sheet->getColumnDimension('B')->setWidth(30);
-        $sheet->getColumnDimension('C')->setWidth(15);
-        $sheet->getColumnDimension('D')->setWidth(12);
+        $sheet->getColumnDimension('A')->setWidth(30);
+        $sheet->getColumnDimension('B')->setWidth(15);
+        $sheet->getColumnDimension('C')->setWidth(12);
+        $sheet->getColumnDimension('D')->setWidth(18);
         $sheet->getColumnDimension('E')->setWidth(18);
         $sheet->getColumnDimension('F')->setWidth(18);
-        $sheet->getColumnDimension('G')->setWidth(18);
-        $sheet->getColumnDimension('H')->setWidth(15);
+        $sheet->getColumnDimension('G')->setWidth(15);
 
         // Set row heights
         $sheet->getRowDimension(1)->setRowHeight(25);

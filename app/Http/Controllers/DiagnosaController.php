@@ -491,7 +491,6 @@ class DiagnosaController extends Controller
 
         // CSV Header
         $headers = [
-            'NO',
             'NAMA DIAGNOSA',
             'DESKRIPSI',
             'STATUS',
@@ -500,13 +499,11 @@ class DiagnosaController extends Controller
         fputcsv($file, $headers, ';');
 
         // Data rows
-        $rowNumber = 1;
         foreach ($diagnosas as $diagnosa) {
             // Get obat names as comma-separated string
             $obatNames = $diagnosa->obats->pluck('nama_obat')->implode(', ');
 
             $rowData = [
-                $rowNumber,
                 $diagnosa->nama_diagnosa,
                 $diagnosa->deskripsi ?? '',
                 $diagnosa->status ?? 'aktif',
@@ -514,7 +511,6 @@ class DiagnosaController extends Controller
             ];
 
             fputcsv($file, $rowData, ';');
-            $rowNumber++;
         }
 
         // Add summary info at the bottom
