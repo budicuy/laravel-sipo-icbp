@@ -28,8 +28,8 @@ class DiagnosaController extends Controller
         }
 
         // Sorting
-        $sortField = $request->get('sort', 'id_diagnosa');
-        $sortDirection = $request->get('direction', 'desc');
+        $sortField = $request->get('sort', 'nama_diagnosa');
+        $sortDirection = $request->get('direction', 'asc');
 
         // Validasi field yang bisa diurutkan
         $allowedSortFields = ['id_diagnosa', 'nama_diagnosa', 'deskripsi', 'created_at', 'updated_at'];
@@ -461,14 +461,14 @@ class DiagnosaController extends Controller
         }
 
         // Apply sorting if exists
-        $sortField = $request->get('sort', 'id_diagnosa');
-        $sortDirection = $request->get('direction', 'desc');
+        $sortField = $request->get('sort', 'nama_diagnosa');
+        $sortDirection = $request->get('direction', 'asc');
         $allowedSortFields = ['id_diagnosa', 'nama_diagnosa', 'deskripsi', 'created_at', 'updated_at'];
 
         if (in_array($sortField, $allowedSortFields)) {
             $query->orderBy($sortField, $sortDirection);
         } else {
-            $query->orderBy('id_diagnosa', 'desc');
+            $query->orderBy('nama_diagnosa', 'asc');
         }
 
         // Get all data for export
