@@ -21,15 +21,12 @@ class Keluarga extends Model
         'tanggal_daftar',
         'no_rm',
         'kode_hubungan',
-        'bpjs_id',
-        'fingerprint_template',
-        'fingerprint_enrolled_at'
+        'bpjs_id'
     ];
 
     protected $casts = [
         'tanggal_lahir' => 'date',
         'tanggal_daftar' => 'date',
-        'fingerprint_enrolled_at' => 'datetime',
     ];
 
     // Relasi ke Karyawan

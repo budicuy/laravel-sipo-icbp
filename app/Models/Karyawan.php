@@ -27,11 +27,14 @@ class Karyawan extends Model
         'foto',
         'email',
         'bpjs_id',
+        'fingerprint_template',
+        'fingerprint_enrolled_at',
         'status',
     ];
 
     protected $casts = [
         'tanggal_lahir' => 'date',
+        'fingerprint_enrolled_at' => 'datetime',
     ];
 
     // Mutator: Convert J/P to full format when saving

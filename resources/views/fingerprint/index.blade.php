@@ -14,7 +14,7 @@
                 </div>
                 Sistem Sidik Jari SecuGen
             </h1>
-            <p class="text-gray-600 mt-2 ml-1">Manajemen fingerprint data keluarga karyawan</p>
+            <p class="text-gray-600 mt-2 ml-1">Manajemen fingerprint data karyawan</p>
         </div>
 
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
@@ -77,9 +77,9 @@
                             </div>
 
                             <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Cari Anggota Keluarga</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Cari Karyawan</label>
                                 <div class="relative">
-                                    <input type="text" x-model="searchQuery" @input="searchFamilyMembers()"
+                                    <input type="text" x-model="searchQuery" @input="searchEmployees()"
                                         @focus="showSearchResults = true" placeholder="Ketik nama atau NIK..."
                                         class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -94,23 +94,12 @@
                                     <div x-show="showSearchResults && searchResults.length > 0"
                                         @click.away="showSearchResults = false"
                                         class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                        <template x-for="member in searchResults" :key="member.id_keluarga">
-                                            <div @click="selectFamilyMember(member)"
+                                        <template x-for="employee in searchResults" :key="employee.id_karyawan">
+                                            <div @click="selectEmployee(employee)"
                                                 class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0">
-                                                <div class="font-semibold text-gray-900" x-text="member.nama_keluarga">
+                                                <div class="font-semibold text-gray-900" x-text="employee.nama_karyawan">
                                                 </div>
                                                 <div class="text-sm text-gray-600 mt-1">
-                                                    <div class="flex items-center gap-2">
-                                                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
-                                                            </path>
-                                                        </svg>
-                                                        <span class="truncate"
-                                                            x-text="member.karyawan?.nama_karyawan || 'Tidak ada penanggung jawab'"></span>
-                                                    </div>
                                                     <div class="flex items-center gap-4 mt-1 text-xs">
                                                         <span class="flex items-center gap-1 flex-shrink-0">
                                                             <svg class="w-3 h-3 text-gray-400 flex-shrink-0"
@@ -121,18 +110,18 @@
                                                                 </path>
                                                             </svg>
                                                             <span class="truncate"
-                                                                x-text="member.karyawan?.nik_karyawan || '-'"></span>
+                                                                x-text="employee.nik_karyawan || '-'"></span>
                                                         </span>
                                                         <span class="flex items-center gap-1 flex-shrink-0">
                                                             <svg class="w-3 h-3 text-gray-400 flex-shrink-0"
                                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2"
-                                                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                                                                 </path>
                                                             </svg>
                                                             <span class="truncate"
-                                                                x-text="member.hubungan?.hubungan || '-'"></span>
+                                                                x-text="employee.departemen?.nama_departemen || '-'"></span>
                                                         </span>
                                                     </div>
                                                 </div>
@@ -142,13 +131,13 @@
                                 </div>
                             </div>
 
-                            <div x-show="selectedFamilyMember" class="mb-4 p-3 bg-blue-50 rounded-lg">
+                            <div x-show="selectedEmployee" class="mb-4 p-3 bg-blue-50 rounded-lg">
                                 <p class="text-sm text-blue-800">
-                                    <strong>Terpilih:</strong> <span x-text="getSelectedMemberName()"></span>
+                                    <strong>Terpilih:</strong> <span x-text="getSelectedEmployeeName()"></span>
                                 </p>
                             </div>
 
-                            <button @click="enrollFingerprint()" :disabled="!selectedFamilyMember || isCapturing"
+                            <button @click="enrollFingerprint()" :disabled="!selectedEmployee || isCapturing"
                                 class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
                                 <svg x-show="!isCapturing" class="w-5 h-5" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -193,27 +182,63 @@
 
                                 <div class="flex-1 space-y-4">
                                     <div class="space-y-3">
-                                        <div class="bg-white p-3 rounded-lg border shadow-sm">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-sm font-semibold text-gray-700">Kualitas:</span>
-                                                <span x-text="lastCaptured.quality"
-                                                    :class="lastCaptured.quality >= 80 ? 'text-sm font-bold text-green-600' :
-                                                        lastCaptured.quality >= 70 ?
-                                                        'text-sm font-bold text-amber-600' :
-                                                        'text-sm font-bold text-red-600'"></span>
+                                        <div class="bg-white p-4 rounded-lg border shadow-sm">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <span class="text-lg font-bold text-gray-700">Kualitas Sidik Jari</span>
+                                                <div class="flex items-center gap-2">
+                                                    <span x-text="lastCaptured.quality"
+                                                        class="text-3xl font-bold px-3 py-1 rounded-full"
+                                                        :class="lastCaptured.quality >= 80 ? 'bg-green-100 text-green-700 border-2 border-green-300' :
+                                                            lastCaptured.quality >= 70 ?
+                                                            'bg-amber-100 text-amber-700 border-2 border-amber-300' :
+                                                            'bg-red-100 text-red-700 border-2 border-red-300'"></span>
+                                                    <span class="text-sm text-gray-500">/ 100</span>
+                                                </div>
                                             </div>
-                                            <div class="mt-2 text-xs text-gray-500">
-                                                <span class="font-medium">Rekomendasi kualitas: 80%-100%</span>
+
+                                            <!-- Progress Bar -->
+                                            <div class="mb-3">
+                                                <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                                                    <div class="h-full rounded-full transition-all duration-300 ease-out"
+                                                        :class="lastCaptured.quality >= 80 ? 'bg-green-500' :
+                                                            lastCaptured.quality >= 70 ? 'bg-amber-500' : 'bg-red-500'"
+                                                        :style="`width: ${lastCaptured.quality}%`">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="text-sm text-gray-600">
                                                 <div x-show="lastCaptured.quality < 70"
-                                                    class="mt-1 text-red-600 font-semibold">
-                                                    ❌ Kualitas sidik jari terlalu rendah (tidak dapat disimpan)
+                                                    class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                    <div class="flex items-center gap-2 mb-1">
+                                                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                        <span class="font-semibold text-red-800">Kualitas Terlalu Rendah</span>
+                                                    </div>
+                                                    <p class="text-red-700">Sidik jari tidak dapat disimpan. Silakan coba lagi dengan posisi jari yang lebih baik.</p>
                                                 </div>
+
                                                 <div x-show="lastCaptured.quality >= 70 && lastCaptured.quality < 80"
-                                                    class="mt-1 text-amber-600">
-                                                    ⚠️ Kualitas sidik jari kurang optimal
+                                                    class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                                    <div class="flex items-center gap-2 mb-1">
+                                                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                                        </svg>
+                                                        <span class="font-semibold text-amber-800">Kualitas Kurang Optimal</span>
+                                                    </div>
+                                                    <p class="text-amber-700">Sidik jari dapat disimpan, namun disarankan untuk mencoba lagi mendapatkan kualitas yang lebih baik.</p>
                                                 </div>
-                                                <div x-show="lastCaptured.quality >= 80" class="mt-1 text-green-600">
-                                                    ✓ Kualitas sidik jari baik
+
+                                                <div x-show="lastCaptured.quality >= 80"
+                                                    class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                    <div class="flex items-center gap-2 mb-1">
+                                                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                        </svg>
+                                                        <span class="font-semibold text-green-800">Kualitas Sangat Baik</span>
+                                                    </div>
+                                                    <p class="text-green-700">Sidik jari siap disimpan! Kualitas optimal untuk pengenalan yang akurat.</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -346,27 +371,27 @@
                                         </div>
 
                                         <div class="flex-1">
-                                            <!-- Nama Pasien (Utama) -->
+                                            <!-- Nama Karyawan (Utama) -->
                                             <div
                                                 class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200 shadow-sm mb-3">
                                                 <div class="flex items-center gap-3">
                                                     <div
                                                         class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg">
                                                         <span
-                                                            x-text="verifyResult.data?.nama_keluarga?.charAt(0).toUpperCase()"></span>
+                                                            x-text="verifyResult.data?.nama_karyawan?.charAt(0).toUpperCase()"></span>
                                                     </div>
                                                     <div>
-                                                        <p class="text-xs text-green-600 font-medium mb-1">Pasien
+                                                        <p class="text-xs text-green-600 font-medium mb-1">Karyawan
                                                             Teridentifikasi</p>
                                                         <p class="text-2xl font-bold text-gray-900"
-                                                            x-text="verifyResult.data?.nama_keluarga"></p>
+                                                            x-text="verifyResult.data?.nama_karyawan"></p>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <!-- Informasi Detail -->
                                             <div class="bg-white p-4 rounded-lg border shadow-sm">
-                                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div class="flex items-center gap-2">
                                                         <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none"
                                                             stroke="currentColor" viewBox="0 0 24 24">
@@ -378,7 +403,7 @@
                                                         <div>
                                                             <p class="text-xs text-gray-500">NIK</p>
                                                             <p class="text-sm font-medium text-gray-900"
-                                                                x-text="verifyResult.data?.karyawan?.nik_karyawan || '-'">
+                                                                x-text="verifyResult.data?.nik_karyawan || '-'">
                                                             </p>
                                                         </div>
                                                     </div>
@@ -387,28 +412,14 @@
                                                             stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2"
-                                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                                                             </path>
                                                         </svg>
                                                         <div>
-                                                            <p class="text-xs text-gray-500">Penanggung Jawab</p>
+                                                            <p class="text-xs text-gray-500">Departemen</p>
                                                             <p class="text-sm font-medium text-gray-900"
-                                                                x-text="verifyResult.data?.karyawan?.nama_karyawan || '-'">
+                                                                x-text="verifyResult.data?.departemen?.nama_departemen || '-'">
                                                             </p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex items-center gap-2">
-                                                        <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                                                            </path>
-                                                        </svg>
-                                                        <div>
-                                                            <p class="text-xs text-gray-500">Hubungan</p>
-                                                            <p class="text-sm font-medium text-gray-900"
-                                                                x-text="verifyResult.data?.hubungan?.hubungan || '-'"></p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -530,36 +541,13 @@
                 </div>
             </div>
 
-            <div x-show="message" x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="m-6 p-4 rounded-lg"
-                :class="messageType === 'success' ? 'bg-green-100 text-green-800' :
-                    messageType === 'error' ? 'bg-red-100 text-red-800' :
-                    'bg-blue-100 text-blue-800'">
-                <div class="flex items-center gap-2">
-                    <svg x-show="messageType === 'success'" class="w-5 h-5 text-green-600" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <svg x-show="messageType === 'error'" class="w-5 h-5 text-red-600" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <svg x-show="messageType === 'info'" class="w-5 h-5 text-blue-600" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span x-text="message"></span>
-                </div>
-            </div>
+            @include('components.sweet-alert')
 
             <div class="border-t border-gray-200">
                 <div
                     class="p-5 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
                     <div class="text-sm text-gray-600">
-                        Total: <span class="font-semibold text-gray-900">{{ count($keluargas) }}</span> data fingerprint
+                        Total: <span class="font-semibold text-gray-900">{{ count($karyawans) }}</span> data fingerprint
                         terdaftar
                     </div>
                 </div>
@@ -571,11 +559,11 @@
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No
                                 </th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                    <a href="{{ route('fingerprint.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nama_keluarga', 'direction' => request('sort') == 'nama_keluarga' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                    <a href="{{ route('fingerprint.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nama_karyawan', 'direction' => request('sort') == 'nama_karyawan' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
                                         class="flex items-center justify-between group hover:text-indigo-300 transition-colors">
-                                        <span>Nama Keluarga</span>
+                                        <span>Nama Karyawan</span>
                                         <span class="ml-2">
-                                            @if (request('sort') == 'nama_keluarga')
+                                            @if (request('sort') == 'nama_karyawan')
                                                 @if (request('direction') == 'asc')
                                                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
@@ -600,11 +588,11 @@
                                     </a>
                                 </th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                    <a href="{{ route('fingerprint.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'karyawan.nama_karyawan', 'direction' => request('sort') == 'karyawan.nama_karyawan' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                    <a href="{{ route('fingerprint.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'nik_karyawan', 'direction' => request('sort') == 'nik_karyawan' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
                                         class="flex items-center justify-between group hover:text-indigo-300 transition-colors">
-                                        <span>Nama Karyawan</span>
+                                        <span>NIK</span>
                                         <span class="ml-2">
-                                            @if (request('sort') == 'karyawan.nama_karyawan')
+                                            @if (request('sort') == 'nik_karyawan')
                                                 @if (request('direction') == 'asc')
                                                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
@@ -629,7 +617,7 @@
                                     </a>
                                 </th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                    Hubungan
+                                    Departemen
                                 </th>
                                 <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                                     <a href="{{ route('fingerprint.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'fingerprint_enrolled_at', 'direction' => request('sort') == 'fingerprint_enrolled_at' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
@@ -666,7 +654,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($keluargas as $index => $keluarga)
+                            @forelse($karyawans as $index => $karyawan)
                                 <tr class="hover:bg-indigo-50 transition-colors">
                                     <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                         {{ $index + 1 }}
@@ -675,24 +663,24 @@
                                         <div class="flex items-center gap-2">
                                             <div
                                                 class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                                {{ strtoupper(substr($keluarga->nama_keluarga, 0, 2)) }}
+                                                {{ strtoupper(substr($karyawan->nama_karyawan, 0, 2)) }}
                                             </div>
                                             <span
-                                                class="text-sm font-medium text-gray-900">{{ $keluarga->nama_keluarga }}</span>
+                                                class="text-sm font-medium text-gray-900">{{ $karyawan->nama_karyawan }}</span>
                                         </div>
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        {{ $keluarga->karyawan->nama_karyawan ?? '-' }}
+                                        {{ $karyawan->nik_karyawan }}
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
                                         <div class="flex items-center gap-2">
                                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
                                                 </path>
                                             </svg>
-                                            <span>{{ $keluarga->hubungan->hubungan ?? '-' }}</span>
+                                            <span>{{ $karyawan->departemen->nama_departemen ?? '-' }}</span>
                                         </div>
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap">
@@ -702,12 +690,12 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            {{ optional($keluarga->fingerprint_enrolled_at)->format('d-m-Y') }}
+                                            {{ optional($karyawan->fingerprint_enrolled_at)->format('d-m-Y') }}
                                         </div>
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-sm">
                                         <div class="flex items-center gap-2">
-                                            <button @click="deleteFingerprint({{ $keluarga->id_keluarga }})"
+                                            <button @click="deleteFingerprint({{ $karyawan->id_karyawan }})"
                                                 class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
                                                 title="Hapus">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -745,32 +733,32 @@
             function fingerprintSystem() {
                 return {
                     activeTab: 'enroll',
-                    familyMembers: [],
+                    employees: [],
                     fingerprintTemplates: [],
-                    selectedFamilyMember: '',
+                    selectedEmployee: '',
                     isCapturing: false,
                     message: '',
                     messageType: 'info',
                     lastCaptured: null,
                     verifyResult: null,
-                    keluargas: @json($keluargas),
+                    karyawans: @json($karyawans),
                     searchQuery: '',
                     searchResults: [],
                     showSearchResults: false,
-                    selectedMemberData: null,
+                    selectedEmployeeData: null,
 
                     init() {
-                        this.loadFamilyMembers();
+                        this.loadEmployees();
                         this.loadFingerprintTemplates();
                     },
 
-                    async loadFamilyMembers() {
+                    async loadEmployees() {
                         try {
-                            const response = await fetch('/fingerprint/family-members');
-                            this.familyMembers = await response.json();
+                            const response = await fetch('/fingerprint/employees');
+                            this.employees = await response.json();
                         } catch (error) {
-                            console.error('Error loading family members:', error);
-                            this.showMessage('Gagal memuat data anggota keluarga', 'error');
+                            console.error('Error loading employees:', error);
+                            this.showMessage('Gagal memuat data karyawan', 'error');
                         }
                     },
 
@@ -783,11 +771,11 @@
                         }
                     },
 
-                    onFamilyMemberChange() {
+                    onEmployeeChange() {
                         this.lastCaptured = null;
                     },
 
-                    async searchFamilyMembers() {
+                    async searchEmployees() {
                         if (this.searchQuery.length < 2) {
                             this.searchResults = [];
                             this.showSearchResults = false;
@@ -796,29 +784,29 @@
 
                         try {
                             const response = await fetch(
-                                `/fingerprint/search-family-members?search=${encodeURIComponent(this.searchQuery)}`);
+                                `/fingerprint/search-employees?search=${encodeURIComponent(this.searchQuery)}`);
                             this.searchResults = await response.json();
                             this.showSearchResults = true;
                         } catch (error) {
-                            console.error('Error searching family members:', error);
+                            console.error('Error searching employees:', error);
                             this.searchResults = [];
                         }
                     },
 
-                    selectFamilyMember(member) {
-                        this.selectedFamilyMember = member.id_keluarga;
-                        this.selectedMemberData = member;
-                        this.searchQuery = member.nama_keluarga;
+                    selectEmployee(employee) {
+                        this.selectedEmployee = employee.id_karyawan;
+                        this.selectedEmployeeData = employee;
+                        this.searchQuery = employee.nama_karyawan;
                         this.showSearchResults = false;
-                        this.onFamilyMemberChange();
+                        this.onEmployeeChange();
                     },
 
-                    getSelectedMemberName() {
-                        if (this.selectedMemberData) {
-                            return `${this.selectedMemberData.nama_keluarga} - ${this.selectedMemberData.karyawan?.nama_karyawan || ''}`;
+                    getSelectedEmployeeName() {
+                        if (this.selectedEmployeeData) {
+                            return `${this.selectedEmployeeData.nama_karyawan} - ${this.selectedEmployeeData.nik_karyawan || ''}`;
                         }
-                        const member = this.familyMembers.find(m => m.id_keluarga == this.selectedFamilyMember);
-                        return member ? `${member.nama_keluarga} - ${member.karyawan?.nama_karyawan || ''}` : '';
+                        const employee = this.employees.find(m => m.id_karyawan == this.selectedEmployee);
+                        return employee ? `${employee.nama_karyawan} - ${employee.nik_karyawan || ''}` : '';
                     },
 
                     getErrorDescription(code) {
@@ -840,8 +828,8 @@
                     },
 
                     async enrollFingerprint() {
-                        if (!this.selectedFamilyMember) {
-                            this.showMessage('Pilih anggota keluarga terlebih dahulu!', 'error');
+                        if (!this.selectedEmployee) {
+                            this.showMessage('Pilih karyawan terlebih dahulu!', 'error');
                             return;
                         }
 
@@ -879,7 +867,7 @@
                                     nfiq: data.NFIQ
                                 };
                                 this.showMessage(
-                                    `Sidik jari berhasil ditangkap! Kualitas: ${data.ImageQuality}, NFIQ: ${data.NFIQ}`,
+                                    'Sidik jari berhasil ditangkap!',
                                     'success');
                             } else {
                                 this.showMessage(`Error: ${data.ErrorCode} - ${this.getErrorDescription(data.ErrorCode)}`,
@@ -894,8 +882,8 @@
                     },
 
                     async saveEnrolledFingerprint() {
-                        if (!this.selectedFamilyMember) {
-                            this.showMessage('Pilih anggota keluarga terlebih dahulu!', 'error');
+                        if (!this.selectedEmployee) {
+                            this.showMessage('Pilih karyawan terlebih dahulu!', 'error');
                             return;
                         }
 
@@ -920,7 +908,7 @@
                                         'content')
                                 },
                                 body: JSON.stringify({
-                                    id_keluarga: this.selectedFamilyMember,
+                                    id_karyawan: this.selectedEmployee,
                                     fingerprint_template: this.lastCaptured.template
                                 })
                             });
@@ -929,8 +917,8 @@
 
                             if (result.success) {
                                 this.showMessage(result.message, 'success');
-                                this.selectedFamilyMember = '';
-                                this.selectedMemberData = null;
+                                this.selectedEmployee = '';
+                                this.selectedEmployeeData = null;
                                 this.searchQuery = '';
                                 this.searchResults = [];
                                 this.showSearchResults = false;
@@ -947,8 +935,8 @@
                     },
 
                     resetEnrollment() {
-                        this.selectedFamilyMember = '';
-                        this.selectedMemberData = null;
+                        this.selectedEmployee = '';
+                        this.selectedEmployeeData = null;
                         this.searchQuery = '';
                         this.searchResults = [];
                         this.showSearchResults = false;
@@ -1041,7 +1029,7 @@
                                     image: data.BMPBase64
                                 };
                                 this.showMessage(
-                                    `✓ Verifikasi Berhasil! ${bestMatch.nama_keluarga} - ${bestMatch.karyawan?.nama_karyawan || ''} (Score: ${bestScore}/199)`,
+                                    `✓ Verifikasi Berhasil! ${bestMatch.nama_karyawan} - ${bestMatch.nik_karyawan || ''}`,
                                     'success');
                             } else {
                                 this.verifyResult = {
@@ -1050,7 +1038,7 @@
                                     score: bestScore,
                                     image: data.BMPBase64
                                 };
-                                this.showMessage(`✗ Sidik jari tidak cocok. Score tertinggi: ${bestScore}/199`, 'error');
+                                this.showMessage('✗ Sidik jari tidak cocok', 'error');
                             }
                         } catch (error) {
                             this.showMessage(`Error koneksi: ${error.message}. Pastikan SGIBIOSRV berjalan di port 8443`,
@@ -1060,7 +1048,7 @@
                         }
                     },
 
-                    async deleteFingerprint(id_keluarga) {
+                    async deleteFingerprint(id_karyawan) {
                         if (!confirm('Apakah Anda yakin ingin menghapus fingerprint ini?')) {
                             return;
                         }
@@ -1074,7 +1062,7 @@
                                         'content')
                                 },
                                 body: JSON.stringify({
-                                    id_keluarga
+                                    id_karyawan
                                 })
                             });
 
@@ -1093,11 +1081,17 @@
                     },
 
                     showMessage(msg, type = 'info') {
-                        this.message = msg;
-                        this.messageType = type;
-                        setTimeout(() => {
-                            this.message = '';
-                        }, 5000);
+                        // Use SweetAlert instead of inline notification
+                        if (typeof window.showSweetAlert === 'function') {
+                            window.showSweetAlert(msg, type);
+                        } else {
+                            // Fallback to inline notification if SweetAlert not loaded
+                            this.message = msg;
+                            this.messageType = type;
+                            setTimeout(() => {
+                                this.message = '';
+                            }, 5000);
+                        }
                     }
                 }
             }
