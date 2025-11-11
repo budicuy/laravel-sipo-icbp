@@ -132,6 +132,12 @@
                                 Data External Employee
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('fingerprint.index') }}"
+                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('fingerprint*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
+                                Data Fingerprint
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
