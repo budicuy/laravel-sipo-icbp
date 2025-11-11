@@ -20,7 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (config('app.env') !== 'local') {
+        // Force HTTPS for non-local environments
+        $env = env('APP_ENV', 'local');
+        if ($env !== 'local') {
             URL::forceScheme('https');
         }
     }

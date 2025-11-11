@@ -126,7 +126,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Kirim request ke server untuk validasi token
-        fetch('/token-emergency/validate', {
+        const validateUrl = new URL('/token-emergency/validate', window.location.origin);
+        fetch(validateUrl.toString(), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -260,7 +261,8 @@ document.addEventListener('alpine:init', () => {
             this.processing = true;
 
             try {
-                const response = await fetch('/token-emergency/validate', {
+                const validateUrl = new URL('/token-emergency/validate', window.location.origin);
+                const response = await fetch(validateUrl.toString(), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

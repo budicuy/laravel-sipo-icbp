@@ -106,7 +106,8 @@
 
                                 <div class="flex gap-4">
                                     <div class="w-24 flex-shrink-0">
-                                        <img :src="`data:image/bmp;base64,${verifyResult.image}`" alt="Fingerprint"
+                                        <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
+                                            alt="Fingerprint"
                                             class="w-full h-auto border-2 border-green-500 rounded-lg shadow-sm">
                                     </div>
 
@@ -117,15 +118,15 @@
                                                 <div
                                                     class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg">
                                                     <span
-                                                        x-text="verifyResult.data?.nama_karyawan?.charAt(0).toUpperCase()"></span>
+                                                        x-text="verifyResult?.data?.nama_karyawan ? verifyResult.data.nama_karyawan.charAt(0).toUpperCase() : ''"></span>
                                                 </div>
                                                 <div>
                                                     <p class="text-xs text-green-600 font-medium mb-1">Karyawan
                                                         Terverifikasi</p>
                                                     <p class="text-xl font-bold text-gray-900"
-                                                        x-text="verifyResult.data?.nama_karyawan"></p>
+                                                        x-text="verifyResult?.data?.nama_karyawan || ''"></p>
                                                     <p class="text-sm text-gray-600"
-                                                        x-text="verifyResult.data?.nik_karyawan"></p>
+                                                        x-text="verifyResult?.data?.nik_karyawan || ''"></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -145,7 +146,8 @@
 
                                 <div class="flex gap-4">
                                     <div class="w-24 flex-shrink-0">
-                                        <img :src="`data:image/bmp;base64,${verifyResult.image}`" alt="Fingerprint"
+                                        <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
+                                            alt="Fingerprint"
                                             class="w-full h-auto border-2 border-red-500 rounded-lg shadow-sm">
                                     </div>
 
@@ -769,7 +771,8 @@
 
                     async loadFingerprintTemplates() {
                         try {
-                            const response = await fetch('/fingerprint/templates');
+                            const url = new URL('/fingerprint/templates', window.location.origin);
+                            const response = await fetch(url.toString());
                             this.fingerprintTemplates = await response.json();
                         } catch (error) {
                             // Error handling for fingerprint templates
@@ -869,7 +872,7 @@
                                     success: true,
                                     data: bestMatch,
                                     score: bestScore,
-                                    image: data.BMPBase64
+                                    image: data.BMPBase64 || null
                                 };
                                 this.verifiedEmployee = bestMatch;
                                 this.showMessage(
@@ -880,7 +883,7 @@
                                     success: false,
                                     data: null,
                                     score: bestScore,
-                                    image: data.BMPBase64
+                                    image: data.BMPBase64 || null
                                 };
                                 this.showMessage('✗ Sidik jari tidak cocok', 'error');
                             }
@@ -894,6 +897,7 @@
 
                     resetVerification() {
                         this.verifyResult = null;
+                        this.isCapturing = false;
                     },
 
                     closeFingerprintModal() {
@@ -943,7 +947,9 @@
 
                     async loadFamilyMembers(karyawanId) {
                         try {
-                            const response = await fetch(`/rekam-medis/get-family-members?karyawan_id=${karyawanId}`);
+                            const url = new URL('/rekam-medis/get-family-members', window.location.origin);
+                            url.searchParams.set('karyawan_id', karyawanId);
+                            const response = await fetch(url.toString());
                             const data = await response.json();
 
                             const selectElement = document.getElementById('id_keluarga');
@@ -986,7 +992,9 @@
             // Original form functionality
 
             function loadFamilyMembersLegacy(karyawanId) {
-                fetch(`{{ route('rekam-medis.getFamilyMembers') }}?karyawan_id=${karyawanId}`)
+                const url = new URL(`{{ route('rekam-medis.getFamilyMembers') }}`, window.location.origin);
+                url.searchParams.set('karyawan_id', karyawanId);
+                fetch(url.toString())
                     .then(response => response.json())
                     .then(data => {
                         const selectElement = document.getElementById('id_keluarga');
@@ -1141,7 +1149,9 @@
                 obatList.innerHTML = '<p class="text-sm text-gray-500 italic">Memuat daftar obat...</p>';
 
                 // Fetch obat based on selected diagnosa
-                fetch(`{{ route('rekam-medis.getObatByDiagnosa') }}?diagnosa_id=${diagnosaId}`)
+                const url = new URL(`{{ route('rekam-medis.getObatByDiagnosa') }}`, window.location.origin);
+                url.searchParams.set('diagnosa_id', diagnosaId);
+                fetch(url.toString())
                     .then(response => response.json())
                     .then(data => {
                         if (data && data.length > 0) {
@@ -1550,13 +1560,13 @@
                 <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
                 <div class="mt-2">
                     ${errors.map(error => `
-                                                        <div class="flex items-center py-1">
-                                                            <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                                            </svg>
-                                                            <span class="text-sm text-red-700">${error}</span>
-                                                        </div>
-                                                    `).join('')}
+                                                                        <div class="flex items-center py-1">
+                                                                            <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                                                            </svg>
+                                                                            <span class="text-sm text-red-700">${error}</span>
+                                                                        </div>
+                                                                    `).join('')}
                 </div>
             </div>
             <div class="ml-auto pl-3">
