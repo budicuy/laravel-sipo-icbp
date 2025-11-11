@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Keluarga;
+use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -13,20 +13,23 @@ class FingerprintController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Keluarga::whereNotNull('fingerprint_template')
-            ->with(['karyawan', 'hubungan']);
+        $query = Karyawan::whereNotNull('fingerprint_template')
+            ->with('departemen');
 
         // Handle sorting
         $sort = $request->get('sort', 'fingerprint_enrolled_at');
         $direction = $request->get('direction', 'desc');
 
         switch ($sort) {
-            case 'nama_keluarga':
-                $query->orderBy('nama_keluarga', $direction);
+            case 'nama_karyawan':
+                $query->orderBy('nama_karyawan', $direction);
                 break;
-            case 'karyawan.nama_karyawan':
-                $query->orderByHas('karyawan', function ($q) use ($direction) {
-                    $q->orderBy('nama_karyawan', $direction);
+            case 'nik_karyawan':
+                $query->orderBy('nik_karyawan', $direction);
+                break;
+            case 'departemen.nama_departemen':
+                $query->orderByHas('departemen', function ($q) use ($direction) {
+                    $q->orderBy('nama_departemen', $direction);
                 });
                 break;
             case 'fingerprint_enrolled_at':
@@ -35,63 +38,61 @@ class FingerprintController extends Controller
                 break;
         }
 
-        $keluargas = $query->get();
+        $karyawans = $query->get();
 
-        return view('fingerprint.index', compact('keluargas'));
+        return view('fingerprint.index', compact('karyawans'));
     }
 
     /**
-     * Get all family members for fingerprint enrollment
+     * Get all employees for fingerprint enrollment
      */
-    public function getFamilyMembers(): JsonResponse
+    public function getEmployees(): JsonResponse
     {
-        $keluargas = Keluarga::with(['karyawan', 'hubungan'])
-            ->orderBy('nama_keluarga')
+        $karyawans = Karyawan::with('departemen')
+            ->orderBy('nama_karyawan')
             ->get();
 
-        return response()->json($keluargas);
+        return response()->json($karyawans);
     }
 
     /**
-     * Search family members by name or NIK
+     * Search employees by name or NIK
      */
-    public function searchFamilyMembers(Request $request): JsonResponse
+    public function searchEmployees(Request $request): JsonResponse
     {
         $search = $request->get('search', '');
 
-        $keluargas = Keluarga::with(['karyawan', 'hubungan'])
+        $karyawans = Karyawan::with('departemen')
             ->where(function($query) use ($search) {
-                $query->where('nama_keluarga', 'like', '%' . $search . '%')
-                      ->orWhereHas('karyawan', function($q) use ($search) {
-                          $q->where('nik_karyawan', 'like', '%' . $search . '%');
-                      });
+                $query->where('nama_karyawan', 'like', '%' . $search . '%')
+                      ->orWhere('nik_karyawan', 'like', '%' . $search . '%');
             })
-            ->orderBy('nama_keluarga')
+            ->orderBy('nama_karyawan')
             ->limit(20)
             ->get();
 
-        return response()->json($keluargas);
+        return response()->json($karyawans);
     }
 
     /**
-     * Save fingerprint template for family member
+     * Save fingerprint template for employee
      */
     public function saveFingerprint(Request $request): JsonResponse
     {
         $request->validate([
-            'id_keluarga' => 'required|exists:keluarga,id_keluarga',
+            'id_karyawan' => 'required|exists:karyawan,id_karyawan',
             'fingerprint_template' => 'required|string'
         ]);
 
-        $keluarga = Keluarga::find($request->id_keluarga);
-        $keluarga->fingerprint_template = $request->fingerprint_template;
-        $keluarga->fingerprint_enrolled_at = now();
-        $keluarga->save();
+        $karyawan = Karyawan::find($request->id_karyawan);
+        $karyawan->fingerprint_template = $request->fingerprint_template;
+        $karyawan->fingerprint_enrolled_at = now();
+        $karyawan->save();
 
         return response()->json([
             'success' => true,
-            'message' => 'Fingerprint berhasil disimpan untuk ' . $keluarga->nama_keluarga,
-            'data' => $keluarga->load('karyawan')
+            'message' => 'Fingerprint berhasil disimpan untuk ' . $karyawan->nama_karyawan,
+            'data' => $karyawan->load('departemen')
         ]);
     }
 
@@ -100,9 +101,9 @@ class FingerprintController extends Controller
      */
     public function getFingerprintTemplates(): JsonResponse
     {
-        $templates = Keluarga::whereNotNull('fingerprint_template')
-            ->with(['karyawan', 'hubungan'])
-            ->get(['id_keluarga', 'nama_keluarga', 'fingerprint_template', 'id_karyawan', 'kode_hubungan']);
+        $templates = Karyawan::whereNotNull('fingerprint_template')
+            ->with('departemen')
+            ->get(['id_karyawan', 'nama_karyawan', 'nik_karyawan', 'fingerprint_template', 'id_departemen']);
 
         return response()->json($templates);
     }
@@ -113,17 +114,17 @@ class FingerprintController extends Controller
     public function deleteFingerprint(Request $request): JsonResponse
     {
         $request->validate([
-            'id_keluarga' => 'required|exists:keluarga,id_keluarga'
+            'id_karyawan' => 'required|exists:karyawan,id_karyawan'
         ]);
 
-        $keluarga = Keluarga::find($request->id_keluarga);
-        $keluarga->fingerprint_template = null;
-        $keluarga->fingerprint_enrolled_at = null;
-        $keluarga->save();
+        $karyawan = Karyawan::find($request->id_karyawan);
+        $karyawan->fingerprint_template = null;
+        $karyawan->fingerprint_enrolled_at = null;
+        $karyawan->save();
 
         return response()->json([
             'success' => true,
-            'message' => 'Fingerprint berhasil dihapus untuk ' . $keluarga->nama_keluarga
+            'message' => 'Fingerprint berhasil dihapus untuk ' . $karyawan->nama_karyawan
         ]);
     }
 }
