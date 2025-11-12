@@ -1253,13 +1253,13 @@ class LaporanController extends Controller
                         if (is_string($tanggalValue)) {
                             // Coba format d/m/Y terlebih dahulu (sesuai dengan RekamMedisController)
                             $carbonDate = \Carbon\Carbon::createFromFormat('d/m/Y', $tanggalValue);
-                            $tanggalValue = $carbonDate->format('d/m/Y l');
+                            $tanggalValue = $carbonDate->format('d/m/Y');
                         }
                     } catch (\Exception $e) {
                         try {
                             // Jika gagal, coba format lain
                             $carbonDate = new \Carbon\Carbon($tanggalValue);
-                            $tanggalValue = $carbonDate->format('d/m/Y l');
+                            $tanggalValue = $carbonDate->format('d/m/Y');
                         } catch (\Exception $e2) {
                             $tanggalValue = '-';
                         }

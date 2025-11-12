@@ -259,16 +259,16 @@ class ExternalEmployeeController extends Controller
 
         if (($handle = fopen($filePath, 'r')) !== false) {
             // Skip header row
-            fgetcsv($handle, 1000, ',');
+            fgetcsv($handle, 1000, ';');
 
-            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+            while (($data = fgetcsv($handle, 1000, ';')) !== false) {
                 try {
                     // Skip empty rows
                     if (empty(array_filter($data))) {
                         continue;
                     }
 
-                    // Map CSV columns to database fields
+                    // Map CSV columns to database fields (matching export structure)
                     $importData = [
                         'nik_employee' => $data[0] ?? '',
                         'nama_employee' => $data[1] ?? '',
@@ -278,9 +278,8 @@ class ExternalEmployeeController extends Controller
                         'alamat' => $data[5] ?? '',
                         'no_hp' => $data[6] ?? '',
                         'nama_vendor' => $data[7] ?? '',
-                        'no_ktp' => $data[8] ?? null,
-                        'bpjs_id' => $data[9] ?? null,
-                        'kategori' => $data[10] ?? '',
+                        'bpjs_id' => $data[8] ?? null,
+                        'kategori' => $data[9] ?? '',
                         'status' => 'aktif',
                     ];
 
@@ -321,7 +320,7 @@ class ExternalEmployeeController extends Controller
                         continue;
                     }
 
-                    // Map Excel columns to database fields
+                    // Map Excel columns to database fields (matching export structure)
                     $importData = [
                         'nik_employee' => $data[0] ?? '',
                         'nama_employee' => $data[1] ?? '',
@@ -331,9 +330,8 @@ class ExternalEmployeeController extends Controller
                         'alamat' => $data[5] ?? '',
                         'no_hp' => $data[6] ?? '',
                         'nama_vendor' => $data[7] ?? '',
-                        'no_ktp' => $data[8] ?? null,
-                        'bpjs_id' => $data[9] ?? null,
-                        'kategori' => $data[10] ?? '',
+                        'bpjs_id' => $data[8] ?? null,
+                        'kategori' => $data[9] ?? '',
                         'status' => 'aktif',
                     ];
 
@@ -516,7 +514,6 @@ class ExternalEmployeeController extends Controller
 
         // CSV Header - sesuai spesifikasi yang diminta
         $headers = [
-            'NO',
             'NIK Employee',
             'Nama Employee',
             'Kode RM',
@@ -531,7 +528,6 @@ class ExternalEmployeeController extends Controller
         fputcsv($file, $headers, ';');
 
         // Data rows
-        $rowNumber = 1;
         foreach ($externalEmployees as $employee) {
             // Format kategori like "X - Guest", "Y - Outsourcing", etc.
             $kategoriFormatted = '';
@@ -540,7 +536,6 @@ class ExternalEmployeeController extends Controller
             }
 
             $rowData = [
-                $rowNumber,
                 $employee->nik_employee,
                 $employee->nama_employee,
                 $employee->kode_rm,
@@ -554,7 +549,6 @@ class ExternalEmployeeController extends Controller
             ];
 
             fputcsv($file, $rowData, ';');
-            $rowNumber++;
         }
 
         fclose($file);
@@ -610,11 +604,11 @@ class ExternalEmployeeController extends Controller
 
         $filePath = $templateDir.'/external-employee-template.csv';
 
-        // Create a simple CSV template
-        $csvContent = "nik_employee,nama_employee,kode_rm,tanggal_lahir,jenis_kelamin,alamat,no_hp,nama_vendor,no_ktp,bpjs_id,kategori\n";
-        $csvContent .= "80007053,John Doe,80007053-F,1993-09-09,L,Jakarta,082122,PT. Tropis Service,6372040909930005,0001547298944,X - Guest\n";
-        $csvContent .= "80007054,Jane Smith,80007054-F,1995-05-15,P,Bandung,082123,PT. Tropis Service,6372051505950006,0001547298945,Y - Outsourcing\n";
-        $csvContent .= "80007055,Robert Johnson,80007055-F,1990-12-20,L,Surabaya,082124,PT. Mitra Sejati,6372122009900007,0001547298946,Z - Supporting\n";
+        // Create CSV template with same structure as export (using semicolon as delimiter)
+        $csvContent = "NIK Employee;Nama Employee;Kode RM;Tanggal Lahir;Jenis Kelamin;Alamat;No HP;Nama Vendor;BPJS ID;Kategori\n";
+        $csvContent .= "80007053;John Doe;80007053-F;1993-09-09;L;Jakarta;082122;PT. Tropis Service;0001547298944;X - Guest\n";
+        $csvContent .= "80007054;Jane Smith;80007054-F;1995-05-15;P;Bandung;082123;PT. Tropis Service;0001547298945;Y - Outsourcing\n";
+        $csvContent .= "80007055;Robert Johnson;80007055-F;1990-12-20;L;Surabaya;082124;PT. Mitra Sejati;0001547298946;Z - Supporting\n";
 
         file_put_contents($filePath, $csvContent);
 

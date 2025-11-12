@@ -779,22 +779,20 @@ class KaryawanController extends Controller
 
         // CSV Header
         $headers = [
-            'NO',
             'NIK',
-            'Nama Karyawan',
+            'Nama',
+            'Tanggal Lahir',
             'Jenis Kelamin',
-            'Departemen',
+            'Alamat',
             'No HP',
+            'Departemen',
             'Email',
             'BPJS ID',
-            'Tanggal Lahir',
-            'Alamat',
             'Status'
         ];
         fputcsv($file, $headers, ';');
 
         // Data rows
-        $rowNumber = 1;
         foreach ($karyawans as $karyawan) {
             // Format jenis kelamin
             $jenisKelamin = 'Laki-laki';
@@ -803,21 +801,19 @@ class KaryawanController extends Controller
             }
 
             $rowData = [
-                $rowNumber,
                 $karyawan->nik_karyawan,
                 $karyawan->nama_karyawan,
+                $karyawan->tanggal_lahir ? $karyawan->tanggal_lahir->format('Y-m-d') : '',
                 $jenisKelamin,
-                optional($karyawan->departemen)->nama_departemen,
+                $karyawan->alamat,
                 $karyawan->no_hp,
+                optional($karyawan->departemen)->nama_departemen,
                 $karyawan->email ?? '',
                 $karyawan->bpjs_id ?? '',
-                $karyawan->tanggal_lahir ? $karyawan->tanggal_lahir->format('Y-m-d') : '',
-                $karyawan->alamat,
                 ucfirst($karyawan->status)
             ];
 
             fputcsv($file, $rowData, ';');
-            $rowNumber++;
         }
 
         fclose($file);

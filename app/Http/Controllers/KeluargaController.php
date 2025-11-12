@@ -536,7 +536,6 @@ class KeluargaController extends Controller
 
         // CSV Header
         $headers = [
-            'NO',
             'NIK',
             'NAMA',
             'TANGGAL LAHIR',
@@ -549,7 +548,6 @@ class KeluargaController extends Controller
         fputcsv($file, $headers, ';');
 
         // Data rows
-        $rowNumber = 1;
         foreach ($keluargas as $keluarga) {
             // Format jenis kelamin (L atau P)
             $jenisKelamin = $keluarga->jenis_kelamin;
@@ -563,7 +561,6 @@ class KeluargaController extends Controller
             $kodeHubungan = optional($keluarga->karyawan)->nik_karyawan . '-' . $keluarga->kode_hubungan;
 
             $rowData = [
-                $rowNumber,
                 optional($keluarga->karyawan)->nik_karyawan,
                 $keluarga->nama_keluarga,
                 $keluarga->tanggal_lahir ? $keluarga->tanggal_lahir->format('Y-m-d') : '',
@@ -575,7 +572,6 @@ class KeluargaController extends Controller
             ];
 
             fputcsv($file, $rowData, ';');
-            $rowNumber++;
         }
 
         // Add summary info at the bottom
