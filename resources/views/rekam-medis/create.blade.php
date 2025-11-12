@@ -3,7 +3,7 @@
 @section('page-title', 'Tambah Rekam Medis')
 
 @section('content')
-    <div class="p-6 bg-gray-50 min-h-screen" x-data="rekamMedisFingerprint()">
+    <div class="p-6 bg-gray-50 min-h-screen" x-data="rekamMedisFingerprint()" x-cloak>
         <!-- Fingerprint Verification Modal -->
         <div x-show="showFingerprintModal" x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -53,12 +53,28 @@
                                 <div class="text-sm text-blue-800">
                                     <p class="font-semibold mb-2">Verifikasi Identitas Karyawan:</p>
                                     <ul class="list-disc list-inside space-y-1 text-xs">
-                                        <li>Silakan tempelkan <strong>jempol</strong> Anda pada sensor fingerprint</li>
+                                        <li>Silakan tempelkan Jari Anda pada sensor fingerprint</li>
                                         <li>Pastikan jari dalam kondisi bersih dan kering</li>
-                                        <li>Tekan jari dengan cukup kuat pada sensor</li>
                                         <li>Tahan posisi jari hingga proses verifikasi selesai</li>
                                         <li>Verifikasi berhasil diperlukan untuk melanjutkan pendaftaran rekam medis</li>
                                     </ul>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Error Message -->
+                        <div x-show="fingerprintFailedCount >= 3" class="mb-4 p-3 rounded-lg"
+                            :class="fingerprintFailedCount >= 5 ? 'bg-red-50 border border-red-200' :
+                                'bg-orange-50 border border-orange-200'">
+                            <div class="flex items-center justify-center gap-2"
+                                :class="fingerprintFailedCount >= 5 ? 'text-red-700' : 'text-orange-700'">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                                <div class="text-left">
+                                    <span class="text-sm font-medium" x-text="getDynamicErrorMessage()"></span>
                                 </div>
                             </div>
                         </div>
@@ -89,6 +105,126 @@
                                 <span x-text="isCapturing ? 'Memverifikasi...' : 'Verifikasi Sidik Jari'"></span>
                             </button>
 
+
+
+                            <!-- Manual Verification Section -->
+                            <div class="mt-6 pt-6 border-t border-gray-200"
+                                x-show="fingerprintFailedCount >= 3 || showManualVerification" x-cloak>
+                                <div class="text-center mb-4">
+
+
+                                    <p class="text-sm text-gray-600 mb-2">Verifikasi secara manual menggunakan NIK dan
+                                        tanggal lahir</p>
+                                    <div class="flex items-center justify-center gap-2 text-xs text-gray-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>Verifikasi manual hanya untuk karyawan yang sudah terdaftar</span>
+                                    </div>
+                                </div>
+
+                                <div x-show="!showManualVerification && (fingerprintFailedCount >= 3)"
+                                    class="text-center">
+                                    <!-- Show different messages based on failure count -->
+                                    <div x-show="fingerprintFailedCount >= 3 && fingerprintFailedCount < 5"
+                                        class="mb-3">
+                                        <p class="text-sm text-orange-600 font-medium">
+                                            <span
+                                                x-text="`Percobaan fingerprint gagal: ${fingerprintFailedCount} kali`"></span>
+                                        </p>
+                                    </div>
+
+                                    <div x-show="fingerprintFailedCount >= 5" class="mb-3">
+                                        <p class="text-sm text-red-600 font-medium">
+                                            Perangkat fingerprint tidak terdeteksi atau bermasalah
+                                        </p>
+                                    </div>
+
+                                    <button @click="showManualVerification = true"
+                                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold transition-colors duration-200 flex items-center justify-center gap-2 mx-auto shadow-md hover:shadow-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                        </svg>
+                                        Verifikasi Manual
+                                    </button>
+                                </div>
+
+                                <div x-show="showManualVerification" x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 transform scale-95"
+                                    x-transition:enter-end="opacity-100 transform scale-100"
+                                    class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                NIK Karyawan <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <svg class="w-5 h-5 text-gray-400" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                                    </svg>
+                                                </div>
+                                                <input type="text" x-model="manualVerification.nik" maxlength="16"
+                                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    placeholder="Masukkan NIK karyawan (1-16 digit)">
+                                            </div>
+                                            <p x-show="manualVerificationErrors.nik" class="mt-1 text-sm text-red-600"
+                                                x-text="manualVerificationErrors.nik"></p>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Tanggal Lahir <span class="text-red-500">*</span>
+                                            </label>
+                                            <div class="relative">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <svg class="w-5 h-5 text-gray-400" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                                <input type="date" x-model="manualVerification.tanggalLahir"
+                                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            </div>
+                                            <p x-show="manualVerificationErrors.tanggalLahir"
+                                                class="mt-1 text-sm text-red-600"
+                                                x-text="manualVerificationErrors.tanggalLahir"></p>
+                                        </div>
+
+                                        <div class="flex gap-3">
+                                            <button @click="showManualVerification = false; resetManualVerification()"
+                                                class="flex-1 bg-gray-500 text-white py-2.5 rounded-lg hover:bg-gray-600 font-semibold transition-colors duration-200">
+                                                Batal
+                                            </button>
+                                            <button @click="verifyManual()" :disabled="isManualVerifying"
+                                                class="flex-1 bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
+                                                <svg x-show="!isManualVerifying" class="w-4 h-4" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                </svg>
+                                                <svg x-show="isManualVerifying" class="w-4 h-4 animate-spin"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                </svg>
+                                                <span
+                                                    x-text="isManualVerifying ? 'Memverifikasi...' : 'Verifikasi'"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                         <!-- Verification Result -->
@@ -105,10 +241,23 @@
                                 </div>
 
                                 <div class="flex gap-4">
-                                    <div class="w-24 flex-shrink-0">
+                                    <!-- Show fingerprint image only if available (from fingerprint verification) -->
+                                    <div x-show="verifyResult?.image" class="w-24 flex-shrink-0">
                                         <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
                                             alt="Fingerprint"
                                             class="w-full h-auto border-2 border-green-500 rounded-lg shadow-sm">
+                                    </div>
+
+                                    <!-- Show verification method icon for manual verification -->
+                                    <div x-show="!verifyResult?.image" class="w-24 flex-shrink-0">
+                                        <div
+                                            class="w-full h-24 bg-green-100 border-2 border-green-500 rounded-lg flex items-center justify-center">
+                                            <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                            </svg>
+                                        </div>
                                     </div>
 
                                     <div class="flex-1">
@@ -121,8 +270,12 @@
                                                         x-text="verifyResult?.data?.nama_karyawan ? verifyResult.data.nama_karyawan.charAt(0).toUpperCase() : ''"></span>
                                                 </div>
                                                 <div>
-                                                    <p class="text-xs text-green-600 font-medium mb-1">Karyawan
-                                                        Terverifikasi</p>
+                                                    <p class="text-xs text-green-600 font-medium mb-1">
+                                                        <span x-show="verifyResult?.image">Karyawan Terverifikasi
+                                                            (Fingerprint)</span>
+                                                        <span x-show="!verifyResult?.image">Karyawan Terverifikasi
+                                                            (Manual)</span>
+                                                    </p>
                                                     <p class="text-xl font-bold text-gray-900"
                                                         x-text="verifyResult?.data?.nama_karyawan || ''"></p>
                                                     <p class="text-sm text-gray-600"
@@ -145,10 +298,23 @@
                                 </div>
 
                                 <div class="flex gap-4">
-                                    <div class="w-24 flex-shrink-0">
+                                    <!-- Show fingerprint image only if available (from fingerprint verification) -->
+                                    <div x-show="verifyResult?.image" class="w-24 flex-shrink-0">
                                         <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
                                             alt="Fingerprint"
                                             class="w-full h-auto border-2 border-red-500 rounded-lg shadow-sm">
+                                    </div>
+
+                                    <!-- Show verification method icon for manual verification -->
+                                    <div x-show="!verifyResult?.image" class="w-24 flex-shrink-0">
+                                        <div
+                                            class="w-full h-24 bg-red-100 border-2 border-red-500 rounded-lg flex items-center justify-center">
+                                            <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                            </svg>
+                                        </div>
                                     </div>
 
                                     <div class="flex-1">
@@ -165,10 +331,17 @@
                                                     </svg>
                                                 </div>
                                                 <div class="flex-1">
-                                                    <p class="text-xs text-red-600 font-medium mb-1">Sidik Jari Tidak
-                                                        Dikenali</p>
-                                                    <p class="text-sm text-gray-700">Tidak ada data fingerprint yang cocok.
-                                                        Silakan coba lagi atau gunakan jari yang sama saat pendaftaran.</p>
+                                                    <p class="text-xs text-red-600 font-medium mb-1">
+                                                        <span x-show="verifyResult?.image">Sidik Jari Tidak Dikenali</span>
+                                                        <span x-show="!verifyResult?.image">Verifikasi Manual Gagal</span>
+                                                    </p>
+                                                    <p class="text-sm text-gray-700">
+                                                        <span x-show="verifyResult?.image">Tidak ada data fingerprint yang
+                                                            cocok. Silakan coba lagi atau gunakan jari yang sama saat
+                                                            pendaftaran.</span>
+                                                        <span x-show="!verifyResult?.image">Data karyawan tidak ditemukan
+                                                            atau tidak cocok. Pastikan NIK dan tanggal lahir sesuai.</span>
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
@@ -502,7 +675,7 @@
                                     </svg>
                                 </div>
                                 <input type="date" id="tanggal_periksa" name="tanggal_periksa"
-                                    value="{{ old('tanggal_periksa', date('Y-m-d')) }}"
+                                    value="{{ old('tanggal_periksa', \Carbon\Carbon::now('Asia/Makassar')->format('Y-m-d')) }}"
                                     class="w-full pl-10 pr-4 py-2.5 border @error('tanggal_periksa') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                                     required>
                             </div>
@@ -764,6 +937,20 @@
                     fingerprintTemplates: [],
                     verifyResult: null,
                     verifiedEmployee: null,
+                    fingerprintFailedCount: 0, // Track failed fingerprint attempts
+                    lastErrorCode: null, // Track last error code for dynamic messages
+
+                    // Manual verification properties
+                    showManualVerification: false,
+                    isManualVerifying: false,
+                    manualVerification: {
+                        nik: '',
+                        tanggalLahir: ''
+                    },
+                    manualVerificationErrors: {
+                        nik: '',
+                        tanggalLahir: ''
+                    },
 
                     init() {
                         this.loadFingerprintTemplates();
@@ -781,20 +968,35 @@
 
                     getErrorDescription(code) {
                         const errors = {
-                            51: 'System file load failure',
-                            52: 'Sensor chip initialization failed',
-                            53: 'Device not found',
-                            54: 'Fingerprint image capture timeout',
-                            55: 'No device available',
-                            56: 'Driver load failed',
-                            57: 'Wrong Image',
-                            58: 'Lack of bandwidth',
-                            59: 'Device Busy',
-                            60: 'Cannot get serial number',
-                            61: 'Unsupported device',
-                            63: 'SgiBioSrv tidak berjalan'
+                            51: 'System file load failure (Gagal memuat file sistem)',
+                            52: 'Sensor chip initialization failed (Gagal inisialisasi chip sensor)',
+                            53: 'Device not found (Perangkat tidak ditemukan)',
+                            54: 'Timeout (Batas waktu terlampaui/berakhir)',
+                            55: 'No device available (Perangkat tidak tersedia)',
+                            56: 'Driver load failed (Gagal memuat driver)',
+                            57: 'Wrong image (Gambar/citra salah)',
+                            58: 'Lack of bandwidth (Kekurangan bandwidth / lebar pita)',
+                            59: 'Device busy (Perangkat sedang sibuk)',
+                            60: 'Cannot get serial number of device (Tidak dapat mengambil nomor seri perangkat)',
+                            61: 'Unsupported device (Perangkat tidak didukung)',
+                            63: 'SgiBioSrv tidak berjalan',
+                            101: 'Very low minutiae count (Jumlah minutiae yang sangat rendah)',
+                            102: 'Wrong template type (Tipe template salah)',
+                            103: 'Invalid template (Template tidak valid)',
+                            104: 'Invalid template (Template tidak valid)',
+                            105: 'Could not extract features (Tidak dapat mengekstrak fitur)',
+                            106: 'Match failed (Fingerprint Tidak Ada yang cocok)',
+                            1000: 'No memory (Tidak ada memori)',
+                            2000: 'Internal error (Error internal)',
+                            3000: 'Internal error extended (Error internal diperluas)',
+                            4000: 'Invalid parameter passed to service (Parameter tidak valid diteruskan ke layanan)',
+                            6000: 'Certificate error cannot decode (Error sertifikat tidak dapat di-decode)',
+                            10001: 'License error (Error lisensi)',
+                            10002: 'Invalid domain (Domain tidak valid)',
+                            10003: 'License expired (Lisensi kedaluwarsa)',
+                            10004: 'WebAPI may not have received origin header from browser (WebAPI kemungkinan tidak menerima header origin dari browser)'
                         };
-                        return errors[code] || 'Unknown error';
+                        return errors[code] || 'Unknown error (Error tidak diketahui)';
                     },
 
                     async verifyFingerprint() {
@@ -829,9 +1031,31 @@
                             const data = await response.json();
 
                             if (data.ErrorCode !== 0) {
-                                this.showMessage(`Error: ${data.ErrorCode} - ${this.getErrorDescription(data.ErrorCode)}`,
-                                    'error');
-                                return;
+                                // Check if it's a device detection error
+                                if (this.isDeviceError(data.ErrorCode)) {
+                                    // Store error code for dynamic message
+                                    this.lastErrorCode = data.ErrorCode;
+                                    this.showMessage(
+                                        `Perangkat fingerprint tidak terdeteksi: ${this.getErrorDescription(data.ErrorCode)}. Mengaktifkan verifikasi manual...`,
+                                        'warning');
+                                    // Directly show manual verification for device errors
+                                    this.fingerprintFailedCount = 3; // Set to 3 to immediately show manual verification
+                                    this.showManualVerification = true;
+                                    return;
+                                } else {
+                                    // Store error code for dynamic message
+                                    this.lastErrorCode = data.ErrorCode;
+                                    this.showMessage(
+                                        `Error: ${data.ErrorCode} - ${this.getErrorDescription(data.ErrorCode)}`,
+                                        'error');
+
+                                    // Show detailed error information
+                                    this.showDetailedError({
+                                        ErrorCode: data.ErrorCode,
+                                        ErrorMessage: this.getErrorDescription(data.ErrorCode)
+                                    });
+                                    return;
+                                }
                             }
 
                             const template = data.TemplateBase64;
@@ -885,19 +1109,78 @@
                                     score: bestScore,
                                     image: data.BMPBase64 || null
                                 };
-                                this.showMessage('✗ Sidik jari tidak cocok', 'error');
+                                this.showMessage(
+                                    `✗ Sidik jari tidak cocok (Percobaan gagal ke-${this.fingerprintFailedCount + 1})`,
+                                    'error');
+
+                                // Store error code for dynamic message
+                                this.lastErrorCode = 106; // Match failed error code
+
+                                // Show detailed error information
+                                this.showDetailedError({
+                                    ErrorCode: 106,
+                                    ErrorMessage: 'Sidik jari tidak cocok dengan data yang tersimpan'
+                                });
+
+                                // Increment failed count
+                                this.fingerprintFailedCount++;
                             }
                         } catch (error) {
-                            this.showMessage(`Error koneksi: ${error.message}. Pastikan SGIBIOSRV berjalan di port 8443`,
-                                'error');
+                            // Check if it's a connection/device error
+                            if (this.isConnectionError(error.message)) {
+                                this.showMessage(
+                                    `Error koneksi: ${error.message}. Mengaktifkan verifikasi manual...`,
+                                    'warning');
+                                // Directly show manual verification for connection errors
+                                this.fingerprintFailedCount = 5; // Set to 5 to show device error message
+                                this.showManualVerification = true;
+                            } else {
+                                this.showMessage(
+                                    `Error koneksi: ${error.message}. Pastikan SGIBIOSRV berjalan di port 8443`,
+                                    'error');
+
+                                // Store error code for dynamic message
+                                this.lastErrorCode = 999; // Custom error code for connection issues
+
+                                // Show detailed error information
+                                this.showDetailedError({
+                                    ErrorCode: 999,
+                                    ErrorMessage: `Error koneksi: ${error.message}. Pastikan SGIBIOSRV berjalan di port 8443`
+                                });
+                            }
                         } finally {
                             this.isCapturing = false;
                         }
                     },
 
+                    // Check if error code is related to device detection
+                    isDeviceError(errorCode) {
+                        // Device-related error codes from the provided list
+                        const deviceErrorCodes = [53, 55, 56, 59, 60, 61, 63];
+                        return deviceErrorCodes.includes(errorCode);
+                    },
+
+                    // Check if error message is related to connection issues
+                    isConnectionError(errorMessage) {
+                        const connectionErrorKeywords = [
+                            'Failed to fetch',
+                            'NetworkError',
+                            'ECONNREFUSED',
+                            'ERR_CONNECTION_REFUSED',
+                            'ERR_CONNECTION_TIMED_OUT',
+                            'timeout',
+                            'could not connect'
+                        ];
+                        return connectionErrorKeywords.some(keyword =>
+                            errorMessage.toLowerCase().includes(keyword.toLowerCase())
+                        );
+                    },
+
                     resetVerification() {
                         this.verifyResult = null;
                         this.isCapturing = false;
+                        // Don't reset failed count when user clicks "Coba Lagi"
+                        // Only reset when verification is successful and user proceeds
                     },
 
                     closeFingerprintModal() {
@@ -913,6 +1196,8 @@
                             // Auto-fill form with verified employee data
                             this.selectKaryawan(this.verifiedEmployee);
                             this.showFingerprintModal = false;
+                            // Reset failed count only when verification is successful and user proceeds
+                            this.fingerprintFailedCount = 0;
                             this.showMessage(
                                 `Selamat datang, ${this.verifiedEmployee.nama_karyawan}! Silakan pilih anggota keluarga untuk melanjutkan.`,
                                 'success');
@@ -979,11 +1264,141 @@
                     },
 
                     showMessage(msg, type = 'info') {
-                        // Use SweetAlert if available
-                        if (typeof window.showSweetAlert === 'function') {
-                            window.showSweetAlert(msg, type);
+                        // Messages are now displayed directly in the UI, no alerts needed
+                        // Console logs removed to keep console clean
+                    },
+
+                    getDynamicErrorMessage() {
+                        if (this.lastErrorCode === null) {
+                            if (this.fingerprintFailedCount >= 5) {
+                                return 'Perangkat fingerprint tidak terdeteksi atau mengalami masalah. Silakan gunakan verifikasi manual.';
+                            } else {
+                                return `Percobaan fingerprint gagal (${this.fingerprintFailedCount} kali). Gunakan verifikasi manual sebagai alternatif.`;
+                            }
                         } else {
-                            // Fallback to
+                            // Return specific error message based on error code
+                            return this.getErrorDescription(this.lastErrorCode) ||
+                                'Terjadi kesalahan pada perangkat fingerprint.';
+                        }
+                    },
+
+                    showDetailedError(errorData) {
+                        // Store last error code for dynamic display
+                        this.lastErrorCode = errorData.ErrorCode;
+                        // Error messages are now displayed directly in the UI via getDynamicErrorMessage()
+                        // Console logs removed to keep console clean
+                    },
+
+                    // Manual verification functions
+                    resetManualVerification() {
+                        this.manualVerification = {
+                            nik: '',
+                            tanggalLahir: ''
+                        };
+                        this.manualVerificationErrors = {
+                            nik: '',
+                            tanggalLahir: ''
+                        };
+                    },
+
+                    validateManualVerification() {
+                        let isValid = true;
+                        this.manualVerificationErrors = {
+                            nik: '',
+                            tanggalLahir: ''
+                        };
+
+                        // Validate NIK
+                        if (!this.manualVerification.nik) {
+                            this.manualVerificationErrors.nik = 'NIK harus diisi';
+                            isValid = false;
+                        } else if (this.manualVerification.nik.length < 1) {
+                            this.manualVerificationErrors.nik = 'NIK minimal 1 digit';
+                            isValid = false;
+                        } else if (!/^\d+$/.test(this.manualVerification.nik)) {
+                            this.manualVerificationErrors.nik = 'NIK harus berupa angka';
+                            isValid = false;
+                        }
+
+                        // Validate tanggal lahir
+                        if (!this.manualVerification.tanggalLahir) {
+                            this.manualVerificationErrors.tanggalLahir = 'Tanggal lahir harus diisi';
+                            isValid = false;
+                        } else {
+                            const birthDate = new Date(this.manualVerification.tanggalLahir);
+                            const today = new Date();
+                            if (birthDate > today) {
+                                this.manualVerificationErrors.tanggalLahir = 'Tanggal lahir tidak boleh di masa depan';
+                                isValid = false;
+                            }
+                        }
+
+                        return isValid;
+                    },
+
+                    async verifyManual() {
+                        if (!this.validateManualVerification()) {
+                            return;
+                        }
+
+                        this.isManualVerifying = true;
+
+                        try {
+                            const url = new URL('/karyawan/verify-manual', window.location.origin);
+                            const params = new URLSearchParams({
+                                nik: this.manualVerification.nik,
+                                tanggal_lahir: this.manualVerification.tanggalLahir
+                            });
+
+                            const response = await fetch(url.toString(), {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                        'content')
+                                },
+                                body: params.toString()
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success) {
+                                this.verifyResult = {
+                                    success: true,
+                                    data: data.karyawan,
+                                    score: 100,
+                                    image: null
+                                };
+                                this.verifiedEmployee = data.karyawan;
+                                this.showMessage(
+                                    `✓ Verifikasi Berhasil! ${data.karyawan.nama_karyawan} - ${data.karyawan.nik_karyawan || ''}`,
+                                    'success');
+
+                                // Don't auto-proceed for manual verification, let user click the button
+                                // This ensures consistent behavior with fingerprint verification
+                            } else {
+                                this.verifyResult = {
+                                    success: false,
+                                    data: null,
+                                    score: 0,
+                                    image: null
+                                };
+                                this.showMessage(data.message || '✗ Data tidak cocok', 'error');
+                                this.showDetailedError({
+                                    ErrorCode: 999,
+                                    ErrorMessage: data.message
+                                });
+                            }
+                        } catch (error) {
+                            this.showMessage(`Error: ${error.message}`, 'error');
+
+                            // Show detailed error information
+                            this.showDetailedError({
+                                ErrorCode: 999, // Custom error code for general errors
+                                ErrorMessage: `Error: ${error.message}`
+                            });
+                        } finally {
+                            this.isManualVerifying = false;
                         }
                     }
                 }
@@ -1350,8 +1765,7 @@
 
                 if (value > maxStok) {
                     input.value = maxStok;
-                    // Show error message
-                    alert(`Jumlah obat ${obatName} tidak boleh melebihi stok yang tersedia (${maxStok} unit)`);
+                    // Error message is now shown via field validation instead of alert
                     input.classList.add('border-red-500', 'bg-red-50');
                 } else if (value < 1 && input.value !== '') {
                     input.value = 1;
@@ -1369,23 +1783,22 @@
                 // Clear previous error states
                 clearValidationErrors();
 
-                // Check if fingerprint verification was completed
+                // Check if verification was completed (either fingerprint or manual)
                 // Access Alpine component data correctly
                 const alpineElement = document.querySelector('[x-data="rekamMedisFingerprint()"]');
                 const fingerprintComponent = alpineElement ? alpineElement._x_dataStack?.[0] : null;
-                const fingerprintVerified = fingerprintComponent?.verifiedEmployee;
+                const verifiedEmployee = fingerprintComponent?.verifiedEmployee;
 
-                if (!fingerprintVerified) {
-                    errorMessages.push('Anda harus melakukan verifikasi fingerprint terlebih dahulu');
+                if (!verifiedEmployee) {
+                    errorMessages.push('Anda harus melakukan verifikasi (fingerprint atau manual) terlebih dahulu');
                     showValidationSummary(errorMessages);
                     return false;
                 }
 
-
-                // Validate karyawan selection (now through fingerprint verification)
+                // Validate karyawan selection (now through verification)
                 const idKaryawan = document.getElementById('id_karyawan').value;
                 if (!idKaryawan) {
-                    errorMessages.push('Verifikasi fingerprint karyawan belum dilakukan');
+                    errorMessages.push('Verifikasi karyawan belum dilakukan');
                     isValid = false;
                 }
 
@@ -1560,13 +1973,13 @@
                 <h3 class="text-sm font-medium text-red-800 font-semibold">Mohon perbaiki kesalahan berikut:</h3>
                 <div class="mt-2">
                     ${errors.map(error => `
-                                                                        <div class="flex items-center py-1">
-                                                                            <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                                                            </svg>
-                                                                            <span class="text-sm text-red-700">${error}</span>
-                                                                        </div>
-                                                                    `).join('')}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="flex items-center py-1">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <svg class="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </svg>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="text-sm text-red-700">${error}</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            `).join('')}
                 </div>
             </div>
             <div class="ml-auto pl-3">

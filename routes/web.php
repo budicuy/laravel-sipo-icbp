@@ -63,6 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/karyawan/export', [KaryawanController::class, 'export'])->name('karyawan.export')->middleware('role:Admin,Super Admin');
     Route::post('/karyawan/import', [KaryawanController::class, 'import'])->name('karyawan.import')->middleware('role:Super Admin');
     Route::post('/karyawan/bulk-delete', [KaryawanController::class, 'bulkDelete'])->name('karyawan.bulkDelete');
+    Route::post('/karyawan/verify-manual', [KaryawanController::class, 'verifyManual'])->name('karyawan.verifyManual');
 
     // Karyawan Resource Routes
     Route::resource('karyawan', KaryawanController::class)->parameters([
@@ -94,10 +95,10 @@ Route::middleware('auth')->group(function () {
 
     // Sistem Stok Baru (Automated)
     Route::get('/stok', [StokController::class, 'index'])->name('stok.index');
-    
+
     // Stok Opname Export Routes (diletakkan sebelum route dengan parameter)
     Route::get('/stok/export-stock-opname', [StokController::class, 'exportStockOpname'])->name('stok.export.stock-opname');
-    
+
     Route::get('/stok/{obat_id}', [StokController::class, 'show'])->name('stok.show');
 
     // Stok Bulanan Update (Super Admin only)
