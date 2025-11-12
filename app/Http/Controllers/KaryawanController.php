@@ -825,4 +825,47 @@ class KaryawanController extends Controller
         // Download file and delete after
         return response()->download($filePath, $filename)->deleteFileAfterSend(true);
     }
+
+    /**
+     * Verify employee manually using NIK and tanggal lahir
+     */
+    public function verifyManual(Request $request)
+    {
+        $request->validate([
+            'nik' => ['required', 'string', 'min:1', 'max:16'],
+            'tanggal_lahir' => ['required', 'date'],
+        ], [
+            'nik.required' => 'NIK harus diisi',
+            'nik.min' => 'NIK minimal 1 digit',
+            'nik.max' => 'NIK maksimal 16 digit',
+            'tanggal_lahir.required' => 'Tanggal lahir harus diisi',
+            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
+        ]);
+
+        try {
+            $karyawan = Karyawan::with('departemen')
+                ->where('nik_karyawan', $request->nik)
+                ->where('tanggal_lahir', $request->tanggal_lahir)
+                ->where('status', 'aktif')
+                ->first();
+
+            if ($karyawan) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Verifikasi berhasil',
+                    'karyawan' => $karyawan
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data karyawan tidak ditemukan atau tidak aktif. Pastikan NIK dan tanggal lahir sesuai.'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat verifikasi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
