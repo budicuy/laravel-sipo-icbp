@@ -229,57 +229,130 @@
             </div>
             <div class="p-6">
                 @if ($kunjungan->keluhans && $kunjungan->keluhans->count() > 0)
+                    @php
+                        // Group keluhans by diagnosis
+                        $groupedKeluhans = [];
+                        foreach ($kunjungan->keluhans as $keluhan) {
+                            $diagnosisName = $kunjungan->tipe == 'emergency'
+                                ? ($keluhan->diagnosaEmergency->nama_diagnosa_emergency ?? 'Tidak ada diagnosa')
+                                : ($keluhan->diagnosa->nama_diagnosa ?? 'Tidak ada diagnosa');
+                            
+                            if (!isset($groupedKeluhans[$diagnosisName])) {
+                                $groupedKeluhans[$diagnosisName] = [];
+                            }
+                            $groupedKeluhans[$diagnosisName][] = $keluhan;
+                        }
+                    @endphp
+                    
                     <div class="space-y-4">
-                        @foreach ($kunjungan->keluhans as $index => $keluhan)
+                        @foreach ($groupedKeluhans as $diagnosisName => $keluhans)
                             <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <!-- Diagnosis Name and Therapy Badges -->
                                 <div class="flex items-center justify-between mb-3">
-                                    <h4 class="font-semibold text-gray-900">Keluhan {{ $index + 1 }}</h4>
-                                    <span
-                                        class="px-2 py-1
-                                @if ($keluhan->terapi == 'Obat') bg-purple-100 text-purple-800
-                                @elseif($keluhan->terapi == 'Lab') bg-orange-100 text-orange-800
-                                @else bg-green-100 text-green-800 @endif
-                                rounded-full text-xs font-medium">
-                                        {{ $keluhan->terapi }}
-                                    </span>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-500 mb-1">Diagnosa</label>
-                                        <p class="text-gray-900">
-                                            @if ($kunjungan->tipe == 'emergency')
-                                                {{ $keluhan->diagnosaEmergency->nama_diagnosa_emergency ?? '-' }}
-                                            @else
-                                                {{ $keluhan->diagnosa->nama_diagnosa ?? '-' }}
-                                            @endif
-                                        </p>
+                                    <h4 class="font-semibold text-gray-900">{{ $diagnosisName }}</h4>
+                                    <div class="flex items-center gap-2">
+                                        @php
+                                            $uniqueTherapies = collect($keluhans)->pluck('terapi')->unique();
+                                        @endphp
+                                        @foreach ($uniqueTherapies as $terapi)
+                                            <span
+                                                class="px-2 py-1
+                                            @if ($terapi == 'Obat') bg-purple-100 text-purple-800
+                                            @elseif($terapi == 'Lab') bg-orange-100 text-orange-800
+                                            @else bg-green-100 text-green-800 @endif
+                                            rounded-full text-xs font-medium">
+                                                {{ $terapi }}
+                                            </span>
+                                        @endforeach
                                     </div>
-                                    @if ($keluhan->obat)
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-500 mb-1">Obat</label>
-                                            <p class="text-gray-900">{{ $keluhan->obat->nama_obat ?? '-' }}</p>
-                                        </div>
-                                    @endif
-                                    @if ($keluhan->jumlah_obat)
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-500 mb-1">Jumlah Obat</label>
-                                            <p class="text-gray-900">{{ $keluhan->jumlah_obat }}</p>
-                                        </div>
-                                    @endif
-                                    @if ($keluhan->aturan_pakai)
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-500 mb-1">Aturan
-                                                Pakai</label>
-                                            <p class="text-gray-900">{{ $keluhan->aturan_pakai }}</p>
-                                        </div>
-                                    @endif
-                                    @if ($keluhan->keterangan)
-                                        <div class="md:col-span-2">
-                                            <label class="block text-sm font-medium text-gray-500 mb-1">Keterangan</label>
-                                            <p class="text-gray-900">{{ $keluhan->keterangan }}</p>
-                                        </div>
-                                    @endif
                                 </div>
+                                
+                                <!-- Show all keterangan first -->
+                                @php
+                                    $allKeterangan = collect($keluhans)->pluck('keterangan')->filter()->unique();
+                                @endphp
+                                @if ($allKeterangan->count() > 0)
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-500 mb-1">Keterangan</label>
+                                        @foreach ($allKeterangan as $keterangan)
+                                            <p class="text-gray-900">{{ $keterangan }}</p>
+                                        @endforeach
+                                    </div>
+                                @endif
+                                
+                                @php
+                                    // Group keluhans by therapy type
+                                    $groupedByTherapy = [];
+                                    foreach ($keluhans as $keluhan) {
+                                        $therapyType = $keluhan->terapi ?? 'Lainnya';
+                                        if (!isset($groupedByTherapy[$therapyType])) {
+                                            $groupedByTherapy[$therapyType] = [];
+                                        }
+                                        $groupedByTherapy[$therapyType][] = $keluhan;
+                                    }
+                                @endphp
+                                
+                                @foreach ($groupedByTherapy as $therapyType => $therapyKeluhans)
+                                    @if ($therapyType == 'Obat')
+                                        <!-- All obat therapy groups (single or multiple) -->
+                                        <div class="mb-4">
+                                            <h5 class="text-sm font-medium text-gray-700 mb-3">Daftar Obat</h5>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                @foreach ($therapyKeluhans as $keluhan)
+                                                    @if ($keluhan->obat)
+                                                        <div class="flex items-center justify-between p-2 bg-white rounded border border-gray-200">
+                                                            <span class="text-gray-900">{{ $keluhan->obat->nama_obat ?? '-' }}</span>
+                                                            <span class="text-sm text-gray-600">{{ $keluhan->jumlah_obat ?? '-' }} {{ $keluhan->obat->satuan_obat->nama_satuan ?? '' }}</span>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                            
+                                            <!-- Show aturan pakai if exists -->
+                                            @php
+                                                $aturanPakaiList = collect($therapyKeluhans)->pluck('aturan_pakai')->filter()->unique();
+                                            @endphp
+                                            @if ($aturanPakaiList->count() > 0)
+                                                <div class="mt-3">
+                                                    <label class="block text-sm font-medium text-gray-500 mb-1">Aturan Pakai</label>
+                                                    @foreach ($aturanPakaiList as $aturanPakai)
+                                                        <p class="text-gray-900">{{ $aturanPakai }}</p>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <!-- Non-obat therapy types (Lab, Istirahat, etc.) -->
+                                        @foreach ($therapyKeluhans as $index => $keluhan)
+                                            @if (count($therapyKeluhans) > 1)
+                                                <div class="mb-3 pb-3 {{ $index < count($therapyKeluhans) - 1 ? 'border-b border-gray-200' : '' }}">
+                                                    <h5 class="text-sm font-medium text-gray-700 mb-2">{{ $therapyType }} {{ $index + 1 }}</h5>
+                                                </div>
+                                            @endif
+                                            
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                @if ($keluhan->obat)
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-500 mb-1">Obat</label>
+                                                        <p class="text-gray-900">{{ $keluhan->obat->nama_obat ?? '-' }}</p>
+                                                    </div>
+                                                @endif
+                                                @if ($keluhan->jumlah_obat)
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-500 mb-1">Jumlah Obat</label>
+                                                        <p class="text-gray-900">{{ $keluhan->jumlah_obat }}</p>
+                                                    </div>
+                                                @endif
+                                                @if ($keluhan->aturan_pakai)
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-500 mb-1">Aturan Pakai</label>
+                                                        <p class="text-gray-900">{{ $keluhan->aturan_pakai }}</p>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                @endforeach
                             </div>
                         @endforeach
                     </div>
@@ -327,17 +400,45 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th
-                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Tanggal</th>
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                        onclick="sortTable(0)">
+                                        Tanggal
+                                        <span class="ml-1">
+                                            <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </th>
                                     <th
-                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Nomor Registrasi</th>
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                        onclick="sortTable(1)">
+                                        Nomor Registrasi
+                                        <span class="ml-1">
+                                            <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </th>
                                     <th
-                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status</th>
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                        onclick="sortTable(2)">
+                                        Status
+                                        <span class="ml-1">
+                                            <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </th>
                                     <th
-                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Petugas</th>
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                        onclick="sortTable(3)">
+                                        Petugas
+                                        <span class="ml-1">
+                                            <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </th>
                                     <th
                                         class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Aksi</th>
@@ -375,6 +476,63 @@
                             </tbody>
                         </table>
                     </div>
+                    
+                    <script>
+                        let sortDirection = {};
+                        
+                        function sortTable(columnIndex) {
+                            const table = document.querySelector('table');
+                            const tbody = table.querySelector('tbody');
+                            const rows = Array.from(tbody.querySelectorAll('tr'));
+                            
+                            // Toggle sort direction
+                            sortDirection[columnIndex] = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
+                            
+                            // Sort rows
+                            rows.sort((a, b) => {
+                                const aValue = a.cells[columnIndex].textContent.trim();
+                                const bValue = b.cells[columnIndex].textContent.trim();
+                                
+                                let comparison = 0;
+                                
+                                // Handle different data types
+                                if (columnIndex === 0) { // Date column
+                                    const aDate = new Date(aValue.split('-').reverse().join('-'));
+                                    const bDate = new Date(bValue.split('-').reverse().join('-'));
+                                    comparison = aDate - bDate;
+                                } else {
+                                    comparison = aValue.localeCompare(bValue);
+                                }
+                                
+                                return sortDirection[columnIndex] === 'asc' ? comparison : -comparison;
+                            });
+                            
+                            // Clear and re-append sorted rows
+                            tbody.innerHTML = '';
+                            rows.forEach(row => tbody.appendChild(row));
+                            
+                            // Update sort icons
+                            updateSortIcons(columnIndex);
+                        }
+                        
+                        function updateSortIcons(activeColumn) {
+                            const headers = document.querySelectorAll('th');
+                            headers.forEach((header, index) => {
+                                const icon = header.querySelector('svg');
+                                if (icon && index !== 4) { // Don't update action column
+                                    if (index === activeColumn) {
+                                        if (sortDirection[index] === 'asc') {
+                                            icon.innerHTML = '<path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />';
+                                        } else {
+                                            icon.innerHTML = '<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />';
+                                        }
+                                    } else {
+                                        icon.innerHTML = '<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />';
+                                    }
+                                }
+                            });
+                        }
+                    </script>
                 @else
                     <div class="text-center py-8 text-gray-500">
                         <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor"

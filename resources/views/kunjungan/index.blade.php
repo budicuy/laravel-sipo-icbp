@@ -111,11 +111,46 @@
             <table class="w-full">
                 <thead class="bg-gray-800">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No RM</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Pasien</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Hubungan</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Total Kunjungan</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 cursor-pointer hover:bg-gray-700" onclick="sortTable(0)">
+                            No
+                            <span class="ml-1">
+                                <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 cursor-pointer hover:bg-gray-700" onclick="sortTable(1)">
+                            No RM
+                            <span class="ml-1">
+                                <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 cursor-pointer hover:bg-gray-700" onclick="sortTable(2)">
+                            Nama Pasien
+                            <span class="ml-1">
+                                <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 cursor-pointer hover:bg-gray-700" onclick="sortTable(3)">
+                            Hubungan
+                            <span class="ml-1">
+                                <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 cursor-pointer hover:bg-gray-700" onclick="sortTable(4)">
+                            Total Kunjungan
+                            <span class="ml-1">
+                                <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                        </th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -125,7 +160,8 @@
                         $groupedKunjungans = [];
                         $currentYear = date('Y');
                         
-                        foreach($kunjunganCollection as $kunjungan) {
+                        // Gunakan semua data kunjungan, bukan hanya yang di-paginate
+                        foreach($allKunjungans as $kunjungan) {
                             $noRM = $kunjungan->no_rm;
                             // Ensure NO RM is a string for consistent array key handling
                             $noRMKey = (string)$noRM;
@@ -287,4 +323,98 @@
         @endif
     </div>
 </div>
+
+<script>
+    let sortDirection = {};
+    let originalData = [];
+    
+    // Store original data when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const tbody = document.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        
+        rows.forEach(row => {
+            if (row.cells.length >= 5) { // Skip empty rows
+                originalData.push({
+                    no: row.cells[0].textContent.trim(),
+                    noRM: row.cells[1].textContent.trim(),
+                    namaPasien: row.cells[2].textContent.trim(),
+                    hubungan: row.cells[3].textContent.trim(),
+                    totalKunjungan: row.cells[4].textContent.trim(),
+                    element: row
+                });
+            }
+        });
+    });
+    
+    function sortTable(columnIndex) {
+        const tbody = document.querySelector('tbody');
+        
+        // Toggle sort direction
+        sortDirection[columnIndex] = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
+        
+        // Sort data
+        originalData.sort((a, b) => {
+            let aValue, bValue;
+            let comparison = 0;
+            
+            switch(columnIndex) {
+                case 0: // No column
+                    aValue = parseInt(a.no) || 0;
+                    bValue = parseInt(b.no) || 0;
+                    comparison = aValue - bValue;
+                    break;
+                case 1: // No RM column
+                    aValue = a.noRM;
+                    bValue = b.noRM;
+                    comparison = aValue.localeCompare(bValue);
+                    break;
+                case 2: // Nama Pasien column
+                    aValue = a.namaPasien;
+                    bValue = b.namaPasien;
+                    comparison = aValue.localeCompare(bValue);
+                    break;
+                case 3: // Hubungan column
+                    aValue = a.hubungan;
+                    bValue = b.hubungan;
+                    comparison = aValue.localeCompare(bValue);
+                    break;
+                case 4: // Total Kunjungan column
+                    aValue = parseInt(a.totalKunjungan) || 0;
+                    bValue = parseInt(b.totalKunjungan) || 0;
+                    comparison = aValue - bValue;
+                    break;
+            }
+            
+            return sortDirection[columnIndex] === 'asc' ? comparison : -comparison;
+        });
+        
+        // Clear and re-append sorted rows
+        tbody.innerHTML = '';
+        originalData.forEach(item => {
+            tbody.appendChild(item.element);
+        });
+        
+        // Update sort icons
+        updateSortIcons(columnIndex);
+    }
+    
+    function updateSortIcons(activeColumn) {
+        const headers = document.querySelectorAll('th');
+        headers.forEach((header, index) => {
+            const icon = header.querySelector('svg');
+            if (icon && index !== 5) { // Don't update action column
+                if (index === activeColumn) {
+                    if (sortDirection[index] === 'asc') {
+                        icon.innerHTML = '<path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />';
+                    } else {
+                        icon.innerHTML = '<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />';
+                    }
+                } else {
+                    icon.innerHTML = '<path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />';
+                }
+            }
+        });
+    }
+</script>
 @endsection

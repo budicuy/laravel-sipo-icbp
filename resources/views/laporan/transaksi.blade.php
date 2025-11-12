@@ -246,80 +246,197 @@
 
                 <!-- Export Button -->
                 <div class="flex gap-2">
-                    <a href="{{ route('laporan.export.transaksi', ['bulan' => $bulan, 'tahun' => $tahun, 'periode' => $periode, 'search' => $search]) }}"
-                        class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                    <a href="{{ route('laporan.export.transaksi', [
+                        'bulan' => $bulan,
+                        'tahun' => $tahun,
+                        'periode' => $periode,
+                        'search' => $search,
+                        'tipe_kunjungan' => $tipeKunjungan ?? '',
+                        'jenis_kelamin' => $jenisKelamin ?? '',
+                        'departemen' => $departemen ?? '',
+                        'range_usia' => $rangeUsia ?? '',
+                        'status_rekam' => $statusRekam ?? '',
+                        'min_biaya' => $minBiaya ?? '',
+                        'max_biaya' => $maxBiaya ?? ''
+                    ]) }}" class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         Export Excel
                     </a>
+                    <button type="button" onclick="resetFilters()" class="px-5 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Reset Filter
+                    </button>
                 </div>
             </div>
 
-            <!-- Periode Filter -->
-            <div class="mb-6 bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-100">
+            <!-- Enhanced Filter Section -->
+            <div class="mb-6 bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg border border-blue-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    <h3 class="text-lg font-semibold text-gray-800">Filter Lanjutan</h3>
+                    <button type="button" onclick="toggleAdvancedFilters()" class="ml-auto text-sm text-blue-600 hover:text-blue-800">
+                        <span id="toggleText">Tampilkan Filter Lanjutan</span>
+                        <svg id="toggleIcon" class="w-4 h-4 inline ml-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                </div>
+
                 <form method="GET" action="{{ route('laporan.transaksi') }}">
                     <input type="hidden" name="bulan" value="{{ $bulan }}">
                     <input type="hidden" name="tahun" value="{{ $tahun }}">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    
+                    <!-- Basic Filters -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                         <div>
                             <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
                                 Periode
                             </label>
-                            <select name="periode"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                            <select name="periode" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
                                 <option value="">Semua Periode</option>
                                 @foreach ($availablePeriodes = \App\Models\HargaObatPerBulan::getAvailablePeriodes() as $periodeOption)
-                                    <option value="{{ $periodeOption['value'] }}"
-                                        {{ $periode == $periodeOption['value'] ? 'selected' : '' }}>
+                                    <option value="{{ $periodeOption['value'] }}" {{ $periode == $periodeOption['value'] ? 'selected' : '' }}>
                                         {{ $periodeOption['label'] }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div>
                             <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                                 Cari Nama / No RM
                             </label>
-                            <input type="text" name="search" value="{{ $search }}"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Nama pasien atau No RM">
+                            <input type="text" name="search" value="{{ $search }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Nama pasien atau No RM">
                         </div>
                         <div>
                             <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                                 </svg>
                                 Data per Halaman
                             </label>
-                            <select name="per_page"
-                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                            <select name="per_page" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
                                 <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50 Data</option>
                                 <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100 Data</option>
                                 <option value="200" {{ $perPage == 200 ? 'selected' : '' }}>200 Data</option>
                             </select>
                         </div>
                         <div class="flex items-end">
-                            <button type="submit"
-                                class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                            <button type="submit" class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                                 </svg>
                                 Filter Tabel
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Filters -->
+                    <div id="advancedFilters" class="hidden">
+                        <div class="border-t border-blue-200 pt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                        </svg>
+                                        Tipe Kunjungan
+                                    </label>
+                                    <select name="tipe_kunjungan" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                        <option value="">Semua Tipe</option>
+                                        <option value="reguler" {{ $tipeKunjungan == 'reguler' ? 'selected' : '' }}>Reguler</option>
+                                        <option value="emergency" {{ $tipeKunjungan == 'emergency' ? 'selected' : '' }}>Emergency</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        Jenis Kelamin
+                                    </label>
+                                    <select name="jenis_kelamin" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                        <option value="">Semua</option>
+                                        <option value="L" {{ $jenisKelamin == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="P" {{ $jenisKelamin == 'P' ? 'selected' : '' }}>Perempuan</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        Departemen
+                                    </label>
+                                    <select name="departemen" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                        <option value="">Semua Departemen</option>
+                                        @if (isset($departemens))
+                                            @foreach ($departemens as $dept)
+                                                <option value="{{ $dept->id_departemen }}" {{ $departemen == $dept->id_departemen ? 'selected' : '' }}>
+                                                    {{ $dept->nama_departemen }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Range Usia
+                                    </label>
+                                    <select name="range_usia" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                        <option value="">Semua Usia</option>
+                                        <option value="0-17" {{ $rangeUsia == '0-17' ? 'selected' : '' }}>0-17 tahun</option>
+                                        <option value="18-25" {{ $rangeUsia == '18-25' ? 'selected' : '' }}>18-25 tahun</option>
+                                        <option value="26-35" {{ $rangeUsia == '26-35' ? 'selected' : '' }}>26-35 tahun</option>
+                                        <option value="36-50" {{ $rangeUsia == '36-50' ? 'selected' : '' }}>36-50 tahun</option>
+                                        <option value="50+" {{ $rangeUsia == '50+' ? 'selected' : '' }}>50+ tahun</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 002 2zm7 5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        Status Rekam Medis
+                                    </label>
+                                    <select name="status_rekam" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                        <option value="">Semua Status</option>
+                                        <option value="On Progress" {{ $statusRekam == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                                        <option value="Close" {{ $statusRekam == 'Close' ? 'selected' : '' }}>Close</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        Min Biaya
+                                    </label>
+                                    <input type="number" name="min_biaya" value="{{ $minBiaya }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Rp 0">
+                                </div>
+                                <div>
+                                    <label class="flex items-center gap-1 text-sm font-medium text-gray-700 mb-2">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        Max Biaya
+                                    </label>
+                                    <input type="number" name="max_biaya" value="{{ $maxBiaya }}" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Rp 999999">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -606,6 +723,62 @@
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
+            // Toggle Advanced Filters
+            function toggleAdvancedFilters() {
+                const filtersDiv = document.getElementById('advancedFilters');
+                const toggleText = document.getElementById('toggleText');
+                const toggleIcon = document.getElementById('toggleIcon');
+                
+                if (filtersDiv.classList.contains('hidden')) {
+                    filtersDiv.classList.remove('hidden');
+                    filtersDiv.classList.add('block');
+                    toggleText.textContent = 'Sembunyikan Filter Lanjutan';
+                    toggleIcon.style.transform = 'rotate(180deg)';
+                } else {
+                    filtersDiv.classList.remove('block');
+                    filtersDiv.classList.add('hidden');
+                    toggleText.textContent = 'Tampilkan Filter Lanjutan';
+                    toggleIcon.style.transform = 'rotate(0deg)';
+                }
+            }
+            
+            // Reset Filters
+            function resetFilters() {
+                const form = document.querySelector('form[method="GET"]');
+                const inputs = form.querySelectorAll('input, select');
+                
+                inputs.forEach(input => {
+                    if (input.type === 'hidden') {
+                        // Keep bulan and tahun
+                        if (input.name !== 'bulan' && input.name !== 'tahun') {
+                            input.value = '';
+                        }
+                    } else {
+                        input.value = '';
+                    }
+                });
+                
+                // Submit form to reset
+                form.submit();
+            }
+            
+            // Auto-expand advanced filters if any advanced filter is active
+            document.addEventListener('DOMContentLoaded', function() {
+                const advancedFilters = ['tipe_kunjungan', 'jenis_kelamin', 'departemen', 'range_usia', 'status_rekam', 'min_biaya', 'max_biaya'];
+                const urlParams = new URLSearchParams(window.location.search);
+                
+                let hasAdvancedFilter = false;
+                advancedFilters.forEach(param => {
+                    if (urlParams.has(param) && urlParams.get(param) !== '') {
+                        hasAdvancedFilter = true;
+                    }
+                });
+                
+                if (hasAdvancedFilter) {
+                    toggleAdvancedFilters();
+                }
+            });
+            
             // Data dari controller
             const chartPemeriksaanData = @json($chartPemeriksaan);
             const chartBiayaData = @json($chartBiaya);

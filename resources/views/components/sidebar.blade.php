@@ -326,7 +326,7 @@
         <!-- Copyright Footer -->
         <div class="border-t border-gray-200 p-4 bg-white" x-show="sidebarOpen">
             <div class="text-center">
-                <p class="text-xs text-gray-500 font-medium">© {{ date('Y') }} SIPO ICBP</p>
+                <p class="text-xs text-gray-500 font-medium">© {{ date('Y') }} SIPO </p>
                 <p class="text-xs text-gray-400 mt-1">Sistem Informasi Poliklinik</p>
             </div>
         </div>
