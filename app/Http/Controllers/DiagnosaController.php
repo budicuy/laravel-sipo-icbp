@@ -176,7 +176,7 @@ class DiagnosaController extends Controller
 
         // Set document properties
         $spreadsheet->getProperties()
-            ->setCreator('SIPO ICBP')
+            ->setCreator('SIPO')
             ->setTitle('Template Import Diagnosa')
             ->setSubject('Template Import Diagnosa')
             ->setDescription('Template untuk import data diagnosa');
@@ -339,7 +339,7 @@ class DiagnosaController extends Controller
                     // Split by comma and clean up
                     $obatNames = array_map('trim', explode(',', $rekomendasiObat));
                     $obatIds = [];
-                    
+
                     foreach ($obatNames as $obatName) {
                         if (!empty($obatName)) {
                             $obat = Obat::where('nama_obat', 'like', '%' . $obatName . '%')->first();
@@ -348,7 +348,7 @@ class DiagnosaController extends Controller
                             }
                         }
                     }
-                    
+
                     // Sync obat relationships
                     if (!empty($obatIds)) {
                         $diagnosa->obats()->sync($obatIds);

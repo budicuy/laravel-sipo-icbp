@@ -615,7 +615,7 @@ class HargaObatController extends Controller
 
         // Set document properties
         $spreadsheet->getProperties()
-            ->setCreator('SIPO ICBP')
+            ->setCreator('SIPO')
             ->setTitle('Data Harga Obat')
             ->setSubject('Data Harga Obat')
             ->setDescription('Data harga obat perbulan');
@@ -893,7 +893,7 @@ class HargaObatController extends Controller
 
         // Set document properties
         $spreadsheet->getProperties()
-            ->setCreator('SIPO ICBP')
+            ->setCreator('SIPO')
             ->setTitle('Template Import Harga Obat')
             ->setSubject('Template Import Harga Obat')
             ->setDescription('Template untuk import data harga obat');

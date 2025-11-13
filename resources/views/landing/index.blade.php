@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>SIPO ICBP - Sistem Informasi Pelayanan Kesehatan</title>
+    <title>SIPO - Sistem Informasi Pelayanan Kesehatan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -354,7 +354,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-4">
                 <div>
-                    <img src="{{ asset('logo.png') }}" alt="SIPO ICBP Logo" class="h-10">
+                    <img src="{{ asset('logo.png') }}" alt="SIPO Logo" class="h-10">
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#home" class="text-gray-700 hover:text-purple-600 transition">Beranda</a>
@@ -430,7 +430,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-4xl font-bold text-gray-800 mb-4">
-                    <span class="gradient-text">AI Assistant</span> SIPO ICBP
+                    <span class="gradient-text">AI Assistant</span> SIPO
                 </h2>
                 <p class="text-xl text-gray-600">Tanyakan apapun tentang sistem kami, kami siap membantu Anda 24/7</p>
             </div>
@@ -583,11 +583,11 @@
                 </div>
                 <div>
                     <h2 class="text-4xl font-bold text-gray-800 mb-6">
-                        Tentang <span class="gradient-text">SIPO ICBP</span>
+                        Tentang <span class="gradient-text">SIPO</span>
                     </h2>
                     <p class="text-gray-600 mb-6 text-lg leading-relaxed">
-                        SIPO ICBP adalah sistem informasi pelayanan kesehatan yang dirancang khusus untuk memenuhi
-                        kebutuhan pengelolaan kesehatan karyawan di lingkungan ICBP.
+                        SIPO adalah sistem informasi pelayanan kesehatan yang dirancang khusus untuk memenuhi
+                        kebutuhan pengelolaan kesehatan karyawan di lingkungan.
                     </p>
                     <p class="text-gray-600 mb-6 text-lg leading-relaxed">
                         Dengan mengintegrasikan teknologi modern seperti AI-powered chatbot dan cloud computing, kami
@@ -722,8 +722,7 @@
             <div class="grid md:grid-cols-4 gap-8">
                 <div>
                     <div class="mb-5">
-                        <img src="{{ asset('logo.png') }}" alt="SIPO ICBP Logo"
-                            class=" bg-white p-5 w-48 rounded-lg">
+                        <img src="{{ asset('logo.png') }}" alt="SIPO Logo" class=" bg-white p-5 w-48 rounded-lg">
                     </div>
                     <p class="text-gray-400">
                         Sistem Informasi Poliklinik - Indofood CBP Sukses Makmur TBK.
@@ -771,7 +770,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; {{ date('Y') }} SIPO ICBP. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} SIPO - All rights reserved.</p>
             </div>
         </div>
     </footer>

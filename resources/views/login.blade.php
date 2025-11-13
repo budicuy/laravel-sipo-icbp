@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Login - SIPO ICBP</title>
+    <title>Login - SIPO</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -21,20 +21,20 @@
 
         <div class="max-w-md w-full space-y-8">
 
-            <img src="{{ asset('logo.png') }}" alt="SIPO ICBP Logo">
+            <img src="{{ asset('logo.png') }}" alt="SIPO Logo">
 
             <!-- Login Form -->
             <div class="bg-white shadow-xl rounded-2xl px-8 py-10 transform transition-all hover:scale-[1.01]">
                 @if (session('error'))
-                <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                    <p class="text-sm text-red-600">{{ session('error') }}</p>
-                </div>
+                    <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                        <p class="text-sm text-red-600">{{ session('error') }}</p>
+                    </div>
                 @endif
 
                 @if (session('success'))
-                <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
-                    <p class="text-sm text-green-600">{{ session('success') }}</p>
-                </div>
+                    <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                        <p class="text-sm text-green-600">{{ session('success') }}</p>
+                    </div>
                 @endif
 
                 <form method="POST" action="{{ route('login') }}" class="space-y-6">
@@ -43,7 +43,7 @@
                     <!-- Username/Email -->
                     <div>
                         <div class="text-center mb-6">
-                            <h2 class="text-3xl font-bold text-gray-900">SIPO - ICBP</h2>
+                            <h2 class="text-3xl font-bold text-gray-900">SIPO</h2>
                             <p class="mt-2 text-sm text-gray-600">
                                 Sistem Informasi Poliklinik
                             </p>
@@ -66,7 +66,7 @@
                                 placeholder="Masukkan username">
                         </div>
                         @error('username')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -89,7 +89,7 @@
                                 placeholder="Masukkan password">
                         </div>
                         @error('password')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -122,7 +122,7 @@
 
             <!-- Footer -->
             <div class="text-center text-sm text-gray-600">
-                <p>&copy; {{ date('Y') }} SIPO - ICBP. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} SIPO - All rights reserved.</p>
             </div>
         </div>
     </div>

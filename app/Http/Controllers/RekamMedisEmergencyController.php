@@ -684,7 +684,7 @@ class RekamMedisEmergencyController extends Controller
 
             // Set document properties
             $spreadsheet->getProperties()
-                ->setCreator('SIPO ICBP')
+                ->setCreator('SIPO')
                 ->setTitle('Export Data Rekam Medis Emergency')
                 ->setSubject('Export Data Rekam Medis Emergency')
                 ->setDescription('Export data rekam medis emergency');
@@ -737,7 +737,7 @@ class RekamMedisEmergencyController extends Controller
                 foreach ($rm->keluhans as $keluhan) {
                     $diagnosaId = $keluhan->id_diagnosa_emergency;
                     $diagnosaName = $keluhan->diagnosaEmergency->nama_diagnosa_emergency ?? '-';
-                    
+
                     if (!isset($diagnosaGroups[$diagnosaId])) {
                         $diagnosaGroups[$diagnosaId] = [
                             'diagnosa' => $diagnosaName,
@@ -745,7 +745,7 @@ class RekamMedisEmergencyController extends Controller
                             'obats' => []
                         ];
                     }
-                    
+
                     if ($keluhan->obat) {
                         $diagnosaGroups[$diagnosaId]['obats'][] = [
                             'nama_obat' => $keluhan->obat->nama_obat,
@@ -774,7 +774,7 @@ class RekamMedisEmergencyController extends Controller
                 // Diagnosa 1
                 $sheet->setCellValue('G' . $row, $diagnosaArray[0]['diagnosa']);
                 $sheet->setCellValue('H' . $row, $diagnosaArray[0]['keluhan']);
-                
+
                 // Obat 1-1, 1-2, 1-3
                 $obat1 = $diagnosaArray[0]['obats'];
                 $sheet->setCellValue('I' . $row, isset($obat1[0]) ? $obat1[0]['nama_obat'] : '-');
@@ -787,7 +787,7 @@ class RekamMedisEmergencyController extends Controller
                 // Diagnosa 2
                 $sheet->setCellValue('O' . $row, $diagnosaArray[1]['diagnosa']);
                 $sheet->setCellValue('P' . $row, $diagnosaArray[1]['keluhan']);
-                
+
                 // Obat 2-1, 2-2, 2-3
                 $obat2 = $diagnosaArray[1]['obats'];
                 $sheet->setCellValue('Q' . $row, isset($obat2[0]) ? $obat2[0]['nama_obat'] : '-');
@@ -800,7 +800,7 @@ class RekamMedisEmergencyController extends Controller
                 // Diagnosa 3
                 $sheet->setCellValue('W' . $row, $diagnosaArray[2]['diagnosa']);
                 $sheet->setCellValue('X' . $row, $diagnosaArray[2]['keluhan']);
-                
+
                 // Obat 3-1, 3-2, 3-3
                 $obat3 = $diagnosaArray[2]['obats'];
                 $sheet->setCellValue('Y' . $row, isset($obat3[0]) ? $obat3[0]['nama_obat'] : '-');

@@ -41,7 +41,7 @@
                                                                                                                         class="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent animate-pulse">|</span>
                                                                                                                     di
                                                                                                                     Dashboard
-                                                                                                                    SIPO-ICBP
+                                                                                                                    SIPO
                                                                                                                 </h1>
                                                                                                                 <p
                                                                                                                     class="text-gray-600 mt-2 ml-1">
