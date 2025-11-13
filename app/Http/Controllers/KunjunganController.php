@@ -103,27 +103,60 @@ class KunjunganController extends Controller
             }
         }
 
-        // Pre-calculate visit counts untuk semua rekam medis reguler dari 1 Agustus
+        // Gabungkan rekam medis reguler dan emergency untuk hitungan global
         $allReguler = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
             ->orderBy('tanggal_periksa')
             ->orderBy('waktu_periksa')
-            ->get();
+            ->get()
+            ->map(function($record) {
+                return [
+                    'id' => $record->id_rekam,
+                    'tanggal' => $record->tanggal_periksa,
+                    'waktu' => $record->waktu_periksa,
+                    'tipe' => 'reguler',
+                    'data' => $record
+                ];
+            });
             
-        $regulerCounts = [];
-        foreach ($allReguler as $index => $rm) {
-            $regulerCounts[$rm->id_rekam] = $index + 1;
+        $allEmergency = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
+            ->orderBy('tanggal_periksa')
+            ->orderBy('waktu_periksa')
+            ->get()
+            ->map(function($record) {
+                return [
+                    'id' => $record->id_emergency,
+                    'tanggal' => $record->tanggal_periksa,
+                    'waktu' => $record->waktu_periksa,
+                    'tipe' => 'emergency',
+                    'data' => $record
+                ];
+            });
+        
+        // Gabungkan dan urutkan semua record
+        $allRecords = $allReguler->concat($allEmergency)
+            ->sortBy(function($record) {
+                return $record['tanggal'].' '.$record['waktu'];
+            })
+            ->values();
+        
+        // Buat array untuk menyimpan nomor urut global
+        $globalCounts = [];
+        foreach ($allRecords as $index => $record) {
+            $globalCounts[$record['tipe']][$record['id']] = $index + 1;
         }
 
-        // Transform data ke format kunjungan dengan nomor registrasi berdasarkan urutan global dari 1 Agustus
-        $kunjungans = $rekamMedis->map(function ($rm) use ($regulerCounts) {
+        // Transform data ke format kunjungan dengan nomor registrasi berdasarkan urutan global
+        $kunjungans = $rekamMedis->map(function ($rm) use ($globalCounts) {
             // Generate nomor registrasi format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
             $bulan = $rm->tanggal_periksa->format('m');
             $tahun = $rm->tanggal_periksa->format('Y');
 
-            // Gunakan pre-calculated count untuk menghindari duplikasi
-            $visitCount = $regulerCounts[$rm->id_rekam] ?? 1;
+            // Gunakan global count untuk nomor urut
+            $visitCount = $globalCounts['reguler'][$rm->id_rekam] ?? 1;
 
-            $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
+            // Format nomor registrasi dengan 4 digit leading zeros
+            $formattedVisitCount = str_pad($visitCount, 4, '0', STR_PAD_LEFT);
+            $nomorRegistrasi = "{$formattedVisitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
             return (object) [
                 'id_kunjungan' => $rm->id_rekam,
@@ -145,27 +178,18 @@ class KunjunganController extends Controller
             return $rm->externalEmployee->kode_rm.'_'.$rm->tanggal_periksa->format('Y-m-d');
         })->values();
 
-        // Pre-calculate visit counts untuk semua rekam medis emergency dari 1 Agustus
-        $allEmergency = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
-            ->orderBy('tanggal_periksa')
-            ->orderBy('waktu_periksa')
-            ->get();
-            
-        $emergencyCounts = [];
-        foreach ($allEmergency as $index => $rm) {
-            $emergencyCounts[$rm->id_emergency] = $index + 1;
-        }
-
         // Transform data rekam medis emergency ke format kunjungan
-        $kunjungansEmergency = $rekamMedisEmergency->map(function ($rm) use ($emergencyCounts) {
+        $kunjungansEmergency = $rekamMedisEmergency->map(function ($rm) use ($globalCounts) {
             // Generate nomor registrasi format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
             $bulan = $rm->tanggal_periksa->format('m');
             $tahun = $rm->tanggal_periksa->format('Y');
 
-            // Gunakan pre-calculated count untuk menghindari duplikasi
-            $visitCount = $emergencyCounts[$rm->id_emergency] ?? 1;
+            // Gunakan global count untuk nomor urut
+            $visitCount = $globalCounts['emergency'][$rm->id_emergency] ?? 1;
 
-            $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
+            // Format nomor registrasi dengan 4 digit leading zeros
+            $formattedVisitCount = str_pad($visitCount, 4, '0', STR_PAD_LEFT);
+            $nomorRegistrasi = "{$formattedVisitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
             return (object) [
                 'id_kunjungan' => 'EMR-'.$rm->id_emergency, // Prefix EMR untuk emergency
@@ -191,23 +215,48 @@ class KunjunganController extends Controller
             return $kunjungan->no_rm.'_'.$kunjungan->tanggal_kunjungan->format('Y-m-d');
         })->values();
 
-        // Buat paginator manual untuk data yang sudah di-transform
+        // Group kunjungan by No RM untuk menampilkan setiap pasien sekali saja
+        $groupedKunjungans = [];
+        foreach($kunjungans as $kunjungan) {
+            $noRM = $kunjungan->no_rm;
+            // Ensure NO RM is a string for consistent array key handling
+            $noRMKey = (string)$noRM;
+            if(!isset($groupedKunjungans[$noRMKey])) {
+                $groupedKunjungans[$noRMKey] = [
+                    'no_rm' => $noRM,
+                    'nama_pasien' => $kunjungan->nama_pasien,
+                    'hubungan' => $kunjungan->hubungan,
+                    'kunjungans' => [],
+                    'latest_visit' => $kunjungan // Store latest visit for action button
+                ];
+            }
+            $groupedKunjungans[$noRMKey]['kunjungans'][] = $kunjungan;
+            // Update latest visit if current visit is newer
+            if($kunjungan->tanggal_kunjungan > $groupedKunjungans[$noRMKey]['latest_visit']->tanggal_kunjungan) {
+                $groupedKunjungans[$noRMKey]['latest_visit'] = $kunjungan;
+            }
+        }
+        
+        // Convert to array and sort by No RM
+        $groupedArray = array_values($groupedKunjungans);
+        usort($groupedArray, function($a, $b) {
+            return strcmp($a['no_rm'], $b['no_rm']);
+        });
+
+        // Buat paginator manual untuk data yang sudah di-group
         $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage();
         $offset = ($currentPage - 1) * $perPage;
-        $itemsForCurrentPage = $kunjungans->slice($offset, $perPage)->values();
+        $itemsForCurrentPage = array_slice($groupedArray, $offset, $perPage);
 
         $kunjunganCollection = new \Illuminate\Pagination\LengthAwarePaginator(
             $itemsForCurrentPage,
-            $kunjungans->count(),
+            count($groupedArray),
             $perPage,
             $currentPage,
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        // Kirim juga semua data untuk grouping di view
-        $allKunjungans = $kunjungans;
-
-        return view('kunjungan.index', compact('kunjunganCollection', 'allKunjungans'));
+        return view('kunjungan.index', compact('kunjunganCollection'));
     }
 
     public function show($id)
@@ -232,21 +281,52 @@ class KunjunganController extends Controller
             $bulan = $rekamMedisEmergency->tanggal_periksa->format('m');
             $tahun = $rekamMedisEmergency->tanggal_periksa->format('Y');
 
-            // Pre-calculate untuk menghindari duplikasi
+            // Gabungkan rekam medis reguler dan emergency untuk hitungan global
+            $allReguler = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
+                ->orderBy('tanggal_periksa')
+                ->orderBy('waktu_periksa')
+                ->get()
+                ->map(function($record) {
+                    return [
+                            'id' => $record->id_rekam,
+                            'tanggal' => $record->tanggal_periksa,
+                            'waktu' => $record->waktu_periksa,
+                            'tipe' => 'reguler'
+                        ];
+                });
+                
             $allEmergency = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
                 ->orderBy('tanggal_periksa')
                 ->orderBy('waktu_periksa')
-                ->get();
-                
-            $visitCount = 1;
-            foreach ($allEmergency as $index => $rm) {
-                if ($rm->id_emergency == $rekamMedisEmergency->id_emergency) {
+                ->get()
+                ->map(function($record) {
+                    return [
+                            'id' => $record->id_emergency,
+                            'tanggal' => $record->tanggal_periksa,
+                            'waktu' => $record->waktu_periksa,
+                            'tipe' => 'emergency'
+                        ];
+                });
+            
+            // Gabungkan dan urutkan semua record
+            $allRecords = $allReguler->concat($allEmergency)
+                ->sortBy(function($record) {
+                    return $record['tanggal'].' '.$record['waktu'];
+                })
+                ->values();
+            
+            // Cari posisi record saat ini
+            $visitCount = 0;
+            foreach ($allRecords as $index => $record) {
+                if ($record['id'] == $rekamMedisEmergency->id_emergency && $record['tipe'] === 'emergency') {
                     $visitCount = $index + 1;
                     break;
                 }
             }
 
-            $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
+            // Format nomor registrasi dengan 4 digit leading zeros
+            $formattedVisitCount = str_pad($visitCount, 4, '0', STR_PAD_LEFT);
+            $nomorRegistrasi = "{$formattedVisitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
             // Transform ke format kunjungan
             $kunjungan = (object) [
@@ -281,21 +361,52 @@ class KunjunganController extends Controller
                     $bulan = $rm->tanggal_periksa->format('m');
                     $tahun = $rm->tanggal_periksa->format('Y');
 
-                    // Pre-calculate untuk menghindari duplikasi
+                    // Gabungkan rekam medis reguler dan emergency untuk hitungan global
+                    $allReguler = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
+                        ->orderBy('tanggal_periksa')
+                        ->orderBy('waktu_periksa')
+                        ->get()
+                        ->map(function($record) {
+                            return [
+                                    'id' => $record->id_rekam,
+                                    'tanggal' => $record->tanggal_periksa,
+                                    'waktu' => $record->waktu_periksa,
+                                    'tipe' => 'reguler'
+                                ];
+                        });
+                        
                     $allEmergency = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
                         ->orderBy('tanggal_periksa')
                         ->orderBy('waktu_periksa')
-                        ->get();
-                        
-                    $visitCount = 1;
-                    foreach ($allEmergency as $index => $emergency) {
-                        if ($emergency->id_emergency == $rm->id_emergency) {
+                        ->get()
+                        ->map(function($record) {
+                            return [
+                                    'id' => $record->id_emergency,
+                                    'tanggal' => $record->tanggal_periksa,
+                                    'waktu' => $record->waktu_periksa,
+                                    'tipe' => 'emergency'
+                                ];
+                        });
+                    
+                    // Gabungkan dan urutkan semua record
+                    $allRecords = $allReguler->concat($allEmergency)
+                        ->sortBy(function($record) {
+                            return $record['tanggal'].' '.$record['waktu'];
+                        })
+                        ->values();
+                    
+                    // Cari posisi record saat ini
+                    $visitCount = 0;
+                    foreach ($allRecords as $index => $record) {
+                        if ($record['id'] == $rm->id_emergency && $record['tipe'] === 'emergency') {
                             $visitCount = $index + 1;
                             break;
                         }
                     }
 
-                    $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
+                    // Format nomor registrasi dengan 4 digit leading zeros
+                    $formattedVisitCount = str_pad($visitCount, 4, '0', STR_PAD_LEFT);
+                    $nomorRegistrasi = "{$formattedVisitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
                     return (object) [
                         'id_kunjungan' => 'EMR-'.$rm->id_emergency,
@@ -323,21 +434,52 @@ class KunjunganController extends Controller
             $bulan = $rekamMedis->tanggal_periksa->format('m');
             $tahun = $rekamMedis->tanggal_periksa->format('Y');
 
-            // Pre-calculate untuk menghindari duplikasi
+            // Gabungkan rekam medis reguler dan emergency untuk hitungan global
             $allReguler = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
                 ->orderBy('tanggal_periksa')
                 ->orderBy('waktu_periksa')
-                ->get();
+                ->get()
+                ->map(function($record) {
+                    return [
+                            'id' => $record->id_rekam,
+                            'tanggal' => $record->tanggal_periksa,
+                            'waktu' => $record->waktu_periksa,
+                            'tipe' => 'reguler'
+                        ];
+                });
                 
-            $visitCount = 1;
-            foreach ($allReguler as $index => $rm) {
-                if ($rm->id_rekam == $rekamMedis->id_rekam) {
+            $allEmergency = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
+                ->orderBy('tanggal_periksa')
+                ->orderBy('waktu_periksa')
+                ->get()
+                ->map(function($record) {
+                    return [
+                            'id' => $record->id_emergency,
+                            'tanggal' => $record->tanggal_periksa,
+                            'waktu' => $record->waktu_periksa,
+                            'tipe' => 'emergency'
+                        ];
+                });
+            
+            // Gabungkan dan urutkan semua record
+            $allRecords = $allReguler->concat($allEmergency)
+                ->sortBy(function($record) {
+                    return $record['tanggal'].' '.$record['waktu'];
+                })
+                ->values();
+            
+            // Cari posisi record saat ini
+            $visitCount = 0;
+            foreach ($allRecords as $index => $record) {
+                if ($record['id'] == $rekamMedis->id_rekam && $record['tipe'] === 'reguler') {
                     $visitCount = $index + 1;
                     break;
                 }
             }
 
-            $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
+            // Format nomor registrasi dengan 4 digit leading zeros
+            $formattedVisitCount = str_pad($visitCount, 4, '0', STR_PAD_LEFT);
+            $nomorRegistrasi = "{$formattedVisitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
             // Transform ke format kunjungan
             $kunjungan = (object) [
@@ -370,21 +512,52 @@ class KunjunganController extends Controller
                     $bulan = $rm->tanggal_periksa->format('m');
                     $tahun = $rm->tanggal_periksa->format('Y');
 
-                    // Pre-calculate untuk menghindari duplikasi
+                    // Gabungkan rekam medis reguler dan emergency untuk hitungan global
                     $allReguler = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
                         ->orderBy('tanggal_periksa')
                         ->orderBy('waktu_periksa')
-                        ->get();
+                        ->get()
+                        ->map(function($record) {
+                            return [
+                                    'id' => $record->id_rekam,
+                                    'tanggal' => $record->tanggal_periksa,
+                                    'waktu' => $record->waktu_periksa,
+                                    'tipe' => 'reguler'
+                                ];
+                        });
                         
-                    $visitCount = 1;
-                    foreach ($allReguler as $index => $reguler) {
-                        if ($reguler->id_rekam == $rm->id_rekam) {
+                    $allEmergency = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
+                        ->orderBy('tanggal_periksa')
+                        ->orderBy('waktu_periksa')
+                        ->get()
+                        ->map(function($record) {
+                            return [
+                                    'id' => $record->id_emergency,
+                                    'tanggal' => $record->tanggal_periksa,
+                                    'waktu' => $record->waktu_periksa,
+                                    'tipe' => 'emergency'
+                                ];
+                        });
+                    
+                    // Gabungkan dan urutkan semua record
+                    $allRecords = $allReguler->concat($allEmergency)
+                        ->sortBy(function($record) {
+                            return $record['tanggal'].' '.$record['waktu'];
+                        })
+                        ->values();
+                    
+                    // Cari posisi record saat ini
+                    $visitCount = 0;
+                    foreach ($allRecords as $index => $record) {
+                        if ($record['id'] == $rm->id_rekam && $record['tipe'] === 'reguler') {
                             $visitCount = $index + 1;
                             break;
                         }
                     }
 
-                    $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
+                    // Format nomor registrasi dengan 4 digit leading zeros
+                    $formattedVisitCount = str_pad($visitCount, 4, '0', STR_PAD_LEFT);
+                    $nomorRegistrasi = "{$formattedVisitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
                     return (object) [
                         'id_kunjungan' => $rm->id_rekam,
