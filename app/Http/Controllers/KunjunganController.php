@@ -103,15 +103,25 @@ class KunjunganController extends Controller
             }
         }
 
-        // Transform data ke format kunjungan dengan nomor registrasi per pasien per tahun
-        $kunjungans = $rekamMedis->map(function ($rm) use ($visitCounts) {
-            // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_tahun]/NDL/BJM/[bulan]/[tahun]
+        // Pre-calculate visit counts untuk semua rekam medis reguler dari 1 Agustus
+        $allReguler = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
+            ->orderBy('tanggal_periksa')
+            ->orderBy('waktu_periksa')
+            ->get();
+            
+        $regulerCounts = [];
+        foreach ($allReguler as $index => $rm) {
+            $regulerCounts[$rm->id_rekam] = $index + 1;
+        }
+
+        // Transform data ke format kunjungan dengan nomor registrasi berdasarkan urutan global dari 1 Agustus
+        $kunjungans = $rekamMedis->map(function ($rm) use ($regulerCounts) {
+            // Generate nomor registrasi format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
             $bulan = $rm->tanggal_periksa->format('m');
             $tahun = $rm->tanggal_periksa->format('Y');
 
-            // Ambil visit count dari pre-calculated data
-            $visitKey = $rm->id_keluarga.'_'.$tahun.'_'.$rm->id_rekam;
-            $visitCount = $visitCounts[$visitKey] ?? 1;
+            // Gunakan pre-calculated count untuk menghindari duplikasi
+            $visitCount = $regulerCounts[$rm->id_rekam] ?? 1;
 
             $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
@@ -135,17 +145,25 @@ class KunjunganController extends Controller
             return $rm->externalEmployee->kode_rm.'_'.$rm->tanggal_periksa->format('Y-m-d');
         })->values();
 
+        // Pre-calculate visit counts untuk semua rekam medis emergency dari 1 Agustus
+        $allEmergency = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
+            ->orderBy('tanggal_periksa')
+            ->orderBy('waktu_periksa')
+            ->get();
+            
+        $emergencyCounts = [];
+        foreach ($allEmergency as $index => $rm) {
+            $emergencyCounts[$rm->id_emergency] = $index + 1;
+        }
+
         // Transform data rekam medis emergency ke format kunjungan
-        $kunjungansEmergency = $rekamMedisEmergency->map(function ($rm) {
-            // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_tahun]/NDL/BJM/[bulan]/[tahun]
+        $kunjungansEmergency = $rekamMedisEmergency->map(function ($rm) use ($emergencyCounts) {
+            // Generate nomor registrasi format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
             $bulan = $rm->tanggal_periksa->format('m');
             $tahun = $rm->tanggal_periksa->format('Y');
 
-            // Hitung urutan kunjungan untuk pasien ini pada tahun yang sama (bukan per bulan lagi)
-            $visitCount = RekamMedisEmergency::where('id_external_employee', $rm->id_external_employee)
-                ->whereYear('tanggal_periksa', $tahun)
-                ->where('tanggal_periksa', '<=', $rm->tanggal_periksa)
-                ->count();
+            // Gunakan pre-calculated count untuk menghindari duplikasi
+            $visitCount = $emergencyCounts[$rm->id_emergency] ?? 1;
 
             $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
@@ -186,7 +204,10 @@ class KunjunganController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        return view('kunjungan.index', compact('kunjunganCollection'));
+        // Kirim juga semua data untuk grouping di view
+        $allKunjungans = $kunjungans;
+
+        return view('kunjungan.index', compact('kunjunganCollection', 'allKunjungans'));
     }
 
     public function show($id)
@@ -207,15 +228,23 @@ class KunjunganController extends Controller
                 'keluhans.obat:id_obat,nama_obat',
             ])->findOrFail($emergencyId);
 
-            // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_tahun]/NDL/BJM/[bulan]/[tahun]
+            // Generate nomor registrasi format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
             $bulan = $rekamMedisEmergency->tanggal_periksa->format('m');
             $tahun = $rekamMedisEmergency->tanggal_periksa->format('Y');
 
-            // Hitung urutan kunjungan untuk pasien ini pada tahun yang sama (bukan per bulan lagi)
-            $visitCount = RekamMedisEmergency::where('id_external_employee', $rekamMedisEmergency->id_external_employee)
-                ->whereYear('tanggal_periksa', $tahun)
-                ->where('tanggal_periksa', '<=', $rekamMedisEmergency->tanggal_periksa)
-                ->count();
+            // Pre-calculate untuk menghindari duplikasi
+            $allEmergency = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
+                ->orderBy('tanggal_periksa')
+                ->orderBy('waktu_periksa')
+                ->get();
+                
+            $visitCount = 1;
+            foreach ($allEmergency as $index => $rm) {
+                if ($rm->id_emergency == $rekamMedisEmergency->id_emergency) {
+                    $visitCount = $index + 1;
+                    break;
+                }
+            }
 
             $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
@@ -248,15 +277,23 @@ class KunjunganController extends Controller
                 ->orderBy('tanggal_periksa', 'desc')
                 ->get()
                 ->map(function ($rm) {
-                    // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_tahun]/NDL/BJM/[bulan]/[tahun]
+                    // Generate nomor registrasi format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
                     $bulan = $rm->tanggal_periksa->format('m');
                     $tahun = $rm->tanggal_periksa->format('Y');
 
-                    // Hitung urutan kunjungan untuk pasien ini pada tahun yang sama (bukan per bulan lagi)
-                    $visitCount = RekamMedisEmergency::where('id_external_employee', $rm->id_external_employee)
-                        ->whereYear('tanggal_periksa', $tahun)
-                        ->where('tanggal_periksa', '<=', $rm->tanggal_periksa)
-                        ->count();
+                    // Pre-calculate untuk menghindari duplikasi
+                    $allEmergency = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
+                        ->orderBy('tanggal_periksa')
+                        ->orderBy('waktu_periksa')
+                        ->get();
+                        
+                    $visitCount = 1;
+                    foreach ($allEmergency as $index => $emergency) {
+                        if ($emergency->id_emergency == $rm->id_emergency) {
+                            $visitCount = $index + 1;
+                            break;
+                        }
+                    }
 
                     $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
@@ -282,15 +319,23 @@ class KunjunganController extends Controller
                 'keluhans.obat:id_obat,nama_obat',
             ])->findOrFail($id);
 
-            // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_tahun]/NDL/BJM/[bulan]/[tahun]
+            // Generate nomor registrasi format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
             $bulan = $rekamMedis->tanggal_periksa->format('m');
             $tahun = $rekamMedis->tanggal_periksa->format('Y');
 
-            // Hitung urutan kunjungan untuk pasien ini pada tahun yang sama (bukan per bulan lagi)
-            $visitCount = RekamMedis::where('id_keluarga', $rekamMedis->id_keluarga)
-                ->whereYear('tanggal_periksa', $tahun)
-                ->where('tanggal_periksa', '<=', $rekamMedis->tanggal_periksa)
-                ->count();
+            // Pre-calculate untuk menghindari duplikasi
+            $allReguler = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
+                ->orderBy('tanggal_periksa')
+                ->orderBy('waktu_periksa')
+                ->get();
+                
+            $visitCount = 1;
+            foreach ($allReguler as $index => $rm) {
+                if ($rm->id_rekam == $rekamMedis->id_rekam) {
+                    $visitCount = $index + 1;
+                    break;
+                }
+            }
 
             $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
 
@@ -321,15 +366,23 @@ class KunjunganController extends Controller
                 ->orderBy('tanggal_periksa', 'desc')
                 ->get()
                 ->map(function ($rm) {
-                    // Generate nomor registrasi format: [urutan_kunjungan_pasien_per_tahun]/NDL/BJM/[bulan]/[tahun]
+                    // Generate nomor registrasi format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
                     $bulan = $rm->tanggal_periksa->format('m');
                     $tahun = $rm->tanggal_periksa->format('Y');
 
-                    // Hitung urutan kunjungan untuk pasien ini pada tahun yang sama (bukan per bulan lagi)
-                    $visitCount = RekamMedis::where('id_keluarga', $rm->id_keluarga)
-                        ->whereYear('tanggal_periksa', $tahun)
-                        ->where('tanggal_periksa', '<=', $rm->tanggal_periksa)
-                        ->count();
+                    // Pre-calculate untuk menghindari duplikasi
+                    $allReguler = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
+                        ->orderBy('tanggal_periksa')
+                        ->orderBy('waktu_periksa')
+                        ->get();
+                        
+                    $visitCount = 1;
+                    foreach ($allReguler as $index => $reguler) {
+                        if ($reguler->id_rekam == $rm->id_rekam) {
+                            $visitCount = $index + 1;
+                            break;
+                        }
+                    }
 
                     $nomorRegistrasi = "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
 

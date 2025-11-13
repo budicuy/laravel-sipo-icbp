@@ -14,25 +14,35 @@ class LaporanController extends Controller
 {
     /**
      * Helper method untuk generate nomor registrasi yang konsisten dengan KunjunganController
-     * Format: [urutan_kunjungan_pasien_per_tahun]/NDL/BJM/[bulan]/[tahun]
+     * Format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
      */
-    private function generateNomorRegistrasi($pasienId, $tanggalPeriksa, $tipe = 'reguler')
+    private function generateNomorRegistrasi($rekamMedisId, $tanggalPeriksa, $tipe = 'reguler')
     {
         $bulan = $tanggalPeriksa->format('m');
         $tahun = $tanggalPeriksa->format('Y');
 
         if ($tipe === 'emergency') {
-            // Hitung urutan kunjungan untuk pasien emergency pada tahun yang sama
-            $visitCount = RekamMedisEmergency::where('id_external_employee', $pasienId)
-                ->whereYear('tanggal_periksa', $tahun)
-                ->where('tanggal_periksa', '<=', $tanggalPeriksa)
-                ->count();
+            // Optimasi: Hitung nomor urut dengan query yang lebih efisien
+            $visitCount = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
+                ->where(function($query) use ($tanggalPeriksa, $rekamMedisId) {
+                    $query->where('tanggal_periksa', '<', $tanggalPeriksa)
+                          ->orWhere(function($subQuery) use ($tanggalPeriksa, $rekamMedisId) {
+                              $subQuery->where('tanggal_periksa', $tanggalPeriksa)
+                                       ->where('id_emergency', '<=', $rekamMedisId);
+                          });
+                })
+                ->count() + 1;
         } else {
-            // Hitung urutan kunjungan untuk pasien reguler pada tahun yang sama
-            $visitCount = RekamMedis::where('id_keluarga', $pasienId)
-                ->whereYear('tanggal_periksa', $tahun)
-                ->where('tanggal_periksa', '<=', $tanggalPeriksa)
-                ->count();
+            // Optimasi: Hitung nomor urut dengan query yang lebih efisien
+            $visitCount = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
+                ->where(function($query) use ($tanggalPeriksa, $rekamMedisId) {
+                    $query->where('tanggal_periksa', '<', $tanggalPeriksa)
+                          ->orWhere(function($subQuery) use ($tanggalPeriksa, $rekamMedisId) {
+                              $subQuery->where('tanggal_periksa', $tanggalPeriksa)
+                                       ->where('id_rekam', '<=', $rekamMedisId);
+                          });
+                })
+                ->count() + 1;
         }
 
         return "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
@@ -81,19 +91,53 @@ class LaporanController extends Controller
         $search = $request->get('search', '');
         $perPage = $request->get('per_page', 50);
         $perPage = in_array($perPage, [50, 100, 200]) ? $perPage : 50;
+        
+        // Enhanced search parameters
+        $tipeKunjungan = $request->get('tipe_kunjungan', '');
+        $jenisKelamin = $request->get('jenis_kelamin', '');
+        $departemen = $request->get('departemen', '');
+        $rangeUsia = $request->get('range_usia', '');
+        $statusRekam = $request->get('status_rekam', '');
+        $minBiaya = $request->get('min_biaya', '');
+        $maxBiaya = $request->get('max_biaya', '');
 
-        // Get data untuk charts
-        $chartPemeriksaan = $this->getChartPemeriksaan($tahun);
-        $chartBiaya = $this->getChartBiaya($tahun);
+        // Cache key untuk charts dan stats
+        $chartCacheKey = "chart_data_{$tahun}";
+        $statsCacheKey = "stats_data_{$bulan}_{$tahun}";
 
-        // Get data untuk tabel transaksi dengan pagination
-        $transaksiData = $this->getTransaksiData($periode, $perPage, $search);
+        // Get data untuk charts dengan cache
+        $chartPemeriksaan = cache()->remember($chartCacheKey.'_pemeriksaan', 3600, function() use ($tahun) {
+            return $this->getChartPemeriksaan($tahun);
+        });
+        
+        $chartBiaya = cache()->remember($chartCacheKey.'_biaya', 3600, function() use ($tahun) {
+            return $this->getChartBiaya($tahun);
+        });
+
+        // Get data untuk tabel transaksi dengan pagination (tidak di-cache karena dinamis)
+        $transaksiData = $this->getTransaksiData($periode, $perPage, $search, $tipeKunjungan, $jenisKelamin, $departemen, $rangeUsia, $statusRekam, $minBiaya, $maxBiaya);
         $transaksi = $transaksiData['data'];
         $fallbackNotifications = $transaksiData['fallbackNotifications'] ?? [];
 
-        // Get statistics
-        $stats = $this->getTransaksiStats($bulan, $tahun);
+        // Get statistics dengan cache (disable cache when filters are applied)
+        $hasFilters = !empty($tipeKunjungan) || !empty($jenisKelamin) || !empty($departemen) ||
+                     !empty($rangeUsia) || !empty($statusRekam) || !empty($minBiaya) || !empty($maxBiaya);
+        
+        if ($hasFilters) {
+            // Don't cache when filters are applied
+            $stats = $this->getTransaksiStats($bulan, $tahun, $tipeKunjungan, $jenisKelamin, $departemen, $rangeUsia, $statusRekam, $minBiaya, $maxBiaya);
+        } else {
+            // Use cache when no filters are applied
+            $stats = cache()->remember($statsCacheKey, 1800, function() use ($bulan, $tahun) {
+                return $this->getTransaksiStats($bulan, $tahun);
+            });
+        }
 
+        // Get data for dropdown filters with optimized query
+        $departemens = \App\Models\Departemen::select('id_departemen', 'nama_departemen')
+            ->orderBy('nama_departemen')
+            ->get();
+        
         return view('laporan.transaksi', compact(
             'transaksi',
             'chartPemeriksaan',
@@ -104,7 +148,15 @@ class LaporanController extends Controller
             'periode',
             'search',
             'perPage',
-            'fallbackNotifications'
+            'fallbackNotifications',
+            'tipeKunjungan',
+            'jenisKelamin',
+            'departemen',
+            'rangeUsia',
+            'statusRekam',
+            'minBiaya',
+            'maxBiaya',
+            'departemens'
         ));
     }
 
@@ -113,27 +165,40 @@ class LaporanController extends Controller
      */
     private function getChartPemeriksaan($tahun)
     {
-        // Single query untuk semua bulan menggunakan raw expression
-        $monthlyDataReguler = RekamMedis::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
-            ->whereYear('tanggal_periksa', $tahun)
-            ->groupByRaw('MONTH(tanggal_periksa)')
-            ->pluck('count', 'month')
-            ->toArray();
-
-        // Query untuk data emergency
-        $monthlyDataEmergency = RekamMedisEmergency::selectRaw('MONTH(tanggal_periksa) as month, COUNT(*) as count')
-            ->whereYear('tanggal_periksa', $tahun)
-            ->groupByRaw('MONTH(tanggal_periksa)')
-            ->pluck('count', 'month')
-            ->toArray();
+        // Optimasi: Single query dengan UNION untuk menggabungkan data reguler dan emergency
+        $monthlyData = \DB::select("
+            SELECT
+                MONTH(tanggal_periksa) as month,
+                SUM(CASE WHEN type = 'reguler' THEN 1 ELSE 0 END) as reguler_count,
+                SUM(CASE WHEN type = 'emergency' THEN 1 ELSE 0 END) as emergency_count
+            FROM (
+                SELECT tanggal_periksa, 'reguler' as type
+                FROM rekam_medis
+                WHERE YEAR(tanggal_periksa) = :tahun1
+                
+                UNION ALL
+                
+                SELECT tanggal_periksa, 'emergency' as type
+                FROM rekam_medis_emergency
+                WHERE YEAR(tanggal_periksa) = :tahun2
+            ) combined_data
+            GROUP BY MONTH(tanggal_periksa)
+        ", ['tahun1' => $tahun, 'tahun2' => $tahun]);
 
         // Format data untuk chart (12 bulan)
         $chartDataReguler = [];
         $chartDataEmergency = [];
         $chartDataTotal = [];
+        
+        $monthlyDataArray = [];
+        foreach ($monthlyData as $data) {
+            $monthlyDataArray[$data->month] = $data;
+        }
+        
         for ($i = 1; $i <= 12; $i++) {
-            $reguler = $monthlyDataReguler[$i] ?? 0;
-            $emergency = $monthlyDataEmergency[$i] ?? 0;
+            $data = $monthlyDataArray[$i] ?? null;
+            $reguler = $data ? $data->reguler_count : 0;
+            $emergency = $data ? $data->emergency_count : 0;
             $chartDataReguler[] = $reguler;
             $chartDataEmergency[] = $emergency;
             $chartDataTotal[] = $reguler + $emergency;
@@ -151,20 +216,28 @@ class LaporanController extends Controller
      */
     private function getChartBiaya($tahun)
     {
-        // Get all keluhan with rekamMedis for the specified year
-        $keluhanDataReguler = Keluhan::with(['rekamMedis:id_rekam,tanggal_periksa'])
+        // Get all keluhan with rekamMedis for the specified year with optimized eager loading
+        $keluhanDataReguler = Keluhan::with([
+            'rekamMedis:id_rekam,tanggal_periksa',
+            'obat:id_obat,nama_obat'
+        ])
             ->whereHas('rekamMedis', function ($query) use ($tahun) {
                 $query->whereYear('tanggal_periksa', $tahun);
             })
             ->whereNotNull('id_obat')
+            ->select('id_keluhan', 'id_rekam', 'id_obat', 'jumlah_obat', 'diskon')
             ->get();
 
-        // Get all keluhan with rekamMedisEmergency for the specified year
-        $keluhanDataEmergency = Keluhan::with(['rekamMedisEmergency:id_emergency,tanggal_periksa'])
+        // Get all keluhan with rekamMedisEmergency for the specified year with optimized eager loading
+        $keluhanDataEmergency = Keluhan::with([
+            'rekamMedisEmergency:id_emergency,tanggal_periksa',
+            'obat:id_obat,nama_obat'
+        ])
             ->whereHas('rekamMedisEmergency', function ($query) use ($tahun) {
                 $query->whereYear('tanggal_periksa', $tahun);
             })
             ->whereNotNull('id_obat')
+            ->select('id_keluhan', 'id_emergency', 'id_obat', 'jumlah_obat', 'diskon')
             ->get();
 
         // Collect all unique obat IDs and periods for reguler
@@ -282,7 +355,7 @@ class LaporanController extends Controller
     /**
      * Get data transaksi untuk tabel
      */
-    private function getTransaksiData($periode, $perPage = 50, $search = '')
+    private function getTransaksiData($periode, $perPage = 50, $search = '', $tipeKunjungan = '', $jenisKelamin = '', $departemen = '', $rangeUsia = '', $statusRekam = '', $minBiaya = '', $maxBiaya = '')
     {
         // Parse periode format MM-YY to get month and year
         if (preg_match('/^(\d{2})-(\d{2})$/', $periode, $matches)) {
@@ -294,23 +367,335 @@ class LaporanController extends Controller
             $year = Carbon::now()->year;
         }
 
-        // Get all transaction data first to apply proper filtering
-        $allTransaksiData = $this->getAllTransaksiDataForExport($month, $year, $search);
-
-        // Create a LengthAwarePaginator
+        // Optimasi: Query langsung dengan pagination di database level
         $currentPage = request()->get('page', 1);
+        
+        // Build base queries dengan eager loading yang sudah dioptimasi
+        $rekamMedisQuery = RekamMedis::with([
+            'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen',
+            'keluarga.karyawan.departemen:id_departemen,nama_departemen',
+            'keluarga.hubungan:kode_hubungan,hubungan',
+            'keluhans:id_keluhan,id_rekam,id_diagnosa,id_obat,jumlah_obat,diskon,aturan_pakai',
+            'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
+            'keluhans.obat:id_obat,nama_obat,id_satuan',
+            'keluhans.obat.satuanObat:id_satuan,nama_satuan',
+            'user:id_user,username,nama_lengkap',
+        ])
+        ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'waktu_periksa', 'status', 'id_user')
+        ->whereMonth('tanggal_periksa', $month)
+        ->whereYear('tanggal_periksa', $year);
+
+        $rekamMedisEmergencyQuery = RekamMedisEmergency::with([
+            'externalEmployee:id,nik_employee,nama_employee,alamat,jenis_kelamin',
+            'keluhans:id_keluhan,id_emergency,id_diagnosa_emergency,id_obat,jumlah_obat,aturan_pakai',
+            'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency',
+            'keluhans.obat:id_obat,nama_obat,id_satuan',
+            'keluhans.obat.satuanObat:id_satuan,nama_satuan',
+            'user:id_user,username,nama_lengkap',
+        ])
+        ->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'waktu_periksa', 'status', 'id_user')
+        ->whereMonth('tanggal_periksa', $month)
+        ->whereYear('tanggal_periksa', $year);
+
+        // Apply basic search filter if provided
+        if (!empty($search)) {
+            $searchTerm = '%'.$search.'%';
+            $rekamMedisQuery->whereHas('keluarga', function ($query) use ($searchTerm) {
+                $query->where('nama_keluarga', 'like', $searchTerm)
+                    ->orWhere('no_rm', 'like', $searchTerm)
+                    ->orWhereHas('karyawan', function ($karyawanQuery) use ($searchTerm) {
+                        $karyawanQuery->where('nik_karyawan', 'like', $searchTerm)
+                            ->orWhere('nama_karyawan', 'like', $searchTerm);
+                    });
+            });
+
+            $rekamMedisEmergencyQuery->whereHas('externalEmployee', function ($query) use ($searchTerm) {
+                $query->where('nama_employee', 'like', $searchTerm)
+                    ->orWhere('nik_employee', 'like', $searchTerm);
+            });
+        }
+
+        // Enhanced filters
+        // Filter by tipe kunjungan
+        if (!empty($tipeKunjungan)) {
+            if ($tipeKunjungan === 'reguler') {
+                // Emergency query diabaikan (kosongkan)
+                $rekamMedisEmergencyQuery->whereRaw('1 = 0');
+            } elseif ($tipeKunjungan === 'emergency') {
+                // Reguler query diabaikan (kosongkan)
+                $rekamMedisQuery->whereRaw('1 = 0');
+            }
+        }
+
+        // Filter by jenis kelamin
+        if (!empty($jenisKelamin)) {
+            $jenisKelaminFull = $jenisKelamin === 'L' ? 'Laki - Laki' : 'Perempuan';
+            $rekamMedisQuery->whereHas('keluarga', function ($query) use ($jenisKelaminFull) {
+                $query->where('jenis_kelamin', $jenisKelaminFull);
+            });
+            
+            // Also filter emergency records by jenis kelamin
+            $rekamMedisEmergencyQuery->whereHas('externalEmployee', function ($query) use ($jenisKelaminFull) {
+                $query->where('jenis_kelamin', $jenisKelaminFull);
+            });
+        }
+
+        // Filter by departemen
+        if (!empty($departemen)) {
+            $rekamMedisQuery->whereHas('keluarga.karyawan', function ($query) use ($departemen) {
+                $query->where('id_departemen', $departemen);
+            });
+        }
+
+        // Filter by range usia
+        if (!empty($rangeUsia)) {
+            $today = Carbon::now();
+            switch ($rangeUsia) {
+                case '0-17':
+                    $minDate = $today->copy()->subYears(17);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate);
+                    });
+                    break;
+                case '18-25':
+                    $minDate = $today->copy()->subYears(25);
+                    $maxDate = $today->copy()->subYears(18);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate, $maxDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate)
+                              ->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+                case '26-35':
+                    $minDate = $today->copy()->subYears(35);
+                    $maxDate = $today->copy()->subYears(26);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate, $maxDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate)
+                              ->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+                case '36-50':
+                    $minDate = $today->copy()->subYears(50);
+                    $maxDate = $today->copy()->subYears(36);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate, $maxDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate)
+                              ->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+                case '50+':
+                    $maxDate = $today->copy()->subYears(50);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($maxDate) {
+                        $query->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+            }
+        }
+
+        // Filter by status rekam medis
+        if (!empty($statusRekam)) {
+            $rekamMedisQuery->where('status', $statusRekam);
+            $rekamMedisEmergencyQuery->where('status', $statusRekam);
+        }
+
+        // Filter by range biaya (will be applied after data is fetched)
+        $filterByBiaya = !empty($minBiaya) || !empty($maxBiaya);
+
+        // Get counts for pagination
+        $regulerCount = $rekamMedisQuery->count();
+        $emergencyCount = $rekamMedisEmergencyQuery->count();
+        $totalCount = $regulerCount + $emergencyCount;
+
+        // Get data with offset and limit
         $offset = ($currentPage - 1) * $perPage;
-        $itemsForCurrentPage = collect($allTransaksiData)->slice($offset, $perPage)->values();
+        
+        // Get reguler data
+        $rekamMedisData = $rekamMedisQuery
+            ->orderBy('tanggal_periksa', 'desc')
+            ->orderBy('waktu_periksa', 'desc')
+            ->offset($offset)
+            ->limit($perPage)
+            ->get();
+
+        // Get emergency data if needed
+        $remainingLimit = $perPage - $rekamMedisData->count();
+        $rekamMedisEmergencyData = collect();
+        
+        if ($remainingLimit > 0) {
+            $rekamMedisEmergencyData = $rekamMedisEmergencyQuery
+                ->orderBy('tanggal_periksa', 'desc')
+                ->orderBy('waktu_periksa', 'desc')
+                ->limit($remainingLimit)
+                ->get();
+        }
+
+        // Collect all unique obat IDs and periods
+        $obatPeriods = [];
+        $periodeFormat = $periode;
+
+        foreach ($rekamMedisData as $rekamMedis) {
+            foreach ($rekamMedis->keluhans as $keluhan) {
+                if ($keluhan->id_obat) {
+                    $obatPeriods[] = [
+                        'id_obat' => $keluhan->id_obat,
+                        'periode' => $periodeFormat,
+                    ];
+                }
+            }
+        }
+
+        foreach ($rekamMedisEmergencyData as $rekamMedisEmergency) {
+            foreach ($rekamMedisEmergency->keluhans as $keluhan) {
+                if ($keluhan->id_obat) {
+                    $obatPeriods[] = [
+                        'id_obat' => $keluhan->id_obat,
+                        'periode' => $periodeFormat,
+                    ];
+                }
+            }
+        }
+
+        // Fetch harga obat data with fallback mechanism
+        $hargaObatMap = [];
+        if (!empty($obatPeriods)) {
+            $uniqueObatPeriods = collect($obatPeriods)->unique(function ($item) {
+                return $item['id_obat'].'_'.$item['periode'];
+            })->values()->toArray();
+
+            $hargaObatResults = HargaObatPerBulan::getBulkHargaObatWithFallback($uniqueObatPeriods);
+
+            foreach ($hargaObatResults as $key => $result) {
+                if ($result && $result['harga']) {
+                    $hargaObatMap[$key] = $result['harga'];
+                }
+            }
+        }
+
+        // Process reguler data
+        $resultReguler = $rekamMedisData->map(function ($rekamMedis) use ($hargaObatMap) {
+            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_rekam, $rekamMedis->tanggal_periksa, 'reguler');
+            
+            $keluhans = $rekamMedis->keluhans;
+            $totalBiaya = 0;
+            $obatDetails = [];
+            
+            foreach ($keluhans as $keluhan) {
+                if (!$keluhan->id_obat) continue;
+                
+                $key = $keluhan->id_obat.'_'.$rekamMedis->tanggal_periksa->format('m-y');
+                $hargaObat = $hargaObatMap[$key] ?? null;
+                $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
+                $subtotalSebelumDiskon = $keluhan->jumlah_obat * $hargaSatuan;
+                $diskon = $keluhan->diskon ?? 0;
+                $subtotal = $subtotalSebelumDiskon * (1 - ($diskon / 100));
+                $totalBiaya += $subtotal;
+                
+                $obatDetails[] = [
+                    'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
+                    'jumlah_obat' => $keluhan->jumlah_obat,
+                    'harga_satuan' => $hargaSatuan,
+                    'diskon' => $diskon,
+                    'subtotal' => $subtotal,
+                ];
+            }
+            
+            $diagnosaList = $keluhans->pluck('diagnosa.nama_diagnosa')->filter()->unique()->values()->toArray();
+            $nikKaryawan = $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-';
+            
+            return [
+                'kode_transaksi' => $kodeTransaksi,
+                'no_rm' => $nikKaryawan.'-'.($rekamMedis->keluarga->kode_hubungan ?? ''),
+                'nama_pasien' => $rekamMedis->keluarga->nama_keluarga,
+                'hubungan' => $rekamMedis->keluarga->hubungan->hubungan ?? '-',
+                'nik_karyawan' => $nikKaryawan,
+                'nama_karyawan' => $rekamMedis->keluarga->karyawan->nama_karyawan ?? '-',
+                'tanggal' => $rekamMedis->tanggal_periksa->format('d-m-Y'),
+                'diagnosa_list' => $diagnosaList,
+                'obat_details' => $obatDetails,
+                'total_biaya' => $totalBiaya,
+                'id_rekam' => $rekamMedis->id_rekam,
+                'tipe' => 'Reguler',
+            ];
+        });
+
+        // Process emergency data
+        $resultEmergency = $rekamMedisEmergencyData->map(function ($rekamMedisEmergency) use ($hargaObatMap) {
+            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_emergency, $rekamMedisEmergency->tanggal_periksa, 'emergency');
+            
+            $keluhans = $rekamMedisEmergency->keluhans;
+            $totalBiaya = 0;
+            $obatDetails = [];
+            
+            foreach ($keluhans as $keluhan) {
+                if (!$keluhan->id_obat) continue;
+                
+                $key = $keluhan->id_obat.'_'.$rekamMedisEmergency->tanggal_periksa->format('m-y');
+                $hargaObat = $hargaObatMap[$key] ?? null;
+                $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
+                $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
+                $totalBiaya += $subtotal;
+                
+                $obatDetails[] = [
+                    'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
+                    'jumlah_obat' => $keluhan->jumlah_obat,
+                    'harga_satuan' => $hargaSatuan,
+                    'subtotal' => $subtotal,
+                ];
+            }
+            
+            $diagnosaList = $keluhans->pluck('diagnosaEmergency.nama_diagnosa_emergency')->filter()->unique()->values()->toArray();
+            $nikKaryawan = $rekamMedisEmergency->externalEmployee->nik_employee ?? '-';
+            
+            return [
+                'kode_transaksi' => $kodeTransaksi,
+                'no_rm' => $nikKaryawan,
+                'nama_pasien' => $rekamMedisEmergency->externalEmployee ? $rekamMedisEmergency->externalEmployee->nama_employee : '-',
+                'hubungan' => 'External Employee',
+                'nik_karyawan' => $nikKaryawan,
+                'nama_karyawan' => $rekamMedisEmergency->externalEmployee ? $rekamMedisEmergency->externalEmployee->nama_employee : '-',
+                'tanggal' => $rekamMedisEmergency->tanggal_periksa->format('d-m-Y'),
+                'diagnosa_list' => $diagnosaList,
+                'obat_details' => $obatDetails,
+                'total_biaya' => $totalBiaya,
+                'id_rekam' => $rekamMedisEmergency->id_emergency,
+                'tipe' => 'Emergency',
+            ];
+        });
+
+        // Combine and sort results
+        $allResults = $resultReguler->concat($resultEmergency)->sortByDesc(function ($item) {
+            return \Carbon\Carbon::createFromFormat('d-m-Y', $item['tanggal']);
+        })->values();
+
+        // Apply biaya filter if specified
+        if ($filterByBiaya) {
+            $allResults = $allResults->filter(function ($item) use ($minBiaya, $maxBiaya) {
+                $totalBiaya = $item['total_biaya'];
+                
+                // Apply minimum biaya filter
+                if (!empty($minBiaya) && $totalBiaya < (float) $minBiaya) {
+                    return false;
+                }
+                
+                // Apply maximum biaya filter
+                if (!empty($maxBiaya) && $totalBiaya > (float) $maxBiaya) {
+                    return false;
+                }
+                
+                return true;
+            })->values();
+            
+            // Update total count after filtering
+            $totalCount = $allResults->count();
+        }
+
+        // Create paginator
         $paginatedData = new \Illuminate\Pagination\LengthAwarePaginator(
-            $itemsForCurrentPage,
-            count($allTransaksiData),
+            $allResults,
+            $totalCount,
             $perPage,
             $currentPage,
             ['path' => request()->url(), 'query' => request()->query()]
         );
 
-        // Since we're using getAllTransaksiDataForExport which already returns processed data,
-        // we can directly return the paginated data
         return [
             'data' => $paginatedData,
             'fallbackNotifications' => [],
@@ -404,7 +789,7 @@ class LaporanController extends Controller
         // Process reguler data
         $resultReguler = $rekamMedisData->map(function ($rekamMedis) use ($kunjunganIdMap, $kunjunganKeyMap, $hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
-            $nomorRegistrasi = $this->generateNomorRegistrasi($rekamMedis->id_keluarga, $rekamMedis->tanggal_periksa, 'reguler');
+            $nomorRegistrasi = $this->generateNomorRegistrasi($rekamMedis->id_rekam, $rekamMedis->tanggal_periksa, 'reguler');
 
             // Get kode_transaksi from map
             $kunjunganKey = $rekamMedis->id_keluarga.'_'.$rekamMedis->tanggal_periksa->format('Y-m-d');
@@ -470,7 +855,7 @@ class LaporanController extends Controller
         // Process emergency data
         $resultEmergency = $rekamMedisEmergencyData->map(function ($rekamMedisEmergency) use ($hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
-            $nomorRegistrasi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_external_employee, $rekamMedisEmergency->tanggal_periksa, 'emergency');
+            $nomorRegistrasi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_emergency, $rekamMedisEmergency->tanggal_periksa, 'emergency');
             $kodeTransaksi = $nomorRegistrasi;
 
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
@@ -547,34 +932,123 @@ class LaporanController extends Controller
     /**
      * Get statistics untuk dashboard
      */
-    private function getTransaksiStats($bulan, $tahun)
+    private function getTransaksiStats($bulan, $tahun, $tipeKunjungan = '', $jenisKelamin = '', $departemen = '', $rangeUsia = '', $statusRekam = '', $minBiaya = '', $maxBiaya = '')
     {
-        $totalPemeriksaanReguler = RekamMedis::whereMonth('tanggal_periksa', $bulan)
-            ->whereYear('tanggal_periksa', $tahun)
-            ->count();
+        // Apply filters for statistics
+        $rekamMedisQuery = RekamMedis::whereMonth('tanggal_periksa', $bulan)
+            ->whereYear('tanggal_periksa', $tahun);
+        
+        $rekamMedisEmergencyQuery = RekamMedisEmergency::whereMonth('tanggal_periksa', $bulan)
+            ->whereYear('tanggal_periksa', $tahun);
 
-        $totalPemeriksaanEmergency = RekamMedisEmergency::whereMonth('tanggal_periksa', $bulan)
-            ->whereYear('tanggal_periksa', $tahun)
-            ->count();
+        // Filter by tipe kunjungan
+        if (!empty($tipeKunjungan)) {
+            if ($tipeKunjungan === 'reguler') {
+                // Emergency query diabaikan (kosongkan)
+                $rekamMedisEmergencyQuery->whereRaw('1 = 0');
+            } elseif ($tipeKunjungan === 'emergency') {
+                // Reguler query diabaikan (kosongkan)
+                $rekamMedisQuery->whereRaw('1 = 0');
+            }
+        }
 
+        // Filter by jenis kelamin
+        if (!empty($jenisKelamin)) {
+            $jenisKelaminFull = $jenisKelamin === 'L' ? 'Laki - Laki' : 'Perempuan';
+            $rekamMedisQuery->whereHas('keluarga', function ($query) use ($jenisKelaminFull) {
+                $query->where('jenis_kelamin', $jenisKelaminFull);
+            });
+            
+            // Also filter emergency records by jenis kelamin
+            $rekamMedisEmergencyQuery->whereHas('externalEmployee', function ($query) use ($jenisKelaminFull) {
+                $query->where('jenis_kelamin', $jenisKelaminFull);
+            });
+        }
+
+        // Filter by departemen
+        if (!empty($departemen)) {
+            $rekamMedisQuery->whereHas('keluarga.karyawan', function ($query) use ($departemen) {
+                $query->where('id_departemen', $departemen);
+            });
+        }
+
+        // Filter by range usia
+        if (!empty($rangeUsia)) {
+            $today = Carbon::now();
+            switch ($rangeUsia) {
+                case '0-17':
+                    $minDate = $today->copy()->subYears(17);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate);
+                    });
+                    break;
+                case '18-25':
+                    $minDate = $today->copy()->subYears(25);
+                    $maxDate = $today->copy()->subYears(18);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate, $maxDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate)
+                              ->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+                case '26-35':
+                    $minDate = $today->copy()->subYears(35);
+                    $maxDate = $today->copy()->subYears(26);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate, $maxDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate)
+                              ->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+                case '36-50':
+                    $minDate = $today->copy()->subYears(50);
+                    $maxDate = $today->copy()->subYears(36);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate, $maxDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate)
+                              ->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+                case '50+':
+                    $maxDate = $today->copy()->subYears(50);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($maxDate) {
+                        $query->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+            }
+        }
+
+        // Filter by status rekam medis
+        if (!empty($statusRekam)) {
+            $rekamMedisQuery->where('status', $statusRekam);
+            $rekamMedisEmergencyQuery->where('status', $statusRekam);
+        }
+
+        $totalPemeriksaanReguler = $rekamMedisQuery->count();
+        $totalPemeriksaanEmergency = $rekamMedisEmergencyQuery->count();
         $totalPemeriksaan = $totalPemeriksaanReguler + $totalPemeriksaanEmergency;
 
-        // Get all keluhan with rekamMedis for the specified month and year
-        $keluhanDataReguler = Keluhan::with(['rekamMedis:id_rekam,tanggal_periksa'])
+        // Get all keluhan with rekamMedis for the specified month and year with optimized eager loading
+        $keluhanDataReguler = Keluhan::with([
+            'rekamMedis:id_rekam,tanggal_periksa',
+            'obat:id_obat,nama_obat'
+        ])
             ->whereHas('rekamMedis', function ($query) use ($bulan, $tahun) {
                 $query->whereMonth('tanggal_periksa', $bulan)
                     ->whereYear('tanggal_periksa', $tahun);
             })
             ->whereNotNull('id_obat')
+            ->select('id_keluhan', 'id_rekam', 'id_obat', 'jumlah_obat', 'diskon')
             ->get();
 
-        // Get all keluhan with rekamMedisEmergency for the specified month and year
-        $keluhanDataEmergency = Keluhan::with(['rekamMedisEmergency:id_emergency,tanggal_periksa'])
+        // Get all keluhan with rekamMedisEmergency for the specified month and year with optimized eager loading
+        $keluhanDataEmergency = Keluhan::with([
+            'rekamMedisEmergency:id_emergency,tanggal_periksa',
+            'obat:id_obat,nama_obat'
+        ])
             ->whereHas('rekamMedisEmergency', function ($query) use ($bulan, $tahun) {
                 $query->whereMonth('tanggal_periksa', $bulan)
                     ->whereYear('tanggal_periksa', $tahun);
             })
             ->whereNotNull('id_obat')
+            ->select('id_keluhan', 'id_emergency', 'id_obat', 'jumlah_obat', 'diskon')
             ->get();
 
         // Collect all unique obat IDs and periods to prevent duplicate queries
@@ -613,6 +1087,10 @@ class LaporanController extends Controller
 
         // Calculate total biaya using pre-fetched harga
         $totalBiaya = 0;
+        $filteredKeluhanReguler = [];
+        $filteredKeluhanEmergency = [];
+        
+        // Apply filters to reguler keluhan data
         foreach ($keluhanDataReguler as $keluhan) {
             $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
             $key = $keluhan->id_obat.'_'.$periode;
@@ -623,10 +1101,25 @@ class LaporanController extends Controller
             if ($hargaObat) {
                 $hargaSebelumDiskon = $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
                 $diskon = $keluhan->diskon ?? 0;
-                $totalBiaya += $hargaSebelumDiskon * (1 - ($diskon / 100));
+                $subtotal = $hargaSebelumDiskon * (1 - ($diskon / 100));
+                
+                // Apply biaya filter if specified
+                $includeInStats = true;
+                if (!empty($minBiaya) && $subtotal < (float) $minBiaya) {
+                    $includeInStats = false;
+                }
+                if (!empty($maxBiaya) && $subtotal > (float) $maxBiaya) {
+                    $includeInStats = false;
+                }
+                
+                if ($includeInStats) {
+                    $totalBiaya += $subtotal;
+                    $filteredKeluhanReguler[] = $keluhan;
+                }
             }
         }
 
+        // Apply filters to emergency keluhan data
         foreach ($keluhanDataEmergency as $keluhan) {
             $periode = $keluhan->rekamMedisEmergency->tanggal_periksa->format('m-y');
             $key = $keluhan->id_obat.'_'.$periode;
@@ -635,9 +1128,28 @@ class LaporanController extends Controller
             $hargaObat = $hargaObatMap[$key] ?? null;
 
             if ($hargaObat) {
-                $totalBiaya += $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
+                $subtotal = $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
+                
+                // Apply biaya filter if specified
+                $includeInStats = true;
+                if (!empty($minBiaya) && $subtotal < (float) $minBiaya) {
+                    $includeInStats = false;
+                }
+                if (!empty($maxBiaya) && $subtotal > (float) $maxBiaya) {
+                    $includeInStats = false;
+                }
+                
+                if ($includeInStats) {
+                    $totalBiaya += $subtotal;
+                    $filteredKeluhanEmergency[] = $keluhan;
+                }
             }
         }
+        
+        // Recalculate counts based on filtered data
+        $totalPemeriksaanReguler = count($filteredKeluhanReguler);
+        $totalPemeriksaanEmergency = count($filteredKeluhanEmergency);
+        $totalPemeriksaan = $totalPemeriksaanReguler + $totalPemeriksaanEmergency;
 
         return [
             'total_pemeriksaan' => $totalPemeriksaan,
@@ -656,7 +1168,7 @@ class LaporanController extends Controller
     {
         $rekamMedis = RekamMedis::with([
             'keluarga' => function ($query) {
-                $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan', 'tanggal_lahir')
+                $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan', 'tanggal_lahir', 'jenis_kelamin')
                     ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen'])
                     ->with(['karyawan.departemen:id_departemen,nama_departemen'])
                     ->with(['hubungan:kode_hubungan,hubungan']);
@@ -669,10 +1181,11 @@ class LaporanController extends Controller
             },
             'user:id_user,username,nama_lengkap',
         ])
+            ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'waktu_periksa', 'status', 'id_user')
             ->findOrFail($id);
 
         // Generate nomor registrasi yang konsisten dengan KunjunganController
-        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_keluarga, $rekamMedis->tanggal_periksa, 'reguler');
+        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_rekam, $rekamMedis->tanggal_periksa, 'reguler');
 
         // Create or get kunjungan record for synchronization
         $kunjungan = Kunjungan::firstOrCreate(
@@ -783,17 +1296,18 @@ class LaporanController extends Controller
                 $query->select('id', 'nik_employee', 'nama_employee', 'alamat', 'jenis_kelamin');
             },
             'keluhans' => function ($query) {
-                $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai')
+                $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai', 'diskon')
                     ->with(['diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency'])
                     ->with(['obat:id_obat,nama_obat,id_satuan'])
                     ->with(['obat.satuanObat:id_satuan,nama_satuan']);
             },
             'user:id_user,username,nama_lengkap',
         ])
+            ->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'waktu_periksa', 'status', 'id_user')
             ->findOrFail($id);
 
         // Generate nomor registrasi yang konsisten dengan KunjunganController
-        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_external_employee, $rekamMedisEmergency->tanggal_periksa, 'emergency');
+        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_emergency, $rekamMedisEmergency->tanggal_periksa, 'emergency');
 
         // Add custom attributes to match format in kunjungan page
         $rekamMedisEmergency->no_rm = $rekamMedisEmergency->externalEmployee->nik_employee ?? '-';
@@ -891,17 +1405,18 @@ class LaporanController extends Controller
                 $query->select('id', 'nik_employee', 'nama_employee', 'alamat', 'jenis_kelamin');
             },
             'keluhans' => function ($query) {
-                $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai')
+                $query->select('id_keluhan', 'id_emergency', 'id_diagnosa_emergency', 'id_obat', 'jumlah_obat', 'aturan_pakai', 'diskon')
                     ->with(['diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency'])
                     ->with(['obat:id_obat,nama_obat,id_satuan'])
                     ->with(['obat.satuanObat:id_satuan,nama_satuan']);
             },
             'user:id_user,username,nama_lengkap',
         ])
+            ->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'waktu_periksa', 'status', 'id_user')
             ->findOrFail($id);
 
         // Generate nomor registrasi yang konsisten dengan KunjunganController
-        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_external_employee, $rekamMedisEmergency->tanggal_periksa, 'emergency');
+        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_emergency, $rekamMedisEmergency->tanggal_periksa, 'emergency');
 
         // Add custom attributes to match format in kunjungan page
         $rekamMedisEmergency->no_rm = $rekamMedisEmergency->externalEmployee->nik_employee ?? '-';
@@ -1005,7 +1520,7 @@ class LaporanController extends Controller
     {
         $rekamMedis = RekamMedis::with([
             'keluarga' => function ($query) {
-                $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan', 'tanggal_lahir', 'alamat')
+                $query->select('id_keluarga', 'id_karyawan', 'nama_keluarga', 'no_rm', 'kode_hubungan', 'tanggal_lahir', 'alamat', 'jenis_kelamin')
                     ->with(['karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen'])
                     ->with(['karyawan.departemen:id_departemen,nama_departemen'])
                     ->with(['hubungan:kode_hubungan,hubungan']);
@@ -1018,10 +1533,11 @@ class LaporanController extends Controller
             },
             'user:id_user,username,nama_lengkap',
         ])
+            ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'waktu_periksa', 'status', 'id_user')
             ->findOrFail($id);
 
         // Generate nomor registrasi yang konsisten dengan KunjunganController
-        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_keluarga, $rekamMedis->tanggal_periksa, 'reguler');
+        $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_rekam, $rekamMedis->tanggal_periksa, 'reguler');
 
         // Create or get kunjungan record for synchronization
         $kunjungan = Kunjungan::firstOrCreate(
@@ -1152,7 +1668,15 @@ class LaporanController extends Controller
             }
 
             // Get all transaction data without pagination
-            $allTransaksiData = $this->getAllTransaksiDataForExportKustom($month, $year, $search);
+            $tipeKunjungan = $request->get('tipe_kunjungan', '');
+            $jenisKelamin = $request->get('jenis_kelamin', '');
+            $departemen = $request->get('departemen', '');
+            $rangeUsia = $request->get('range_usia', '');
+            $statusRekam = $request->get('status_rekam', '');
+            $minBiaya = $request->get('min_biaya', '');
+            $maxBiaya = $request->get('max_biaya', '');
+            
+            $allTransaksiData = $this->getAllTransaksiDataForExportKustom($month, $year, $search, $tipeKunjungan, $jenisKelamin, $departemen, $rangeUsia, $statusRekam, $minBiaya, $maxBiaya);
 
             // Validate data before export
             if (empty($allTransaksiData)) {
@@ -1416,14 +1940,17 @@ class LaporanController extends Controller
     /**
      * Get all transaction data for export kustom (without pagination)
      */
-    private function getAllTransaksiDataForExportKustom($month, $year, $search = '')
+    private function getAllTransaksiDataForExportKustom($month, $year, $search = '', $tipeKunjungan = '', $jenisKelamin = '', $departemen = '', $rangeUsia = '', $statusRekam = '', $minBiaya = '', $maxBiaya = '')
     {
         // Optimized query with specific columns and eager loading for reguler
         $rekamMedisQuery = RekamMedis::with([
-            'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
+            'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen',
+            'keluarga.karyawan.departemen:id_departemen,nama_departemen',
             'keluarga.hubungan:kode_hubungan,hubungan',
+            'keluhans:id_keluhan,id_rekam,id_diagnosa,id_obat,jumlah_obat,diskon,aturan_pakai',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
-            'keluhans.obat:id_obat,nama_obat',
+            'keluhans.obat:id_obat,nama_obat,id_satuan',
+            'keluhans.obat.satuanObat:id_satuan,nama_satuan',
             'user:id_user,username,nama_lengkap',
         ])
             ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
@@ -1434,9 +1961,11 @@ class LaporanController extends Controller
         // Optimized query with specific columns and eager loading for emergency
         $rekamMedisEmergencyQuery = RekamMedisEmergency::with([
             'user:id_user,username,nama_lengkap',
-            'externalEmployee',
+            'externalEmployee:id,nik_employee,nama_employee,alamat,jenis_kelamin',
+            'keluhans:id_keluhan,id_emergency,id_diagnosa_emergency,id_obat,jumlah_obat,aturan_pakai,diskon',
             'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency',
-            'keluhans.obat:id_obat,nama_obat',
+            'keluhans.obat:id_obat,nama_obat,id_satuan',
+            'keluhans.obat.satuanObat:id_satuan,nama_satuan',
         ])
             ->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'status', 'id_user')
             ->whereMonth('tanggal_periksa', $month)
@@ -1463,6 +1992,90 @@ class LaporanController extends Controller
                     ->orWhere('nik_employee', 'like', $searchTerm);
             });
         }
+
+        // Enhanced filters for export
+        // Filter by tipe kunjungan
+        if (!empty($tipeKunjungan)) {
+            if ($tipeKunjungan === 'reguler') {
+                // Emergency query diabaikan (kosongkan)
+                $rekamMedisEmergencyQuery->whereRaw('1 = 0');
+            } elseif ($tipeKunjungan === 'emergency') {
+                // Reguler query diabaikan (kosongkan)
+                $rekamMedisQuery->whereRaw('1 = 0');
+            }
+        }
+
+        // Filter by jenis kelamin
+        if (!empty($jenisKelamin)) {
+            $jenisKelaminFull = $jenisKelamin === 'L' ? 'Laki - Laki' : 'Perempuan';
+            $rekamMedisQuery->whereHas('keluarga', function ($query) use ($jenisKelaminFull) {
+                $query->where('jenis_kelamin', $jenisKelaminFull);
+            });
+            
+            // Also filter emergency records by jenis kelamin
+            $rekamMedisEmergencyQuery->whereHas('externalEmployee', function ($query) use ($jenisKelaminFull) {
+                $query->where('jenis_kelamin', $jenisKelaminFull);
+            });
+        }
+
+        // Filter by departemen
+        if (!empty($departemen)) {
+            $rekamMedisQuery->whereHas('keluarga.karyawan', function ($query) use ($departemen) {
+                $query->where('id_departemen', $departemen);
+            });
+        }
+
+        // Filter by range usia
+        if (!empty($rangeUsia)) {
+            $today = Carbon::now();
+            switch ($rangeUsia) {
+                case '0-17':
+                    $minDate = $today->copy()->subYears(17);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate);
+                    });
+                    break;
+                case '18-25':
+                    $minDate = $today->copy()->subYears(25);
+                    $maxDate = $today->copy()->subYears(18);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate, $maxDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate)
+                              ->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+                case '26-35':
+                    $minDate = $today->copy()->subYears(35);
+                    $maxDate = $today->copy()->subYears(26);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate, $maxDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate)
+                              ->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+                case '36-50':
+                    $minDate = $today->copy()->subYears(50);
+                    $maxDate = $today->copy()->subYears(36);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($minDate, $maxDate) {
+                        $query->where('tanggal_lahir', '>=', $minDate)
+                              ->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+                case '50+':
+                    $maxDate = $today->copy()->subYears(50);
+                    $rekamMedisQuery->whereHas('keluarga', function ($query) use ($maxDate) {
+                        $query->where('tanggal_lahir', '<=', $maxDate);
+                    });
+                    break;
+            }
+        }
+
+        // Filter by status rekam medis
+        if (!empty($statusRekam)) {
+            $rekamMedisQuery->where('status', $statusRekam);
+            $rekamMedisEmergencyQuery->where('status', $statusRekam);
+        }
+
+        // Filter by range biaya (will be applied after data is fetched)
+        $filterByBiaya = !empty($minBiaya) || !empty($maxBiaya);
 
         // Get data for both reguler and emergency
         $rekamMedisData = $rekamMedisQuery->get();
@@ -1517,7 +2130,7 @@ class LaporanController extends Controller
         // Process reguler data
         $resultReguler = $rekamMedisData->map(function ($rekamMedis) use ($hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
-            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_keluarga, $rekamMedis->tanggal_periksa, 'reguler');
+            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_rekam, $rekamMedis->tanggal_periksa, 'reguler');
             
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedis->keluhans;
@@ -1579,7 +2192,7 @@ class LaporanController extends Controller
         // Process emergency data
         $resultEmergency = $rekamMedisEmergencyData->map(function ($rekamMedisEmergency) use ($hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
-            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_external_employee, $rekamMedisEmergency->tanggal_periksa, 'emergency');
+            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_emergency, $rekamMedisEmergency->tanggal_periksa, 'emergency');
             
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedisEmergency->keluhans;
@@ -1636,6 +2249,25 @@ class LaporanController extends Controller
         // Combine results
         $allResults = $resultReguler->concat($resultEmergency);
 
+        // Apply biaya filter if specified
+        if ($filterByBiaya) {
+            $allResults = $allResults->filter(function ($item) use ($minBiaya, $maxBiaya) {
+                $totalBiaya = $item['total_biaya'];
+                
+                // Apply minimum biaya filter
+                if (!empty($minBiaya) && $totalBiaya < (float) $minBiaya) {
+                    return false;
+                }
+                
+                // Apply maximum biaya filter
+                if (!empty($maxBiaya) && $totalBiaya > (float) $maxBiaya) {
+                    return false;
+                }
+                
+                return true;
+            })->values();
+        }
+
         // Sort by date descending
         $allResults = $allResults->sortByDesc(function ($item) {
             // Coba parsing tanggal dengan format yang sesuai
@@ -1658,10 +2290,13 @@ class LaporanController extends Controller
     {
         // Optimized query with specific columns and eager loading for reguler - sesuai RekamMedisController
         $rekamMedisQuery = RekamMedis::with([
-            'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan',
+            'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen',
+            'keluarga.karyawan.departemen:id_departemen,nama_departemen',
             'keluarga.hubungan:kode_hubungan,hubungan',
+            'keluhans:id_keluhan,id_rekam,id_diagnosa,id_obat,jumlah_obat,diskon,aturan_pakai',
             'keluhans.diagnosa:id_diagnosa,nama_diagnosa',
-            'keluhans.obat:id_obat,nama_obat',
+            'keluhans.obat:id_obat,nama_obat,id_satuan',
+            'keluhans.obat.satuanObat:id_satuan,nama_satuan',
             'user:id_user,username,nama_lengkap',
         ])
             ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'status', 'id_user')
@@ -1672,9 +2307,11 @@ class LaporanController extends Controller
         // Optimized query with specific columns and eager loading for emergency - sesuai RekamMedisEmergencyController
         $rekamMedisEmergencyQuery = RekamMedisEmergency::with([
             'user:id_user,username,nama_lengkap',
-            'externalEmployee',
+            'externalEmployee:id,nik_employee,nama_employee,alamat,jenis_kelamin',
+            'keluhans:id_keluhan,id_emergency,id_diagnosa_emergency,id_obat,jumlah_obat,aturan_pakai,diskon',
             'keluhans.diagnosaEmergency:id_diagnosa_emergency,nama_diagnosa_emergency',
-            'keluhans.obat:id_obat,nama_obat',
+            'keluhans.obat:id_obat,nama_obat,id_satuan',
+            'keluhans.obat.satuanObat:id_satuan,nama_satuan',
         ])
             ->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'status', 'id_user')
             ->whereMonth('tanggal_periksa', $month)
@@ -1755,7 +2392,7 @@ class LaporanController extends Controller
         // Process reguler data
         $resultReguler = $rekamMedisData->map(function ($rekamMedis) use ($hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
-            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_keluarga, $rekamMedis->tanggal_periksa, 'reguler');
+            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_rekam, $rekamMedis->tanggal_periksa, 'reguler');
             
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedis->keluhans;
@@ -1817,7 +2454,7 @@ class LaporanController extends Controller
         // Process emergency data
         $resultEmergency = $rekamMedisEmergencyData->map(function ($rekamMedisEmergency) use ($hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
-            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_external_employee, $rekamMedisEmergency->tanggal_periksa, 'emergency');
+            $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_emergency, $rekamMedisEmergency->tanggal_periksa, 'emergency');
             
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedisEmergency->keluhans;
