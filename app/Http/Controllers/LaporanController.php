@@ -21,31 +21,57 @@ class LaporanController extends Controller
         $bulan = $tanggalPeriksa->format('m');
         $tahun = $tanggalPeriksa->format('Y');
 
-        if ($tipe === 'emergency') {
-            // Optimasi: Hitung nomor urut dengan query yang lebih efisien
-            $visitCount = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
-                ->where(function($query) use ($tanggalPeriksa, $rekamMedisId) {
-                    $query->where('tanggal_periksa', '<', $tanggalPeriksa)
-                          ->orWhere(function($subQuery) use ($tanggalPeriksa, $rekamMedisId) {
-                              $subQuery->where('tanggal_periksa', $tanggalPeriksa)
-                                       ->where('id_emergency', '<=', $rekamMedisId);
-                          });
-                })
-                ->count() + 1;
-        } else {
-            // Optimasi: Hitung nomor urut dengan query yang lebih efisien
-            $visitCount = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
-                ->where(function($query) use ($tanggalPeriksa, $rekamMedisId) {
-                    $query->where('tanggal_periksa', '<', $tanggalPeriksa)
-                          ->orWhere(function($subQuery) use ($tanggalPeriksa, $rekamMedisId) {
-                              $subQuery->where('tanggal_periksa', $tanggalPeriksa)
-                                       ->where('id_rekam', '<=', $rekamMedisId);
-                          });
-                })
-                ->count() + 1;
+        // Gabungkan rekam medis reguler dan emergency untuk hitungan global
+        $allRecords = collect();
+        
+        // Ambil semua rekam medis reguler dari 1 Agustus
+        $regulerRecords = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
+            ->orderBy('tanggal_periksa')
+            ->orderBy('waktu_periksa')
+            ->get()
+            ->map(function($record) {
+                return [
+                    'id' => $record->id_rekam,
+                    'tanggal' => $record->tanggal_periksa,
+                    'waktu' => $record->waktu_periksa,
+                    'tipe' => 'reguler'
+                ];
+            });
+        
+        // Ambil semua rekam medis emergency dari 1 Agustus
+        $emergencyRecords = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
+            ->orderBy('tanggal_periksa')
+            ->orderBy('waktu_periksa')
+            ->get()
+            ->map(function($record) {
+                return [
+                    'id' => $record->id_emergency,
+                    'tanggal' => $record->tanggal_periksa,
+                    'waktu' => $record->waktu_periksa,
+                    'tipe' => 'emergency'
+                ];
+            });
+        
+        // Gabungkan dan urutkan semua record
+        $allRecords = $regulerRecords->concat($emergencyRecords)
+            ->sortBy(function($record) {
+                return $record['tanggal'].' '.$record['waktu'];
+            })
+            ->values();
+        
+        // Cari posisi record saat ini
+        $visitCount = 0;
+        foreach ($allRecords as $index => $record) {
+            if (($tipe === 'reguler' && $record['id'] == $rekamMedisId && $record['tipe'] === 'reguler') ||
+                ($tipe === 'emergency' && $record['id'] == $rekamMedisId && $record['tipe'] === 'emergency')) {
+                $visitCount = $index + 1;
+                break;
+            }
         }
 
-        return "{$visitCount}/NDL/BJM/{$bulan}/{$tahun}";
+        // Format nomor registrasi dengan 4 digit leading zeros
+        $formattedVisitCount = str_pad($visitCount, 4, '0', STR_PAD_LEFT);
+        return "{$formattedVisitCount}/NDL/BJM/{$bulan}/{$tahun}";
     }
 
     /**
@@ -740,10 +766,11 @@ class LaporanController extends Controller
         foreach ($rekamMedisData as $rekamMedis) {
             $key = $rekamMedis->id_keluarga.'_'.$rekamMedis->tanggal_periksa->format('Y-m-d');
             // Generate kode_transaksi format: 1(No Running)/NDL/BJM/MM/YYYY
-            $noRunning = str_pad($rekamMedis->id_rekam, 1, '0', STR_PAD_LEFT);
+            // Format nomor registrasi dengan 4 digit leading zeros
+            $noRunning = str_pad($rekamMedis->id_rekam, 4, '0', STR_PAD_LEFT);
             $bulan = $rekamMedis->tanggal_periksa->format('m');
             $tahun = $rekamMedis->tanggal_periksa->format('Y');
-            $kodeTransaksi = "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+            $kodeTransaksi = "{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
 
             $kunjunganUpsertData[] = [
                 'id_keluarga' => $rekamMedis->id_keluarga,

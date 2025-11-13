@@ -93,9 +93,10 @@ class RekamMedis extends Model
     // Accessor untuk format kode transaksi
     public function getKodeTransaksiAttribute()
     {
-        $noRunning = str_pad($this->id_rekam, 1, '0', STR_PAD_LEFT);
+        // Format nomor registrasi dengan 4 digit leading zeros
+        $noRunning = str_pad($this->id_rekam, 4, '0', STR_PAD_LEFT);
         $bulan = $this->tanggal_periksa?->format('m') ?? '00';
         $tahun = $this->tanggal_periksa?->format('Y') ?? '0000';
-        return "1{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
+        return "{$noRunning}/NDL/BJM/{$bulan}/{$tahun}";
     }
 }

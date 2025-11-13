@@ -156,36 +156,8 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @php
-                        // Group kunjungan by No RM untuk menampilkan setiap pasien sekali saja
-                        $groupedKunjungans = [];
-                        $currentYear = date('Y');
-                        
-                        // Gunakan semua data kunjungan, bukan hanya yang di-paginate
-                        foreach($allKunjungans as $kunjungan) {
-                            $noRM = $kunjungan->no_rm;
-                            // Ensure NO RM is a string for consistent array key handling
-                            $noRMKey = (string)$noRM;
-                            if(!isset($groupedKunjungans[$noRMKey])) {
-                                $groupedKunjungans[$noRMKey] = [
-                                    'no_rm' => $noRM,
-                                    'nama_pasien' => $kunjungan->nama_pasien,
-                                    'hubungan' => $kunjungan->hubungan,
-                                    'kunjungans' => [],
-                                    'latest_visit' => $kunjungan // Store latest visit for action button
-                                ];
-                            }
-                            $groupedKunjungans[$noRMKey]['kunjungans'][] = $kunjungan;
-                            // Update latest visit if current visit is newer
-                            if($kunjungan->tanggal_kunjungan > $groupedKunjungans[$noRMKey]['latest_visit']->tanggal_kunjungan) {
-                                $groupedKunjungans[$noRMKey]['latest_visit'] = $kunjungan;
-                            }
-                        }
-                        
-                        // Convert to array and sort by No RM to avoid issues with uksort on associative arrays
-                        $groupedArray = array_values($groupedKunjungans);
-                        usort($groupedArray, function($a, $b) {
-                            return strcmp($a['no_rm'], $b['no_rm']);
-                        });
+                        // Data sudah dikelompokkan di controller, gunakan langsung
+                        $groupedArray = $kunjunganCollection->items();
                     @endphp
                     
                     @forelse($groupedArray as $index => $patientGroup)

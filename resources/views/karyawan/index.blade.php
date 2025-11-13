@@ -401,7 +401,9 @@
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ optional($karyawan->departemen)->nama_departemen }}</td>
-                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ $karyawan->no_hp }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $karyawan->no_hp ? (str_starts_with($karyawan->no_hp, '0') ? $karyawan->no_hp : '0' . $karyawan->no_hp) : '-' }}
+                                </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $karyawan->email ?? '-' }}</td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
