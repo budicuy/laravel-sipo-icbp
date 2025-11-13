@@ -9,9 +9,9 @@
             <div class="flex items-center justify-center" x-show="sidebarOpen"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100">
-                <img src="{{ asset('logo.png') }}" alt="ICBP Logo" class="h-10 w-auto transition-all duration-300">
+                <img src="{{ asset('logo.png') }}" alt="Logo" class="h-10 w-auto transition-all duration-300">
             </div>
-            <img src="{{ asset('logo-compact.png') }}" alt="ICBP Logo" class="h-8 w-auto mx-auto" x-show="!sidebarOpen"
+            <img src="{{ asset('logo-compact.png') }}" alt="Logo" class="h-8 w-auto mx-auto" x-show="!sidebarOpen"
                 x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0"
                 x-transition:enter-end="opacity-100">
         </div>
@@ -326,7 +326,7 @@
         <!-- Copyright Footer -->
         <div class="border-t border-gray-200 p-4 bg-white" x-show="sidebarOpen">
             <div class="text-center">
-                <p class="text-xs text-gray-500 font-medium">© {{ date('Y') }} SIPO ICBP</p>
+                <p class="text-xs text-gray-500 font-medium">© {{ date('Y') }} SIPO</p>
                 <p class="text-xs text-gray-400 mt-1">Sistem Informasi Poliklinik</p>
             </div>
         </div>

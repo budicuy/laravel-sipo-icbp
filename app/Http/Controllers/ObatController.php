@@ -214,7 +214,7 @@ class ObatController extends Controller
 
         // Set document properties
         $spreadsheet->getProperties()
-            ->setCreator('SIPO ICBP')
+            ->setCreator('SIPO')
             ->setTitle('Template Import Obat')
             ->setSubject('Template Import Obat')
             ->setDescription('Template untuk import data obat');
@@ -362,7 +362,7 @@ class ObatController extends Controller
 
         // Set document properties
         $spreadsheet->getProperties()
-            ->setCreator('SIPO ICBP')
+            ->setCreator('SIPO')
             ->setTitle('Data Obat')
             ->setSubject('Data Obat')
             ->setDescription('Data obat dan persediaan farmasi');

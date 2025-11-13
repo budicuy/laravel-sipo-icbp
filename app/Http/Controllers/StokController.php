@@ -137,7 +137,7 @@ class StokController extends Controller
 
         // Set document properties
         $spreadsheet->getProperties()
-            ->setCreator('SIPO ICBP')
+            ->setCreator('SIPO')
             ->setTitle('Template Import Stok Masuk')
             ->setSubject('Template Import Stok Masuk')
             ->setDescription('Template untuk import data stok masuk obat');
@@ -421,7 +421,7 @@ class StokController extends Controller
 
         // Set document properties
         $spreadsheet->getProperties()
-            ->setCreator('SIPO ICBP')
+            ->setCreator('SIPO')
             ->setTitle('Template Import Stok Pakai')
             ->setSubject('Template Import Stok Pakai')
             ->setDescription('Template untuk import data stok pakai obat');
@@ -770,13 +770,13 @@ class StokController extends Controller
 
             // Ambil semua obat untuk ditampilkan
             $allObats = Obat::select('id_obat', 'nama_obat')->orderBy('nama_obat', 'asc')->get();
-            
+
             // Ambil semua ID obat untuk batch processing
             $obatIds = $allObats->pluck('id_obat')->toArray();
-            
+
             // Hitung stok akhir untuk semua obat pada periode yang dipilih
             $stokAkhirMap = StokBulanan::getSisaStokHinggaBatch($obatIds, $tahun, $bulan);
-            
+
             // Map data untuk export
             $stokData = $allObats->map(function ($obat) use ($bulan, $tahun, $stokAkhirMap) {
                 $stokBulanan = new StokBulanan();
@@ -795,7 +795,7 @@ class StokController extends Controller
 
             // Set document properties
             $spreadsheet->getProperties()
-                ->setCreator('SIPO ICBP')
+                ->setCreator('SIPO')
                 ->setTitle('Laporan Stok Opname')
                 ->setSubject('Laporan Stok Opname Bulanan')
                 ->setDescription("Laporan stok opname periode " . self::getNamaBulan($bulan) . " " . $tahun);
@@ -904,7 +904,7 @@ class StokController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Export stock opname error: ' . $e->getMessage());
-            
+
             return back()->with('error', 'Gagal export data stok opname: ' . $e->getMessage());
         }
     }

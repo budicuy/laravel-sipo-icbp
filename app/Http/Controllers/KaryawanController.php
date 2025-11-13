@@ -241,7 +241,7 @@ class KaryawanController extends Controller
 
         // Set document properties
         $spreadsheet->getProperties()
-            ->setCreator('SIPO ICBP')
+            ->setCreator('SIPO')
             ->setTitle('Template Import Karyawan')
             ->setSubject('Template Import Karyawan')
             ->setDescription('Template untuk import data karyawan');

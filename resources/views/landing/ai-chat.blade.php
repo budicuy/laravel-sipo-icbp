@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>AI Chat - SIPO ICBP</title>
+    <title>AI Chat - SIPO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -269,7 +269,7 @@
                         <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
                     </div>
                     <div class="text-white flex-1 min-w-0">
-                        <h1 class="text-xl md:text-2xl font-bold">AI Assistant SIPO ICBP</h1>
+                        <h1 class="text-xl md:text-2xl font-bold">AI Assistant SIPO</h1>
                         <p class="text-purple-100 text-sm md:text-base" id="chatSubtitle">Powered by Google Gemini</p>
                     </div>
                     <div class="flex items-center gap-2">
@@ -361,7 +361,7 @@
                     </div>
                 </form>
                 <p class="text-xs text-gray-400 mt-1 text-center">
-                    <i class="fas fa-info-circle"></i> Dapat menjawab pertanyaan tentang SIPO ICBP,
+                    <i class="fas fa-info-circle"></i> Dapat menjawab pertanyaan tentang SIPO,
                     fitur-fitur, dan informasi umum
                 </p>
             </div>
@@ -555,7 +555,7 @@
                     <p style="margin-bottom: 12px; color: #374151;">Silakan tanyakan apapun tentang:</p>
                     <ul style="margin: 12px 0; padding-left: 24px; list-style: disc;">
                         <li>Riwayat kesehatan pasien</li>
-                        <li>Informasi tentang SIPO ICBP</li>
+                        <li>Informasi tentang SIPO</li>
                         <li>Fitur-fitur sistem</li>
                         <li>Konsultasi kesehatan umum</li>
                     </ul>
@@ -568,7 +568,7 @@
                     <p style="margin-bottom: 12px; color: #374151;">🔹 Untuk konsultasi tentang riwayat kesehatan, silakan <strong>pilih pasien</strong> terlebih dahulu dengan klik icon di header.</p>
                     <p style="margin-bottom: 12px; color: #374151;">Atau Anda tetap bisa bertanya tentang:</p>
                     <ul style="margin: 12px 0; padding-left: 24px; list-style: disc;">
-                        <li>Sistem SIPO ICBP</li>
+                        <li>Sistem SIPO</li>
                         <li>Fitur-fitur yang tersedia</li>
                         <li>Informasi kesehatan umum</li>
                     </ul>
@@ -577,14 +577,14 @@
             } else {
                 // User NOT logged in
                 welcomeMessage = `
-                    <p style="margin-bottom: 12px; color: #374151;">👋 <strong>Halo!</strong> Saya AI Assistant SIPO ICBP.</p>
+                    <p style="margin-bottom: 12px; color: #374151;">👋 <strong>Halo!</strong> Saya AI Assistant SIPO.</p>
                     <p style="margin-bottom: 12px; color: #374151;">🔒 Untuk menggunakan fitur chat, silakan <strong>login terlebih dahulu</strong> dengan NIK Anda.</p>
                     <p style="margin-bottom: 12px; color: #374151;">Setelah login, Anda dapat:</p>
                     <ul style="margin: 12px 0; padding-left: 24px; list-style: disc;">
                         <li>📋 Melihat riwayat kunjungan medis</li>
                         <li>💊 Konsultasi tentang obat</li>
                         <li>📊 Mendapatkan analisis kesehatan</li>
-                        <li>❓ Bertanya tentang sistem SIPO ICBP</li>
+                        <li>❓ Bertanya tentang sistem SIPO</li>
                     </ul>
                     <p style="margin-top: 12px; color: #374151;"><strong>Klik tombol "Login"</strong> di atas untuk memulai! 🚀</p>
                 `;
@@ -880,7 +880,7 @@
                             welcomeMsg +=
                                 `<p style="margin-bottom: 12px; color: #374151;">ℹ️ Pasien ini belum memiliki riwayat kunjungan.</p>`;
                             welcomeMsg +=
-                                `<p style="margin-bottom: 12px; color: #374151;">Anda tetap bisa berkonsultasi tentang SIPO ICBP atau kondisi kesehatan umum.</p>`;
+                                `<p style="margin-bottom: 12px; color: #374151;">Anda tetap bisa berkonsultasi tentang SIPO atau kondisi kesehatan umum.</p>`;
                         }
 
                         welcomeMsg +=
@@ -905,7 +905,7 @@
                     const messagesContainer = document.getElementById('chatMessages');
                     messagesContainer.innerHTML = '';
                     addMessageToUI('bot',
-                        `<p style="margin-bottom: 12px; color: #374151;">✅ Anda telah memilih <strong style="font-weight: bold; color: #6B21A8;">${namaPasien}</strong> untuk konsultasi.</p><p style="margin-bottom: 12px; color: #374151;">Silakan tanyakan apapun tentang SIPO ICBP atau konsultasi kesehatan.</p>`
+                        `<p style="margin-bottom: 12px; color: #374151;">✅ Anda telah memilih <strong style="font-weight: bold; color: #6B21A8;">${namaPasien}</strong> untuk konsultasi.</p><p style="margin-bottom: 12px; color: #374151;">Silakan tanyakan apapun tentang SIPO atau konsultasi kesehatan.</p>`
                     );
                 });
         }
@@ -997,7 +997,7 @@
                     } else {
                         updateAuthUI();
                         addMessageToUI('bot',
-                            `<p>Selamat datang, <strong>${result.data.nama}</strong>! 👋</p><p>NIK: ${result.data.nik} | Departemen: ${result.data.departemen}</p><p>Anda telah berhasil login. Silakan tanyakan apapun tentang SIPO ICBP.</p>`
+                            `<p>Selamat datang, <strong>${result.data.nama}</strong>! 👋</p><p>NIK: ${result.data.nik} | Departemen: ${result.data.departemen}</p><p>Anda telah berhasil login. Silakan tanyakan apapun tentang SIPO.</p>`
                         );
                     }
                 } else {
@@ -1068,7 +1068,7 @@
             let welcomeMessage = '';
             if (isAuthenticated) {
                 welcomeMessage = `
-                    <p>👋 <strong>Halo!</strong> Saya AI Assistant SIPO ICBP.</p>
+                    <p>👋 <strong>Halo!</strong> Saya AI Assistant SIPO.</p>
                     <p>Saya siap membantu menjawab pertanyaan Anda tentang:</p>
                     <ul class="list-disc list-inside space-y-1 my-2">
                         <li>Sistem informasi pelayanan kesehatan</li>
@@ -1080,14 +1080,14 @@
                 `;
             } else {
                 welcomeMessage = `
-                    <p>👋 <strong>Halo!</strong> Saya AI Assistant SIPO ICBP.</p>
+                    <p>👋 <strong>Halo!</strong> Saya AI Assistant SIPO.</p>
                     <p>🔒 Untuk menggunakan fitur chat, silakan <strong>login terlebih dahulu</strong> dengan NIK Anda.</p>
                     <p>Setelah login, Anda dapat:</p>
                     <ul class="list-disc list-inside space-y-1 my-2">
                         <li>📋 Melihat riwayat kunjungan medis Anda</li>
                         <li>💊 Konsultasi tentang obat yang pernah Anda terima</li>
                         <li>📊 Mendapatkan analisis kesehatan pribadi</li>
-                        <li>❓ Bertanya tentang sistem SIPO ICBP</li>
+                        <li>❓ Bertanya tentang sistem SIPO</li>
                     </ul>
                     <p><strong>Klik tombol "Login"</strong> di atas untuk memulai! 🚀</p>
                 `;
@@ -1309,29 +1309,29 @@
             const sanitizedHTML = sanitizeAIResponse(text);
 
             messageDiv.innerHTML = `
-                                                        <div class="flex gap-3 mb-4">
-                                                            <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-                                                                <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
-                                                            </div>
-                                                            <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
-                                                                <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
-                                                            </div>
-                                                        </div>
-                                                    `;
+                                                                                            <div class="flex gap-3 mb-4">
+                                                                                                <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                                                                    <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
+                                                                                                </div>
+                                                                                                <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
+                                                                                                    <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        `;
         } else {
             // Escape user input for security
             const escapedText = text.replace(/</g, '<').replace(/>/g, '>');
 
             messageDiv.innerHTML = `
-                                                        <div class="flex gap-3 mb-4 justify-end">
-                                                            <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-5xl">
-                                                                <p class="text-white">${escapedText}</p>
-                                                            </div>
-                                                            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                                                                <i class="fas fa-user text-gray-600"></i>
-                                                            </div>
-                                                        </div>
-                                                    `;
+                                                                                            <div class="flex gap-3 mb-4 justify-end">
+                                                                                                <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-5xl">
+                                                                                                    <p class="text-white">${escapedText}</p>
+                                                                                                </div>
+                                                                                                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                                                                                                    <i class="fas fa-user text-gray-600"></i>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        `;
         }
 
         messagesContainer.appendChild(messageDiv);
@@ -1346,19 +1346,19 @@
         typingDiv.id = 'typingIndicator';
 
         typingDiv.innerHTML = `
-                                                    <div class="flex gap-3 mb-4">
-                                                        <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-                                                            <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
-                                                        </div>
-                                                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-4">
-                                                            <div class="flex gap-1">
-                                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                                                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                `;
+                                                                                        <div class="flex gap-3 mb-4">
+                                                                                            <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                                                                                <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
+                                                                                            </div>
+                                                                                            <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-4">
+                                                                                                <div class="flex gap-1">
+                                                                                                    <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                                                                                                    <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                                                                                                    <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    `;
 
             messagesContainer.appendChild(typingDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;

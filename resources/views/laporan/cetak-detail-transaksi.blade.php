@@ -111,7 +111,7 @@
 <body>
     <div class="header">
         <h1>DETAIL TRANSAKSI PEMERIKSAAN</h1>
-        <p>Klinik Poliklinik ICBP</p>
+        <p>Klinik Poliklinik</p>
         <p>{{ date('d-m-Y H:i') }}</p>
     </div>
 
@@ -239,7 +239,7 @@
     </div>
 
     <div class="footer">
-        <p>Laporan ini dicetak secara otomatis dari Sistem Informasi Poliklinik ICBP</p>
+        <p>Laporan ini dicetak secara otomatis dari Sistem Informasi Poliklinik</p>
         <p>Halaman 1 dari 1</p>
     </div>
 </body>
