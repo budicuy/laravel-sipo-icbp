@@ -102,8 +102,8 @@
                                                 <div class="text-sm text-gray-600 mt-1">
                                                     <div class="flex items-center gap-4 mt-1 text-xs">
                                                         <span class="flex items-center gap-1 flex-shrink-0">
-                                                            <svg class="w-3 h-3 text-gray-400 flex-shrink-0"
-                                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <svg class="w-3 h-3 text-gray-400 flex-shrink-0" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2"
                                                                     d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2">
@@ -188,7 +188,8 @@
                                                 <div class="flex items-center gap-2">
                                                     <span x-text="lastCaptured.quality"
                                                         class="text-3xl font-bold px-3 py-1 rounded-full"
-                                                        :class="lastCaptured.quality >= 80 ? 'bg-green-100 text-green-700 border-2 border-green-300' :
+                                                        :class="lastCaptured.quality >= 80 ?
+                                                            'bg-green-100 text-green-700 border-2 border-green-300' :
                                                             lastCaptured.quality >= 70 ?
                                                             'bg-amber-100 text-amber-700 border-2 border-amber-300' :
                                                             'bg-red-100 text-red-700 border-2 border-red-300'"></span>
@@ -211,34 +212,49 @@
                                                 <div x-show="lastCaptured.quality < 70"
                                                     class="p-3 bg-red-50 border border-red-200 rounded-lg">
                                                     <div class="flex items-center gap-2 mb-1">
-                                                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        <svg class="w-5 h-5 text-red-600" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                         </svg>
-                                                        <span class="font-semibold text-red-800">Kualitas Terlalu Rendah</span>
+                                                        <span class="font-semibold text-red-800">Kualitas Terlalu
+                                                            Rendah</span>
                                                     </div>
-                                                    <p class="text-red-700">Sidik jari tidak dapat disimpan. Silakan coba lagi dengan posisi jari yang lebih baik.</p>
+                                                    <p class="text-red-700">Sidik jari tidak dapat disimpan. Silakan coba
+                                                        lagi dengan posisi jari yang lebih baik.</p>
                                                 </div>
 
                                                 <div x-show="lastCaptured.quality >= 70 && lastCaptured.quality < 80"
                                                     class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
                                                     <div class="flex items-center gap-2 mb-1">
-                                                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                                        <svg class="w-5 h-5 text-amber-600" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z">
+                                                            </path>
                                                         </svg>
-                                                        <span class="font-semibold text-amber-800">Kualitas Kurang Optimal</span>
+                                                        <span class="font-semibold text-amber-800">Kualitas Kurang
+                                                            Optimal</span>
                                                     </div>
-                                                    <p class="text-amber-700">Sidik jari dapat disimpan, namun disarankan untuk mencoba lagi mendapatkan kualitas yang lebih baik.</p>
+                                                    <p class="text-amber-700">Sidik jari dapat disimpan, namun disarankan
+                                                        untuk mencoba lagi mendapatkan kualitas yang lebih baik.</p>
                                                 </div>
 
                                                 <div x-show="lastCaptured.quality >= 80"
                                                     class="p-3 bg-green-50 border border-green-200 rounded-lg">
                                                     <div class="flex items-center gap-2 mb-1">
-                                                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                        <svg class="w-5 h-5 text-green-600" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                         </svg>
-                                                        <span class="font-semibold text-green-800">Kualitas Sangat Baik</span>
+                                                        <span class="font-semibold text-green-800">Kualitas Sangat
+                                                            Baik</span>
                                                     </div>
-                                                    <p class="text-green-700">Sidik jari siap disimpan! Kualitas optimal untuk pengenalan yang akurat.</p>
+                                                    <p class="text-green-700">Sidik jari siap disimpan! Kualitas optimal
+                                                        untuk pengenalan yang akurat.</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -649,8 +665,11 @@
                                     </a>
                                 </th>
 
-                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Aksi
-                                </th>
+                                @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                                    <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                        Aksi
+                                    </th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -693,23 +712,27 @@
                                             {{ optional($karyawan->fingerprint_enrolled_at)->format('d-m-Y') }}
                                         </div>
                                     </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-sm">
-                                        <div class="flex items-center gap-2">
-                                            <button @click="deleteFingerprint({{ $karyawan->id_karyawan }})"
-                                                class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
-                                                title="Hapus">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </td>
+                                    @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm">
+                                            <div class="flex items-center gap-2">
+                                                <button @click="deleteFingerprint({{ $karyawan->id_karyawan }})"
+                                                    class="inline-flex items-center justify-center w-9 h-9 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
+                                                    title="Hapus">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                    <td colspan="{{ auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin' ? '6' : '5' }}"
+                                        class="px-4 py-8 text-center text-gray-500">
                                         <div class="flex flex-col items-center gap-2">
                                             <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none"
                                                 stroke="currentColor" viewBox="0 0 24 24">

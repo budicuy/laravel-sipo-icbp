@@ -175,8 +175,8 @@
                                             @else
                                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
-                                                    < path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 9l-7 7-7-7" />
+                                                    < path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M19 9l-7 7-7-7" />
                                                 </svg>
                                             @endif
                                         @else
@@ -276,70 +276,74 @@
                                     </span>
                                 </a>
                             </th>
-                            <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'no_hp', 'direction' => request('sort') == 'no_hp' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
-                                    class="flex items-center justify-between group hover:text-blue-300 transition-colors">
-                                    <span>No HP</span>
-                                    <span class="ml-2">
-                                        @if (request('sort') == 'no_hp')
-                                            @if (request('direction') == 'asc')
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M5 15l7-7 7 7" />
-                                                </svg>
+                            @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'no_hp', 'direction' => request('sort') == 'no_hp' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                        class="flex items-center justify-between group hover:text-blue-300 transition-colors">
+                                        <span>No HP</span>
+                                        <span class="ml-2">
+                                            @if (request('sort') == 'no_hp')
+                                                @if (request('direction') == 'asc')
+                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                @else
+                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                @endif
                                             @else
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 9l-7 7-7-7" />
+                                                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                                 </svg>
                                             @endif
-                                        @else
-                                            <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                                            </svg>
-                                        @endif
-                                    </span>
-                                </a>
-                            </th>
-                            <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                <span>Email</span>
-                            </th>
+                                        </span>
+                                    </a>
+                                </th>
+                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    <span>Email</span>
+                                </th>
+                            @endif
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                                 <span>BPJS ID</span>
                             </th>
-                            <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'tanggal_lahir', 'direction' => request('sort') == 'tanggal_lahir' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
-                                    class="flex items-center justify-between group hover:text-blue-300 transition-colors">
-                                    <span>Tanggal Lahir</span>
-                                    <span class="ml-2">
-                                        @if (request('sort') == 'tanggal_lahir')
-                                            @if (request('direction') == 'asc')
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M5 15l7-7 7 7" />
-                                                </svg>
+                            @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                                <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    <a href="{{ route('karyawan.index', array_merge(request()->except(['page', 'sort', 'direction']), ['sort' => 'tanggal_lahir', 'direction' => request('sort') == 'tanggal_lahir' && request('direction') == 'asc' ? 'desc' : 'asc'])) }}"
+                                        class="flex items-center justify-between group hover:text-blue-300 transition-colors">
+                                        <span>Tanggal Lahir</span>
+                                        <span class="ml-2">
+                                            @if (request('sort') == 'tanggal_lahir')
+                                                @if (request('direction') == 'asc')
+                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M5 15l7-7 7 7" />
+                                                    </svg>
+                                                @else
+                                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                @endif
                                             @else
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 9l-7 7-7-7" />
+                                                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                                 </svg>
                                             @endif
-                                        @else
-                                            <svg class="w-4 h-4 text-white opacity-40 group-hover:opacity-100 transition-opacity"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                                            </svg>
-                                        @endif
-                                    </span>
-                                </a>
-                            </th>
+                                        </span>
+                                    </a>
+                                </th>
+                            @endif
                             <th class="px-4 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Status
                             </th>
                             @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
@@ -401,22 +405,27 @@
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ optional($karyawan->departemen)->nama_departemen }}</td>
-                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ $karyawan->no_hp }}</td>
-                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $karyawan->email ?? '-' }}</td>
+                                @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{{ $karyawan->no_hp }}
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {{ $karyawan->email ?? '-' }}</td>
+                                @endif
                                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $karyawan->bpjs_id ?? '-' }}</td>
 
-                                <td class="px-4 py-4 whitespace-nowrap">
-                                    <div class="flex items-center gap-1 text-sm text-gray-700">
-                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        {{ optional($karyawan->tanggal_lahir)->format('d-m-Y') }}
-                                    </div>
-                                </td>
+                                @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                                    <td class="px-4 py-4 whitespace-nowrap">
+                                        <div class="flex items-center gap-1 text-sm text-gray-700">
+                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            {{ optional($karyawan->tanggal_lahir)->format('d-m-Y') }}
+                                        </div>
+                                    </td>
+                                @endif
                                 <td class="px-4 py-4 whitespace-nowrap">
                                     @if ($karyawan->status === 'aktif')
                                         <span
@@ -473,7 +482,8 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="12" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data</td>
+                                <td colspan="{{ auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin' ? '12' : '9' }}"
+                                    class="px-4 py-6 text-center text-sm text-gray-500">Belum ada data</td>
                             </tr>
                         @endforelse
                     </tbody>
