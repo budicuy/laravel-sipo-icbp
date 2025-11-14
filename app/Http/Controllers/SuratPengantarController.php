@@ -14,9 +14,16 @@ class SuratPengantarController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $surats = SuratPengantar::orderBy('created_at', 'desc')->paginate(15);
+        $query = SuratPengantar::query();
+
+        // Search by nomor surat
+        if ($request->filled('search')) {
+            $query->where('nomor_surat', 'like', '%' . $request->search . '%');
+        }
+
+        $surats = $query->orderBy('created_at', 'desc')->paginate(50);
         return view('surat-pengantar.index', compact('surats'));
     }
 
@@ -49,7 +56,7 @@ class SuratPengantarController extends Controller
             'catatan' => 'nullable|string|max:500',
         ]);
 
-        $rekamMedis = RekamMedis::with(['keluarga.karyawan', 'keluhans.diagnosa', 'user'])->findOrFail($validated['rekam_medis_id']);
+        $rekamMedis = RekamMedis::with(['keluarga.karyawan', 'keluarga.hubungan', 'keluhans.diagnosa', 'user'])->findOrFail($validated['rekam_medis_id']);
 
         // Generate nomor surat
         $nomorSurat = SuratPengantar::generateNomorSurat();
@@ -59,11 +66,16 @@ class SuratPengantarController extends Controller
             return $keluhan->diagnosa->nama_diagnosa ?? null;
         })->filter()->unique()->values()->toArray();
 
+        // Format NIK dengan kode hubungan (e.g., 12321-A untuk karyawan, 12321-B untuk spouse)
+        $nikKaryawan = $rekamMedis->keluarga->karyawan->nik_karyawan ?? null;
+        $kodeHubungan = $rekamMedis->keluarga->kode_hubungan ?? null;
+        $nikFormatted = $nikKaryawan && $kodeHubungan ? $nikKaryawan . '-' . $kodeHubungan : $nikKaryawan;
+
         // Create surat pengantar
         $surat = SuratPengantar::create([
             'nomor_surat' => $nomorSurat,
             'nama_pasien' => $rekamMedis->keluarga->nama_keluarga,
-            'nik_karyawan_penanggung_jawab' => $rekamMedis->keluarga->karyawan->nik_karyawan ?? null,
+            'nik_karyawan_penanggung_jawab' => $nikFormatted,
             'tanggal_pengantar' => now(),
             'diagnosa' => $diagnosaNama,
             'catatan' => $validated['catatan'],
