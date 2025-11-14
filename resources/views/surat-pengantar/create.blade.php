@@ -67,13 +67,14 @@
                         <label for="lama_istirahat" class="block text-sm font-medium text-gray-700 mb-2">
                             Lama Istirahat (Hari) <span class="text-red-500">*</span>
                         </label>
-                        <input type="number" name="lama_istirahat" id="lama_istirahat" min="1" max="365"
+                        <input type="number" name="lama_istirahat" id="lama_istirahat" min="1" max="10"
                             value="{{ old('lama_istirahat', 1) }}"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 @error('lama_istirahat') border-red-500 @enderror"
                             required>
                         @error('lama_istirahat')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
+                        <p class="text-sm text-gray-500 mt-1">Maksimal 10 hari istirahat</p>
                     </div>
 
                     <!-- Tanggal Mulai Istirahat -->

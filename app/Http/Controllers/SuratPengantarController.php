@@ -51,7 +51,7 @@ class SuratPengantarController extends Controller
     {
         $validated = $request->validate([
             'rekam_medis_id' => 'required|exists:rekam_medis,id_rekam',
-            'lama_istirahat' => 'required|integer|min:1|max:365',
+            'lama_istirahat' => 'required|integer|min:1|max:10',
             'tanggal_mulai_istirahat' => 'required|date',
             'catatan' => 'nullable|string|max:500',
         ]);

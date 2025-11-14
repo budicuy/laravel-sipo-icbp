@@ -224,7 +224,7 @@
     <!-- QR Code Section -->
     <div style="flex-direction: column; align-items: center; text-align: center;">
         <div>
-            <p><strong>Verifikasi Keaslian Surat</strong></p>
+            <p><strong>Verifikasi Surat</strong></p>
             <img src="data:image/svg+xml;base64,{{ base64_encode(QrCode::size(80)->generate($suratPengantar->qr_code_url)) }}"
                 alt="QR Code" style="width: 80px; height: 80px;">
             <p style="font-size: 9pt; margin-top: 10px; line-height: 1.1;">
