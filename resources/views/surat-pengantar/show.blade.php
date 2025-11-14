@@ -14,23 +14,9 @@
                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                Surat Pengantar Istirahat - Valid
+                Surat Pengantar Istirahat
             </h1>
             <p class="text-gray-600 mt-2 ml-1">Detail surat pengantar istirahat yang telah diverifikasi</p>
-        </div>
-
-        <!-- Status Card -->
-        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-lg">
-            <div class="flex items-center">
-                <svg class="w-6 h-6 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                    <h3 class="text-green-800 font-semibold">Surat Valid & Terverifikasi</h3>
-                    <p class="text-green-700 text-sm">Surat pengantar ini telah diverifikasi dan sah</p>
-                </div>
-            </div>
         </div>
 
         <!-- Main Card -->
@@ -141,27 +127,6 @@
                         Cetak Surat
                     </a>
                 </div>
-            </div>
-        </div>
-
-        <!-- Verification Info -->
-        <div class="mt-6 bg-white rounded-xl shadow-md border border-gray-100 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                Informasi Verifikasi
-            </h3>
-            <p class="text-gray-600 text-sm">
-                Surat ini dilindungi dengan QR Code untuk memastikan keaslian. Scan QR Code pada surat cetak untuk
-                memverifikasi.
-            </p>
-            <div class="mt-4 text-center">
-                <div class="flex justify-center">
-                    {!! QrCode::size(200)->generate($suratPengantar->qr_code_url) !!}
-                </div>
-                <p class="text-gray-500 text-sm mt-2">Scan untuk verifikasi</p>
             </div>
         </div>
     </div>

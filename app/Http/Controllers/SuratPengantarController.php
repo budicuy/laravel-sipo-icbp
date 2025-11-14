@@ -70,6 +70,7 @@ class SuratPengantarController extends Controller
             'lama_istirahat' => $validated['lama_istirahat'],
             'tanggal_mulai_istirahat' => $validated['tanggal_mulai_istirahat'],
             'petugas_medis' => $rekamMedis->user->nama_lengkap ?? $rekamMedis->user->name ?? 'N/A',
+            'link_random' => \Illuminate\Support\Str::random(32),
         ]);
 
         return redirect()->route('surat-pengantar.print', $surat->id)
@@ -82,6 +83,20 @@ class SuratPengantarController extends Controller
     public function show(SuratPengantar $suratPengantar)
     {
         return view('surat-pengantar.show', compact('suratPengantar'));
+    }
+
+    /**
+     * Verify surat pengantar publicly (no authentication required)
+     */
+    public function verifyPublic($token)
+    {
+        $suratPengantar = SuratPengantar::where('link_random', $token)->first();
+
+        if (!$suratPengantar) {
+            abort(404, 'Surat tidak ditemukan atau token tidak valid');
+        }
+
+        return view('surat-pengantar.verify-public', compact('suratPengantar'));
     }
 
     /**

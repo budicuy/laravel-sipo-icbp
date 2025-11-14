@@ -21,6 +21,7 @@ class SuratPengantar extends Model
         'lama_istirahat',
         'tanggal_mulai_istirahat',
         'petugas_medis',
+        'link_random',
     ];
 
     protected $casts = [
@@ -68,6 +69,6 @@ class SuratPengantar extends Model
      */
     public function getQrCodeUrlAttribute()
     {
-        return route('surat-pengantar.show', $this->id);
+        return route('surat-pengantar.verify', $this->link_random);
     }
 }

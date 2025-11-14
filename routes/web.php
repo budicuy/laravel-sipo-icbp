@@ -28,6 +28,9 @@ use Illuminate\Support\Facades\Route;
 // Landing Page Route
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 
+// Public Surat Pengantar Verification Route
+Route::get('/verify/{token}', [SuratPengantarController::class, 'verifyPublic'])->name('surat-pengantar.verify');
+
 // AI Chat Page Route
 Route::get('/ai-chat', [LandingPageController::class, 'aiChat'])->name('ai-chat');
 
