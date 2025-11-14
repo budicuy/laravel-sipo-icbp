@@ -7,6 +7,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SIPO - Sistem Informasi Pelayanan Kesehatan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -344,6 +346,109 @@
             position: relative;
             z-index: 40;
         }
+
+        /* Swiper Hero Styles */
+        .hero-swiper {
+            width: 100%;
+            height: 80vh;
+            min-height: 600px;
+            position: relative;
+        }
+
+        .hero-slide {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .swiper-pagination-bullet {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 1;
+            transition: all 0.3s ease;
+        }
+
+        .swiper-pagination-bullet-active {
+            background: white;
+            transform: scale(1.3);
+        }
+
+        .swiper-button-next,
+        .swiper-button-prev {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .swiper-button-next::after,
+        .swiper-button-prev::after {
+            font-size: 20px;
+        }
+
+        /* Animation for hero content */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-animate {
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-animate-delay-1 {
+            animation-delay: 0.2s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .hero-animate-delay-2 {
+            animation-delay: 0.4s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .hero-animate-delay-3 {
+            animation-delay: 0.6s;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
     </style>
     @vite('resources/css/app.css')
 </head>
@@ -391,37 +496,109 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="relative overflow-hidden bg-purple-500">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-            <div class="grid md:grid-cols-2 gap-8 items-center h-full">
-                <div class="text-white z-10 py-32">
-                    <h1 class="text-5xl font-bold mb-6 leading-tight">
-                        Sistem Informasi Poliklinik
-                    </h1>
-                    <p class="text-xl mb-8 text-purple-100">
-                        Solusi digital terpadu untuk manajemen pelayanan kesehatan karyawan yang efisien, modern, dan
-                        terintegrasi dengan teknologi AI.
-                    </p>
-                    <div class="flex gap-4">
-                        <a href="{{ route('login') }}"
-                            class="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition">
-                            Mulai Sekarang
-                        </a>
-                        <a href="#features"
-                            class="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition">
-                            Pelajari Lebih Lanjut
-                        </a>
+    <!-- Hero Section with Swiper -->
+    <section id="home" class="relative">
+        <!-- Swiper -->
+        <div class="swiper hero-swiper">
+            <div class="swiper-wrapper">
+                <!-- Slide 1 -->
+                <div class="swiper-slide hero-slide" style="background-image: url('{{ asset('banner.webp') }}');">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-content">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                            <div class="grid md:grid-cols-2 gap-8 items-center">
+                                <div class="text-white">
+                                    <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight hero-animate">
+                                        Sistem Informasi Poliklinik
+                                    </h1>
+                                    <p class="text-xl mb-8 text-purple-100 hero-animate hero-animate-delay-1">
+                                        Solusi digital terpadu untuk manajemen pelayanan kesehatan karyawan yang
+                                        efisien, modern, dan
+                                        terintegrasi dengan teknologi AI.
+                                    </p>
+                                    <div class="flex flex-col sm:flex-row gap-4 hero-animate hero-animate-delay-2">
+                                        <a href="{{ route('login') }}"
+                                            class="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition text-center">
+                                            Mulai Sekarang
+                                        </a>
+                                        <a href="#features"
+                                            class="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition text-center">
+                                            Pelajari Lebih Lanjut
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="hidden md:block relative h-full">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-r from-purple-500 via-purple-500/40 to-transparent z-10">
+
+                <!-- Slide 2 -->
+                <div class="swiper-slide hero-slide" style="background-image: url('{{ asset('about.webp') }}');">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-content">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                            <div class="grid md:grid-cols-2 gap-8 items-center">
+                                <div class="text-white">
+                                    <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight hero-animate">
+                                        Rekam Medis Digital
+                                    </h1>
+                                    <p class="text-xl mb-8 text-purple-100 hero-animate hero-animate-delay-1">
+                                        Akses riwayat medis karyawan secara real-time dengan sistem keamanan berlapis
+                                        dan
+                                        enkripsi data terpercaya.
+                                    </p>
+                                    <div class="flex flex-col sm:flex-row gap-4 hero-animate hero-animate-delay-2">
+                                        <a href="{{ route('login') }}"
+                                            class="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition text-center">
+                                            Coba Sekarang
+                                        </a>
+                                        <a href="#features"
+                                            class="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition text-center">
+                                            Lihat Fitur
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <img src="{{ asset('banner.webp') }}" alt="Healthcare"
-                        class="absolute right-0 top-0 h-full w-full object-cover object-center rounded-l-3xl">
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="swiper-slide hero-slide" style="background-image: url('{{ asset('ai.jpeg') }}');">
+                    <div class="hero-overlay"></div>
+                    <div class="hero-content">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+                            <div class="grid md:grid-cols-2 gap-8 items-center">
+                                <div class="text-white">
+                                    <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight hero-animate">
+                                        AI Assistant 24/7
+                                    </h1>
+                                    <p class="text-xl mb-8 text-purple-100 hero-animate hero-animate-delay-1">
+                                        Chat dengan AI assistant powered by Gemini untuk informasi kesehatan, panduan
+                                        penggunaan,
+                                        dan bantuan cepat kapan saja.
+                                    </p>
+                                    <div class="flex flex-col sm:flex-row gap-4 hero-animate hero-animate-delay-2">
+                                        <a href="{{ route('ai-chat') }}"
+                                            class="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition text-center">
+                                            Mulai Chat
+                                        </a>
+                                        <a href="#features"
+                                            class="border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition text-center">
+                                            Pelajari Lebih Lanjut
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <!-- Add Pagination -->
+            <div class="swiper-pagination"></div>
+            <!-- Add Navigation -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
         </div>
     </section>
 
@@ -511,7 +688,22 @@
                     </p>
                 </div>
 
+
+
                 <!-- Feature 2 -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg card-hover">
+                    <div
+                        class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6 overflow-hidden">
+                        <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover relative">
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">AI Assistant</h3>
+                    <p class="text-gray-600">
+                        Chat dengan AI assistant powered by Gemini untuk informasi kesehatan, panduan penggunaan sistem,
+                        dan bantuan cepat.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
                 <div class="bg-white p-8 rounded-2xl shadow-lg card-hover">
                     <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
                         <i class="fas fa-pills text-white text-2xl"></i>
@@ -523,27 +715,18 @@
                     </p>
                 </div>
 
-                <!-- Feature 3 -->
-                <div class="bg-white p-8 rounded-2xl shadow-lg card-hover">
-                    <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <i class="fas fa-robot text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">AI Assistant</h3>
-                    <p class="text-gray-600">
-                        Chat dengan AI assistant powered by Gemini untuk informasi kesehatan, panduan penggunaan sistem,
-                        dan bantuan cepat.
-                    </p>
-                </div>
-
                 <!-- Feature 4 -->
                 <div class="bg-white p-8 rounded-2xl shadow-lg card-hover">
                     <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <i class="fas fa-file-medical-alt text-white text-2xl"></i>
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                        </svg>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Surat Keterangan</h3>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Sistem Sidik Jari</h3>
                     <p class="text-gray-600">
-                        Generate surat keterangan sakit, surat rujukan, dan dokumen medis lainnya secara otomatis dan
-                        terstandar.
+                        Sistem identifikasi biometrik untuk verifikasi karyawan yang aman, cepat, dan akurat dengan
+                        tingkat keandalan tinggi.
                     </p>
                 </div>
 
@@ -613,24 +796,24 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-4 gap-8 text-center text-white">
                 <div>
-                    <i class="fas fa-users text-5xl mb-4"></i>
-                    <div class="text-4xl font-bold mb-2">99%</div>
-                    <div class="text-purple-100">Kepuasan Pengguna</div>
-                </div>
-                <div>
                     <i class="fas fa-clock text-5xl mb-4"></i>
-                    <div class="text-4xl font-bold mb-2">24/7</div>
+                    <div class="text-4xl font-bold mb-2">24 Jam</div>
                     <div class="text-purple-100">Akses Sistem</div>
                 </div>
                 <div>
-                    <i class="fas fa-hospital text-5xl mb-4"></i>
-                    <div class="text-4xl font-bold mb-2">15+</div>
-                    <div class="text-purple-100">Klinik Terintegrasi</div>
+                    <i class="fas fa-file-medical text-5xl mb-4"></i>
+                    <div class="text-4xl font-bold mb-2">1500+</div>
+                    <div class="text-purple-100">Rekam Medis</div>
                 </div>
                 <div>
-                    <i class="fas fa-award text-5xl mb-4"></i>
-                    <div class="text-4xl font-bold mb-2">ISO</div>
-                    <div class="text-purple-100">Certified System</div>
+                    <i class="fas fa-shield-alt text-5xl mb-4"></i>
+                    <div class="text-4xl font-bold mb-2">Terlindungi</div>
+                    <div class="text-purple-100">Data Terenkripsi</div>
+                </div>
+                <div>
+                    <i class="fas fa-users text-5xl mb-4"></i>
+                    <div class="text-4xl font-bold mb-2">500+</div>
+                    <div class="text-purple-100">Karyawan Terdaftar</div>
                 </div>
             </div>
         </div>
@@ -716,7 +899,9 @@
                         <img src="{{ asset('logo.png') }}" alt="SIPO Logo" class=" bg-white p-5 w-48 rounded-lg">
                     </div>
                     <p class="text-gray-400">
-                        Sistem Informasi Poliklinik - Indofood CBP Sukses Makmur TBK.
+                        SIPO adalah solusi digital terpadu untuk manajemen pelayanan
+                        kesehatan
+                        karyawan yang efisien, modern, dan terintegrasi dengan teknologi AI.
                     </p>
                 </div>
                 <div>
@@ -822,6 +1007,82 @@
                         behavior: 'smooth',
                         block: 'start'
                     });
+                }
+            });
+        });
+    </script>
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- Initialize Swiper -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const swiper = new Swiper('.hero-swiper', {
+                // Optional parameters
+                direction: 'horizontal',
+                loop: true,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
+                },
+                effect: 'fade',
+                fadeEffect: {
+                    crossFade: true
+                },
+
+                // If we need pagination
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                    dynamicBullets: true,
+                },
+
+                // Navigation arrows
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+
+                // And if we need scrollbar
+                scrollbar: {
+                    el: '.swiper-scrollbar',
+                },
+
+                // Enable keyboard navigation
+                keyboard: {
+                    enabled: true,
+                    onlyInViewport: false,
+                },
+
+                // Enable mousewheel control
+                mousewheel: {
+                    invert: false,
+                },
+
+                // Add transition effects
+                speed: 1000,
+
+                // Reset animation on slide change
+                on: {
+                    slideChange: function() {
+                        // Reset animations
+                        const animatedElements = document.querySelectorAll('.hero-animate');
+                        animatedElements.forEach(el => {
+                            el.style.animation = 'none';
+                            el.offsetHeight; // Trigger reflow
+                            el.style.animation = null;
+                        });
+                    },
+                    init: function() {
+                        // Trigger initial animations
+                        setTimeout(() => {
+                            const animatedElements = document.querySelectorAll('.hero-animate');
+                            animatedElements.forEach(el => {
+                                el.classList.add('hero-animate');
+                            });
+                        }, 100);
+                    }
                 }
             });
         });

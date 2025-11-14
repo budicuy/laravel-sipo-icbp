@@ -16,25 +16,23 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+<body class="bg-gradient-to-br from-green-400 to-blue-300 min-h-screen">
     <div class="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
 
         <div class="max-w-md w-full space-y-8">
 
-            <img src="{{ asset('logo.png') }}" alt="SIPO Logo">
-
             <!-- Login Form -->
             <div class="bg-white shadow-xl rounded-2xl px-8 py-10 transform transition-all hover:scale-[1.01]">
                 @if (session('error'))
-                    <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                        <p class="text-sm text-red-600">{{ session('error') }}</p>
-                    </div>
+                <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                    <p class="text-sm text-red-600">{{ session('error') }}</p>
+                </div>
                 @endif
 
                 @if (session('success'))
-                    <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
-                        <p class="text-sm text-green-600">{{ session('success') }}</p>
-                    </div>
+                <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                    <p class="text-sm text-green-600">{{ session('success') }}</p>
+                </div>
                 @endif
 
                 <form method="POST" action="{{ route('login') }}" class="space-y-6">
@@ -42,13 +40,13 @@
 
                     <!-- Username/Email -->
                     <div>
-                        <div class="text-center mb-6">
-                            <h2 class="text-3xl font-bold text-gray-900">SIPO</h2>
-                            <p class="mt-2 text-sm text-gray-600">
-                                Sistem Informasi Poliklinik
-                            </p>
+                        <div class="mb-10 px-10">
+                            <img src="{{ asset('logo.png') }}" alt="SIPO Logo">
                         </div>
 
+                        <h1>
+                            <span class="text-3xl font-bold text-gray-800 text-center block mb-2">LOGIN</span>
+                        </h1>
                         <label for="username" class="block text-sm font-semibold text-gray-700 mb-2">
                             Username
                         </label>
@@ -66,7 +64,7 @@
                                 placeholder="Masukkan username">
                         </div>
                         @error('username')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -89,7 +87,7 @@
                                 placeholder="Masukkan password">
                         </div>
                         @error('password')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -117,11 +115,35 @@
                             Masuk
                         </button>
                     </div>
+
+                    <!-- Divider -->
+                    <div class="relative my-4">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">atau</span>
+                        </div>
+                    </div>
+
+                    <!-- Back to Home Button -->
+                    <div>
+                        <a href="{{ url('/') }}"
+                            class="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-md text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 transform hover:scale-[1.02]">
+                            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Kembali ke Beranda
+                        </a>
+                    </div>
                 </form>
             </div>
 
             <!-- Footer -->
-            <div class="text-center text-sm text-gray-600">
+            <div class="text-center text-sm text-white">
                 <p>&copy; {{ date('Y') }} SIPO - All rights reserved.</p>
             </div>
         </div>

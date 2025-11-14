@@ -71,8 +71,7 @@
                             request()->is('diagnosa*') ||
                             request()->is('external-employee*')
                                 ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
-                                : 'text-gray-700 hover:bg-gray-100') }}"
-                        :title="!sidebarOpen ? 'Master Data' : ''">
+                                : 'text-gray-700 hover:bg-gray-100') }}" :title="!sidebarOpen ? 'Master Data' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
                                 :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor"
@@ -119,12 +118,12 @@
                             </a>
                         </li>
                         @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
-                            <li>
-                                <a href="{{ route('user.index') }}"
-                                    class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('user*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
-                                    Data User
-                                </a>
-                            </li>
+                        <li>
+                            <a href="{{ route('user.index') }}"
+                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('user*') ? 'text-purple-600 bg-purple-50 font-semibold' : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50' }}">
+                                Data User
+                            </a>
+                        </li>
                         @endif
                         <li>
                             <a href="{{ route('external-employee.index') }}"
@@ -142,7 +141,8 @@
                 </li>
 
                 <!-- Rekam Medis (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('surat-pengantar-istirahat*') ? 'true' : 'false' }} }">
+                <li
+                    x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('surat-pengantar-istirahat*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
                         class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('surat-pengantar-istirahat*') ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Rekam Medis' : ''">
@@ -182,12 +182,12 @@
                         </li>
 
                         @if (auth()->user()->role === 'User')
-                            <li>
-                                <a href="{{ route('token-emergency.my-tokens') }}"
-                                    class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.my-tokens') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                    Token Saya
-                                </a>
-                            </li>
+                        <li>
+                            <a href="{{ route('token-emergency.my-tokens') }}"
+                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('token-emergency.my-tokens') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
+                                Token Saya
+                            </a>
+                        </li>
                         @endif
                         <li>
                             <a href="{{ route('surat-sakit.create') }}"
@@ -199,7 +199,8 @@
                 </li>
 
                 <!-- Manajemen Obat (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('harga-obat*') || request()->is('stok-obat*') || request()->is('stok*') || request()->is('monitoring*') ? 'true' : 'false' }} }">
+                <li
+                    x-data="{ open: {{ request()->is('harga-obat*') || request()->is('stok-obat*') || request()->is('stok*') || request()->is('monitoring*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
                         class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('harga-obat*') || request()->is('stok-obat*') || request()->is('stok*') || request()->is('monitoring*') ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Manajemen Obat' : ''">
@@ -213,10 +214,8 @@
                             <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">Manajemen Obat</span>
                         </div>
                         <svg x-show="sidebarOpen" class="w-4 h-4 transition-transform duration-200"
-                            :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 9l-7 7-7-7" />
+                            :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
                     <ul x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-200"
@@ -248,7 +247,8 @@
                 </li>
 
                 <!-- Report (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('kunjungan*') || request()->is('laporan*') ? 'true' : 'false' }} }">
+                <li
+                    x-data="{ open: {{ request()->is('kunjungan*') || request()->is('laporan*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
                         class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('kunjungan*') || request()->is('laporan*') ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Report' : ''">
@@ -262,10 +262,8 @@
                             <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">Report</span>
                         </div>
                         <svg x-show="sidebarOpen" class="w-4 h-4 transition-transform duration-200"
-                            :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 9l-7 7-7-7" />
+                            :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
                     <ul x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-200"
@@ -290,36 +288,55 @@
                     </ul>
                 </li>
 
+
+
                 <!-- Monitoring Token Emergency (Menu Utama) -->
                 @if (auth()->user()->role === 'Super Admin' || auth()->user()->role === 'Admin')
-                    <li>
-                        <a href="{{ route('token-emergency.monitoring') }}"
-                            class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('token-emergency/monitoring*') ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
-                            :title="!sidebarOpen ? 'Monitoring Token Emergency' : ''"
-                            @click="activeMenu = 'token-emergency-monitoring'">
-                            <div class="relative">
-                                <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
-                                    :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                                @if (request()->is('token-emergency/monitoring*'))
-                                @endif
-                            </div>
-                            <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">Authenticator</span>
-                            @php
-                                $pendingRequestsCount = \App\Models\TokenRequest::getPendingRequestsCount();
-                            @endphp
-                            @if ($pendingRequestsCount > 0)
-                                <span x-show="sidebarOpen"
-                                    class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                                    {{ $pendingRequestsCount }}
-                                </span>
+                <li>
+                    <a href="{{ route('token-emergency.monitoring') }}"
+                        class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('token-emergency/monitoring*') ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        :title="!sidebarOpen ? 'Monitoring Token Emergency' : ''"
+                        @click="activeMenu = 'token-emergency-monitoring'">
+                        <div class="relative">
+                            <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
+                                :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            @if (request()->is('token-emergency/monitoring*'))
                             @endif
-                        </a>
-                    </li>
+                        </div>
+                        <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">Authenticator</span>
+                        @php
+                        $pendingRequestsCount = \App\Models\TokenRequest::getPendingRequestsCount();
+                        @endphp
+                        @if ($pendingRequestsCount > 0)
+                        <span x-show="sidebarOpen"
+                            class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            {{ $pendingRequestsCount }}
+                        </span>
+                        @endif
+                    </a>
+                </li>
                 @endif
+
+                <!-- User Guide -->
+                <li>
+                    <a href="{{ asset('user-guide.pdf') }}" target="_blank" download
+                        class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 text-gray-700 hover:bg-gray-100"
+                        :title="!sidebarOpen ? 'User Guide' : ''" @click="activeMenu = 'user-guide'">
+                        <div class="relative">
+                            <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
+                                :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                        <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">User Guide</span>
+                    </a>
+                </li>
             </ul>
         </nav>
 
