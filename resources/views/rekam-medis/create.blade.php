@@ -88,8 +88,9 @@
                             </svg>
                         </div>
 
-                        <button @click="verifyFingerprint()" :disabled="isCapturing"
-                            class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold transition-colors duration-200 flex items-center justify-center gap-2 mx-auto">
+                        <button @click="verifyFingerprint()"
+                            :disabled="isCapturing || fingerprintTemplates.length === 0"
+                            class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2 mx-auto">
                             <svg x-show="!isCapturing" class="w-5 h-5" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -991,9 +992,7 @@
 
                     async verifyFingerprint() {
                         if (this.fingerprintTemplates.length === 0) {
-                            this.showMessage('Belum ada fingerprint terdaftar. Gunakan verifikasi manual dibawah ini.', 'warning');
-                            this.fingerprintFailedCount = 3; // Langsung tampilkan verifikasi manual
-                            this.showManualVerification = true;
+                            this.showMessage('Belum ada fingerprint terdaftar!', 'error');
                             return;
                         }
 
