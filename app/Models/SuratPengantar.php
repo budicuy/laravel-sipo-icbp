@@ -21,7 +21,6 @@ class SuratPengantar extends Model
         'lama_istirahat',
         'tanggal_mulai_istirahat',
         'petugas_medis',
-        'qrcode_path',
     ];
 
     protected $casts = [
@@ -44,13 +43,13 @@ class SuratPengantar extends Model
             ->first();
 
         if ($lastSurat) {
-            $lastNumber = intval(substr($lastSurat->nomor_surat, 0, 4));
-            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+            $lastNumber = intval(substr($lastSurat->nomor_surat, 0, strpos($lastSurat->nomor_surat, '/')));
+            $newNumber = $lastNumber + 1;
         } else {
-            $newNumber = '0001';
+            $newNumber = 1;
         }
 
-        return $newNumber . '/SP-ICBP/' . $month . '/' . $year;
+        return $newNumber . '/SP/NDL-BJM/' . $month . '/' . $year;
     }
 
     /**
@@ -62,5 +61,13 @@ class SuratPengantar extends Model
             return $this->tanggal_mulai_istirahat->addDays($this->lama_istirahat - 1);
         }
         return null;
+    }
+
+    /**
+     * Generate QR Code URL
+     */
+    public function getQrCodeUrlAttribute()
+    {
+        return route('surat-pengantar.show', $this->id);
     }
 }

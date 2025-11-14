@@ -22,7 +22,6 @@ return new class extends Migration
             $table->tinyInteger('lama_istirahat');
             $table->date('tanggal_mulai_istirahat');
             $table->string('petugas_medis');
-            $table->string('qrcode_path');
             $table->timestamps();
         });
     }

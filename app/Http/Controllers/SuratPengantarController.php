@@ -70,22 +70,7 @@ class SuratPengantarController extends Controller
             'lama_istirahat' => $validated['lama_istirahat'],
             'tanggal_mulai_istirahat' => $validated['tanggal_mulai_istirahat'],
             'petugas_medis' => $rekamMedis->user->nama_lengkap ?? $rekamMedis->user->name ?? 'N/A',
-            'qrcode_path' => '', // Will be updated after QR code generation
         ]);
-
-        // Generate QR Code
-        $qrCodeUrl = route('surat-pengantar.show', $surat->id);
-        $qrCodePath = 'qrcodes/surat-' . $surat->id . '.svg';
-
-        // Generate and save QR code
-        $qrCode = QrCode::size(200)
-            ->format('svg')
-            ->generate($qrCodeUrl);
-
-        Storage::disk('public')->put($qrCodePath, $qrCode);
-
-        // Update surat with QR code path
-        $surat->update(['qrcode_path' => $qrCodePath]);
 
         return redirect()->route('surat-pengantar.print', $surat->id)
             ->with('success', 'Surat pengantar berhasil dibuat');
@@ -134,11 +119,6 @@ class SuratPengantarController extends Controller
      */
     public function destroy(SuratPengantar $suratPengantar)
     {
-        // Delete QR code file
-        if ($suratPengantar->qrcode_path) {
-            Storage::disk('public')->delete($suratPengantar->qrcode_path);
-        }
-
         $suratPengantar->delete();
 
         return redirect()->route('surat-pengantar.index')

@@ -158,11 +158,10 @@
                 memverifikasi.
             </p>
             <div class="mt-4 text-center">
-                @if($suratPengantar->qrcode_path)
-                <img src="{{ Storage::url($suratPengantar->qrcode_path) }}" alt="QR Code" class="mx-auto"
-                    style="width: 200px; height: 200px;">
+                <div class="flex justify-center">
+                    {!! QrCode::size(200)->generate($suratPengantar->qr_code_url) !!}
+                </div>
                 <p class="text-gray-500 text-sm mt-2">Scan untuk verifikasi</p>
-                @endif
             </div>
         </div>
     </div>
