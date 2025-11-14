@@ -70,6 +70,7 @@ class SuratPengantarController extends Controller
             'lama_istirahat' => $validated['lama_istirahat'],
             'tanggal_mulai_istirahat' => $validated['tanggal_mulai_istirahat'],
             'petugas_medis' => $rekamMedis->user->nama_lengkap ?? $rekamMedis->user->name ?? 'N/A',
+            'nik_petugas' => $rekamMedis->user->nik ?? null,
             'link_random' => \Illuminate\Support\Str::random(32),
         ]);
 

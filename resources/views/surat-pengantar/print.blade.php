@@ -227,6 +227,16 @@
             <p><strong>Verifikasi Keaslian Surat</strong></p>
             <img src="data:image/svg+xml;base64,{{ base64_encode(QrCode::size(80)->generate($suratPengantar->qr_code_url)) }}"
                 alt="QR Code" style="width: 80px; height: 80px;">
+            <p style="font-size: 9pt; margin-top: 10px; line-height: 1.1;">
+                <strong style="font-weight: 800; text-decoration: underline;">{{ $suratPengantar->petugas_medis
+                    }}</strong>
+                @if($suratPengantar->nik_petugas)
+                <br>NIK. {{ $suratPengantar->nik_petugas }}
+                @endif
+            </p>
+            <table>
+
+            </table>
         </div>
     </div>
 

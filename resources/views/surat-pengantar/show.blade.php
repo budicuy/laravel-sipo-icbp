@@ -53,6 +53,9 @@
                     <div>
                         <label class="text-sm font-medium text-gray-600">Petugas Medis</label>
                         <p class="text-gray-900 font-medium">{{ $suratPengantar->petugas_medis }}</p>
+                        @if($suratPengantar->nik_petugas)
+                        <p class="text-gray-600 text-sm mt-1">NIK: {{ $suratPengantar->nik_petugas }}</p>
+                        @endif
                     </div>
                 </div>
 

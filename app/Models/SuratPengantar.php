@@ -21,6 +21,7 @@ class SuratPengantar extends Model
         'lama_istirahat',
         'tanggal_mulai_istirahat',
         'petugas_medis',
+        'nik_petugas',
         'link_random',
     ];
 

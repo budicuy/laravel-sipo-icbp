@@ -127,6 +127,9 @@
                                 Medis</label>
                             <p class="text-lg font-semibold text-gray-900 mt-1">{{ $suratPengantar->petugas_medis }}
                             </p>
+                            @if($suratPengantar->nik_petugas)
+                            <p class="text-sm text-gray-600 mt-1">NIK Petugas: {{ $suratPengantar->nik_petugas }}</p>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -233,13 +236,6 @@
                         Dokumen ini dilindungi dengan sistem verifikasi digital. Setiap surat memiliki kode unik yang
                         terdaftar dalam database sistem kami untuk memastikan keaslian dan mencegah pemalsuan.
                     </p>
-                    <div class="flex items-center gap-2 text-xs text-gray-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>Terverifikasi pada {{ now()->format('d F Y, H:i') }} WIB</span>
-                    </div>
                 </div>
             </div>
         </div>
