@@ -76,7 +76,7 @@
                     </svg>
                 </div>
                 <div class="text-left">
-                    <h2 class="text-2xl font-bold mb-1">✓ Surat Terverifikasi</h2>
+                    <h2 class="text-2xl font-bold mb-1">Surat Terverifikasi</h2>
                     <p class="text-green-100">Surat pengantar ini sah dan terdaftar dalam sistem kami</p>
                 </div>
             </div>
@@ -86,12 +86,12 @@
         <div class="bg-white rounded-2xl card-shadow overflow-hidden mb-6">
             <!-- Header Section -->
             <div class="bg-gradient-to-r from-gray-800 to-gray-900 p-6 text-white">
-                <div class="flex items-start justify-between">
+                <div class="flex flex-wrap items-start justify-center md:justify-between gap-4 md:gap-0">
                     <div>
                         <h3 class="text-xl font-semibold mb-1">Surat Pengantar Istirahat Sakit</h3>
                         <p class="text-gray-300 text-sm">Klinik PT. Indofood CBP Sukses Makmur Tbk</p>
                     </div>
-                    <div class="text-right">
+                    <div class="text-center md:text-left">
                         <div class="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
                             <p class="text-xs text-gray-300 mb-1">Nomor Surat</p>
                             <p class="font-mono font-bold text-lg">{{ $suratPengantar->nomor_surat }}</p>
