@@ -428,7 +428,7 @@
     <!-- AI Chat Promo Section -->
     <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
+            <div class="text-center">
                 <h2 class="text-4xl font-bold text-gray-800 mb-4">
                     <span class="gradient-text">AI Assistant</span> SIPO
                 </h2>
@@ -436,17 +436,17 @@
             </div>
 
             <div class="max-w-4xl mx-auto">
-                <div class="bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl shadow-2xl p-8 md:p-12">
+                <div class="bg-white rounded-3xl  p-8 md:p-12">
                     <div class="text-center">
                         <div
-                            class="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
-                            <i class="fas fa-robot text-white text-3xl"></i>
+                            class="w-52 h-52 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden mx-auto mb-4">
+                            <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar"
+                                class="w-full h-full object-cover relative">
                         </div>
                         <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">AI Assistant Siap Membantu Anda
                         </h3>
                         <p class="text-lg text-gray-600 mb-8">Dapatkan jawaban instan untuk pertanyaan tentang sistem
                             kesehatan, riwayat medis, dan informasi kesehatan lainnya.</p>
-
                         <div class="grid md:grid-cols-3 gap-6 mb-8">
                             <div class="text-center">
                                 <div
@@ -590,16 +590,16 @@
                         kebutuhan pengelolaan kesehatan karyawan di lingkungan.
                     </p>
                     <p class="text-gray-600 mb-6 text-lg leading-relaxed">
-                        Dengan mengintegrasikan teknologi modern seperti AI-powered chatbot dan cloud computing, kami
+                        Dengan mengintegrasikan teknologi modern seperti AI-powered chatbot, kami
                         berkomitmen untuk memberikan pelayanan kesehatan yang lebih baik, cepat, dan efisien.
                     </p>
                     <div class="grid grid-cols-2 gap-6">
                         <div class="text-center p-6 bg-purple-50 rounded-xl">
-                            <div class="text-4xl font-bold gradient-text mb-2">5000+</div>
+                            <div class="text-4xl font-bold gradient-text mb-2">500+</div>
                             <div class="text-gray-600">Karyawan Terdaftar</div>
                         </div>
                         <div class="text-center p-6 bg-purple-50 rounded-xl">
-                            <div class="text-4xl font-bold gradient-text mb-2">10000+</div>
+                            <div class="text-4xl font-bold gradient-text mb-2">1500+</div>
                             <div class="text-gray-600">Rekam Medis</div>
                         </div>
                     </div>
@@ -658,28 +658,14 @@
                             <i class="fas fa-phone text-purple-600 mt-1"></i>
                             <div>
                                 <p class="font-semibold text-gray-700">Telepon</p>
-                                <p class="text-gray-600">(+62-21) 5795 8822</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <i class="fas fa-fax text-purple-600 mt-1"></i>
-                            <div>
-                                <p class="font-semibold text-gray-700">Fax</p>
-                                <p class="text-gray-600">(+62-21) 5793 5960</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <i class="fas fa-headset text-purple-600 mt-1"></i>
-                            <div>
-                                <p class="font-semibold text-gray-700">Call Center</p>
-                                <p class="text-gray-600">+62 800 1122 888</p>
+                                <p class="text-gray-600">+0511 4787 981</p>
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
                             <i class="fab fa-whatsapp text-purple-600 mt-1"></i>
                             <div>
                                 <p class="font-semibold text-gray-700">WhatsApp</p>
-                                <p class="text-gray-600">+62 889 1122 888</p>
+                                <p class="text-gray-600">+6281293222772 / +6281349052799 / +6285248828285</p>
                             </div>
                         </div>
                     </div>
@@ -696,9 +682,14 @@
                             <i class="fas fa-envelope text-purple-600 mt-1"></i>
                             <div>
                                 <p class="font-semibold text-gray-700">Email</p>
-                                <a href="mailto:corporate@indofood.co.id"
+                                <a href="mailto:noodle.bjm@gmail.com"
                                     class="text-purple-600 hover:text-purple-700 transition">
-                                    corporate@indofood.co.id
+                                    noodle.bjm@gmail.com
+                                </a>
+                                <br>
+                                <a href="mailto:noodle.banjarmasin@gmail.com"
+                                    class="text-purple-600 hover:text-purple-700 transition">
+                                    noodle.banjarmasin@gmail.com
                                 </a>
                             </div>
                         </div>
@@ -707,7 +698,7 @@
                             <div>
                                 <p class="font-semibold text-gray-700">Alamat</p>
                                 <p class="text-gray-600">Jalan Ayani KM. 32 Liang Anggang, Pandahan, Kec. Bati Bati,
-                                    Kabupaten Tanah Laut, Kalimantan Selatan 70723</p>
+                                    Kabupaten Tanah Laut, Kalimantan Selatan - 70852</p>
                             </div>
                         </div>
                     </div>

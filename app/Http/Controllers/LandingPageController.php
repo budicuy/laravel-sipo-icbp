@@ -368,7 +368,7 @@ class LandingPageController extends Controller
 
         try {
             // Initialize Gemini chat with enhanced memory configuration
-            $chat = Gemini::chat(model: config('gemini.model', 'gemini-2.0-flash'));
+            $chat = Gemini::chat(model: config('gemini.model', 'gemini-2.5-flash-lite'));
 
             // Build user context
             $userContext = '';
