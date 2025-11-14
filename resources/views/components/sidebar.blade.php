@@ -141,10 +141,9 @@
                 </li>
 
                 <!-- Rekam Medis (Dropdown) -->
-                <li
-                    x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('surat-pengantar-istirahat*') ? 'true' : 'false' }} }">
+                <li x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-pengantar*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-sakit*') || request()->is('surat-pengantar-istirahat*') ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-pengantar*') ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Rekam Medis' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
@@ -181,6 +180,13 @@
                             </a>
                         </li>
 
+                        <li>
+                            <a href="{{ route('surat-pengantar.index') }}"
+                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->routeIs('surat-pengantar.*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
+                                Kelola Surat Pengantar
+                            </a>
+                        </li>
+
                         @if (auth()->user()->role === 'User')
                         <li>
                             <a href="{{ route('token-emergency.my-tokens') }}"
@@ -189,12 +195,7 @@
                             </a>
                         </li>
                         @endif
-                        <li>
-                            <a href="{{ route('surat-sakit.create') }}"
-                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('surat-sakit*') || request()->is('surat-pengantar-istirahat*') ? 'text-green-600 bg-green-50 font-semibold' : 'text-gray-600 hover:text-green-600 hover:bg-green-50' }}">
-                                Surat Sakit
-                            </a>
-                        </li>
+
                     </ul>
                 </li>
 

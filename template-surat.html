@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surat Pengantar Istirahat - {{ $surat->nomor_surat }}</title>
+    <title>Surat Pengantar Istirahat - {{ nomor_surat }}</title>
     <style>
         @page {
             margin: 10mm 20mm 20mm 20mm;
@@ -158,64 +158,30 @@
             Poliklinik PT. Indoofood CBP Sukses Makmur Tbk. Noodle Division, pasien dengan data sebagai berikut:</p>
         <div class="patient-info">
             <table>
-                @if ($surat->tipe_rekam_medis === 'emergency')
-                    <!-- Data untuk pasien emergency -->
-                    <tr>
-                        <td>NIK Pasien</td>
-                        <td>: {{ $surat->nik_pasien ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Nama Pasien</td>
-                        <td>: {{ $surat->nama_pasien_emergency ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Vendor</td>
-                        <td>: {{ $surat->vendor ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Kategori</td>
-                        <td>: {{ $surat->kategori ?? '-' }}</td>
-                    </tr>
-                @elseif ($surat->tipe_rekam_medis === 'regular')
-                    <!-- Data untuk pasien regular (karyawan/keluarga) -->
-                    <tr>
-                        <td>NIK Karyawan</td>
-                        <td>: {{ $surat->nik_karyawan ?? '-' }}</td>
-                    </tr>
-                    @if ($surat->nama_karyawan !== $surat->nama_pasien)
-                        <tr>
-                            <td>Nama Karyawan</td>
-                            <td>: {{ $surat->nama_karyawan ?? 'External' }}</td>
-                        </tr>
-                    @endif
-                    <tr>
-                        <td>Departemen</td>
-                        <td>: {{ $surat->departemen ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Nama Pasien</td>
-                        <td>: {{ $surat->nama_pasien }}</td>
-                    </tr>
-
-                @endif
+                <tr>
+                    <td>NIK Pasien</td>
+                    <td>: 123456789</td>
+                </tr>
+                <tr>
+                    <td>Nama Pasien</td>
+                    <td>: Budi</td>
+                </tr>
                 <tr>
                     <td>Diagnosa</td>
-                    <td>: {{ $surat->diagnosa_utama }}</td>
+                    <td>: Isi Diagnosa</td>
                 </tr>
-                @if ($surat->keterangan_tambahan)
-                    <tr>
-                        <td>Keterangan</td>
-                        <td>: {{ $surat->keterangan_tambahan }}</td>
-                    </tr>
-                @endif
+                <tr>
+                    <td>Catatan </td>
+                    <td>: Isi Catatan</td>
+                </tr>
             </table>
         </div>
 
-        <p>Maka pasien tersebut dianjurkan untuk istirahat selama <strong>{{ $surat->lama_istirahat }} hari</strong>,
+        <p>Maka pasien tersebut dianjurkan untuk istirahat selama <strong>{{ lama_istirahat }} hari</strong>,
             terhitung mulai tanggal
-            <strong>{{ \Carbon\Carbon::parse($surat->tanggal_mulai_istirahat)->format('d F Y') }}</strong> sampai
+            <strong>{{ tanggal_mulai_istirahat }}</strong> sampai
             dengan
-            tanggal <strong>{{ \Carbon\Carbon::parse($surat->tanggal_selesai_istirahat)->format('d F Y') }}</strong>.
+            tanggal <strong>{{ tanggal_selesai_istirahat }}</strong>.
         </p>
 
         <p>Demikian surat pengantar istirahat ini kami sampaikan, agar dapat dipergunakan sebagaimana mestinya. Atas
@@ -223,37 +189,8 @@
     </div>
 
     <div>
-        <p style="text-align: center; margin-top: -10px;">Hormat kami,</p>
-        <table class="signature-table">
-            <tr>
-                <td>Dokter Pemeriksa</td>
-                <td></td>
-                <td>Yang Bersangkutan</td>
-            </tr>
-            <tr>
-                <td>
-                    <div class="signature-box"></div>
-                    <span>{{ Auth::user()->nama_lengkap }}</span><br>
-                    <span>NIK. {{ Auth::user()->nik }}</span>
-                </td>
-                <td></td>
-                <td>
-                    <div class="signature-box"></div>
-                    @if ($surat->tipe_rekam_medis === 'emergency')
-                        <span>{{ $surat->nama_pasien_emergency ?? '-' }}</span><br>
-                        <span>NIK. {{ $surat->nik_pasien ?? '-' }}</span>
-                    @else
-                        @if ($surat->nama_karyawan !== $surat->nama_pasien)
-                            <span>{{ $surat->nama_karyawan ?? 'External' }}</span><br>
-                            <span>NIK. {{ $surat->nik_karyawan ?? '-' }}</span>
-                        @else
-                            <span>{{ $surat->nama_pasien ?? '-' }}</span><br>
-                            <span>NIK. {{ $surat->nik_karyawan ?? '-' }}</span>
-                        @endif
-                    @endif
-                </td>
-            </tr>
-        </table>
+        <p style="text-align: center; margin-top: -10px;">Validasi Surat</p>
+        <!-- QR CODE  -->
     </div>
 </body>
 

@@ -1,0 +1,147 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\SuratPengantar;
+use App\Models\RekamMedis;
+use Illuminate\Http\Request;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
+
+class SuratPengantarController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $surats = SuratPengantar::orderBy('created_at', 'desc')->paginate(15);
+        return view('surat-pengantar.index', compact('surats'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(Request $request)
+    {
+        $rekamMedisId = $request->query('rekam_medis_id');
+
+        if (!$rekamMedisId) {
+            return redirect()->route('rekam-medis.index')
+                ->with('error', 'Rekam medis tidak ditemukan');
+        }
+
+        $rekamMedis = RekamMedis::with(['keluarga.karyawan', 'keluhans.diagnosa'])->findOrFail($rekamMedisId);
+
+        return view('surat-pengantar.create', compact('rekamMedis'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'rekam_medis_id' => 'required|exists:rekam_medis,id_rekam',
+            'lama_istirahat' => 'required|integer|min:1|max:365',
+            'tanggal_mulai_istirahat' => 'required|date',
+            'catatan' => 'nullable|string|max:500',
+        ]);
+
+        $rekamMedis = RekamMedis::with(['keluarga.karyawan', 'keluhans.diagnosa', 'user'])->findOrFail($validated['rekam_medis_id']);
+
+        // Generate nomor surat
+        $nomorSurat = SuratPengantar::generateNomorSurat();
+
+        // Ambil nama diagnosa dari keluhans
+        $diagnosaNama = $rekamMedis->keluhans->map(function($keluhan) {
+            return $keluhan->diagnosa->nama_diagnosa ?? null;
+        })->filter()->unique()->values()->toArray();
+
+        // Create surat pengantar
+        $surat = SuratPengantar::create([
+            'nomor_surat' => $nomorSurat,
+            'nama_pasien' => $rekamMedis->keluarga->nama_keluarga,
+            'nik_karyawan_penanggung_jawab' => $rekamMedis->keluarga->karyawan->nik_karyawan ?? null,
+            'tanggal_pengantar' => now(),
+            'diagnosa' => $diagnosaNama,
+            'catatan' => $validated['catatan'],
+            'lama_istirahat' => $validated['lama_istirahat'],
+            'tanggal_mulai_istirahat' => $validated['tanggal_mulai_istirahat'],
+            'petugas_medis' => $rekamMedis->user->nama_lengkap ?? $rekamMedis->user->name ?? 'N/A',
+            'qrcode_path' => '', // Will be updated after QR code generation
+        ]);
+
+        // Generate QR Code
+        $qrCodeUrl = route('surat-pengantar.show', $surat->id);
+        $qrCodePath = 'qrcodes/surat-' . $surat->id . '.svg';
+
+        // Generate and save QR code
+        $qrCode = QrCode::size(200)
+            ->format('svg')
+            ->generate($qrCodeUrl);
+
+        Storage::disk('public')->put($qrCodePath, $qrCode);
+
+        // Update surat with QR code path
+        $surat->update(['qrcode_path' => $qrCodePath]);
+
+        return redirect()->route('surat-pengantar.print', $surat->id)
+            ->with('success', 'Surat pengantar berhasil dibuat');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(SuratPengantar $suratPengantar)
+    {
+        return view('surat-pengantar.show', compact('suratPengantar'));
+    }
+
+    /**
+     * Print surat pengantar
+     */
+    public function print(SuratPengantar $suratPengantar)
+    {
+        $pdf = Pdf::loadView('surat-pengantar.print', compact('suratPengantar'))
+            ->setPaper('a4', 'portrait');
+
+        // Replace "/" and "\" with "-" in filename
+        $filename = 'surat-pengantar-' . str_replace(['/', '\\'], '-', $suratPengantar->nomor_surat) . '.pdf';
+
+        return $pdf->stream($filename);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(SuratPengantar $suratPengantar)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, SuratPengantar $suratPengantar)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(SuratPengantar $suratPengantar)
+    {
+        // Delete QR code file
+        if ($suratPengantar->qrcode_path) {
+            Storage::disk('public')->delete($suratPengantar->qrcode_path);
+        }
+
+        $suratPengantar->delete();
+
+        return redirect()->route('surat-pengantar.index')
+            ->with('success', 'Surat pengantar berhasil dihapus');
+    }
+}
