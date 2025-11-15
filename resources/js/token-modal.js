@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
             title: '',
             html: `
                 <div class="text-center pb-4">
-                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <div class="bg-linear-to-r from-purple-600 to-indigo-600 p-4 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4 shadow-lg">
                         <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                         </svg>
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: 'hidden',
                 htmlContainer: 'p-0',
                 actions: 'gap-3 mt-6',
-                confirmButton: 'px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all',
+                confirmButton: 'px-6 py-3 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all',
                 cancelButton: 'px-6 py-3 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-xl transition-all hover:shadow-md',
                 validationMessage: 'text-sm text-red-600 mt-2'
             }

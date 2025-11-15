@@ -7,16 +7,19 @@
     <!-- Header Section -->
     <div class="mb-6">
         <div class="flex items-center gap-3">
-            <a href="{{ route('harga-obat.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <a href="{{ route('harga-obat.index') }}"
+                class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 Kembali
             </a>
             <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-3 rounded-lg shadow-lg">
+                <div class="bg-linear-to-r from-indigo-600 to-purple-600 p-3 rounded-lg shadow-lg">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                 </div>
                 Edit Harga Obat
@@ -27,8 +30,8 @@
 
     <!-- Error Message -->
     @if(session('error'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     icon: 'error',
                     title: 'Data Duplikat',
@@ -43,15 +46,16 @@
                     }
                 });
             });
-        </script>
+    </script>
     @endif
 
     <!-- Main Card -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-        <div class="p-6 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200">
+        <div class="p-6 bg-linear-to-r from-indigo-50 to-purple-50 border-b border-gray-200">
             <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
                 <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Edit Data Harga Obat
             </h2>
@@ -67,14 +71,16 @@
                     <label for="id_obat" class="block text-sm font-medium text-gray-700 mb-2">
                         Nama Obat <span class="text-red-500">*</span>
                     </label>
-                    <select name="id_obat" id="id_obat" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white shadow-sm">
+                    <select name="id_obat" id="id_obat" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm bg-white shadow-sm">
                         <option value="">Pilih Obat</option>
                         @foreach($obats as $obat)
-                            <option value="{{ $obat->id_obat }}" {{ $hargaObat->id_obat == $obat->id_obat ? 'selected' : '' }}>{{ $obat->nama_obat }} - {{ $obat->satuanObat->nama_satuan ?? '' }}</option>
+                        <option value="{{ $obat->id_obat }}" {{ $hargaObat->id_obat == $obat->id_obat ? 'selected' : ''
+                            }}>{{ $obat->nama_obat }} - {{ $obat->satuanObat->nama_satuan ?? '' }}</option>
                         @endforeach
                     </select>
                     @error('id_obat')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -83,14 +89,14 @@
                     <label for="periode" class="block text-sm font-medium text-gray-700 mb-2">
                         Periode <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="periode" id="periode" value="{{ old('periode', $hargaObat->periode) }}" required
-                           pattern="^(0[1-9]|1[0-2])-(0[1-9]|[1-9][0-9])$"
-                           title="Format: MM-YY (contoh: 10-25). Bulan: 01-12, Tahun: 01-99"
-                           placeholder="MM-YY (contoh: 10-25)"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm">
+                    <input type="text" name="periode" id="periode" value="{{ old('periode', $hargaObat->periode) }}"
+                        required pattern="^(0[1-9]|1[0-2])-(0[1-9]|[1-9][0-9])$"
+                        title="Format: MM-YY (contoh: 10-25). Bulan: 01-12, Tahun: 01-99"
+                        placeholder="MM-YY (contoh: 10-25)"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm">
                     <p class="mt-1 text-xs text-gray-500">Format periode: MM-YY (contoh: 10-25 untuk Oktober 2025)</p>
                     @error('periode')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -99,10 +105,11 @@
                     <label for="jumlah_per_kemasan" class="block text-sm font-medium text-gray-700 mb-2">
                         Jumlah per Kemasan <span class="text-red-500">*</span>
                     </label>
-                    <input type="number" name="jumlah_per_kemasan" id="jumlah_per_kemasan" value="{{ old('jumlah_per_kemasan', $hargaObat->jumlah_per_kemasan) }}" required min="1"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm">
+                    <input type="number" name="jumlah_per_kemasan" id="jumlah_per_kemasan"
+                        value="{{ old('jumlah_per_kemasan', $hargaObat->jumlah_per_kemasan) }}" required min="1"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm">
                     @error('jumlah_per_kemasan')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -115,11 +122,13 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <span class="text-gray-500 text-sm">Rp</span>
                         </div>
-                        <input type="number" name="harga_per_kemasan" id="harga_per_kemasan" value="{{ old('harga_per_kemasan', $hargaObat->harga_per_kemasan) }}" required min="0" step="0.01"
-                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm">
+                        <input type="number" name="harga_per_kemasan" id="harga_per_kemasan"
+                            value="{{ old('harga_per_kemasan', $hargaObat->harga_per_kemasan) }}" required min="0"
+                            step="0.01"
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm">
                     </div>
                     @error('harga_per_kemasan')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -132,11 +141,13 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <span class="text-gray-500 text-sm">Rp</span>
                         </div>
-                        <input type="number" name="harga_per_satuan" id="harga_per_satuan" value="{{ old('harga_per_satuan', $hargaObat->harga_per_satuan) }}" required min="0" step="0.01"
-                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm">
+                        <input type="number" name="harga_per_satuan" id="harga_per_satuan"
+                            value="{{ old('harga_per_satuan', $hargaObat->harga_per_satuan) }}" required min="0"
+                            step="0.01"
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm">
                     </div>
                     @error('harga_per_satuan')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -173,10 +184,12 @@
 
             <!-- Action Buttons -->
             <div class="mt-8 flex justify-end gap-3">
-                <a href="{{ route('harga-obat.index') }}" class="px-5 py-2.5 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <a href="{{ route('harga-obat.index') }}"
+                    class="px-5 py-2.5 bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     Batal
                 </a>
-                <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <button type="submit"
+                    class="px-5 py-2.5 bg-linear-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
@@ -188,7 +201,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
     const obatSelect = document.getElementById('id_obat');
     const infoObat = document.getElementById('infoObat');
     const infoSatuanObat = document.getElementById('infoSatuanObat');

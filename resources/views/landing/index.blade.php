@@ -189,7 +189,7 @@
             flex-direction: row-reverse;
         }
 
-        #chatMessages .message.user .bg-gradient-to-r {
+        #chatMessages .message.user .bg-linear-to-r {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 1rem;

@@ -20,7 +20,7 @@
                 class="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl">
 
                 <!-- Modal Header -->
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-xl">
+                <div class="bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-xl">
                     <div class="flex items-center justify-between">
                         <h3 class="text-xl font-bold text-white flex items-center gap-3">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,684 +238,675 @@
 
                             <div class="flex gap-4">
                                 <!-- Show fingerprint image only if available (from fingerprint verification) -->
-                                <div x-show="verifyResult?.image" class="w-24 flex-shrink-0">
+                                <div x-show="verifyResult?.image" class="w-24 shrink-0">
                                     <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
                                         alt="Fingerprint"
                                         class="w-full h-auto border-2 border-green-500 rounded-lg shadow-sm">
                                 </div>
 
                                 <!-- Show verification method icon for manual verification -->
-                                <div x-show="!verifyResult?.image" class="w-24 flex-shrink-0">
+                                <div x-show="!verifyResult?.image" class="w-24 shrink-0
                                     <div
-                                        class="w-full h-24 bg-green-100 border-2 border-green-500 rounded-lg flex items-center justify-center">
-                                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                        </svg>
-                                    </div>
+                                        class=" w-full h-24 bg-green-100 border-2 border-green-500 rounded-lg flex
+                                    items-center justify-center">
+                                    <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
                                 </div>
+                            </div>
 
-                                <div class="flex-1">
-                                    <div
-                                        class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200 shadow-sm">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg">
-                                                <span
-                                                    x-text="verifyResult?.data?.nama_karyawan ? verifyResult.data.nama_karyawan.charAt(0).toUpperCase() : ''"></span>
-                                            </div>
-                                            <div>
-                                                <p class="text-xs text-green-600 font-medium mb-1">
-                                                    <span x-show="verifyResult?.image">Karyawan Terverifikasi
-                                                        (Fingerprint)</span>
-                                                    <span x-show="!verifyResult?.image">Karyawan Terverifikasi
-                                                        (Manual)</span>
-                                                </p>
-                                                <p class="text-xl font-bold text-gray-900"
-                                                    x-text="verifyResult?.data?.nama_karyawan || ''"></p>
-                                                <p class="text-sm text-gray-600"
-                                                    x-text="verifyResult?.data?.nik_karyawan || ''"></p>
-                                            </div>
+                            <div class="flex-1">
+                                <div
+                                    class="bg-linear-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200 shadow-sm">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-12 h-12 bg-linear-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg">
+                                            <span
+                                                x-text="verifyResult?.data?.nama_karyawan ? verifyResult.data.nama_karyawan.charAt(0).toUpperCase() : ''"></span>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs text-green-600 font-medium mb-1">
+                                                <span x-show="verifyResult?.image">Karyawan Terverifikasi
+                                                    (Fingerprint)</span>
+                                                <span x-show="!verifyResult?.image">Karyawan Terverifikasi
+                                                    (Manual)</span>
+                                            </p>
+                                            <p class="text-xl font-bold text-gray-900"
+                                                x-text="verifyResult?.data?.nama_karyawan || ''"></p>
+                                            <p class="text-sm text-gray-600"
+                                                x-text="verifyResult?.data?.nik_karyawan || ''"></p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div x-show="!verifyResult?.success" class="p-4 bg-red-50 border-2 border-red-500 rounded-lg">
-                            <div class="flex items-center gap-2 mb-3">
-                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span class="font-bold text-red-800">Verifikasi Gagal!</span>
+                    <div x-show="!verifyResult?.success" class="p-4 bg-red-50 border-2 border-red-500 rounded-lg">
+                        <div class="flex items-center gap-2 mb-3">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="font-bold text-red-800">Verifikasi Gagal!</span>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <!-- Show fingerprint image only if available (from fingerprint verification) -->
+                            <div x-show="verifyResult?.image" class="w-24 shrink-0">
+                                <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
+                                    alt="Fingerprint"
+                                    class="w-full h-auto border-2 border-red-500 rounded-lg shadow-sm">
                             </div>
 
-                            <div class="flex gap-4">
-                                <!-- Show fingerprint image only if available (from fingerprint verification) -->
-                                <div x-show="verifyResult?.image" class="w-24 flex-shrink-0">
-                                    <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
-                                        alt="Fingerprint"
-                                        class="w-full h-auto border-2 border-red-500 rounded-lg shadow-sm">
+                            <!-- Show verification method icon for manual verification -->
+                            <div x-show="!verifyResult?.image" class="w-24 shrink-0">
+                                <div
+                                    class="w-full h-24 bg-red-100 border-2 border-red-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
                                 </div>
+                            </div>
 
-                                <!-- Show verification method icon for manual verification -->
-                                <div x-show="!verifyResult?.image" class="w-24 flex-shrink-0">
-                                    <div
-                                        class="w-full h-24 bg-red-100 border-2 border-red-500 rounded-lg flex items-center justify-center">
-                                        <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                        </svg>
-                                    </div>
-                                </div>
-
-                                <div class="flex-1">
-                                    <div
-                                        class="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-lg border border-red-200 shadow-sm">
-                                        <div class="flex items-start gap-3">
-                                            <div
-                                                class="w-12 h-12 flex-shrink-0 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center text-white shadow-lg">
-                                                <svg class="w-6 h-6" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                            <div class="flex-1">
-                                                <p class="text-xs text-red-600 font-medium mb-1">
-                                                    <span x-show="verifyResult?.image">Sidik Jari Tidak Dikenali</span>
-                                                    <span x-show="!verifyResult?.image">Verifikasi Manual Gagal</span>
-                                                </p>
-                                                <p class="text-sm text-gray-700">
-                                                    <span x-show="verifyResult?.image">Tidak ada data fingerprint yang
-                                                        cocok. Silakan coba lagi atau gunakan jari yang sama saat
-                                                        pendaftaran.</span>
-                                                    <span x-show="!verifyResult?.image">Data karyawan tidak ditemukan
-                                                        atau tidak cocok. Pastikan NIK dan tanggal lahir sesuai.</span>
-                                                </p>
-                                            </div>
+                            <div class="flex-1">
+                                <div
+                                    class="bg-linear-to-r from-red-50 to-pink-50 p-4 rounded-lg border border-red-200 shadow-sm">
+                                    <div class="flex items-start gap-3">
+                                        <div
+                                            class="w-12 h-12 shrink-0 bg-linear-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center text-white shadow-lg">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-xs text-red-600 font-medium mb-1">
+                                                <span x-show="verifyResult?.image">Sidik Jari Tidak Dikenali</span>
+                                                <span x-show="!verifyResult?.image">Verifikasi Manual Gagal</span>
+                                            </p>
+                                            <p class="text-sm text-gray-700">
+                                                <span x-show="verifyResult?.image">Tidak ada data fingerprint yang
+                                                    cocok. Silakan coba lagi atau gunakan jari yang sama saat
+                                                    pendaftaran.</span>
+                                                <span x-show="!verifyResult?.image">Data karyawan tidak ditemukan
+                                                    atau tidak cocok. Pastikan NIK dan tanggal lahir sesuai.</span>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="flex gap-3">
-                            <button x-show="verifyResult" @click="resetVerification()"
-                                class="flex-1 bg-gray-500 text-white py-2.5 rounded-lg hover:bg-gray-600 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
-                                Coba Lagi
-                            </button>
+                    <div class="flex gap-3">
+                        <button x-show="verifyResult" @click="resetVerification()"
+                            class="flex-1 bg-gray-500 text-white py-2.5 rounded-lg hover:bg-gray-600 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Coba Lagi
+                        </button>
 
-                            <button x-show="verifyResult?.success" @click="proceedWithVerifiedEmployee()"
-                                class="flex-1 bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
-                                Lanjutkan Pendaftaran
-                            </button>
-                        </div>
+                        <button x-show="verifyResult?.success" @click="proceedWithVerifiedEmployee()"
+                            class="flex-1 bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                            Lanjutkan Pendaftaran
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Header Section -->
-    <div class="mb-6">
-        <div class="flex items-center gap-3 mb-3">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                    <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+</div>
+<!-- Header Section -->
+<div class="mb-6">
+    <div class="flex items-center gap-3 mb-3">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <div class="bg-linear-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                </div>
+                Tambah Rekam Medis
+            </h1>
+            <p class="text-gray-600 mt-1 ml-1">Buat rekam medis baru untuk pasien</p>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Error Messages -->
+@if ($errors->any())
+<div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md animate-shake" id="error-container">
+    <div class="flex items-start">
+        <div class="shrink-0">
+            <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="ml-3 flex-1">
+            <h3 class="text-sm font-semibold text-red-800 mb-2">
+                ⚠️ Terdapat {{ count($errors->all()) }} kesalahan yang perlu diperbaiki:
+            </h3>
+            <div class="mt-2 space-y-1">
+                @foreach ($errors->all() as $index => $error)
+                <div class="flex items-start py-1.5 bg-white bg-opacity-50 rounded px-2">
+                    <span
+                        class="shrink-0 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-100 text-red-600 text-xs font-bold mr-2 mt-0.5">
+                        {{ $index + 1 }}
+                    </span>
+                    <span class="text-sm text-red-700 flex-1">{{ $error }}</span>
+                </div>
+                @endforeach
+            </div>
+            <div class="mt-3 pt-3 border-t border-red-200">
+                <p class="text-xs text-red-600 italic">
+                    💡 Tip: Periksa form di bawah, field yang error ditandai dengan border merah dan pesan error
+                    di bawah masing-masing field.
+                </p>
+            </div>
+        </div>
+        <div class="ml-auto pl-3">
+            <button onclick="document.getElementById('error-container').style.display='none'"
+                class="text-red-400 hover:text-red-600 transition-colors">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- Success Messages -->
+@if (session('success'))
+<div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-md" id="success-container">
+    <div class="flex items-center">
+        <div class="shrink-0">
+            <svg class="h-6 w-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="ml-3">
+            <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+        </div>
+        <div class="ml-auto pl-3">
+            <button onclick="document.getElementById('success-container').style.display='none'"
+                class="text-green-400 hover:text-green-600">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- Error Messages -->
+@if (session('error'))
+<div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md" id="error-session-container">
+    <div class="flex items-center">
+        <div class="shrink-0">
+            <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="ml-3">
+            <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+        </div>
+        <div class="ml-auto pl-3">
+            <button onclick="document.getElementById('error-session-container').style.display='none'"
+                class="text-red-400 hover:text-red-600">
+                <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
+<form action="{{ route('rekam-medis.store') }}" method="POST" id="rekam-medis-form" onsubmit="return validateForm()">
+    @csrf
+
+    <!-- Hidden field for kunjungan_id -->
+    <input type="hidden" id="kunjungan_id" name="kunjungan_id" value="{{ old('kunjungan_id') }}">
+
+    <!-- Hidden field for id_karyawan -->
+    <input type="hidden" id="id_karyawan" name="id_karyawan" value="{{ old('id_karyawan') }}" required>
+
+    <!-- Data Pasien Section -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+        <div class="bg-linear-to-r from-blue-600 to-cyan-600 px-6 py-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Data Pasien
+            </h2>
+        </div>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Info Karyawan (Auto-filled) -->
+                <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Informasi Karyawan</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <span class="text-xs text-gray-500">NIK Karyawan</span>
+                            <p id="info_nik" class="font-medium text-gray-900">-</p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500">Nama Karyawan</span>
+                            <p id="info_nama" class="font-medium text-gray-900">-</p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500">Departemen</span>
+                            <p id="info_departemen" class="font-medium text-gray-900">-</p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500">Foto Karyawan</span>
+                            <div id="info_foto" class="mt-1">
+                                <img id="foto_karyawan" src="" alt="Foto Karyawan"
+                                    class="w-20 h-24 object-cover rounded-lg border border-gray-300 hidden"
+                                    onerror="this.src='https://ui-avatars.com/api/?name=Unknown&background=6b7280&color=fff&size=80'">
+                                <div id="no_foto"
+                                    class="w-20 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                                    <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pilih Anggota Keluarga -->
+                <div class="md:col-span-2">
+                    <label for="id_keluarga" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Pilih Anggota Keluarga <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <select id="id_keluarga" name="id_keluarga"
+                            class="w-full px-4 py-2.5 border @error('id_keluarga') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
+                            required disabled>
+                            <option value="">-- Pilih karyawan terlebih dahulu --</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    @error('id_keluarga')
+                    <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
                         </svg>
-                    </div>
-                    Tambah Rekam Medis
-                </h1>
-                <p class="text-gray-600 mt-1 ml-1">Buat rekam medis baru untuk pasien</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Enhanced Error Messages -->
-    @if ($errors->any())
-    <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md animate-shake" id="error-container">
-        <div class="flex items-start">
-            <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clip-rule="evenodd" />
-                </svg>
-            </div>
-            <div class="ml-3 flex-1">
-                <h3 class="text-sm font-semibold text-red-800 mb-2">
-                    ⚠️ Terdapat {{ count($errors->all()) }} kesalahan yang perlu diperbaiki:
-                </h3>
-                <div class="mt-2 space-y-1">
-                    @foreach ($errors->all() as $index => $error)
-                    <div class="flex items-start py-1.5 bg-white bg-opacity-50 rounded px-2">
-                        <span
-                            class="flex-shrink-0 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-100 text-red-600 text-xs font-bold mr-2 mt-0.5">
-                            {{ $index + 1 }}
-                        </span>
-                        <span class="text-sm text-red-700 flex-1">{{ $error }}</span>
-                    </div>
-                    @endforeach
-                </div>
-                <div class="mt-3 pt-3 border-t border-red-200">
-                    <p class="text-xs text-red-600 italic">
-                        💡 Tip: Periksa form di bawah, field yang error ditandai dengan border merah dan pesan error
-                        di bawah masing-masing field.
+                        {{ $message }}
                     </p>
+                    @enderror
+                </div>
+
+                <!-- NO RM (Auto-filled & Disabled) -->
+                <div>
+                    <label for="no_rm" class="block text-sm font-semibold text-gray-700 mb-2">
+                        NO RM
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                            </svg>
+                        </div>
+                        <input type="text" id="no_rm" name="no_rm"
+                            class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
+                            placeholder="Otomatis terisi" readonly>
+                    </div>
+                </div>
+
+                <!-- Nama Pasien (Auto-filled) -->
+                <div>
+                    <label for="nama_pasien" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Nama Pasien
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                        <input type="text" id="nama_pasien"
+                            class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
+                            placeholder="Otomatis terisi" readonly>
+                    </div>
+                </div>
+
+                <!-- Hubungan (Auto-filled) -->
+                <div>
+                    <label for="hubungan" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Hubungan
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <input type="text" id="hubungan"
+                            class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
+                            placeholder="Otomatis terisi" readonly>
+                    </div>
+                </div>
+
+                <!-- Jenis Kelamin (Auto-filled) -->
+                <div>
+                    <label for="jenis_kelamin" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Jenis Kelamin
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </div>
+                        <input type="text" id="jenis_kelamin"
+                            class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
+                            placeholder="Otomatis terisi" readonly>
+                    </div>
+                </div>
+
+                <!-- Tanggal Periksa -->
+                <div>
+                    <label for="tanggal_periksa" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Tanggal Periksa <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <input type="date" id="tanggal_periksa" name="tanggal_periksa"
+                            value="{{ old('tanggal_periksa', \Carbon\Carbon::now('Asia/Makassar')->format('Y-m-d')) }}"
+                            class="w-full pl-10 pr-4 py-2.5 border @error('tanggal_periksa') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                            required>
+                    </div>
+                    @error('tanggal_periksa')
+                    <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        {{ $message }}
+                    </p>
+                    @enderror
+                </div>
+
+                <!-- Waktu Periksa -->
+                <div>
+                    <label for="waktu_periksa" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Waktu Periksa
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <input type="time" id="waktu_periksa" name="waktu_periksa"
+                            value="{{ old('waktu_periksa', \Carbon\Carbon::now('Asia/Makassar')->format('H:i')) }}"
+                            class="w-full pl-10 pr-4 py-2.5 border @error('waktu_periksa') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    @error('waktu_periksa')
+                    <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        {{ $message }}
+                    </p>
+                    @enderror
+                </div>
+
+                <!-- Status Rekam Medis -->
+                <div>
+                    <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Status Rekam Medis <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <select id="status" name="status"
+                            class="w-full px-4 py-2.5 border @error('status') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
+                            required>
+                            <option value="On Progress" {{ old('status', 'On Progress' )=='On Progress' ? 'selected'
+                                : '' }}>On Progress
+                            </option>
+                            <option value="Close" {{ old('status')=='Close' ? 'selected' : '' }}>Close</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    @error('status')
+                    <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        {{ $message }}
+                    </p>
+                    @enderror
+                </div>
+
+                <!-- Jumlah Keluhan -->
+                <div>
+                    <label for="jumlah_keluhan" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Jumlah Keluhan <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <select id="jumlah_keluhan" name="jumlah_keluhan"
+                            class="w-full px-4 py-2.5 border @error('jumlah_keluhan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
+                            required onchange="updateKeluhanSections(this.value)">
+                            <option value="1" {{ old('jumlah_keluhan', 1)==1 ? 'selected' : '' }}>1 Keluhan
+                            </option>
+                            <option value="2" {{ old('jumlah_keluhan')==2 ? 'selected' : '' }}>2 Keluhan
+                            </option>
+                            <option value="3" {{ old('jumlah_keluhan')==3 ? 'selected' : '' }}>3 Keluhan
+                            </option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    @error('jumlah_keluhan')
+                    <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        {{ $message }}
+                    </p>
+                    @enderror
                 </div>
             </div>
-            <div class="ml-auto pl-3">
-                <button onclick="document.getElementById('error-container').style.display='none'"
-                    class="text-red-400 hover:text-red-600 transition-colors">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </div>
         </div>
     </div>
-    @endif
 
-    <!-- Success Messages -->
-    @if (session('success'))
-    <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-md" id="success-container">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clip-rule="evenodd" />
-                </svg>
-            </div>
-            <div class="ml-3">
-                <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
-            </div>
-            <div class="ml-auto pl-3">
-                <button onclick="document.getElementById('success-container').style.display='none'"
-                    class="text-green-400 hover:text-green-600">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    <!-- Error Messages -->
-    @if (session('error'))
-    <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md" id="error-session-container">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clip-rule="evenodd" />
-                </svg>
-            </div>
-            <div class="ml-3">
-                <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
-            </div>
-            <div class="ml-auto pl-3">
-                <button onclick="document.getElementById('error-session-container').style.display='none'"
-                    class="text-red-400 hover:text-red-600">
-                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    <form action="{{ route('rekam-medis.store') }}" method="POST" id="rekam-medis-form"
-        onsubmit="return validateForm()">
-        @csrf
-
-        <!-- Hidden field for kunjungan_id -->
-        <input type="hidden" id="kunjungan_id" name="kunjungan_id" value="{{ old('kunjungan_id') }}">
-
-        <!-- Hidden field for id_karyawan -->
-        <input type="hidden" id="id_karyawan" name="id_karyawan" value="{{ old('id_karyawan') }}" required>
-
-        <!-- Data Pasien Section -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
+    <!-- Combined Diagnosa & Resep Section -->
+    <div id="keluhan-container">
+        <!-- Keluhan 1 (Template) -->
+        <div class="keluhan-section bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6"
+            data-keluhan-index="0">
+            <div class="bg-linear-to-r from-red-600 to-pink-600 px-6 py-4">
                 <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                    Data Pasien
+                    Diagnosa & Resep Obat
+                    <span class="keluhan-number">(Keluhan 1)</span>
                 </h2>
             </div>
 
             <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Info Karyawan (Auto-filled) -->
-                    <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg">
-                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Informasi Karyawan</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div>
-                                <span class="text-xs text-gray-500">NIK Karyawan</span>
-                                <p id="info_nik" class="font-medium text-gray-900">-</p>
-                            </div>
-                            <div>
-                                <span class="text-xs text-gray-500">Nama Karyawan</span>
-                                <p id="info_nama" class="font-medium text-gray-900">-</p>
-                            </div>
-                            <div>
-                                <span class="text-xs text-gray-500">Departemen</span>
-                                <p id="info_departemen" class="font-medium text-gray-900">-</p>
-                            </div>
-                            <div>
-                                <span class="text-xs text-gray-500">Foto Karyawan</span>
-                                <div id="info_foto" class="mt-1">
-                                    <img id="foto_karyawan" src="" alt="Foto Karyawan"
-                                        class="w-20 h-24 object-cover rounded-lg border border-gray-300 hidden"
-                                        onerror="this.src='https://ui-avatars.com/api/?name=Unknown&background=6b7280&color=fff&size=80'">
-                                    <div id="no_foto"
-                                        class="w-20 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
-                                        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                    </div>
+                <!-- Diagnosa Section -->
+                <div class="mb-6 pb-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Diagnosa</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Diagnosa / Penyakit -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Diagnosa / Penyakit <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <select name="keluhan[0][id_diagnosa]"
+                                    class="diagnosa-select w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
+                                    required data-keluhan-index="0">
+                                    <option value="">-- Pilih Diagnosa --</option>
+                                    @foreach ($diagnosas as $diagnosa)
+                                    <option value="{{ $diagnosa->id_diagnosa }}">
+                                        {{ $diagnosa->nama_diagnosa }}</option>
+                                    @endforeach
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Pilih Anggota Keluarga -->
-                    <div class="md:col-span-2">
-                        <label for="id_keluarga" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Pilih Anggota Keluarga <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <select id="id_keluarga" name="id_keluarga"
-                                class="w-full px-4 py-2.5 border @error('id_keluarga') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
-                                required disabled>
-                                <option value="">-- Pilih karyawan terlebih dahulu --</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
+                        <!-- Terapi -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Terapi <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <select name="keluhan[0][terapi]"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
+                                    required>
+                                    <option value="">-- Pilih Terapi --</option>
+                                    <option value="Obat">Obat</option>
+                                    <option value="Lab">Konsul Faskes Lanjutan</option>
+                                    <option value="Istirahat">Istirahat</option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
                             </div>
                         </div>
-                        @error('id_keluarga')
-                        <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            {{ $message }}
-                        </p>
-                        @enderror
-                    </div>
 
-                    <!-- NO RM (Auto-filled & Disabled) -->
-                    <div>
-                        <label for="no_rm" class="block text-sm font-semibold text-gray-700 mb-2">
-                            NO RM
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                                </svg>
-                            </div>
-                            <input type="text" id="no_rm" name="no_rm"
-                                class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
-                                placeholder="Otomatis terisi" readonly>
+                        <!-- Keterangan -->
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Anamnesa
+                            </label>
+                            <textarea name="keluhan[0][keterangan]" rows="3"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                placeholder="Masukkan catatan medis, anjuran dokter, atau informasi penting lainnya..."></textarea>
                         </div>
-                    </div>
-
-                    <!-- Nama Pasien (Auto-filled) -->
-                    <div>
-                        <label for="nama_pasien" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Nama Pasien
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                            </div>
-                            <input type="text" id="nama_pasien"
-                                class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
-                                placeholder="Otomatis terisi" readonly>
-                        </div>
-                    </div>
-
-                    <!-- Hubungan (Auto-filled) -->
-                    <div>
-                        <label for="hubungan" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Hubungan
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                            <input type="text" id="hubungan"
-                                class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
-                                placeholder="Otomatis terisi" readonly>
-                        </div>
-                    </div>
-
-                    <!-- Jenis Kelamin (Auto-filled) -->
-                    <div>
-                        <label for="jenis_kelamin" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Jenis Kelamin
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                            </div>
-                            <input type="text" id="jenis_kelamin"
-                                class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
-                                placeholder="Otomatis terisi" readonly>
-                        </div>
-                    </div>
-
-                    <!-- Tanggal Periksa -->
-                    <div>
-                        <label for="tanggal_periksa" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Tanggal Periksa <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                            <input type="date" id="tanggal_periksa" name="tanggal_periksa"
-                                value="{{ old('tanggal_periksa', \Carbon\Carbon::now('Asia/Makassar')->format('Y-m-d')) }}"
-                                class="w-full pl-10 pr-4 py-2.5 border @error('tanggal_periksa') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                required>
-                        </div>
-                        @error('tanggal_periksa')
-                        <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            {{ $message }}
-                        </p>
-                        @enderror
-                    </div>
-
-                    <!-- Waktu Periksa -->
-                    <div>
-                        <label for="waktu_periksa" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Waktu Periksa
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <input type="time" id="waktu_periksa" name="waktu_periksa"
-                                value="{{ old('waktu_periksa', \Carbon\Carbon::now('Asia/Makassar')->format('H:i')) }}"
-                                class="w-full pl-10 pr-4 py-2.5 border @error('waktu_periksa') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        </div>
-                        @error('waktu_periksa')
-                        <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            {{ $message }}
-                        </p>
-                        @enderror
-                    </div>
-
-                    <!-- Status Rekam Medis -->
-                    <div>
-                        <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Status Rekam Medis <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <select id="status" name="status"
-                                class="w-full px-4 py-2.5 border @error('status') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
-                                required>
-                                <option value="On Progress" {{ old('status', 'On Progress' )=='On Progress' ? 'selected'
-                                    : '' }}>On Progress
-                                </option>
-                                <option value="Close" {{ old('status')=='Close' ? 'selected' : '' }}>Close</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
-                        @error('status')
-                        <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            {{ $message }}
-                        </p>
-                        @enderror
-                    </div>
-
-                    <!-- Jumlah Keluhan -->
-                    <div>
-                        <label for="jumlah_keluhan" class="block text-sm font-semibold text-gray-700 mb-2">
-                            Jumlah Keluhan <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <select id="jumlah_keluhan" name="jumlah_keluhan"
-                                class="w-full px-4 py-2.5 border @error('jumlah_keluhan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
-                                required onchange="updateKeluhanSections(this.value)">
-                                <option value="1" {{ old('jumlah_keluhan', 1)==1 ? 'selected' : '' }}>1 Keluhan
-                                </option>
-                                <option value="2" {{ old('jumlah_keluhan')==2 ? 'selected' : '' }}>2 Keluhan
-                                </option>
-                                <option value="3" {{ old('jumlah_keluhan')==3 ? 'selected' : '' }}>3 Keluhan
-                                </option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
-                        @error('jumlah_keluhan')
-                        <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            {{ $message }}
-                        </p>
-                        @enderror
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Combined Diagnosa & Resep Section -->
-        <div id="keluhan-container">
-            <!-- Keluhan 1 (Template) -->
-            <div class="keluhan-section bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6"
-                data-keluhan-index="0">
-                <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
-                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        Diagnosa & Resep Obat
-                        <span class="keluhan-number">(Keluhan 1)</span>
-                    </h2>
-                </div>
+                <!-- Resep Obat Section -->
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Resep Obat (Opsional)</h3>
 
-                <div class="p-6">
-                    <!-- Diagnosa Section -->
-                    <div class="mb-6 pb-6 border-b border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Diagnosa</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Diagnosa / Penyakit -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Diagnosa / Penyakit <span class="text-red-500">*</span>
-                                </label>
-                                <div class="relative">
-                                    <select name="keluhan[0][id_diagnosa]"
-                                        class="diagnosa-select w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
-                                        required data-keluhan-index="0">
-                                        <option value="">-- Pilih Diagnosa --</option>
-                                        @foreach ($diagnosas as $diagnosa)
-                                        <option value="{{ $diagnosa->id_diagnosa }}">
-                                            {{ $diagnosa->nama_diagnosa }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div
-                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Terapi -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Terapi <span class="text-red-500">*</span>
-                                </label>
-                                <div class="relative">
-                                    <select name="keluhan[0][terapi]"
-                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
-                                        required>
-                                        <option value="">-- Pilih Terapi --</option>
-                                        <option value="Obat">Obat</option>
-                                        <option value="Lab">Konsul Faskes Lanjutan</option>
-                                        <option value="Istirahat">Istirahat</option>
-                                    </select>
-                                    <div
-                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Keterangan -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Anamnesa
-                                </label>
-                                <textarea name="keluhan[0][keterangan]" rows="3"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    placeholder="Masukkan catatan medis, anjuran dokter, atau informasi penting lainnya..."></textarea>
-                            </div>
+                    <!-- Obat Checkbox List Container -->
+                    <div class="obat-checkbox-container mb-4" data-keluhan-index="0">
+                        <div
+                            class="obat-list bg-gray-50 border border-gray-300 rounded-lg p-4 max-h-60 overflow-y-auto">
+                            <p class="text-sm text-gray-500 italic">Pilih diagnosa terlebih dahulu untuk
+                                menampilkan daftar obat yang sesuai.</p>
                         </div>
                     </div>
 
-                    <!-- Resep Obat Section -->
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Resep Obat (Opsional)</h3>
-
-                        <!-- Obat Checkbox List Container -->
-                        <div class="obat-checkbox-container mb-4" data-keluhan-index="0">
-                            <div
-                                class="obat-list bg-gray-50 border border-gray-300 rounded-lg p-4 max-h-60 overflow-y-auto">
-                                <p class="text-sm text-gray-500 italic">Pilih diagnosa terlebih dahulu untuk
-                                    menampilkan daftar obat yang sesuai.</p>
-                            </div>
-                        </div>
-
-                        <!-- Details for selected obat (will be shown when obat is selected) -->
-                        <div class="selected-obat-details mt-4" data-keluhan-index="0" style="display: none;">
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <h4 class="text-sm font-semibold text-blue-900 mb-3">Detail Obat yang Dipilih</h4>
-                                <div class="obat-details-list space-y-3">
-                                    <!-- Will be populated by JavaScript -->
-                                </div>
+                    <!-- Details for selected obat (will be shown when obat is selected) -->
+                    <div class="selected-obat-details mt-4" data-keluhan-index="0" style="display: none;">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h4 class="text-sm font-semibold text-blue-900 mb-3">Detail Obat yang Dipilih</h4>
+                            <div class="obat-details-list space-y-3">
+                                <!-- Will be populated by JavaScript -->
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Form Actions -->
-        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-            <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
-                <button type="button" onclick="window.location.href='{{ route('rekam-medis.index') }}'"
-                    class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Batal
-                </button>
-                <button type="submit"
-                    class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Simpan Rekam Medis
-                </button>
-            </div>
+    <!-- Form Actions -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+            <button type="button" onclick="window.location.href='{{ route('rekam-medis.index') }}'"
+                class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Batal
+            </button>
+            <button type="submit"
+                class="px-6 py-2.5 bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Simpan Rekam Medis
+            </button>
         </div>
-    </form>
+    </div>
+</form>
 </div>
 
 @push('scripts')

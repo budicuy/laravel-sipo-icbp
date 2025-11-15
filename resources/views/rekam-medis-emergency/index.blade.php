@@ -8,9 +8,10 @@
     <div class="mb-6">
         <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-r from-red-600 to-pink-600 p-3 rounded-lg shadow-lg">
+                <div class="bg-linear-to-r from-red-600 to-pink-600 p-3 rounded-lg shadow-lg">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 </div>
                 <div>
@@ -19,7 +20,8 @@
                 </div>
             </div>
             <div class="flex gap-3">
-                <a href="{{ route('rekam-medis.chooseType') }}?type=emergency" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                <a href="{{ route('rekam-medis.chooseType') }}?type=emergency"
+                    class="bg-linear-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -36,41 +38,50 @@
                 <!-- Dari Tanggal -->
                 <div class="flex items-center gap-2">
                     <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Dari:</label>
-                    <input type="date" name="dari_tanggal" value="{{ request('dari_tanggal') }}" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="date" name="dari_tanggal" value="{{ request('dari_tanggal') }}"
+                        class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                 </div>
 
                 <!-- Sampai Tanggal -->
                 <div class="flex items-center gap-2">
                     <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Sampai:</label>
-                    <input type="date" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="date" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}"
+                        class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                 </div>
 
                 <!-- Search -->
                 <div class="flex items-center gap-2 flex-1 min-w-[200px]">
-                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, NIK, atau No RM..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, NIK, atau No RM..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                 </div>
 
                 <!-- Status Filter -->
                 <div class="flex items-center gap-2">
                     <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Status:</label>
-                    <select name="status" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <select name="status"
+                        class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                         <option value="">Semua</option>
-                        <option value="On Progress" {{ request('status') == 'On Progress' ? 'selected' : '' }}>On Progress</option>
-                        <option value="Close" {{ request('status') == 'Close' ? 'selected' : '' }}>Close</option>
+                        <option value="On Progress" {{ request('status')=='On Progress' ? 'selected' : '' }}>On Progress
+                        </option>
+                        <option value="Close" {{ request('status')=='Close' ? 'selected' : '' }}>Close</option>
                     </select>
                 </div>
 
                 <!-- Buttons -->
                 <div class="flex items-center gap-2">
-                    <button type="submit" class="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                    <button type="submit"
+                        class="bg-linear-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                         </svg>
                         Filter
                     </button>
-                    <a href="{{ route('rekam-medis-emergency.index') }}" class="bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+                    <a href="{{ route('rekam-medis-emergency.index') }}"
+                        class="bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         Reset
                     </a>
@@ -82,20 +93,22 @@
     <!-- Table Section -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <!-- Table Header -->
-        <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
+        <div class="bg-linear-to-r from-red-600 to-pink-600 px-6 py-4">
             <div class="flex items-center justify-between">
                 <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Data Rekam Medis Emergency
                 </h2>
                 <form action="{{ route('rekam-medis-emergency.index') }}" method="GET" class="flex items-center gap-2">
                     <label class="text-white text-sm">Show</label>
-                    <select name="per_page" onchange="this.form.submit()" class="px-3 py-1.5 bg-white border border-white rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-white">
-                        <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                        <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                    <select name="per_page" onchange="this.form.submit()"
+                        class="px-3 py-1.5 bg-white border border-white rounded-lg text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-white">
+                        <option value="50" {{ request('per_page', 50)==50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page')==100 ? 'selected' : '' }}>100</option>
+                        <option value="200" {{ request('per_page')==200 ? 'selected' : '' }}>200</option>
                     </select>
                     <span class="text-white text-sm">entries</span>
                 </form>
@@ -107,20 +120,47 @@
             <table class="w-full">
                 <thead class="bg-gray-800">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tgl / Hari</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Waktu</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">NIK</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Karyawan</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Kode RM</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Nama Pasien</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Diagnosa</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Keluhan</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Catatan</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
-                        <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Detail</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Petugas Medis</th>
-                        <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            No</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Tgl / Hari</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Waktu</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            NIK</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Nama Karyawan</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Kode RM</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Nama Pasien</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Diagnosa</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Keluhan</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Catatan</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Status</th>
+                        <th
+                            class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Detail</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Petugas Medis</th>
+                        <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -132,7 +172,9 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             {{ $rm->tanggal_periksa ? $rm->tanggal_periksa->format('d-m-Y') : '-' }}
                             <br>
-                            <small class="text-gray-500">{{ $rm->tanggal_periksa ? \Carbon\Carbon::parse($rm->tanggal_periksa)->locale('id')->translatedFormat('l') : '-' }}</small>
+                            <small class="text-gray-500">{{ $rm->tanggal_periksa ?
+                                \Carbon\Carbon::parse($rm->tanggal_periksa)->locale('id')->translatedFormat('l') : '-'
+                                }}</small>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             {{ $rm->waktu_periksa ? $rm->waktu_periksa->format('H:i') : '-' }}
@@ -140,10 +182,12 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             {{ $rm->externalEmployee->nik_employee ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
                             {{ $rm->externalEmployee->nama_employee ?? '-' }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
                             {{ $rm->externalEmployee->kode_rm ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
@@ -169,19 +213,21 @@
                                 <select class="status-select px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500
                                     @if($rm->status == 'On Progress') bg-yellow-100 text-yellow-800
                                     @elseif($rm->status == 'Close') bg-green-100 text-green-800
-                                    @endif"
-                                    data-id="{{ $rm->id_emergency }}"
-                                    data-current-status="{{ $rm->status }}">
-                                    <option value="On Progress" {{ $rm->status == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                                    @endif" data-id="{{ $rm->id_emergency }}" data-current-status="{{ $rm->status }}">
+                                    <option value="On Progress" {{ $rm->status == 'On Progress' ? 'selected' : '' }}>On
+                                        Progress</option>
                                     <option value="Close" {{ $rm->status == 'Close' ? 'selected' : '' }}>Close</option>
                                 </select>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
-                            <a href="{{ route('rekam-medis-emergency.show', $rm->id_emergency) }}" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
+                            <a href="{{ route('rekam-medis-emergency.show', $rm->id_emergency) }}"
+                                class="bg-linear-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                                 Detail
                             </a>
@@ -191,16 +237,20 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             <div class="flex items-center justify-center space-x-2">
-                                <a href="{{ route('rekam-medis-emergency.edit', $rm->id_emergency) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded">
+                                <a href="{{ route('rekam-medis-emergency.edit', $rm->id_emergency) }}"
+                                    class="bg-yellow-500 hover:bg-yellow-600 text-white p-1.5 rounded">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </a>
-                                <button type="button" class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded delete-btn"
-                                        data-id="{{ $rm->id_emergency }}"
-                                        data-nama="{{ $rm->externalEmployee->nama_employee ?? 'Pasien' }}">
+                                <button type="button"
+                                    class="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded delete-btn"
+                                    data-id="{{ $rm->id_emergency }}"
+                                    data-nama="{{ $rm->externalEmployee->nama_employee ?? 'Pasien' }}">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
                             </div>
@@ -209,8 +259,10 @@
                     @empty
                     <tr>
                         <td colspan="14" class="px-6 py-8 text-center text-gray-500">
-                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                             <p class="text-lg font-medium">Tidak ada data rekam medis emergency</p>
                             <p class="text-sm mt-1">Silakan tambahkan data rekam medis emergency baru</p>
@@ -234,72 +286,88 @@
 
                 <nav class="flex items-center gap-2" role="navigation">
                     @if($rekamMedisEmergency->onFirstPage())
-                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
-                            </svg>
-                        </span>
+                    <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                        </svg>
+                    </span>
                     @else
-                        <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
-                            </svg>
-                        </a>
+                    <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url(1) }}"
+                        class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                        </svg>
+                    </a>
                     @endif
 
                     @if($rekamMedisEmergency->onFirstPage())
-                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
+                    <span
+                        class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
                     @else
-                        <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">Previous</a>
+                    <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->previousPageUrl() }}"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">Previous</a>
                     @endif
 
                     <div class="flex items-center gap-1">
                         @php
-                            $start = max($rekamMedisEmergency->currentPage() - 2, 1);
-                            $end = min($rekamMedisEmergency->currentPage() + 2, $rekamMedisEmergency->lastPage());
+                        $start = max($rekamMedisEmergency->currentPage() - 2, 1);
+                        $end = min($rekamMedisEmergency->currentPage() + 2, $rekamMedisEmergency->lastPage());
                         @endphp
 
                         @if($start > 1)
-                            <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">1</a>
-                            @if($start > 2)
-                                <span class="px-2 text-gray-500">...</span>
-                            @endif
+                        <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url(1) }}"
+                            class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">1</a>
+                        @if($start > 2)
+                        <span class="px-2 text-gray-500">...</span>
+                        @endif
                         @endif
 
-                        @for($i = $start; $i <= $end; $i++)
-                            @if($i == $rekamMedisEmergency->currentPage())
-                                <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg shadow-md">{{ $i }}</span>
+                        @for($i = $start; $i <= $end; $i++) @if($i==$rekamMedisEmergency->currentPage())
+                            <span
+                                class="px-3 py-2 text-sm font-bold text-white bg-linear-to-r from-red-600 to-pink-600 rounded-lg shadow-md">{{
+                                $i }}</span>
                             @else
-                                <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">{{ $i }}</a>
+                            <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url($i) }}"
+                                class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">{{
+                                $i }}</a>
                             @endif
-                        @endfor
+                            @endfor
 
-                        @if($end < $rekamMedisEmergency->lastPage())
-                            @if($end < $rekamMedisEmergency->lastPage() - 1)
-                                <span class="px-2 text-gray-500">...</span>
-                            @endif
-                            <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url($rekamMedisEmergency->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">{{ $rekamMedisEmergency->lastPage() }}</a>
-                        @endif
+                            @if($end < $rekamMedisEmergency->lastPage())
+                                @if($end < $rekamMedisEmergency->lastPage() - 1)
+                                    <span class="px-2 text-gray-500">...</span>
+                                    @endif
+                                    <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url($rekamMedisEmergency->lastPage()) }}"
+                                        class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">{{
+                                        $rekamMedisEmergency->lastPage() }}</a>
+                                    @endif
                     </div>
 
                     @if($rekamMedisEmergency->hasMorePages())
-                        <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">Next</a>
+                    <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->nextPageUrl() }}"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">Next</a>
                     @else
-                        <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
+                    <span
+                        class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
                     @endif
 
                     @if($rekamMedisEmergency->currentPage() == $rekamMedisEmergency->lastPage())
-                        <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
-                            </svg>
-                        </span>
+                    <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                        </svg>
+                    </span>
                     @else
-                        <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url($rekamMedisEmergency->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
-                            </svg>
-                        </a>
+                    <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url($rekamMedisEmergency->lastPage()) }}"
+                        class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-red-50 hover:border-red-400 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                        </svg>
+                    </a>
                     @endif
                 </nav>
             </div>
@@ -310,7 +378,7 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
     // Handle delete confirmation with SweetAlert
     document.querySelectorAll('.delete-btn').forEach(button => {
         button.addEventListener('click', function() {

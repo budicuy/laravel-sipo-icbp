@@ -48,7 +48,7 @@
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 min-h-screen py-8 px-4 relative">
+<body class="bg-linear-to-br from-green-50 via-emerald-50 to-teal-50 min-h-screen py-8 px-4 relative">
     <!-- Watermark -->
     <div class="watermark">VERIFIED</div>
 
@@ -68,7 +68,7 @@
 
         <!-- Verification Status Banner -->
         <div
-            class="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl p-6 mb-8 card-shadow badge-verified">
+            class="bg-linear-to-r from-green-500 to-emerald-600 text-white rounded-2xl p-6 mb-8 card-shadow badge-verified">
             <div class="flex items-center justify-center gap-4">
                 <div class="bg-white/20 p-4 rounded-full">
                     <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,7 +85,7 @@
         <!-- Main Card -->
         <div class="bg-white rounded-2xl card-shadow overflow-hidden mb-6">
             <!-- Header Section -->
-            <div class="bg-gradient-to-r from-gray-800 to-gray-900 p-6 text-white">
+            <div class="bg-linear-to-r from-gray-800 to-gray-900 p-6 text-white">
                 <div class="flex flex-wrap items-start justify-center md:justify-between gap-4 md:gap-0">
                     <div>
                         <h3 class="text-xl font-semibold mb-1">Surat Pengantar Istirahat Sakit</h3>
@@ -165,8 +165,7 @@
                 </div>
 
                 <!-- Rest Period - Highlighted -->
-                <div
-                    class="bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-300 rounded-2xl p-6 mb-8">
+                <div class="bg-linear-to-br from-yellow-50 to-amber-50 border-2 border-yellow-300 rounded-2xl p-6 mb-8">
                     <h4 class="text-sm font-semibold text-yellow-800 uppercase tracking-wide mb-5 flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

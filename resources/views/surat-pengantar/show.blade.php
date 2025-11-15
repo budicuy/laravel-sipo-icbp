@@ -8,7 +8,7 @@
         <!-- Header -->
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">
+                <div class="bg-linear-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -22,7 +22,7 @@
         <!-- Main Card -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
             <!-- Header Info -->
-            <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
+            <div class="bg-linear-to-r from-green-600 to-emerald-600 p-6 text-white">
                 <h2 class="text-xl font-semibold">Surat Pengantar Istirahat Sakit</h2>
                 <p class="text-green-100 text-sm mt-1">PT. Indofood CBP Sukses Makmur Tbk</p>
             </div>
@@ -122,7 +122,7 @@
                         Kembali
                     </a>
                     <a href="{{ route('surat-pengantar.print', $suratPengantar->id) }}" target="_blank"
-                        class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                        class="bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />

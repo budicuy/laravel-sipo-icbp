@@ -14,9 +14,10 @@
             </a>
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                    <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-3 rounded-lg shadow-lg">
+                    <div class="bg-linear-to-r from-purple-600 to-pink-600 p-3 rounded-lg shadow-lg">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                     </div>
                     Edit Data Keluarga Karyawan
@@ -31,10 +32,11 @@
         @method('PUT')
 
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-            <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+            <div class="bg-linear-to-r from-purple-600 to-pink-600 px-6 py-4">
                 <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                     </svg>
                     Informasi Data Keluarga
                 </h2>
@@ -49,31 +51,39 @@
                         </label>
                         <div class="relative">
                             <input type="text" id="nik_search" autocomplete="off"
-                                   class="w-full px-4 py-2.5 border @error('id_karyawan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                                   placeholder="Ketik NIK (hanya angka) atau nama karyawan...">
-                            <div id="search_results" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-64 overflow-y-auto">
+                                class="w-full px-4 py-2.5 border @error('id_karyawan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                                placeholder="Ketik NIK (hanya angka) atau nama karyawan...">
+                            <div id="search_results"
+                                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-64 overflow-y-auto">
                                 <!-- Search results will be displayed here -->
                             </div>
                         </div>
-                        <input type="hidden" name="id_karyawan" id="id_karyawan" value="{{ old('id_karyawan', $keluarga->id_karyawan) }}">
+                        <input type="hidden" name="id_karyawan" id="id_karyawan"
+                            value="{{ old('id_karyawan', $keluarga->id_karyawan) }}">
                         <div id="selected_karyawan" class="mt-2">
                             <div class="flex items-center gap-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                                 <div class="flex-1">
-                                    <p class="text-sm font-semibold text-gray-900" id="selected_nama">{{ optional($keluarga->karyawan)->nama_karyawan }}</p>
-                                    <p class="text-xs text-gray-600" id="selected_nik">NIK: {{ optional($keluarga->karyawan)->nik_karyawan }}</p>
+                                    <p class="text-sm font-semibold text-gray-900" id="selected_nama">{{
+                                        optional($keluarga->karyawan)->nama_karyawan }}</p>
+                                    <p class="text-xs text-gray-600" id="selected_nik">NIK: {{
+                                        optional($keluarga->karyawan)->nik_karyawan }}</p>
                                 </div>
-                                <button type="button" onclick="enableSearch()" class="text-purple-600 hover:text-purple-700">
+                                <button type="button" onclick="enableSearch()"
+                                    class="text-purple-600 hover:text-purple-700">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </button>
                             </div>
                         </div>
                         @error('id_karyawan')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -83,16 +93,21 @@
                             Hubungan dengan Karyawan <span class="text-red-600">*</span>
                         </label>
                         <select name="kode_hubungan" id="kode_hubungan" required onchange="handleHubunganChange()"
-                                class="w-full px-4 py-2.5 border @error('kode_hubungan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                            class="w-full px-4 py-2.5 border @error('kode_hubungan') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
                             <option value="">-- Pilih Hubungan --</option>
-                            <option value="A" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'A' ? 'selected' : '' }}>Karyawan</option>
-                            <option value="B" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'B' ? 'selected' : '' }}>Suami/Istri</option>
-                            <option value="C" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'C' ? 'selected' : '' }}>Anak Ke-1</option>
-                            <option value="D" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'D' ? 'selected' : '' }}>Anak Ke-2</option>
-                            <option value="E" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'E' ? 'selected' : '' }}>Anak Ke-3</option>
+                            <option value="A" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'A' ? 'selected' : ''
+                                }}>Karyawan</option>
+                            <option value="B" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'B' ? 'selected' : ''
+                                }}>Suami/Istri</option>
+                            <option value="C" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'C' ? 'selected' : ''
+                                }}>Anak Ke-1</option>
+                            <option value="D" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'D' ? 'selected' : ''
+                                }}>Anak Ke-2</option>
+                            <option value="E" {{ old('kode_hubungan', $keluarga->kode_hubungan) == 'E' ? 'selected' : ''
+                                }}>Anak Ke-3</option>
                         </select>
                         @error('kode_hubungan')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -101,11 +116,12 @@
                         <label for="nama_keluarga" class="block text-sm font-semibold text-gray-700 mb-2">
                             Nama Keluarga <span class="text-red-600">*</span>
                         </label>
-                        <input type="text" name="nama_keluarga" id="nama_keluarga" value="{{ old('nama_keluarga', $keluarga->nama_keluarga) }}" required
-                               class="w-full px-4 py-2.5 border @error('nama_keluarga') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                               placeholder="Masukkan nama lengkap keluarga">
+                        <input type="text" name="nama_keluarga" id="nama_keluarga"
+                            value="{{ old('nama_keluarga', $keluarga->nama_keluarga) }}" required
+                            class="w-full px-4 py-2.5 border @error('nama_keluarga') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                            placeholder="Masukkan nama lengkap keluarga">
                         @error('nama_keluarga')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -115,11 +131,11 @@
                             BPJS ID
                         </label>
                         <input type="text" name="bpjs_id" id="bpjs_id" value="{{ old('bpjs_id', $keluarga->bpjs_id) }}"
-                               class="w-full px-4 py-2.5 border @error('bpjs_id') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                               placeholder="Masukkan BPJS ID (hanya angka)" maxlength="50">
+                            class="w-full px-4 py-2.5 border @error('bpjs_id') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                            placeholder="Masukkan BPJS ID (hanya angka)" maxlength="50">
                         <p class="mt-1 text-xs text-gray-500">Hanya angka, maksimal 50 karakter</p>
                         @error('bpjs_id')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -131,14 +147,18 @@
                             Jenis Kelamin <span class="text-red-600">*</span>
                         </label>
                         <select name="jenis_kelamin" id="jenis_kelamin" required
-                                class="w-full px-4 py-2.5 border @error('jenis_kelamin') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                            class="w-full px-4 py-2.5 border @error('jenis_kelamin') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
                             <option value="">-- Pilih Jenis Kelamin --</option>
-                            <option value="L" {{ old('jenis_kelamin', $keluarga->jenis_kelamin) == 'L' || old('jenis_kelamin', $keluarga->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                            <option value="P" {{ old('jenis_kelamin', $keluarga->jenis_kelamin) == 'P' || old('jenis_kelamin', $keluarga->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                            <option value="L" {{ old('jenis_kelamin', $keluarga->jenis_kelamin) == 'L' ||
+                                old('jenis_kelamin', $keluarga->jenis_kelamin) == 'Laki-laki' ? 'selected' : ''
+                                }}>Laki-laki</option>
+                            <option value="P" {{ old('jenis_kelamin', $keluarga->jenis_kelamin) == 'P' ||
+                                old('jenis_kelamin', $keluarga->jenis_kelamin) == 'Perempuan' ? 'selected' : ''
+                                }}>Perempuan</option>
                         </select>
                         <input type="hidden" id="jenis_kelamin_hidden" name="jenis_kelamin_backup" value="">
                         @error('jenis_kelamin')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -147,10 +167,12 @@
                         <label for="tanggal_lahir" class="block text-sm font-semibold text-gray-700 mb-2">
                             Tanggal Lahir <span class="text-red-600">*</span>
                         </label>
-                        <input type="date" name="tanggal_lahir" id="tanggal_lahir" value="{{ old('tanggal_lahir', optional($keluarga->tanggal_lahir)->format('Y-m-d')) }}" required
-                               class="w-full px-4 py-2.5 border @error('tanggal_lahir') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
+                        <input type="date" name="tanggal_lahir" id="tanggal_lahir"
+                            value="{{ old('tanggal_lahir', optional($keluarga->tanggal_lahir)->format('Y-m-d')) }}"
+                            required
+                            class="w-full px-4 py-2.5 border @error('tanggal_lahir') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm">
                         @error('tanggal_lahir')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
@@ -161,23 +183,26 @@
                         Alamat <span class="text-red-600">*</span>
                     </label>
                     <textarea name="alamat" id="alamat" rows="3" required
-                              class="w-full px-4 py-2.5 border @error('alamat') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm resize-none"
-                              placeholder="Masukkan alamat lengkap">{{ old('alamat', $keluarga->alamat) }}</textarea>
+                        class="w-full px-4 py-2.5 border @error('alamat') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm resize-none"
+                        placeholder="Masukkan alamat lengkap">{{ old('alamat', $keluarga->alamat) }}</textarea>
                     @error('alamat')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
 
             <!-- Form Actions -->
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-                <button type="button" onclick="window.location.href='{{ route('keluarga.index') }}'" class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
+                <button type="button" onclick="window.location.href='{{ route('keluarga.index') }}'"
+                    class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     Batal
                 </button>
-                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <button type="submit"
+                    class="px-6 py-2.5 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
@@ -190,7 +215,7 @@
 
 @push('scripts')
 <script>
-let debounceTimer;
+    let debounceTimer;
 let selectedKaryawanData = null; // Store selected karyawan data
 
 // NIK Search functionality

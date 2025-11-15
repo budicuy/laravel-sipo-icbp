@@ -1,4 +1,4 @@
-<aside class="bg-gradient-to-b from-white to-gray-50 flex-shrink-0 transition-all duration-300 border-r border-gray-200"
+<aside class="bg-linear-to-b from-white to-gray-50 flex-shrink-0 transition-all duration-300 border-r border-gray-200"
     :class="sidebarOpen ? 'w-64' : 'w-20'" x-data="{
         activeMenu: '{{ request()->segment(1) ?? 'dashboard' }}',
         hasValidToken: {{ session('valid_emergency_token') ? 'true' : 'false' }}
@@ -22,7 +22,7 @@
                 <!-- Dashboard -->
                 <li>
                     <a href="{{ route('dashboard') }}"
-                        class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-linear-to-r from-blue-500 to-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Dashboard' : ''" @click="activeMenu = 'dashboard'">
                         <div class="relative">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
@@ -63,14 +63,14 @@
                             request()->is('diagnosa*') ||
                             request()->is('user*') ||
                             request()->is('external-employee*')
-                                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
+                                ? 'bg-linear-to-r from-purple-500 to-purple-600 text-white'
                                 : 'text-gray-700 hover:bg-gray-100')
                             : (request()->is('karyawan*') ||
                             request()->is('keluarga*') ||
                             request()->is('obat*') ||
                             request()->is('diagnosa*') ||
                             request()->is('external-employee*')
-                                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
+                                ? 'bg-linear-to-r from-purple-500 to-purple-600 text-white'
                                 : 'text-gray-700 hover:bg-gray-100') }}" :title="!sidebarOpen ? 'Master Data' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
@@ -141,9 +141,10 @@
                 </li>
 
                 <!-- Rekam Medis (Dropdown) -->
-                <li x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-pengantar*') ? 'true' : 'false' }} }">
+                <li
+                    x-data="{ open: {{ request()->is('rekam-medis*') || request()->is('surat-pengantar*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-pengantar*') ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('rekam-medis*') || request()->is('surat-pengantar*') ? 'bg-linear-to-r from-green-500 to-emerald-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Rekam Medis' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
@@ -203,7 +204,7 @@
                 <li
                     x-data="{ open: {{ request()->is('harga-obat*') || request()->is('stok-obat*') || request()->is('stok*') || request()->is('monitoring*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('harga-obat*') || request()->is('stok-obat*') || request()->is('stok*') || request()->is('monitoring*') ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('harga-obat*') || request()->is('stok-obat*') || request()->is('stok*') || request()->is('monitoring*') ? 'bg-linear-to-r from-indigo-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Manajemen Obat' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
@@ -251,7 +252,7 @@
                 <li
                     x-data="{ open: {{ request()->is('kunjungan*') || request()->is('laporan*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('kunjungan*') || request()->is('laporan*') ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('kunjungan*') || request()->is('laporan*') ? 'bg-linear-to-r from-orange-500 to-red-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Report' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
@@ -295,7 +296,7 @@
                 @if (auth()->user()->role === 'Super Admin' || auth()->user()->role === 'Admin')
                 <li>
                     <a href="{{ route('token-emergency.monitoring') }}"
-                        class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('token-emergency/monitoring*') ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('token-emergency/monitoring*') ? 'bg-linear-to-r from-purple-500 to-indigo-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Monitoring Token Emergency' : ''"
                         @click="activeMenu = 'token-emergency-monitoring'">
                         <div class="relative">

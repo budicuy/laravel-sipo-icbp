@@ -7,9 +7,10 @@
     <!-- Header Section -->
     <div class="mb-6">
         <div class="flex items-center gap-3">
-            <div class="bg-gradient-to-r from-yellow-500 to-orange-500 p-3 rounded-lg shadow-lg">
+            <div class="bg-linear-to-r from-yellow-500 to-orange-500 p-3 rounded-lg shadow-lg">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
             <div>
@@ -25,13 +26,16 @@
                 <div class="flex">
                     <div class="flex-shrink-0">
                         <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                clip-rule="evenodd" />
                         </svg>
                     </div>
                     <div class="ml-3">
                         <h3 class="text-sm font-medium text-blue-800">Informasi Permintaan Token</h3>
                         <p class="text-sm text-blue-700 mt-1">
-                            Permintaan token Anda akan ditinjau oleh admin. Jika disetujui, token akan digenerate dan dapat digunakan untuk membuat rekam medis emergency.
+                            Permintaan token Anda akan ditinjau oleh admin. Jika disetujui, token akan digenerate dan
+                            dapat digunakan untuk membuat rekam medis emergency.
                         </p>
                     </div>
                 </div>
@@ -46,7 +50,9 @@
                         Jumlah Token <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
-                        <select id="quantity" name="quantity" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent appearance-none bg-white" required>
+                        <select id="quantity" name="quantity"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent appearance-none bg-white"
+                            required>
                             <option value="">Pilih Jumlah</option>
                             <option value="1">1 Token</option>
                             <option value="2">2 Token</option>
@@ -56,9 +62,11 @@
                             <option value="15">15 Token</option>
                             <option value="20">20 Token</option>
                         </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
                     </div>
@@ -69,11 +77,9 @@
                     <label for="notes" class="block text-sm font-semibold text-gray-700 mb-2">
                         Alasan Permintaan
                     </label>
-                    <textarea id="notes"
-                              name="notes"
-                              rows="3"
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                              placeholder="Jelaskan alasan Anda membutuhkan token emergency..."></textarea>
+                    <textarea id="notes" name="notes" rows="3"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                        placeholder="Jelaskan alasan Anda membutuhkan token emergency..."></textarea>
                     <p class="mt-2 text-sm text-gray-500">Opsional: Jelaskan alasan Anda membutuhkan token</p>
                 </div>
             </div>
@@ -82,7 +88,9 @@
                 <div class="flex">
                     <div class="flex-shrink-0">
                         <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                clip-rule="evenodd" />
                         </svg>
                     </div>
                     <div class="ml-3">
@@ -100,15 +108,19 @@
             </div>
 
             <div class="mt-8 flex justify-end gap-3">
-                <a href="{{ route('dashboard') }}" class="px-6 py-3 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
+                <a href="{{ route('dashboard') }}"
+                    class="px-6 py-3 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     Batal
                 </a>
-                <button type="submit" class="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all flex items-center">
+                <button type="submit"
+                    class="px-6 py-3 bg-linear-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Ajukan Permintaan
                 </button>
@@ -120,7 +132,7 @@
 
 @section('script')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
     // Auto-focus pada select pertama
     document.getElementById('quantity').focus();
 });

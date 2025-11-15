@@ -16,7 +16,7 @@
     <!-- Header Section -->
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-3 rounded-lg shadow-lg">
+            <div class="bg-linear-to-r from-blue-600 to-cyan-600 p-3 rounded-lg shadow-lg">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -25,9 +25,8 @@
             Selamat
             Datang
             <span id="typing-name"
-                class="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent"></span><span
-                id="cursor"
-                class="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent animate-pulse">|</span>
+                class="bg-linear-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent"></span><span id="cursor"
+                class="bg-linear-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent animate-pulse">|</span>
             di
             Dashboard
             SIPO
@@ -62,7 +61,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
         <!-- Card 1 - Total Karyawan -->
         <div onclick="navigateToKaryawan()"
-            class="relative overflow-hidden bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
+            class="relative overflow-hidden bg-linear-to-br from-blue-500 via-blue-600 to-blue-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full">
             </div>
             <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full">
@@ -94,7 +93,7 @@
 
         <!-- Card 2 - Total Rekam Medis -->
         <div onclick="navigateToRekamMedis()"
-            class="relative overflow-hidden bg-gradient-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
+            class="relative overflow-hidden bg-linear-to-br from-green-500 via-green-600 to-green-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full">
             </div>
             <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full">
@@ -126,7 +125,7 @@
 
         <!-- Card 3 - Kunjungan Hari Ini -->
         <div onclick="navigateToKunjunganHariIni()"
-            class="relative overflow-hidden bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
+            class="relative overflow-hidden bg-linear-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full">
             </div>
             <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full">
@@ -158,7 +157,7 @@
 
         <!-- Card 4 - On Progress -->
         <div onclick="navigateToOnProgress()"
-            class="relative overflow-hidden bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
+            class="relative overflow-hidden bg-linear-to-br from-red-500 via-red-600 to-red-700 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full">
             </div>
             <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full">
@@ -189,7 +188,7 @@
 
         <!-- Card 5 - Close -->
         <div onclick="navigateToClose()"
-            class="relative overflow-hidden bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
+            class="relative overflow-hidden bg-linear-to-br from-gray-600 via-gray-700 to-gray-800 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full">
             </div>
             <div class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full">
@@ -300,7 +299,7 @@
 
             <div class="flex items-end">
                 <button onclick="filterCharts()"
-                    class="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                    class="w-full px-6 py-2.5 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -318,7 +317,7 @@
     <!-- Analytics Section - Combined Card -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-6">
+        <div class="bg-linear-to-r from-blue-600 to-cyan-600 p-6">
             <div class="flex items-center gap-3">
                 <div class="bg-white p-3 rounded-lg shadow-lg">
                     <svg class="w-8 h-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
@@ -354,7 +353,7 @@
             <!-- Charts Grid - Harian & Mingguan -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <!-- Chart 1 - Kunjungan Harian -->
-                <div class="bg-gradient-to-br from-gray-50 to-teal-50 border border-teal-100 rounded-lg p-5">
+                <div class="bg-linear-to-br from-gray-50 to-teal-50 border border-teal-100 rounded-lg p-5">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 bg-teal-500 rounded-full">
@@ -373,7 +372,7 @@
                 </div>
 
                 <!-- Chart 2 - Kunjungan Mingguan -->
-                <div class="bg-gradient-to-br from-gray-50 to-red-50 border border-red-100 rounded-lg p-5">
+                <div class="bg-linear-to-br from-gray-50 to-red-50 border border-red-100 rounded-lg p-5">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 bg-red-500 rounded-full">
@@ -393,7 +392,7 @@
             </div>
 
             <!-- Chart 3 - Kunjungan Bulanan (Full Width) -->
-            <div class="bg-gradient-to-br from-gray-50 to-blue-50 border border-blue-100 rounded-lg p-5">
+            <div class="bg-linear-to-br from-gray-50 to-blue-50 border border-blue-100 rounded-lg p-5">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-2">
                         <div class="w-3 h-3 bg-blue-500 rounded-full">
@@ -414,7 +413,7 @@
     </div>
     <div class="bg-white mt-10 rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
+        <div class="bg-linear-to-r from-purple-600 to-pink-600 p-6">
             <div class="flex items-center gap-3">
                 <div class="bg-white p-3 rounded-lg shadow-lg">
                     <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -441,7 +440,7 @@
                 <!-- Chart Area - 1 kolom -->
                 <div class="lg:col-span-1">
                     <div
-                        class="bg-gradient-to-br from-gray-50 to-purple-50 border border-purple-100 rounded-lg p-5 h-full flex flex-col">
+                        class="bg-linear-to-br from-gray-50 to-purple-50 border border-purple-100 rounded-lg p-5 h-full flex flex-col">
                         <h4 class="text-sm font-semibold text-gray-700 mb-4">
                             Distribusi
                             Diagnosa
@@ -457,7 +456,7 @@
                 <!-- List Area - 2 kolom -->
                 <div class="lg:col-span-2">
                     <div
-                        class="bg-gradient-to-br from-gray-50 to-pink-50 border border-pink-100 rounded-lg p-5 h-full flex flex-col">
+                        class="bg-linear-to-br from-gray-50 to-pink-50 border border-pink-100 rounded-lg p-5 h-full flex flex-col">
                         <div class="flex items-center justify-between mb-4">
                             <h4 class="text-sm font-semibold text-gray-700">
                                 Top
@@ -914,7 +913,7 @@ return `<div class="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-
     </div>
     <div class="mt-2">
         <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="bg-gradient-to-r ${color.from} ${color.to} h-2 rounded-full transition-all duration-500" style="width: ${item.percentage}%"></div>
+            <div class="bg-linear-to-r ${color.from} ${color.to} h-2 rounded-full transition-all duration-500" style="width: ${item.percentage}%"></div>
         </div>
     </div>
 </div>

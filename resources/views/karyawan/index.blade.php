@@ -7,7 +7,7 @@
     <!-- Header Section -->
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-3 rounded-lg shadow-lg">
+            <div class="bg-linear-to-r from-blue-600 to-cyan-600 p-3 rounded-lg shadow-lg">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -21,10 +21,10 @@
     <!-- Main Card -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <!-- Action Buttons Section -->
-        <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50">
+        <div class="p-6 border-b border-gray-200 bg-linear-to-r from-gray-50 to-blue-50">
             <div class="flex flex-wrap gap-3 items-center">
                 <a href="{{ route('karyawan.create') }}"
-                    class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    class="inline-flex items-center px-5 py-2.5 bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -33,7 +33,7 @@
 
                 @if (auth()->user()->role === 'Super Admin')
                 <button type="button" onclick="openImportModal()"
-                    class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    class="inline-flex items-center px-5 py-2.5 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -44,7 +44,7 @@
 
                 @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
                 <a href="{{ route('karyawan.export', request()->query()) }}"
-                    class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    class="inline-flex items-center px-5 py-2.5 bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -55,7 +55,7 @@
 
                 @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
                 <button type="button" onclick="submitBulkDelete()"
-                    class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    class="inline-flex items-center px-5 py-2.5 bg-linear-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -153,7 +153,7 @@
             x-data="{ sortField: '{{ request('sort', '') }}', sortDirection: '{{ request('direction', 'asc') }}' }">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
-                    <tr class="bg-gradient-to-r from-gray-800 to-gray-900">
+                    <tr class="bg-linear-to-r from-gray-800 to-gray-900">
                         @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
                         <th class="px-4 py-4 text-left">
                             <input type="checkbox" onclick="toggleAll(this)"
@@ -376,13 +376,13 @@
                                     class="w-10 h-10 rounded-full object-cover border-2 border-blue-200 shadow-sm"
                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div
-                                    class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full items-center justify-center text-white text-xs font-bold hidden">
+                                    class="w-10 h-10 bg-linear-to-br from-blue-500 to-blue-600 rounded-full items-center justify-center text-white text-xs font-bold hidden">
                                     {{ strtoupper(Str::of($karyawan->nama_karyawan)->explode(' ')->map(fn($p) =>
                                     Str::substr($p, 0, 1))->take(2)->implode('')) }}
                                 </div>
                                 @else
                                 <div
-                                    class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                                    class="w-10 h-10 bg-linear-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
                                     {{ strtoupper(Str::of($karyawan->nama_karyawan)->explode(' ')->map(fn($p) =>
                                     Str::substr($p, 0, 1))->take(2)->implode('')) }}
                                 </div>
@@ -556,7 +556,7 @@
 
                         @for ($i = $start; $i <= $end; $i++) @if ($i==$karyawans->currentPage())
                             <span
-                                class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-md">
+                                class="px-3 py-2 text-sm font-bold text-white bg-linear-to-r from-blue-600 to-blue-700 rounded-lg shadow-md">
                                 {{ $i }}
                             </span>
                             @else

@@ -8,7 +8,7 @@
     <div class="mb-6">
         <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">
+                <div class="bg-linear-to-r from-green-600 to-emerald-600 p-3 rounded-lg shadow-lg">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -21,7 +21,7 @@
             </div>
             <div class="flex gap-3">
                 <button onclick="showAddModal()"
-                    class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                    class="bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -29,7 +29,7 @@
                 </button>
                 @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
                 <button type="button" onclick="exportData('regular')" id="export-regular-btn"
-                    class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                    class="bg-linear-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -39,7 +39,7 @@
                 @endif
                 @if (auth()->user()->role === 'Super Admin')
                 <button type="button" onclick="openImportModal()" id="import-excel-btn"
-                    class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                    class="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -90,7 +90,7 @@
                 <!-- Buttons -->
                 <div class="flex items-center gap-2">
                     <button type="submit"
-                        class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                        class="bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -144,7 +144,7 @@
         <!-- Table Section -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
             <!-- Table Header -->
-            <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+            <div class="bg-linear-to-r from-green-600 to-emerald-600 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,7 +325,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
                                 <div class="flex items-center justify-center gap-2">
                                     <a href="{{ route('rekam-medis.show', $rm->id_rekam) }}"
-                                        class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
+                                        class="bg-linear-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
                                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -336,7 +336,7 @@
                                         Detail
                                     </a>
                                     <a href="{{ route('surat-pengantar.create', ['rekam_medis_id' => $rm->id_rekam]) }}"
-                                        class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block"
+                                        class="bg-linear-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block"
                                         title="Cetak Surat Pengantar">
                                         <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
@@ -444,7 +444,7 @@
 
                             @for ($i = $start; $i <= $end; $i++) @if ($i==$rekamMedis->currentPage())
                                 <span
-                                    class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg shadow-md">{{
+                                    class="px-3 py-2 text-sm font-bold text-white bg-linear-to-r from-green-600 to-emerald-600 rounded-lg shadow-md">{{
                                     $i }}</span>
                                 @else
                                 <a href="{{ $rekamMedis->appends(request()->except('page'))->url($i) }}"
@@ -500,7 +500,7 @@
         <!-- Table Section -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
             <!-- Table Header -->
-            <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
+            <div class="bg-linear-to-r from-red-600 to-pink-600 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -679,7 +679,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
                                 <a href="{{ route('rekam-medis-emergency.show', $rm->id_emergency) }}"
-                                    class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
+                                    class="bg-linear-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
                                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -792,7 +792,7 @@
 
                             @for ($i = $start; $i <= $end; $i++) @if ($i==$rekamMedisEmergency->currentPage())
                                 <span
-                                    class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-red-600 to-pink-600 rounded-lg shadow-md">{{
+                                    class="px-3 py-2 text-sm font-bold text-white bg-linear-to-r from-red-600 to-pink-600 rounded-lg shadow-md">{{
                                     $i }}</span>
                                 @else
                                 <a href="{{ $rekamMedisEmergency->appends(request()->except('page'))->url($i) }}"
@@ -1176,14 +1176,14 @@
                 <p class="mb-4 text-gray-600">Silakan pilih jenis rekam medis yang ingin ditambahkan:</p>
                 <div class="space-y-3">
                     <button onclick="window.location.href='{{ route('rekam-medis.create') }}'"
-                            class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                            class="w-full bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         Rekam Medis Reguler
                     </button>
                     <button onclick="window.location.href='{{ route('token-emergency.validate.form') }}'"
-                            class="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                            class="w-full bg-linear-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>

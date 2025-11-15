@@ -7,9 +7,10 @@
     <!-- Header Section -->
     <div class="mb-6">
         <div class="flex items-center gap-3">
-            <div class="bg-gradient-to-r from-gray-600 to-gray-700 p-3 rounded-lg shadow-lg">
+            <div class="bg-linear-to-r from-gray-600 to-gray-700 p-3 rounded-lg shadow-lg">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
             </div>
             <div>
@@ -24,24 +25,28 @@
         <div class="flex flex-wrap items-center gap-3">
             <!-- Search -->
             <div class="flex items-center gap-2 flex-1 min-w-[200px]">
-                <input type="text" id="search" placeholder="Cari token, nama pengguna..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <input type="text" id="search" placeholder="Cari token, nama pengguna..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
             </div>
 
             <!-- Date Range Filter -->
             <div class="flex items-center gap-2">
                 <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Dari:</label>
-                <input type="date" id="dateFrom" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <input type="date" id="dateFrom"
+                    class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
             </div>
 
             <div class="flex items-center gap-2">
                 <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Sampai:</label>
-                <input type="date" id="dateTo" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <input type="date" id="dateTo"
+                    class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
             </div>
 
             <!-- Status Filter -->
             <div class="flex items-center gap-2">
                 <label class="text-sm font-medium text-gray-700 whitespace-nowrap">Status:</label>
-                <select id="statusFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <select id="statusFilter"
+                    class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500">
                     <option value="">Semua</option>
                     <option value="available">Tersedia</option>
                     <option value="used">Digunakan</option>
@@ -51,21 +56,27 @@
 
             <!-- Buttons -->
             <div class="flex items-center gap-2">
-                <button id="filterBtn" class="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                <button id="filterBtn"
+                    class="bg-linear-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                     </svg>
                     Filter
                 </button>
-                <button id="resetBtn" class="bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+                <button id="resetBtn"
+                    class="bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                     Reset
                 </button>
-                <button id="exportBtn" class="bg-white hover:bg-gray-50 border-2 border-green-300 text-green-700 font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-2">
+                <button id="exportBtn"
+                    class="bg-white hover:bg-gray-50 border-2 border-green-300 text-green-700 font-medium px-4 py-2 rounded-lg transition-all flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Export
                 </button>
@@ -76,10 +87,11 @@
     <!-- Audit Trail Table -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <!-- Table Header -->
-        <div class="bg-gradient-to-r from-gray-600 to-gray-700 px-6 py-4">
+        <div class="bg-linear-to-r from-gray-600 to-gray-700 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
                 Riwayat
             </h2>
@@ -90,29 +102,47 @@
             <table class="w-full">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">No</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">Token</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">Status</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">Pemilik</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">Generator</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">Dibuat</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">Digunakan</th>
-                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">Catatan</th>
-                        <th class="px-6 py-4 text-center text-xs font-bold text-gray-900 uppercase tracking-wider">Aksi</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">
+                            No</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">
+                            Token</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">
+                            Status</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">
+                            Pemilik</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">
+                            Generator</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">
+                            Dibuat</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">
+                            Digunakan</th>
+                        <th
+                            class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider border-r border-gray-200">
+                            Catatan</th>
+                        <th class="px-6 py-4 text-center text-xs font-bold text-gray-900 uppercase tracking-wider">Aksi
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($auditTrail as $index => $token)
-                    <tr class="hover:bg-gray-50 transition-colors audit-row"
-                        data-token="{{ $token->token }}"
+                    <tr class="hover:bg-gray-50 transition-colors audit-row" data-token="{{ $token->token }}"
                         data-status="{{ $token->status }}"
                         data-owner="{{ $token->user ? $token->user->nama_lengkap : '' }}"
                         data-generator="{{ $token->generator ? $token->generator->nama_lengkap : '' }}">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                             {{ $index + 1 }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                                 {{ $token->token }}
                             </span>
                         </td>
@@ -128,7 +158,8 @@
                                     </span>
                                 </div>
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900">{{ $token->user->nama_lengkap }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $token->user->nama_lengkap }}
+                                    </div>
                                     <div class="text-xs text-gray-500">{{ $token->user->email }}</div>
                                 </div>
                             </div>
@@ -145,7 +176,8 @@
                                     </span>
                                 </div>
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900">{{ $token->generator->nama_lengkap }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $token->generator->nama_lengkap }}
+                                    </div>
                                     <div class="text-xs text-gray-500">{{ $token->generator->username }}</div>
                                 </div>
                             </div>
@@ -177,7 +209,8 @@
                         <td class="px-6 py-4 whitespace-nowrap text-center">
                             @if($token->request_status)
                             <div class="flex items-center justify-center space-x-1">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
                                     Permintaan
                                 </span>
                                 {!! $token->request_status_badge !!}
@@ -190,8 +223,10 @@
                     @empty
                     <tr>
                         <td colspan="9" class="px-6 py-8 text-center text-gray-500">
-                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                             <p class="text-lg font-medium">Tidak ada data audit trail</p>
                             <p class="text-sm mt-1">Belum ada aktivitas token yang tercatat</p>
@@ -205,7 +240,7 @@
 </div>
 
 <script>
-// Filter functionality
+    // Filter functionality
 document.getElementById('filterBtn').addEventListener('click', function() {
     const searchTerm = document.getElementById('search').value.toLowerCase();
     const statusFilter = document.getElementById('statusFilter').value;

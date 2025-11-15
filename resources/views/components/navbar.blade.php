@@ -42,7 +42,7 @@
                 class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
 
                 <!-- Notification Header -->
-                <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-3 flex items-center justify-between">
+                <div class="bg-linear-to-r from-purple-600 to-indigo-600 px-4 py-3 flex items-center justify-between">
                     <h3 class="text-sm font-semibold text-white">Notifikasi Token</h3>
                     <a href="{{ route('token-emergency.monitoring') }}"
                         class="text-xs text-white/80 hover:text-white transition-colors">
@@ -63,7 +63,7 @@
                     @foreach($pendingRequests as $request)
                     <div class="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors">
                         <div class="flex items-start">
-                            <div class="flex-shrink-0">
+                            <div class="shrink-0">
                                 <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
                                     <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -110,7 +110,7 @@
                 <!-- User Avatar -->
                 <div class="relative">
                     <div
-                        class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg transition-shadow">
+                        class="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-lg transition-shadow">
                         {{ substr(auth()->user()->nama_lengkap ?? 'A', 0, 1) }}
                     </div>
                     <div
@@ -150,7 +150,7 @@
                 class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
 
                 <!-- User Profile Header -->
-                <div class="bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3">
+                <div class="bg-linear-to-r from-blue-500 to-purple-600 px-4 py-3">
                     <div class="flex items-center space-x-3">
                         <div
                             class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold">
