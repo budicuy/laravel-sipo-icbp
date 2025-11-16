@@ -17,10 +17,12 @@ use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\RekamMedisEmergencyController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\StokMasukController;
+use App\Http\Controllers\StokObatController;
 use App\Http\Controllers\SuratPengantarIstirahatController;
 use App\Http\Controllers\TokenEmergencyController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FingerprintController;
+use App\Http\Controllers\MedicalArchivesController;
 use App\Models\Obat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -112,6 +114,9 @@ Route::middleware('auth')->group(function () {
 
     // Stok Masuk Routes (Admin & Super Admin only)
     Route::post('/stok/masuk', [StokMasukController::class, 'store'])->name('stok.masuk.store')->middleware('role:Admin,Super Admin');
+
+    // Stok Obat Routes
+    Route::get('/stok-obat', [StokObatController::class, 'index'])->name('stok-obat.index');
 
     // Harga Obat Routes
     Route::get('/harga-obat', [HargaObatController::class, 'index'])->name('harga-obat.index');
@@ -269,6 +274,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/transaksi/emergency/{id}/cetak', [LaporanController::class, 'cetakDetailTransaksiEmergency'])->name('laporan.cetak.detail-emergency');
     Route::get('/laporan/transaksi/{id}/cetak', [LaporanController::class, 'cetakDetailTransaksi'])->name('laporan.cetak.detail');
     Route::get('/laporan/transaksi/export', [LaporanController::class, 'exportTransaksi'])->name('laporan.export.transaksi');
+
+    // Medical Archives Routes
+    Route::get('/medical-archives', [MedicalArchivesController::class, 'index'])->name('medical-archives.index');
+    Route::get('/medical-archives/{id_karyawan}', [MedicalArchivesController::class, 'show'])->name('medical-archives.show');
+    Route::get('/medical-archives/create', [MedicalArchivesController::class, 'create'])->name('medical-archives.create');
+    Route::post('/medical-archives', [MedicalArchivesController::class, 'store'])->name('medical-archives.store');
+    Route::get('/medical-archives/{id_karyawan}/edit', [MedicalArchivesController::class, 'edit'])->name('medical-archives.edit');
+    Route::put('/medical-archives/{id_karyawan}', [MedicalArchivesController::class, 'update'])->name('medical-archives.update');
+    Route::delete('/medical-archives/{id_karyawan}', [MedicalArchivesController::class, 'destroy'])->name('medical-archives.destroy');
+    Route::get('/api/medical-archives/search-employees', [MedicalArchivesController::class, 'searchEmployees'])->name('medical-archives.search-employees');
+    
+    // Medical Archive Routes
+    Route::get('/medical-archives/{id_karyawan}/surat-rekomendasi-medis', [MedicalArchivesController::class, 'suratRekomendasiMedis'])->name('medical-archives.surat-rekomendasi-medis');
+    Route::get('/medical-archives/{id_karyawan}/medical-check-up', [MedicalArchivesController::class, 'medicalCheckUp'])->name('medical-archives.medical-check-up');
 
     // Monitoring Harga Routes
     Route::get('/monitoring/harga', [MonitoringHargaController::class, 'index'])->name('monitoring.harga.index');

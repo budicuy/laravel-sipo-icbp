@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\StokObat;
 use App\Models\Obat;
+use App\Models\StokBulanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -70,6 +71,39 @@ class StokObatController extends Controller
                 case 'tersedia':
                     $query->where('stok_akhir', '>', 10);
                     break;
+            }
+        }
+
+        // Filter by warning (stok <= 10)
+        if ($request->has('warning') && $request->warning == 'true') {
+            // Get current month and year
+            $currentMonth = now()->month;
+            $currentYear = now()->year;
+            
+            // Get all active obat IDs
+            $obatIds = Obat::where('status', 'aktif')->pluck('id_obat')->toArray();
+            
+            if (!empty($obatIds)) {
+                // Get current stock for all active obat
+                $currentStocks = StokBulanan::getSisaStokSaatIniBatch($obatIds);
+                
+                // Filter obat with stock <= 10
+                $warningObatIds = [];
+                foreach ($currentStocks as $obatId => $stock) {
+                    if ($stock <= 10) {
+                        $warningObatIds[] = $obatId;
+                    }
+                }
+                
+                if (!empty($warningObatIds)) {
+                    $query->whereIn('stok_obat.id_obat', $warningObatIds);
+                } else {
+                    // If no warning obat, return empty result
+                    $query->whereRaw('1 = 0');
+                }
+            } else {
+                // If no active obat, return empty result
+                $query->whereRaw('1 = 0');
             }
         }
 

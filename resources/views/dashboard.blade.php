@@ -269,37 +269,38 @@
                                                                                                                     </div>
                                                                                                                 </div>
 
-                                                                                                                <!-- Card 5 - Close -->
-                                                                                                                <div onclick="navigateToClose()"
-                                                                                                                    class="relative overflow-hidden bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
+                                                                                                                <!-- Card 5 - Warning Obat -->
+                                                                                                                <div onclick="navigateToWarningObat()"
+                                                                                                                    class="relative overflow-hidden bg-gradient-to-br from-orange-500 via-red-500 to-red-600 rounded-xl shadow-xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer">
                                                                                                                     <div
                                                                                                                         class="absolute top-0 right-0 -mt-4 -mr-4 w-20 h-20 bg-white opacity-10 rounded-full">
                                                                                                                     </div>
                                                                                                                     <div
                                                                                                                         class="absolute bottom-0 left-0 -mb-6 -ml-6 w-24 h-24 bg-white opacity-5 rounded-full">
                                                                                                                     </div>
-
+                                                                
                                                                                                                     <div
                                                                                                                         class="relative">
                                                                                                                         <div
                                                                                                                             class="flex items-center gap-2 mb-2">
                                                                                                                             <div
-                                                                                                                                class="w-2 h-2 bg-gray-300 rounded-full animate-pulse">
+                                                                                                                                class="w-2 h-2 bg-orange-200 rounded-full animate-pulse">
                                                                                                                             </div>
                                                                                                                             <h3
-                                                                                                                                class="text-xs font-medium text-gray-200">
-                                                                                                                                Close
+                                                                                                                                class="text-xs font-medium text-orange-100">
+                                                                                                                                Warning
+                                                                                                                                Obat
                                                                                                                             </h3>
                                                                                                                         </div>
                                                                                                                         <div
                                                                                                                             class="flex items-end justify-between">
                                                                                                                             <p class="text-5xl font-bold"
-                                                                                                                                id="close">
+                                                                                                                                id="warningObat">
                                                                                                                                 9999
                                                                                                                             </p>
                                                                                                                             <div
                                                                                                                                 class="bg-white p-3 rounded-lg shadow-lg">
-                                                                                                                                <svg class="w-8 h-8 text-gray-700"
+                                                                                                                                <svg class="w-8 h-8 text-orange-600"
                                                                                                                                     fill="none"
                                                                                                                                     stroke="currentColor"
                                                                                                                                     viewBox="0 0 24 24">
@@ -307,7 +308,7 @@
                                                                                                                                         stroke-linecap="round"
                                                                                                                                         stroke-linejoin="round"
                                                                                                                                         stroke-width="2"
-                                                                                                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                                                                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                                                                                                                                 </svg>
                                                                                                                             </div>
                                                                                                                         </div>
@@ -527,9 +528,9 @@
                                                                                                                 <!-- Content Wrapper -->
                                                                                                                 <div
                                                                                                                     class="p-6">
-                                                                                                                    <!-- Charts Grid - Harian & Mingguan -->
+                                                                                                                    <!-- Charts Grid - 2x2 Layout -->
                                                                                                                     <div
-                                                                                                                        class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                                                                                                                        class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                                                                                                         <!-- Chart 1 - Kunjungan Harian -->
                                                                                                                         <div
                                                                                                                             class="bg-gradient-to-br from-gray-50 to-teal-50 border border-teal-100 rounded-lg p-5">
@@ -581,31 +582,57 @@
                                                                                                                                     id="weeklyVisitChart"></canvas>
                                                                                                                             </div>
                                                                                                                         </div>
-                                                                                                                    </div>
 
-                                                                                                                    <!-- Chart 3 - Kunjungan Bulanan (Full Width) -->
-                                                                                                                    <div
-                                                                                                                        class="bg-gradient-to-br from-gray-50 to-blue-50 border border-blue-100 rounded-lg p-5">
+                                                                                                                        <!-- Chart 3 - Kunjungan Bulanan -->
                                                                                                                         <div
-                                                                                                                            class="flex items-center justify-between mb-4">
+                                                                                                                            class="bg-gradient-to-br from-gray-50 to-blue-50 border border-blue-100 rounded-lg p-5">
                                                                                                                             <div
-                                                                                                                                class="flex items-center gap-2">
+                                                                                                                                class="flex items-center justify-between mb-4">
                                                                                                                                 <div
-                                                                                                                                    class="w-3 h-3 bg-blue-500 rounded-full">
+                                                                                                                                    class="flex items-center gap-2">
+                                                                                                                                    <div
+                                                                                                                                        class="w-3 h-3 bg-blue-500 rounded-full">
+                                                                                                                                    </div>
+                                                                                                                                    <h4 id="monthlyChartTitle"
+                                                                                                                                        class="text-sm font-semibold text-gray-700">
+                                                                                                                                        Kunjungan
+                                                                                                                                        Bulanan
+                                                                                                                                    </h4>
                                                                                                                                 </div>
-                                                                                                                                <h4 id="monthlyChartTitle"
-                                                                                                                                    class="text-sm font-semibold text-gray-700">
-                                                                                                                                    Kunjungan
-                                                                                                                                    Bulanan
-                                                                                                                                </h4>
+                                                                                                                                <span
+                                                                                                                                    class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Bulanan</span>
                                                                                                                             </div>
-                                                                                                                            <span
-                                                                                                                                class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Bulanan</span>
+                                                                                                                            <div
+                                                                                                                                style="height: 250px;">
+                                                                                                                                <canvas
+                                                                                                                                    id="monthlyVisitChart"></canvas>
+                                                                                                                            </div>
                                                                                                                         </div>
+
+                                                                                                                        <!-- Chart 4 - Total Biaya -->
                                                                                                                         <div
-                                                                                                                            style="height: 300px;">
-                                                                                                                            <canvas
-                                                                                                                                id="monthlyVisitChart"></canvas>
+                                                                                                                            class="bg-gradient-to-br from-gray-50 to-red-50 border border-red-100 rounded-lg p-5">
+                                                                                                                            <div
+                                                                                                                                class="flex items-center justify-between mb-4">
+                                                                                                                                <div
+                                                                                                                                    class="flex items-center gap-2">
+                                                                                                                                    <div
+                                                                                                                                        class="w-3 h-3 bg-red-400 rounded-full">
+                                                                                                                                    </div>
+                                                                                                                                    <h4 id="totalBiayaTitle"
+                                                                                                                                        class="text-sm font-semibold text-gray-700">
+                                                                                                                                        Total
+                                                                                                                                        Biaya
+                                                                                                                                    </h4>
+                                                                                                                                </div>
+                                                                                                                                <span
+                                                                                                                                    class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Bulanan</span>
+                                                                                                                            </div>
+                                                                                                                            <div
+                                                                                                                                style="height: 250px;">
+                                                                                                                                <canvas
+                                                                                                                                    id="totalBiayaChart"></canvas>
+                                                                                                                            </div>
                                                                                                                         </div>
                                                                                                                     </div>
                                                                                                                 </div>
@@ -710,7 +737,7 @@
                                                                                                     @push('scripts')
                                                                                                         <script>
                                                                                                             // Global variables for charts
-                                                                                                            let dailyChart, weeklyChart, monthlyChart, diagnosisChart;
+                                                                                                            let dailyChart, weeklyChart, monthlyChart, totalBiayaChart, diagnosisChart;
 
                                                                                                             // Load initial data
                                                                                                             document.addEventListener('DOMContentLoaded', function() {
@@ -769,7 +796,7 @@
                                                                                                                     animateCounter('totalRekamMedis', data.total_rekam_medis);
                                                                                                                     animateCounter('kunjunganHariIni', data.kunjungan_hari_ini);
                                                                                                                     animateCounter('onProgress', data.on_progress);
-                                                                                                                    animateCounter('close', data.close);
+                                                                                                                    animateCounter('warningObat', data.warning_obat);
 
                                                                                                                 } catch (error) {
                                                                                                                     console.error('Error loading statistics:', error);
@@ -834,7 +861,7 @@
                                                                                                                 } else {
                                                                                                                     createDailyChart(data.daily);
                                                                                                                 }
-
+                                                                
                                                                                                                 // Update weekly chart
                                                                                                                 if (weeklyChart) {
                                                                                                                     weeklyChart.data.labels = data.weekly.labels;
@@ -843,13 +870,25 @@
                                                                                                                 } else {
                                                                                                                     createWeeklyChart(data.weekly);
                                                                                                                 }
-
+                                                                
                                                                                                                 // Update monthly chart
                                                                                                                 if (monthlyChart) {
                                                                                                                     monthlyChart.data.datasets[0].data = data.monthly.data;
                                                                                                                     monthlyChart.update();
                                                                                                                 } else {
                                                                                                                     createMonthlyChart(data.monthly);
+                                                                                                                }
+                                                                
+                                                                                                                // Update total biaya chart
+                                                                                                                if (data.totalBiaya) {
+                                                                                                                    if (totalBiayaChart) {
+                                                                                                                        totalBiayaChart.data.datasets[0].data = data.totalBiaya.reguler;
+                                                                                                                        totalBiayaChart.data.datasets[1].data = data.totalBiaya.emergency;
+                                                                                                                        totalBiayaChart.data.datasets[2].data = data.totalBiaya.total;
+                                                                                                                        totalBiayaChart.update();
+                                                                                                                    } else {
+                                                                                                                        createTotalBiayaChart(data.totalBiaya);
+                                                                                                                    }
                                                                                                                 }
                                                                                                             }
 
@@ -1008,30 +1047,110 @@
                                                                                                                     }
                                                                                                                 });
                                                                                                             }
-
+                                                                
+                                                                                                            // Create total biaya chart
+                                                                                                            function createTotalBiayaChart(data) {
+                                                                                                                const ctx = document.getElementById('totalBiayaChart').getContext('2d');
+                                                                                                                totalBiayaChart = new Chart(ctx, {
+                                                                                                                    type: 'line',
+                                                                                                                    data: {
+                                                                                                                        labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                                                                                                                        datasets: [{
+                                                                                                                            label: 'Biaya Reguler',
+                                                                                                                            data: data.reguler,
+                                                                                                                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                                                                                                            borderColor: 'rgba(59, 130, 246, 1)',
+                                                                                                                            borderWidth: 2,
+                                                                                                                            fill: true,
+                                                                                                                            tension: 0.4,
+                                                                                                                            pointRadius: 4,
+                                                                                                                            pointHoverRadius: 6
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            label: 'Biaya Emergency',
+                                                                                                                            data: data.emergency,
+                                                                                                                            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                                                                                                                            borderColor: 'rgba(239, 68, 68, 1)',
+                                                                                                                            borderWidth: 2,
+                                                                                                                            fill: true,
+                                                                                                                            tension: 0.4,
+                                                                                                                            pointRadius: 4,
+                                                                                                                            pointHoverRadius: 6
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                            label: 'Total Biaya',
+                                                                                                                            data: data.total,
+                                                                                                                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                                                                                                                            borderColor: 'rgba(16, 185, 129, 1)',
+                                                                                                                            borderWidth: 3,
+                                                                                                                            fill: false,
+                                                                                                                            tension: 0.4,
+                                                                                                                            pointRadius: 5,
+                                                                                                                            pointHoverRadius: 7,
+                                                                                                                            borderDash: [5, 5]
+                                                                                                                        }]
+                                                                                                                    },
+                                                                                                                    options: {
+                                                                                                                        responsive: true,
+                                                                                                                        maintainAspectRatio: false,
+                                                                                                                        plugins: {
+                                                                                                                            legend: {
+                                                                                                                                display: true,
+                                                                                                                                position: 'top'
+                                                                                                                            },
+                                                                                                                            tooltip: {
+                                                                                                                                enabled: true,
+                                                                                                                                callbacks: {
+                                                                                                                                    label: function(context) {
+                                                                                                                                        return context.dataset.label + ': Rp ' + context.parsed.y.toLocaleString('id-ID');
+                                                                                                                                    }
+                                                                                                                                }
+                                                                                                                            }
+                                                                                                                        },
+                                                                                                                        scales: {
+                                                                                                                            y: {
+                                                                                                                                beginAtZero: true,
+                                                                                                                                ticks: {
+                                                                                                                                    callback: function(value) {
+                                                                                                                                        return 'Rp ' + value.toLocaleString('id-ID');
+                                                                                                                                    }
+                                                                                                                                }
+                                                                                                                            },
+                                                                                                                            x: {
+                                                                                                                                grid: {
+                                                                                                                                    display: false
+                                                                                                                                }
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                });
+                                                                                                            }
+                                                                
                                                                                                             // Filter function
                                                                                                             function filterCharts() {
                                                                                                                 const month = document.getElementById('monthFilter').value;
                                                                                                                 const year = document.getElementById('yearFilter').value;
-
+                                                                
                                                                                                                 // Update chart titles
                                                                                                                 updateChartTitles(month, year);
-
+                                                                
                                                                                                                 // Load new data from API
                                                                                                                 loadVisitAnalysis(month, year);
                                                                                                                 loadTopDiagnoses(month, year);
                                                                                                             }
-
+                                                                
                                                                                                             // Update chart titles based on month and year
                                                                                                             function updateChartTitles(month, year) {
                                                                                                                 const monthName = getMonthName(month);
-
+                                                                
                                                                                                                 document.getElementById('dailyChartTitle').textContent =
                                                                                                                     `Kunjungan Harian (${monthName} ${year})`;
                                                                                                                 document.getElementById('weeklyChartTitle').textContent =
                                                                                                                     `Kunjungan Mingguan (per minggu bulan ${monthName})`;
                                                                                                                 document.getElementById('monthlyChartTitle').textContent =
                                                                                                                     `Kunjungan Bulanan (${year})`;
+                                                                                                                document.getElementById('totalBiayaTitle').textContent =
+                                                                                                                    `Total Biaya (${year})`;
                                                                                                             }
 
                                                                                                             function getMonthName(month) {
@@ -1066,11 +1185,10 @@
                                                                                                                 window.location.href = url;
                                                                                                             }
 
-                                                                                                            // Function to navigate to rekam medis with Close status filter
-                                                                                                            function navigateToClose() {
-                                                                                                                // Since there's no status filter in the current form, we'll navigate to rekam medis page
-                                                                                                                // and add a custom parameter that can be handled in the controller
-                                                                                                                const url = '{{ route('rekam-medis.index') }}?status=Close';
+                                                                                                            // Function to navigate to warning obat page
+                                                                                                            function navigateToWarningObat() {
+                                                                                                                // Navigate to stok page with warning filter
+                                                                                                                const url = '{{ route('stok.index') }}?stok_status=rendah';
                                                                                                                 window.location.href = url;
                                                                                                             }
 

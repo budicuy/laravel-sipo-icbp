@@ -1,0 +1,309 @@
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+
+class MedicalArchivesQueryOptimizer
+{
+    /**
+     * Optimized version of getEmployeeMedicalRecords to avoid N+1 queries
+     */
+    public static function getEmployeeMedicalRecords($perPage = 50, $search = null, $departmentFilter = null, $statusFilter = null)
+    {
+        // Get all data in a single query with proper joins
+        $query = DB::table('karyawan as k')
+            ->select([
+                'k.id_karyawan',
+                'k.nik_karyawan',
+                'k.nama_karyawan',
+                'k.status as karyawan_status',
+                'd.nama_departemen',
+                'kl.id_keluarga',
+                'kl.nama_keluarga',
+                'kl.no_rm',
+                'kl.kode_hubungan',
+                'h.hubungan as hubungan_nama',
+                'rm.id_rekam',
+                'rm.tanggal_periksa',
+                'rm.status as rekam_status',
+                'u.nama_lengkap as petugas'
+            ])
+            ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
+            ->leftJoin('keluarga as kl', 'k.id_karyawan', '=', 'kl.id_karyawan')
+            ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
+            ->leftJoin('rekam_medis as rm', 'kl.id_keluarga', '=', 'rm.id_keluarga')
+            ->leftJoin('user as u', 'rm.id_user', '=', 'u.id_user')
+            ->where('k.status', 'aktif')
+            ->whereNotNull('kl.no_rm')
+            ->orderBy('k.nama_karyawan')
+            ->orderBy('kl.nama_keluarga');
+            
+        // Apply search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('k.nik_karyawan', 'like', "%{$search}%")
+                  ->orWhere('k.nama_karyawan', 'like', "%{$search}%")
+                  ->orWhere('kl.nama_keluarga', 'like', "%{$search}%")
+                  ->orWhere('kl.no_rm', 'like', "%{$search}%");
+            });
+        }
+        
+        // Apply department filter
+        if ($departmentFilter) {
+            $query->where('d.id_departemen', $departmentFilter);
+        }
+        
+        // Apply status filter (employee status)
+        if ($statusFilter) {
+            $query->where('k.status', $statusFilter);
+        }
+        
+        // Order the results
+        $query->orderBy('k.nama_karyawan')
+              ->orderBy('kl.nama_keluarga');
+        
+        // Get all results (we'll paginate manually after processing)
+        $allResults = $query->get();
+        
+        // Group by employee to avoid duplicates
+        $groupedResults = $allResults->groupBy('id_karyawan');
+        
+        // Transform the results to match the required format
+        $medicalArchives = collect();
+        $counter = 1;
+        
+        foreach ($groupedResults as $employeeId => $familyMembers) {
+            $employee = $familyMembers->first();
+            
+            // Generate RM code (NIK-Kode Hubungan)
+            $rmCode = $employee->nik_karyawan . '-' . $employee->kode_hubungan;
+            
+            $medicalArchives->push([
+                'id' => $counter++,
+                'nik_karyawan' => $employee->nik_karyawan,
+                'nama_karyawan' => $employee->nama_karyawan,
+                'nama_departemen' => $employee->nama_departemen,
+                'rm_code' => $rmCode,
+                'nama_pasien' => $employee->nama_keluarga,
+                'no_rm' => $employee->no_rm,
+                'status' => $employee->karyawan_status,
+                'id_keluarga' => $employee->id_keluarga,
+                'id_karyawan' => $employee->id_karyawan,
+                'latest_visit_date' => $familyMembers
+                    ->where('id_rekam', '!==', null)
+                    ->sortByDesc('tanggal_periksa')
+                    ->first()->tanggal_periksa ?? null,
+                'petugas' => $familyMembers
+                    ->where('id_rekam', '!==', null)
+                    ->sortByDesc('tanggal_periksa')
+                    ->first()->petugas ?? null,
+                'hubungan' => $employee->hubungan_nama,
+                'family_members' => $familyMembers->map(function($member) {
+                    return [
+                        'id_keluarga' => $member->id_keluarga,
+                        'nama_keluarga' => $member->nama_keluarga,
+                        'no_rm' => $member->no_rm,
+                        'hubungan' => $member->hubungan_nama,
+                        'kode_hubungan' => $member->kode_hubungan
+                    ];
+                })->unique('id_keluarga')->values()
+            ]);
+        }
+        
+        // Apply pagination
+        $currentPage = request()->get('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+        $total = $medicalArchives->count();
+        $items = $medicalArchives->slice($offset, $perPage)->values();
+        
+        // Create a LengthAwarePaginator
+        $paginator = new LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $currentPage,
+            [
+                'path' => request()->url(),
+                'pageName' => 'page',
+            ]
+        );
+        
+        return $paginator;
+    }
+    
+    /**
+     * Optimized version of getEmployeeMedicalHistory to avoid N+1 queries
+     */
+    public static function getEmployeeMedicalHistory($id_karyawan)
+    {
+        return DB::table('karyawan as k')
+            ->select([
+                'k.id_karyawan',
+                'k.nik_karyawan',
+                'k.nama_karyawan',
+                'k.status as karyawan_status',
+                'd.nama_departemen',
+                'kl.id_keluarga',
+                'kl.nama_keluarga',
+                'kl.no_rm',
+                'kl.kode_hubungan',
+                'h.hubungan as hubungan_nama',
+                'rm.id_rekam',
+                'rm.tanggal_periksa',
+                'rm.status as rekam_status',
+                'rm.jumlah_keluhan',
+                'u.nama_lengkap as petugas',
+                'rm.created_at'
+            ])
+            ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
+            ->leftJoin('keluarga as kl', 'k.id_karyawan', '=', 'kl.id_karyawan')
+            ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
+            ->leftJoin('rekam_medis as rm', 'kl.id_keluarga', '=', 'rm.id_keluarga')
+            ->leftJoin('user as u', 'rm.id_user', '=', 'u.id_user')
+            ->where('k.id_karyawan', $id_karyawan)
+            ->where('k.status', 'aktif')
+            ->whereNotNull('kl.no_rm')
+            ->orderBy('rm.tanggal_periksa', 'desc')
+            ->orderBy('kl.nama_keluarga')
+            ->get();
+    }
+    
+    /**
+     * Optimized version of getDetailedMedicalVisits to avoid N+1 queries
+     */
+    public static function getDetailedMedicalVisits($id_rekam)
+    {
+        // Get visit details in a single query
+        $visitDetails = DB::table('rekam_medis as rm')
+            ->select([
+                'rm.id_rekam',
+                'rm.tanggal_periksa',
+                'rm.status',
+                'rm.jumlah_keluhan',
+                'rm.created_at',
+                'u.nama_lengkap as petugas',
+                'kl.nama_keluarga',
+                'kl.no_rm',
+                'k.nama_karyawan',
+                'd.nama_departemen',
+                'h.hubungan'
+            ])
+            ->join('user as u', 'rm.id_user', '=', 'u.id_user')
+            ->join('keluarga as kl', 'rm.id_keluarga', '=', 'kl.id_keluarga')
+            ->join('karyawan as k', 'kl.id_karyawan', '=', 'k.id_karyawan')
+            ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
+            ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
+            ->where('rm.id_rekam', $id_rekam)
+            ->first();
+        
+        if (!$visitDetails) {
+            return null;
+        }
+        
+        // Get all complaints and diagnoses for this visit in a single query
+        $complaints = DB::table('keluhan as ke')
+            ->select([
+                'ke.id_keluhan',
+                'ke.terapi',
+                'ke.keterangan',
+                'ke.jumlah_obat',
+                'ke.aturan_pakai',
+                'd.nama_diagnosa',
+                'o.nama_obat',
+                's.nama_satuan'
+            ])
+            ->leftJoin('diagnosa as d', 'ke.id_diagnosa', '=', 'd.id_diagnosa')
+            ->leftJoin('obat as o', 'ke.id_obat', '=', 'o.id_obat')
+            ->leftJoin('satuan_obat as s', 'o.id_satuan', '=', 's.id_satuan')
+            ->where('ke.id_rekam', $id_rekam)
+            ->orderBy('ke.id_diagnosa')
+            ->orderBy('ke.id_obat')
+            ->get();
+        
+        $visitDetails->complaints = $complaints;
+        
+        return $visitDetails;
+    }
+    
+    /**
+     * Get complete family member information with all related data in a single query
+     */
+    public static function getFamilyMemberCompleteInfo($id_keluarga)
+    {
+        return DB::table('keluarga as kl')
+            ->select([
+                'kl.id_keluarga',
+                'kl.nama_keluarga',
+                'kl.no_rm',
+                'kl.kode_hubungan',
+                'kl.tanggal_lahir',
+                'kl.jenis_kelamin',
+                'kl.alamat',
+                'kl.bpjs_id',
+                'k.id_karyawan',
+                'k.nik_karyawan',
+                'k.nama_karyawan',
+                'd.nama_departemen',
+                'h.hubungan as hubungan_nama'
+            ])
+            ->join('karyawan as k', 'kl.id_karyawan', '=', 'k.id_karyawan')
+            ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
+            ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
+            ->where('kl.id_keluarga', $id_keluarga)
+            ->first();
+    }
+    
+    /**
+     * Get departments for filter dropdown
+     */
+    public static function getDepartments()
+    {
+        return DB::table('departemen')
+            ->select('id_departemen', 'nama_departemen')
+            ->orderBy('nama_departemen')
+            ->get();
+    }
+    
+    /**
+     * Get employee information with department in a single query
+     */
+    public static function getEmployeeInfo($id_karyawan)
+    {
+        return DB::table('karyawan as k')
+            ->select([
+                'k.id_karyawan',
+                'k.nik_karyawan',
+                'k.nama_karyawan',
+                'k.status as karyawan_status',
+                'd.nama_departemen'
+            ])
+            ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
+            ->where('k.id_karyawan', $id_karyawan)
+            ->first();
+    }
+    
+    /**
+     * Search employees with department information in a single query
+     */
+    public static function searchEmployees($search, $limit = 10)
+    {
+        return DB::table('karyawan as k')
+            ->select([
+                'k.id_karyawan',
+                'k.nik_karyawan',
+                'k.nama_karyawan',
+                'd.nama_departemen'
+            ])
+            ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
+            ->where('k.status', 'aktif')
+            ->where(function($query) use ($search) {
+                $query->where('k.nik_karyawan', 'like', "%{$search}%")
+                      ->orWhere('k.nama_karyawan', 'like', "%{$search}%");
+            })
+            ->limit($limit)
+            ->get();
+    }
+}

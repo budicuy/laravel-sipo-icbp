@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
 use App\Models\Kunjungan;
+use App\Models\Obat;
 use App\Models\RekamMedis;
 use App\Models\RekamMedisEmergency;
+use App\Models\StokBulanan;
+use App\Models\HargaObatPerBulan;
+use App\Models\Keluhan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -31,12 +35,16 @@ class DashboardController extends Controller
         $closeReguler = RekamMedis::where('status', 'Close')->count();
         $closeEmergency = RekamMedisEmergency::where('status', 'Close')->count();
 
+        // Get warning obat count (stok < 10 atau stok = 0)
+        $warningObat = $this->getWarningObatCount();
+
         $statistics = [
             'total_karyawan' => Karyawan::where('status', 'aktif')->count(),
             'total_rekam_medis' => $totalRekamMedisReguler + $totalRekamMedisEmergency,
             'kunjungan_hari_ini' => $kunjunganHariIniReguler + $kunjunganHariIniEmergency,
             'on_progress' => $onProgressReguler + $onProgressEmergency,
             'close' => $closeReguler + $closeEmergency,
+            'warning_obat' => $warningObat,
         ];
 
         return response()->json($statistics);
@@ -59,10 +67,14 @@ class DashboardController extends Controller
         // Kunjungan Bulanan (realtime, no cache)
         $monthlyVisits = $this->getMonthlyVisits($year);
 
+        // Total Biaya Transaksi (realtime, no cache)
+        $totalBiaya = $this->getTotalBiaya($month, $year);
+
         return response()->json([
             'daily' => $dailyVisits,
             'weekly' => $weeklyVisits,
             'monthly' => $monthlyVisits,
+            'totalBiaya' => $totalBiaya,
         ]);
     }
 
@@ -279,5 +291,176 @@ class DashboardController extends Controller
             'month' => $month,
             'year' => $year,
         ]);
+    }
+
+    /**
+     * Get count of obat with low stock (stok < 10 or stok = 0)
+     */
+    private function getWarningObatCount()
+    {
+        // Get current month and year
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        // Get all active obat IDs
+        $obatIds = Obat::where('status', 'aktif')->pluck('id_obat')->toArray();
+
+        if (empty($obatIds)) {
+            return 0;
+        }
+
+        // Get current stock for all active obat
+        $currentStocks = StokBulanan::getSisaStokSaatIniBatch($obatIds);
+
+        // Count obat with stock < 10 or stock = 0
+        $warningCount = 0;
+        foreach ($currentStocks as $obatId => $stock) {
+            if ($stock <= 10) {
+                $warningCount++;
+            }
+        }
+
+        return $warningCount;
+    }
+
+    /**
+     * Get total biaya transaksi for a specific month and year
+     */
+    private function getTotalBiaya($month, $year)
+    {
+        // Get all keluhan with rekamMedis for specified year with optimized eager loading
+        $keluhanDataReguler = Keluhan::with([
+            'rekamMedis:id_rekam,tanggal_periksa',
+            'obat:id_obat,nama_obat'
+        ])
+            ->whereHas('rekamMedis', function ($query) use ($year) {
+                $query->whereYear('tanggal_periksa', $year);
+            })
+            ->whereNotNull('id_obat')
+            ->select('id_keluhan', 'id_rekam', 'id_obat', 'jumlah_obat', 'diskon')
+            ->get();
+
+        // Get all keluhan with rekamMedisEmergency for specified year with optimized eager loading
+        $keluhanDataEmergency = Keluhan::with([
+            'rekamMedisEmergency:id_emergency,tanggal_periksa',
+            'obat:id_obat,nama_obat'
+        ])
+            ->whereHas('rekamMedisEmergency', function ($query) use ($year) {
+                $query->whereYear('tanggal_periksa', $year);
+            })
+            ->whereNotNull('id_obat')
+            ->select('id_keluhan', 'id_emergency', 'id_obat', 'jumlah_obat', 'diskon')
+            ->get();
+
+        // Collect all unique obat IDs and periods for reguler
+        $obatPeriodsReguler = [];
+        foreach ($keluhanDataReguler as $keluhan) {
+            $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
+            $obatPeriodsReguler[] = [
+                'id_obat' => $keluhan->id_obat,
+                'periode' => $periode,
+            ];
+        }
+
+        // Collect all unique obat IDs and periods for emergency
+        $obatPeriodsEmergency = [];
+        foreach ($keluhanDataEmergency as $keluhan) {
+            $periode = $keluhan->rekamMedisEmergency->tanggal_periksa->format('m-y');
+            $obatPeriodsEmergency[] = [
+                'id_obat' => $keluhan->id_obat,
+                'periode' => $periode,
+            ];
+        }
+
+        // Get unique combinations to avoid duplicates for reguler
+        $uniqueObatPeriodsReguler = collect($obatPeriodsReguler)->unique(function ($item) {
+            return $item['id_obat'].'_'.$item['periode'];
+        })->values()->toArray();
+
+        // Get unique combinations to avoid duplicates for emergency
+        $uniqueObatPeriodsEmergency = collect($obatPeriodsEmergency)->unique(function ($item) {
+            return $item['id_obat'].'_'.$item['periode'];
+        })->values()->toArray();
+
+        // Use bulk fallback method for optimized performance for reguler
+        $hargaObatResultsReguler = HargaObatPerBulan::getBulkHargaObatWithFallback($uniqueObatPeriodsReguler);
+
+        // Use bulk fallback method for optimized performance for emergency
+        $hargaObatResultsEmergency = HargaObatPerBulan::getBulkHargaObatWithFallback($uniqueObatPeriodsEmergency);
+
+        // Create a lookup map for reguler
+        $hargaObatMapReguler = [];
+        foreach ($hargaObatResultsReguler as $key => $result) {
+            if ($result && $result['harga']) {
+                $hargaObatMapReguler[$key] = $result['harga'];
+            }
+        }
+
+        // Create a lookup map for emergency
+        $hargaObatMapEmergency = [];
+        foreach ($hargaObatResultsEmergency as $key => $result) {
+            if ($result && $result['harga']) {
+                $hargaObatMapEmergency[$key] = $result['harga'];
+            }
+        }
+
+        // Group by month and calculate total using pre-fetched harga for reguler
+        $monthlyDataReguler = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthlyDataReguler[$i] = 0;
+        }
+
+        foreach ($keluhanDataReguler as $keluhan) {
+            $month = $keluhan->rekamMedis->tanggal_periksa->format('n');
+            $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
+            $key = $keluhan->id_obat.'_'.$periode;
+
+            // Get harga obat from our pre-fetched map
+            $hargaObat = $hargaObatMapReguler[$key] ?? null;
+
+            if ($hargaObat) {
+                $hargaSebelumDiskon = $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
+                $diskon = $keluhan->diskon ?? 0;
+                $hargaSetelahDiskon = $hargaSebelumDiskon * (1 - ($diskon / 100));
+                $monthlyDataReguler[$month] += $hargaSetelahDiskon;
+            }
+        }
+
+        // Group by month and calculate total using pre-fetched harga for emergency
+        $monthlyDataEmergency = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthlyDataEmergency[$i] = 0;
+        }
+
+        foreach ($keluhanDataEmergency as $keluhan) {
+            $month = $keluhan->rekamMedisEmergency->tanggal_periksa->format('n');
+            $periode = $keluhan->rekamMedisEmergency->tanggal_periksa->format('m-y');
+            $key = $keluhan->id_obat.'_'.$periode;
+
+            // Get harga obat from our pre-fetched map
+            $hargaObat = $hargaObatMapEmergency[$key] ?? null;
+
+            if ($hargaObat) {
+                $monthlyDataEmergency[$month] += $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
+            }
+        }
+
+        // Format data untuk chart (12 bulan)
+        $chartDataReguler = [];
+        $chartDataEmergency = [];
+        $chartDataTotal = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $reguler = $monthlyDataReguler[$i] ?? 0;
+            $emergency = $monthlyDataEmergency[$i] ?? 0;
+            $chartDataReguler[] = $reguler;
+            $chartDataEmergency[] = $emergency;
+            $chartDataTotal[] = $reguler + $emergency;
+        }
+
+        return [
+            'reguler' => $chartDataReguler,
+            'emergency' => $chartDataEmergency,
+            'total' => $chartDataTotal,
+        ];
     }
 }
