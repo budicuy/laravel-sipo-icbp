@@ -7,9 +7,10 @@
     <!-- Header Section -->
     <div class="mb-6">
         <div class="flex items-center gap-3">
-            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-3 rounded-lg shadow-lg">
+            <div class="bg-linear-to-r from-purple-600 to-indigo-600 p-3 rounded-lg shadow-lg">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
             </div>
             <div>
@@ -25,7 +26,9 @@
         <div class="flex">
             <div class="flex-shrink-0">
                 <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.964-5.964A6 6 0 0112 8.257v4.18m0 0a.75.75 0 01.75-.75V8.257m0 0h-.005z" clip-rule="evenodd"/>
+                    <path fill-rule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.964-5.964A6 6 0 0112 8.257v4.18m0 0a.75.75 0 01.75-.75V8.257m0 0h-.005z"
+                        clip-rule="evenodd" />
                 </svg>
             </div>
             <div class="ml-3">
@@ -38,36 +41,38 @@
     </div>
     @endif
     <!-- Quick Actions -->
-        <div class="flex mb-5 gap-3">
-            <a href="{{ route('token-emergency.create') }}"
-               class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Generate Token
-            </a>
+    <div class="flex mb-5 gap-3">
+        <a href="{{ route('token-emergency.create') }}"
+            class="flex items-center justify-center px-4 py-3 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Generate Token
+        </a>
 
-            <button onclick="showAllRequestsModal()"
-               class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Kelola Permintaan
-                @if($pendingRequestsCount > 0)
-                <span class="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                    {{ $pendingRequestsCount }}
-                </span>
-                @endif
-            </button>
+        <button onclick="showAllRequestsModal()"
+            class="flex items-center justify-center px-4 py-3 bg-linear-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Kelola Permintaan
+            @if($pendingRequestsCount > 0)
+            <span class="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {{ $pendingRequestsCount }}
+            </span>
+            @endif
+        </button>
 
-            <button onclick="exportAuditTrail()"
-               class="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Export Riwayat
-            </button>
-        </div>
+        <button onclick="exportAuditTrail()"
+            class="flex items-center justify-center px-4 py-3 bg-linear-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export Riwayat
+        </button>
+    </div>
 
 
     <!-- Tabs -->
@@ -75,27 +80,35 @@
         <!-- Tab Navigation -->
         <div class="border-b border-gray-200">
             <nav class="flex -mb-px">
-                <button onclick="showTab('overview')" id="overview-tab" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-indigo-500 text-indigo-600 flex items-center">
+                <button onclick="showTab('overview')" id="overview-tab"
+                    class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-indigo-500 text-indigo-600 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                     Ringkasan
                 </button>
-                <button onclick="showTab('manage')" id="manage-tab" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center">
+                <button onclick="showTab('manage')" id="manage-tab"
+                    class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                     </svg>
                     Kelola Token
                 </button>
-                <button onclick="showTab('requests')" id="requests-tab" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center">
+                <button onclick="showTab('requests')" id="requests-tab"
+                    class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Riwayat Permintaan
                 </button>
-                <button onclick="showTab('audit')" id="audit-tab" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center">
+                <button onclick="showTab('audit')" id="audit-tab"
+                    class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                     Riwayat Token
                 </button>
@@ -108,11 +121,12 @@
             <div id="overview-tab-content" class="tab-content">
                 <!-- Statistics Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                    <div class="bg-linear-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
                         <div class="flex items-center">
                             <div class="p-3 bg-blue-400 rounded-lg mr-4">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
                             <div>
@@ -122,25 +136,28 @@
                         </div>
                     </div>
 
-                    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
+                    <div class="bg-linear-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
                         <div class="flex items-center">
                             <div class="p-3 bg-green-400 rounded-lg mr-4">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
                             <div>
                                 <p class="text-sm font-medium opacity-90">Token Tersedia</p>
-                                <p class="text-2xl font-bold">{{ \App\Models\TokenEmergency::where('status', 'available')->count() }}</p>
+                                <p class="text-2xl font-bold">{{ \App\Models\TokenEmergency::where('status',
+                                    'available')->count() }}</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg p-4 text-white">
+                    <div class="bg-linear-to-r from-yellow-500 to-yellow-600 rounded-lg p-4 text-white">
                         <div class="flex items-center">
                             <div class="p-3 bg-yellow-400 rounded-lg mr-4">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
                             <div>
@@ -150,11 +167,12 @@
                         </div>
                     </div>
 
-                    <div class="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-4 text-white">
+                    <div class="bg-linear-to-r from-red-500 to-red-600 rounded-lg p-4 text-white">
                         <div class="flex items-center">
                             <div class="p-3 bg-red-400 rounded-lg mr-4">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
                             <div>
@@ -172,49 +190,57 @@
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-900">Pengguna dengan Token Rendah</h3>
                             <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                < 5 Token
-                            </span>
+                                < 5 Token </span>
                         </div>
 
                         @if($usersWithLowTokens->count() > 0)
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Token</th>
-                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach($usersWithLowTokens as $user)
-                                        <tr>
-                                            <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {{ $user->nama_lengkap }}
-                                            </td>
-                                            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    {{ $user->available_tokens }}
-                                                </span>
-                                            </td>
-                                            <td class="px-3 py-2 whitespace-nowrap text-sm">
-                                                <a href="{{ route('token-emergency.create') }}?user_id={{ $user->id_user }}"
-                                                   class="text-purple-600 hover:text-purple-900 font-medium">
-                                                    Generate
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th
+                                            class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Nama</th>
+                                        <th
+                                            class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Token</th>
+                                        <th
+                                            class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($usersWithLowTokens as $user)
+                                    <tr>
+                                        <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {{ $user->nama_lengkap }}
+                                        </td>
+                                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                            <span
+                                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                {{ $user->available_tokens }}
+                                            </span>
+                                        </td>
+                                        <td class="px-3 py-2 whitespace-nowrap text-sm">
+                                            <a href="{{ route('token-emergency.create') }}?user_id={{ $user->id_user }}"
+                                                class="text-purple-600 hover:text-purple-900 font-medium">
+                                                Generate
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                         @else
-                            <div class="text-center py-4">
-                                <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <p class="text-gray-500">Semua pengguna memiliki token yang cukup</p>
-                            </div>
+                        <div class="text-center py-4">
+                            <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-gray-500">Semua pengguna memiliki token yang cukup</p>
+                        </div>
                         @endif
                     </div>
 
@@ -230,49 +256,56 @@
                         </div>
 
                         @if($pendingRequests->count() > 0)
-                            <div class="space-y-3">
-                                @foreach($pendingRequests as $request)
-                                <div class="border border-gray-200 rounded-lg p-3">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-900">{{ $request->requester->nama_lengkap }}</p>
-                                            <p class="text-xs text-gray-500">Meminta {{ $request->quantity }} token</p>
-                                            <p class="text-xs text-gray-400">{{ $request->created_at->format('d/m/Y H:i') }}</p>
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <form action="{{ route('token-emergency.approve-request', $request->id) }}" method="POST" class="inline">
-                                                @csrf
-                                                <button type="submit" class="bg-green-600 text-white text-xs rounded px-2 py-1 hover:bg-green-700">
-                                                    Setujui
-                                                </button>
-                                            </form>
-                                            <button onclick="showRejectModal({{ $request->id }})"
-                                                    class="bg-red-600 text-white text-xs rounded px-2 py-1 hover:bg-red-700">
-                                                Tolak
-                                            </button>
-                                        </div>
+                        <div class="space-y-3">
+                            @foreach($pendingRequests as $request)
+                            <div class="border border-gray-200 rounded-lg p-3">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{
+                                            $request->requester->nama_lengkap }}</p>
+                                        <p class="text-xs text-gray-500">Meminta {{ $request->quantity }} token</p>
+                                        <p class="text-xs text-gray-400">{{ $request->created_at->format('d/m/Y H:i') }}
+                                        </p>
                                     </div>
-                                    @if($request->notes)
-                                    <p class="text-xs text-gray-600 mt-2">Catatan: {{ $request->notes }}</p>
-                                    @endif
+                                    <div class="flex space-x-2">
+                                        <form action="{{ route('token-emergency.approve-request', $request->id) }}"
+                                            method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                class="bg-green-600 text-white text-xs rounded px-2 py-1 hover:bg-green-700">
+                                                Setujui
+                                            </button>
+                                        </form>
+                                        <button onclick="showRejectModal({{ $request->id }})"
+                                            class="bg-red-600 text-white text-xs rounded px-2 py-1 hover:bg-red-700">
+                                            Tolak
+                                        </button>
+                                    </div>
                                 </div>
-                                @endforeach
+                                @if($request->notes)
+                                <p class="text-xs text-gray-600 mt-2">Catatan: {{ $request->notes }}</p>
+                                @endif
                             </div>
+                            @endforeach
+                        </div>
 
-                            @if($pendingRequestsCount > $pendingRequests->count())
-                            <div class="mt-3 text-center">
-                                <button onclick="showAllRequestsModal()" class="text-purple-600 hover:text-purple-900 text-sm font-medium">
-                                    Lihat semua permintaan ({{ $pendingRequestsCount }})
-                                </button>
-                            </div>
-                            @endif
+                        @if($pendingRequestsCount > $pendingRequests->count())
+                        <div class="mt-3 text-center">
+                            <button onclick="showAllRequestsModal()"
+                                class="text-purple-600 hover:text-purple-900 text-sm font-medium">
+                                Lihat semua permintaan ({{ $pendingRequestsCount }})
+                            </button>
+                        </div>
+                        @endif
                         @else
-                            <div class="text-center py-4">
-                                <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <p class="text-gray-500">Tidak ada permintaan token yang menunggu</p>
-                            </div>
+                        <div class="text-center py-4">
+                            <svg class="w-8 h-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-gray-500">Tidak ada permintaan token yang menunggu</p>
+                        </div>
                         @endif
                     </div>
                 </div>
@@ -281,18 +314,21 @@
             <!-- Manage Token Tab Content -->
             <div id="manage-tab-content" class="tab-content hidden">
                 <!-- Table Header -->
-                <div class="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 rounded-t-lg">
+                <div class="bg-linear-to-r from-purple-600 to-indigo-600 px-6 py-4 rounded-t-lg">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                             </svg>
                             Data Token Emergency
                         </h3>
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('token-emergency.create') }}" class="px-3 py-1.5 bg-white text-purple-600 hover:bg-purple-50 text-sm font-medium rounded-lg shadow transition-all">
+                            <a href="{{ route('token-emergency.create') }}"
+                                class="px-3 py-1.5 bg-white text-purple-600 hover:bg-purple-50 text-sm font-medium rounded-lg shadow transition-all">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
                                 </svg>
                                 Generate Token
                             </a>
@@ -305,14 +341,30 @@
                         <table class="w-full">
                             <thead class="bg-gray-800">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Token</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Pemilik</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Generator</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Digunakan Pada</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Dibuat Pada</th>
-                                    <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        No</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Token</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Status</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Pemilik</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Generator</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Digunakan Pada</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Dibuat Pada</th>
+                                    <th
+                                        class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                                        Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200" id="manageTokensTableBody">
@@ -331,26 +383,31 @@
             <!-- Audit Trail Tab Content -->
             <div id="audit-tab-content" class="tab-content hidden">
                 <!-- Table Header -->
-                <div class="bg-gradient-to-r from-blue-600 to-teal-600 px-6 py-4 rounded-t-lg">
+                <div class="bg-linear-to-r from-blue-600 to-teal-600 px-6 py-4 rounded-t-lg">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-semibold text-white flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
                             Riwayat Token (Sudah Digunakan)
                         </h3>
                         <div class="flex items-center gap-2">
                             <div class="relative">
                                 <input type="text" id="searchToken" placeholder="Cari token atau pengguna..."
-                                       class="text-sm border-gray-300 rounded-md focus:ring-white focus:border-white bg-white text-black placeholder-gray-300 pl-8 pr-4 py-1.5 w-64"
-                                       onkeyup="filterAuditTrail()">
-                                <svg class="w-4 h-4 absolute left-2.5 top-2.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    class="text-sm border-gray-300 rounded-md focus:ring-white focus:border-white bg-white text-black placeholder-gray-300 pl-8 pr-4 py-1.5 w-64"
+                                    onkeyup="filterAuditTrail()">
+                                <svg class="w-4 h-4 absolute left-2.5 top-2.5 text-gray-300" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
-                            <button onclick="exportAuditTrail()" class="px-3 py-1.5 bg-white text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg shadow transition-all">
+                            <button onclick="exportAuditTrail()"
+                                class="px-3 py-1.5 bg-white text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg shadow transition-all">
                                 <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                                 Export
                             </button>
@@ -361,16 +418,32 @@
                 <div class="bg-white rounded-b-lg shadow border border-gray-200 overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full">
-                            <thead class="bg-gradient-to-r from-blue-500 to-teal-500">
+                            <thead class="bg-linear-to-r from-blue-500 to-teal-500">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">No</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">Token</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">Pemilik</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">Status</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">Generator</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">Dibuat</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">Digunakan</th>
-                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Catatan</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">
+                                        No</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">
+                                        Token</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">
+                                        Pemilik</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">
+                                        Status</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">
+                                        Generator</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">
+                                        Dibuat</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-blue-400">
+                                        Digunakan</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                        Catatan</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-blue-100" id="auditTableBody">
@@ -388,71 +461,91 @@
 
             <!-- Request History Tab Content -->
             <div id="requests-tab-content" class="tab-content hidden">
-                    <!-- Table Header -->
-                    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 px-6 py-4 rounded-t-lg">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <!-- Table Header -->
+                <div class="bg-linear-to-r from-yellow-500 to-orange-500 px-6 py-4 rounded-t-lg">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Riwayat Permintaan Token
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <select id="requestFilter" onchange="filterRequestHistory()"
+                                class="text-sm border-gray-300 rounded-md focus:ring-white focus:border-white bg-white text-black font-semibold px-3 py-1.5">
+                                <option class="text-black" value="">Semua Status</option>
+                                <option class="text-black" value="pending">Menunggu</option>
+                                <option class="text-black" value="approved">Disetujui</option>
+                                <option class="text-black" value="rejected">Ditolak</option>
+                            </select>
+                            <div class="relative">
+                                <input type="text" id="searchRequest" placeholder="Cari pemohon..."
+                                    class="text-sm border-gray-300 rounded-md focus:ring-white focus:border-white bg-white text-black placeholder-gray-300 pl-8 pr-4 py-1.5 w-64"
+                                    onkeyup="filterRequestHistory()">
+                                <svg class="w-4 h-4 absolute left-2.5 top-2.5 text-gray-300" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
-                                Riwayat Permintaan Token
-                            </h3>
-                            <div class="flex items-center gap-2">
-                                <select id="requestFilter" onchange="filterRequestHistory()" class="text-sm border-gray-300 rounded-md focus:ring-white focus:border-white bg-white text-black font-semibold px-3 py-1.5">
-                                    <option class="text-black" value="">Semua Status</option>
-                                    <option class="text-black" value="pending">Menunggu</option>
-                                    <option class="text-black" value="approved">Disetujui</option>
-                                    <option class="text-black" value="rejected">Ditolak</option>
-                                </select>
-                                <div class="relative">
-                                    <input type="text" id="searchRequest" placeholder="Cari pemohon..."
-                                           class="text-sm border-gray-300 rounded-md focus:ring-white focus:border-white bg-white text-black placeholder-gray-300 pl-8 pr-4 py-1.5 w-64"
-                                           onkeyup="filterRequestHistory()">
-                                    <svg class="w-4 h-4 absolute left-2.5 top-2.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="bg-white rounded-b-lg shadow border border-gray-200 overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead class="bg-gray-800">
-                                    <tr>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">No</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Pemohon</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Jumlah</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Status</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Disetujui Oleh</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">Tanggal Permintaan</th>
-                                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Catatan</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200" id="requestTableBody">
-                                    <!-- Will be populated by JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
+                <div class="bg-white rounded-b-lg shadow border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-800">
+                                <tr>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        No</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Pemohon</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Jumlah</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Status</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Disetujui Oleh</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Tanggal Permintaan</th>
+                                    <th
+                                        class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                        Catatan</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="requestTableBody">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
 
-                        <!-- Pagination -->
-                        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50" id="requestPagination">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
+                    <!-- Pagination -->
+                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50" id="requestPagination">
+                        <!-- Will be populated by JavaScript -->
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 </div>
 
 <!-- Reject Modal -->
-<div id="rejectModal" class="fixed inset-0 backdrop-blur-md overflow-y-auto h-full w-full z-[60] hidden flex items-center justify-center">
+<div id="rejectModal"
+    class="fixed inset-0 backdrop-blur-md overflow-y-auto h-full w-full z-[60] hidden flex items-center justify-center">
     <div class="relative mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3 text-center">
             <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                 <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
                 </svg>
             </div>
             <h3 class="text-lg leading-6 font-medium text-gray-900">Tolak Permintaan Token</h3>
@@ -461,16 +554,19 @@
                     @csrf
                     <input type="hidden" name="request_id" id="request_id">
                     <div class="mb-4">
-                        <label for="rejection_reason" class="block text-sm font-medium text-gray-700 mb-2">Alasan Penolakan</label>
+                        <label for="rejection_reason" class="block text-sm font-medium text-gray-700 mb-2">Alasan
+                            Penolakan</label>
                         <textarea id="rejection_reason" name="rejection_reason" rows="3" required
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-                                  placeholder="Jelaskan alasan penolakan..."></textarea>
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                            placeholder="Jelaskan alasan penolakan..."></textarea>
                     </div>
                     <div class="flex justify-center space-x-3">
-                        <button type="submit" class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <button type="submit"
+                            class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
                             Tolak
                         </button>
-                        <button type="button" onclick="closeRejectModal()" class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        <button type="button" onclick="closeRejectModal()"
+                            class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
                             Batal
                         </button>
                     </div>
@@ -481,14 +577,16 @@
 </div>
 
 <!-- All Requests Modal -->
-<div id="allRequestsModal" class="fixed inset-0 backdrop-blur-md overflow-y-auto h-full w-full z-50 hidden flex items-center justify-center">
+<div id="allRequestsModal"
+    class="fixed inset-0 backdrop-blur-md overflow-y-auto h-full w-full z-50 hidden flex items-center justify-center">
     <div class="relative mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">Semua Permintaan Token</h3>
                 <button onclick="closeAllRequestsModal()" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
@@ -496,12 +594,18 @@
                 <table class="w-full">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">No</th>
-                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Pemohon</th>
-                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Jumlah</th>
-                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Catatan</th>
-                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">Tanggal</th>
-                            <th class="px-4 py-2 text-center text-xs font-bold text-gray-900 uppercase tracking-wider">Aksi</th>
+                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">No
+                            </th>
+                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                Pemohon</th>
+                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                Jumlah</th>
+                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                Catatan</th>
+                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                Tanggal</th>
+                            <th class="px-4 py-2 text-center text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="allRequestsTableBody">
@@ -514,57 +618,69 @@
 </div>
 
 <style>
-.modal-backdrop {
-    animation: fadeIn 0.3s ease-out;
-}
-
-.modal-content {
-    animation: zoomOut 0.3s ease-out;
-}
-
-.modal-close {
-    animation: fadeOut 0.3s ease-out;
-}
-
-.modal-content-close {
-    animation: zoomIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-
-@keyframes zoomOut {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
+    .modal-backdrop {
+        animation: fadeIn 0.3s ease-out;
     }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
 
-@keyframes zoomIn {
-    from {
-        opacity: 1;
-        transform: scale(1);
+    .modal-content {
+        animation: zoomOut 0.3s ease-out;
     }
-    to {
-        opacity: 0;
-        transform: scale(0.9);
+
+    .modal-close {
+        animation: fadeOut 0.3s ease-out;
     }
-}
+
+    .modal-content-close {
+        animation: zoomIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
+        }
+    }
+
+    @keyframes zoomOut {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes zoomIn {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+    }
 </style>
 
 <script>
-function showRejectModal(requestId) {
+    function showRejectModal(requestId) {
     const modal = document.getElementById('rejectModal');
     const backdrop = modal;
     const content = modal.querySelector('.relative');
@@ -964,7 +1080,7 @@ function generatePagination(data) {
     for (let i = start; i <= end; i++) {
         let url = data.links.find(link => link.label == i.toString())?.url || '';
         if (i == data.current_page) {
-            html += `<span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg shadow-md">${i}</span>`;
+            html += `<span class="px-3 py-2 text-sm font-bold text-white bg-linear-to-r from-purple-600 to-indigo-600 rounded-lg shadow-md">${i}</span>`;
         } else {
             html += `<a href="javascript:void(0)" onclick="loadManageTokensPage('${url}')" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all">${i}</a>`;
         }
@@ -1221,7 +1337,7 @@ function generateAuditPagination(data) {
     for (let i = start; i <= end; i++) {
         let url = data.links.find(link => link.label == i.toString())?.url || '';
         if (i == data.current_page) {
-            html += `<span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-teal-600 rounded-lg shadow-md">${i}</span>`;
+            html += `<span class="px-3 py-2 text-sm font-bold text-white bg-linear-to-r from-blue-600 to-teal-600 rounded-lg shadow-md">${i}</span>`;
         } else {
             html += `<a href="javascript:void(0)" onclick="loadAuditTrailPage('${url}')" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">${i}</a>`;
         }
@@ -1483,7 +1599,7 @@ function generateRequestPagination(data) {
     for (let i = start; i <= end; i++) {
         let url = data.links.find(link => link.label == i.toString())?.url || '';
         if (i == data.current_page) {
-            html += `<span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg shadow-md">${i}</span>`;
+            html += `<span class="px-3 py-2 text-sm font-bold text-white bg-linear-to-r from-yellow-500 to-orange-500 rounded-lg shadow-md">${i}</span>`;
         } else {
             html += `<a href="javascript:void(0)" onclick="loadRequestHistoryPage('${url}')" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-yellow-50 hover:border-yellow-400 transition-all">${i}</a>`;
         }

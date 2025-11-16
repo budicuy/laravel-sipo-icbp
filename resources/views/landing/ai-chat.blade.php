@@ -596,7 +596,7 @@
                         <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
                             <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
                         </div>
-                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
+                        <div class="bg-linear-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
                             <div class="text-gray-800 prose prose-sm max-w-none">
                                 ${welcomeMessage}
                             </div>
@@ -759,7 +759,7 @@
                         button.className =
                             'w-full p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition text-left flex items-center gap-3';
                         button.innerHTML = `
-                            <div class="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            <div class="w-10 h-10 bg-linear-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                                 <i class="fas fa-user text-white"></i>
                             </div>
                             <div class="flex-1">
@@ -1099,7 +1099,7 @@
                         <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
                             <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
                         </div>
-                        <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
+                        <div class="bg-linear-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
                             <div class="text-gray-800 prose prose-sm max-w-none">
                                 ${welcomeMessage}
                             </div>
@@ -1313,7 +1313,7 @@
                                                                                                 <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
                                                                                                     <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
                                                                                                 </div>
-                                                                                                <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
+                                                                                                <div class="bg-linear-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-3 max-w-5xl">
                                                                                                     <div class="text-gray-800 prose prose-sm max-w-none">${sanitizedHTML}</div>
                                                                                                 </div>
                                                                                             </div>
@@ -1324,7 +1324,7 @@
 
             messageDiv.innerHTML = `
                                                                                             <div class="flex gap-3 mb-4 justify-end">
-                                                                                                <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-5xl">
+                                                                                                <div class="bg-linear-to-r from-purple-600 to-blue-600 rounded-2xl rounded-tr-none px-5 py-3 max-w-5xl">
                                                                                                     <p class="text-white">${escapedText}</p>
                                                                                                 </div>
                                                                                                 <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
@@ -1350,7 +1350,7 @@
                                                                                             <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
                                                                                                 <img src="{{ asset('ai.jpeg') }}" alt="AI Avatar" class="w-full h-full object-cover">
                                                                                             </div>
-                                                                                            <div class="bg-gradient-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-4">
+                                                                                            <div class="bg-linear-to-r from-purple-100 to-blue-100 rounded-2xl rounded-tl-none px-5 py-4">
                                                                                                 <div class="flex gap-1">
                                                                                                     <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
                                                                                                     <div class="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>

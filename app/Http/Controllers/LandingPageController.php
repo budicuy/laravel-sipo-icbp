@@ -368,7 +368,7 @@ class LandingPageController extends Controller
 
         try {
             // Initialize Gemini chat with enhanced memory configuration
-            $chat = Gemini::chat(model: config('gemini.model', 'gemini-2.0-flash'));
+            $chat = Gemini::chat(model: config('gemini.model', 'gemini-2.5-flash-lite'));
 
             // Build user context
             $userContext = '';
@@ -406,7 +406,7 @@ FITUR UTAMA SIPO :
 1. **Rekam Medis Digital**: Pencatatan lengkap riwayat kesehatan karyawan secara elektronik dan aman
 2. **Manajemen Obat**: Tracking stok obat otomatis, alert stok menipis, riwayat penggunaan obat terperinci
 3. **AI Assistant**: Chat assistant powered by Google Gemini untuk bantuan 24/7
-4. **Surat Keterangan Kesehatan**: Generate otomatis surat sakit, rujukan, dan dokumen medis
+4. **Fingerprint**: Autentikasi karyawan menggunakan sidik jari untuk keamanan akses
 5. **Laporan & Analitik**: Dashboard komprehensif dengan visualisasi data kesehatan dan tren penyakit
 6. **Keamanan Data**: Enkripsi data, role-based access control, dan audit trail lengkap
 

@@ -14,9 +14,10 @@
             </a>
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                    <div class="bg-gradient-to-r from-purple-600 to-purple-700 p-3 rounded-lg shadow-lg">
+                    <div class="bg-linear-to-r from-purple-600 to-purple-700 p-3 rounded-lg shadow-lg">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                         </svg>
                     </div>
                     Tambah External Employee Baru
@@ -26,14 +27,16 @@
         </div>
     </div>
 
-    <form action="{{ route('external-employee.store') }}" method="POST" enctype="multipart/form-data" id="formExternalEmployee">
+    <form action="{{ route('external-employee.store') }}" method="POST" enctype="multipart/form-data"
+        id="formExternalEmployee">
         @csrf
         <!-- Manual Input Section Card -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-            <div class="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4">
+            <div class="bg-linear-to-r from-purple-600 to-purple-700 px-6 py-4">
                 <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     Input Manual Data External Employee
                 </h2>
@@ -51,15 +54,19 @@
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="nik_employee" name="nik_employee" value="{{ old('nik_employee') }}"
-                                     class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Masukkan NIK Employee" required>
+                                    <input type="text" id="nik_employee" name="nik_employee"
+                                        value="{{ old('nik_employee') }}"
+                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        placeholder="Masukkan NIK Employee" required>
                                 </div>
                                 @error('nik_employee')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -70,14 +77,19 @@
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="nama_employee" name="nama_employee" value="{{ old('nama_employee') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Nama lengkap employee" required>
+                                    <input type="text" id="nama_employee" name="nama_employee"
+                                        value="{{ old('nama_employee') }}"
+                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        placeholder="Nama lengkap employee" required>
                                 </div>
                                 @error('nama_employee')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -88,16 +100,19 @@
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
                                     </div>
                                     <input type="text" id="kode_rm" name="kode_rm" value="{{ old('kode_rm') }}"
-                                     class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Kode RM" readonly required>
+                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        placeholder="Kode RM" readonly required>
                                 </div>
                                 <p class="text-xs text-gray-500 mt-1">Kode RM otomatis dengan kode hubungan F</p>
                                 @error('kode_rm')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -107,19 +122,25 @@
                                     Jenis Kelamin <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select id="jenis_kelamin" name="jenis_kelamin" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white" required>
+                                    <select id="jenis_kelamin" name="jenis_kelamin"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white"
+                                        required>
                                         <option value="">-- Pilih Jenis Kelamin --</option>
-                                        <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
-                                        <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
+                                        <option value="L" {{ old('jenis_kelamin')=='L' ? 'selected' : '' }}>Laki-laki
+                                        </option>
+                                        <option value="P" {{ old('jenis_kelamin')=='P' ? 'selected' : '' }}>Perempuan
+                                        </option>
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </div>
                                 </div>
                                 @error('jenis_kelamin')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -130,14 +151,19 @@
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
                                     </div>
-                                    <input type="date" id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required>
+                                    <input type="date" id="tanggal_lahir" name="tanggal_lahir"
+                                        value="{{ old('tanggal_lahir') }}"
+                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        required>
                                 </div>
                                 @error('tanggal_lahir')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -148,14 +174,18 @@
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="no_hp" name="no_hp" value="{{ old('no_hp') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="08xxxxxxxxxx" required>
+                                    <input type="text" id="no_hp" name="no_hp" value="{{ old('no_hp') }}"
+                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        placeholder="08xxxxxxxxxx" required>
                                 </div>
                                 @error('no_hp')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
@@ -168,20 +198,25 @@
                                     Vendor <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select id="id_vendor" name="id_vendor" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white" required>
+                                    <select id="id_vendor" name="id_vendor"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white"
+                                        required>
                                         <option value="">-- Pilih Vendor --</option>
                                         @foreach($vendors as $vendor)
-                                            <option value="{{ $vendor->id_vendor }}" {{ old('id_vendor') == $vendor->id_vendor ? 'selected' : '' }}>{{ $vendor->nama_vendor }}</option>
+                                        <option value="{{ $vendor->id_vendor }}" {{ old('id_vendor')==$vendor->id_vendor
+                                            ? 'selected' : '' }}>{{ $vendor->nama_vendor }}</option>
                                         @endforeach
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </div>
                                 </div>
                                 @error('id_vendor')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -191,20 +226,26 @@
                                     Kategori <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
-                                    <select id="id_kategori" name="id_kategori" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white" required>
+                                    <select id="id_kategori" name="id_kategori"
+                                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white"
+                                        required>
                                         <option value="">-- Pilih Kategori --</option>
                                         @foreach($kategoris as $kategori)
-                                            <option value="{{ $kategori->id_kategori }}" {{ old('id_kategori') == $kategori->id_kategori ? 'selected' : '' }}>{{ $kategori->nama_kategori }} ({{ $kategori->kode_kategori }})</option>
+                                        <option value="{{ $kategori->id_kategori }}" {{ old('id_kategori')==$kategori->
+                                            id_kategori ? 'selected' : '' }}>{{ $kategori->nama_kategori }} ({{
+                                            $kategori->kode_kategori }})</option>
                                         @endforeach
                                     </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </div>
                                 </div>
                                 @error('id_kategori')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
@@ -218,14 +259,18 @@
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="no_ktp" name="no_ktp" value="{{ old('no_ktp') }}" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Nomor KTP">
+                                    <input type="text" id="no_ktp" name="no_ktp" value="{{ old('no_ktp') }}"
+                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        placeholder="Nomor KTP">
                                 </div>
                                 @error('no_ktp')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
@@ -236,14 +281,19 @@
                                 </label>
                                 <div class="relative">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="bpjs_id" name="bpjs_id" value="{{ old('bpjs_id') }}" maxlength="50" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Contoh: 0001234567890">
+                                    <input type="text" id="bpjs_id" name="bpjs_id" value="{{ old('bpjs_id') }}"
+                                        maxlength="50"
+                                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        placeholder="Contoh: 0001234567890">
                                 </div>
                                 @error('bpjs_id')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
@@ -254,18 +304,23 @@
                                 Status <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <select id="status" name="status" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white" required>
-                                    <option value="aktif" {{ old('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                                    <option value="nonaktif" {{ old('status') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                                <select id="status" name="status"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 appearance-none bg-white"
+                                    required>
+                                    <option value="aktif" {{ old('status')=='aktif' ? 'selected' : '' }}>Aktif</option>
+                                    <option value="nonaktif" {{ old('status')=='nonaktif' ? 'selected' : '' }}>Nonaktif
+                                    </option>
                                 </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </div>
                             </div>
                             @error('status')
-                                <p class="text-xs text-red-600">{{ $message }}</p>
+                            <p class="text-xs text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
@@ -275,29 +330,40 @@
                                 Alamat <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <textarea id="alamat" name="alamat" rows="4" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Masukkan alamat lengkap employee" required>{{ old('alamat') }}</textarea>
+                                <textarea id="alamat" name="alamat" rows="4"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    placeholder="Masukkan alamat lengkap employee"
+                                    required>{{ old('alamat') }}</textarea>
                             </div>
                             @error('alamat')
-                                <p class="text-xs text-red-600">{{ $message }}</p>
+                            <p class="text-xs text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
-                  <!-- Right Column - Photo Upload -->
+                    <!-- Right Column - Photo Upload -->
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2 text-center">Foto Employee</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 text-center">Foto
+                                Employee</label>
                             <div class="space-y-3">
                                 <!-- Upload Area -->
                                 <div class="relative w-full max-w-xs mx-auto">
                                     <div class="aspect-[3/4] w-full">
-                                        <input type="file" id="foto" name="foto" accept="image/*" class="hidden" onchange="previewImage(event)">
-                                        <label for="foto" class="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
-                                            <div id="preview-container" class="flex flex-col items-center justify-center w-full h-full p-3">
-                                                <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        <input type="file" id="foto" name="foto" accept="image/*" class="hidden"
+                                            onchange="previewImage(event)">
+                                        <label for="foto"
+                                            class="absolute inset-0 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                                            <div id="preview-container"
+                                                class="flex flex-col items-center justify-center w-full h-full p-3">
+                                                <svg class="w-8 h-8 text-gray-400 mb-2" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
-                                                <p class="mb-1 text-xs text-gray-500 font-semibold">Klik untuk upload</p>
+                                                <p class="mb-1 text-xs text-gray-500 font-semibold">Klik untuk upload
+                                                </p>
                                                 <p class="text-xs text-gray-500">PNG, JPG, JPEG</p>
                                                 <p class="text-xs text-gray-400">(MAX. 2MB)</p>
                                             </div>
@@ -305,7 +371,7 @@
                                     </div>
                                 </div>
                                 @error('foto')
-                                    <p class="text-xs text-red-600">{{ $message }}</p>
+                                <p class="text-xs text-red-600">{{ $message }}</p>
                                 @enderror
 
                                 <!-- Info -->
@@ -324,13 +390,16 @@
 
             <!-- Form Actions -->
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-                <button type="button" onclick="window.location.href='{{ route('external-employee.index') }}'" class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
+                <button type="button" onclick="window.location.href='{{ route('external-employee.index') }}'"
+                    class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     Batal
                 </button>
-                <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                <button type="submit"
+                    class="px-6 py-2.5 bg-linear-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
@@ -343,11 +412,11 @@
 
 @push('scripts')
 <script>
-// Auto-generate Kode RM with hubungan F
+    // Auto-generate Kode RM with hubungan F
 document.addEventListener('DOMContentLoaded', function() {
     const nikEmployeeInput = document.getElementById('nik_employee');
     const kodeRmInput = document.getElementById('kode_rm');
-    
+
     // Function to generate Kode RM
     function generateKodeRM() {
         const nik = nikEmployeeInput.value.trim();
@@ -357,10 +426,10 @@ document.addEventListener('DOMContentLoaded', function() {
             kodeRmInput.value = '';
         }
     }
-    
+
     // Event listener for NIK input
     nikEmployeeInput.addEventListener('input', generateKodeRM);
-    
+
     // Generate initial Kode RM if NIK is pre-filled
     generateKodeRM();
 });

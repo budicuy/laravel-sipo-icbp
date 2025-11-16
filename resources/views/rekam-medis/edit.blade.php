@@ -3,430 +3,427 @@
 @section('page-title', 'Edit Rekam Medis')
 
 @section('content')
-    <div class="p-6 bg-gray-50 min-h-screen">
-        <!-- Header Section -->
-        <div class="mb-6">
-            <div class="flex items-center gap-3 mb-3">
-                <a href="{{ route('rekam-medis.index') }}" class="p-2 hover:bg-white rounded-lg transition-colors">
-                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+<div class="p-6 bg-gray-50 min-h-screen">
+    <!-- Header Section -->
+    <div class="mb-6">
+        <div class="flex items-center gap-3 mb-3">
+            <a href="{{ route('rekam-medis.index') }}" class="p-2 hover:bg-white rounded-lg transition-colors">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <div class="bg-linear-to-r from-blue-600 to-cyan-600 p-3 rounded-lg shadow-lg">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </div>
+                    Edit Rekam Medis
+                </h1>
+                <p class="text-gray-600 mt-1 ml-1">Ubah data rekam medis pasien</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Error Messages -->
+    @if ($errors->any())
+    <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md animate-shake" id="error-container">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3 flex-1">
+                <h3 class="text-sm font-semibold text-red-800 mb-2">
+                    ⚠️ Terdapat {{ count($errors->all()) }} kesalahan yang perlu diperbaiki:
+                </h3>
+                <div class="mt-2 space-y-1">
+                    @foreach ($errors->all() as $index => $error)
+                    <div class="flex items-start py-1.5 bg-white bg-opacity-50 rounded px-2">
+                        <span
+                            class="flex-shrink-0 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-100 text-red-600 text-xs font-bold mr-2 mt-0.5">
+                            {{ $index + 1 }}
+                        </span>
+                        <span class="text-sm text-red-700 flex-1">{{ $error }}</span>
+                    </div>
+                    @endforeach
+                </div>
+                <div class="mt-3 pt-3 border-t border-red-200">
+                    <p class="text-xs text-red-600 italic">
+                        💡 Tip: Periksa form di bawah, field yang error ditandai dengan border merah dan pesan error
+                        di bawah masing-masing field.
+                    </p>
+                </div>
+            </div>
+            <div class="ml-auto pl-3">
+                <button onclick="document.getElementById('error-container').style.display='none'"
+                    class="text-red-400 hover:text-red-600 transition-colors">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
                     </svg>
-                </a>
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-3 rounded-lg shadow-lg">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Success Messages -->
+    @if (session('success'))
+    <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-md" id="success-container">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
+            </div>
+            <div class="ml-auto pl-3">
+                <button onclick="document.getElementById('success-container').style.display='none'"
+                    class="text-green-400 hover:text-green-600">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Error Messages -->
+    @if (session('error'))
+    <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md" id="error-session-container">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
+            </div>
+            <div class="ml-auto pl-3">
+                <button onclick="document.getElementById('error-session-container').style.display='none'"
+                    class="text-red-400 hover:text-red-600">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <form action="{{ route('rekam-medis.update', $rekamMedis->id_rekam) }}" method="POST" id="rekamMedisForm">
+        @csrf
+        @method('PUT')
+
+        <!-- Hidden field for kunjungan_id -->
+        <input type="hidden" id="kunjungan_id" name="kunjungan_id"
+            value="{{ old('kunjungan_id', $rekamMedis->kunjungan_id) }}">
+
+        <!-- Hidden field for id_karyawan -->
+        <input type="hidden" id="id_karyawan" name="id_karyawan"
+            value="{{ old('id_karyawan', $rekamMedis->keluarga->id_karyawan) }}" required>
+
+        <!-- Data Pasien Section -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
+            <div class="bg-linear-to-r from-blue-600 to-cyan-600 px-6 py-4">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Data Pasien
+                </h2>
+            </div>
+
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Info Karyawan (Auto-filled) -->
+                    <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Informasi Karyawan</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <span class="text-xs text-gray-500">NIK Karyawan</span>
+                                <p id="info_nik" class="font-medium text-gray-900">
+                                    {{ $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-' }}</p>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500">Nama Karyawan</span>
+                                <p id="info_nama" class="font-medium text-gray-900">
+                                    {{ $rekamMedis->keluarga->karyawan->nama_karyawan ?? '-' }}</p>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500">Departemen</span>
+                                <p id="info_departemen" class="font-medium text-gray-900">
+                                    {{ $rekamMedis->keluarga->karyawan->departemen->nama_departemen ?? '-' }}</p>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500">Foto Karyawan</span>
+                                <div id="info_foto" class="mt-1">
+                                    @if ($rekamMedis->keluarga->karyawan->foto)
+                                    <img id="foto_karyawan" src="/storage/{{ $rekamMedis->keluarga->karyawan->foto }}"
+                                        alt="Foto Karyawan"
+                                        class="w-20 h-24 object-cover rounded-lg border border-gray-300"
+                                        onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($rekamMedis->keluarga->karyawan->nama_karyawan ?? 'Unknown') }}&background=6b7280&color=fff&size=80'">
+                                    @else
+                                    <div id="no_foto"
+                                        class="w-20 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                                        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
-                        Edit Rekam Medis
-                    </h1>
-                    <p class="text-gray-600 mt-1 ml-1">Ubah data rekam medis pasien</p>
+                    </div>
+
+                    <!-- Pilih Anggota Keluarga -->
+                    <div class="md:col-span-2">
+                        <label for="id_keluarga" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Pilih Anggota Keluarga <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select id="id_keluarga" name="id_keluarga"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
+                                required>
+                                @if ($rekamMedis->keluarga)
+                                <option value="{{ $rekamMedis->keluarga->id_keluarga }}" selected
+                                    data-no-rm="{{ $rekamMedis->keluarga->no_rm ?? '' }}"
+                                    data-jenis-kelamin="{{ $rekamMedis->keluarga->jenis_kelamin ?? '' }}"
+                                    data-hubungan="{{ $rekamMedis->keluarga->hubungan->hubungan ?? '' }}"
+                                    data-kode-hubungan="{{ $rekamMedis->keluarga->kode_hubungan ?? '' }}">
+                                    {{ $rekamMedis->keluarga->nama_keluarga }}
+                                    ({{ $rekamMedis->keluarga->hubungan->hubungan ?? '' }})
+                                </option>
+                                @endif
+                            </select>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NO RM (Auto-filled & Disabled) -->
+                    <div>
+                        <label for="no_rm" class="block text-sm font-semibold text-gray-700 mb-2">
+                            NO RM
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                </svg>
+                            </div>
+                            <input type="text" id="no_rm" name="no_rm"
+                                class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
+                                placeholder="Otomatis terisi" readonly value="{{ $rekamMedis->keluarga->no_rm ?? '' }}">
+                        </div>
+                    </div>
+
+                    <!-- Nama Pasien (Auto-filled) -->
+                    <div>
+                        <label for="nama_pasien" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Nama Pasien
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <input type="text" id="nama_pasien"
+                                class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
+                                placeholder="Otomatis terisi" readonly
+                                value="{{ $rekamMedis->keluarga->nama_keluarga ?? '' }}">
+                        </div>
+                    </div>
+
+                    <!-- Hubungan (Auto-filled) -->
+                    <div>
+                        <label for="hubungan" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Hubungan
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <input type="text" id="hubungan"
+                                class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
+                                placeholder="Otomatis terisi" readonly
+                                value="{{ $rekamMedis->keluarga->hubungan->hubungan ?? '' }}">
+                        </div>
+                    </div>
+
+                    <!-- Jenis Kelamin (Auto-filled) -->
+                    <div>
+                        <label for="jenis_kelamin" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Jenis Kelamin
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <input type="text" id="jenis_kelamin"
+                                class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
+                                placeholder="Otomatis terisi" readonly
+                                value="{{ $rekamMedis->keluarga->jenis_kelamin ?? '' }}">
+                        </div>
+                    </div>
+
+                    <!-- Tanggal Periksa -->
+                    <div>
+                        <label for="tanggal_periksa" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Tanggal Periksa <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <input type="date" id="tanggal_periksa" name="tanggal_periksa"
+                                value="{{ old('tanggal_periksa', $rekamMedis->tanggal_periksa->format('Y-m-d')) }}"
+                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                required>
+                        </div>
+                    </div>
+
+                    <!-- Waktu Periksa -->
+                    <div>
+                        <label for="waktu_periksa" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Waktu Periksa <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <input type="time" id="waktu_periksa" name="waktu_periksa"
+                                value="{{ old('waktu_periksa', $rekamMedis->waktu_periksa ? substr($rekamMedis->waktu_periksa, 0, 5) : '') }}"
+                                class="w-full pl-10 pr-4 py-2.5 border @error('waktu_periksa') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                required>
+                        </div>
+                        @error('waktu_periksa')
+                        <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            {{ $message }}
+                        </p>
+                        @enderror
+                    </div>
+
+                    <!-- Status Rekam Medis -->
+                    <div>
+                        <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Status Rekam Medis <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select id="status" name="status"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
+                                required>
+                                <option value="On Progress" {{ old('status', $rekamMedis->status) == 'On Progress' ?
+                                    'selected' : '' }}>On
+                                    Progress</option>
+                                <option value="Close" {{ old('status', $rekamMedis->status) == 'Close' ? 'selected' : ''
+                                    }}>Close
+                                </option>
+                            </select>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Jumlah Keluhan -->
+                    <div>
+                        <label for="jumlah_keluhan" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Jumlah Keluhan <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <select id="jumlah_keluhan" name="jumlah_keluhan"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
+                                required onchange="updateKeluhanSections(this.value)">
+                                <option value="1" {{ old('jumlah_keluhan', $rekamMedis->jumlah_keluhan) == 1 ?
+                                    'selected' : '' }}>1
+                                    Keluhan</option>
+                                <option value="2" {{ old('jumlah_keluhan', $rekamMedis->jumlah_keluhan) == 2 ?
+                                    'selected' : '' }}>2
+                                    Keluhan</option>
+                                <option value="3" {{ old('jumlah_keluhan', $rekamMedis->jumlah_keluhan) == 3 ?
+                                    'selected' : '' }}>3
+                                    Keluhan</option>
+                            </select>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Enhanced Error Messages -->
-        @if ($errors->any())
-            <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md animate-shake"
-                id="error-container">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3 flex-1">
-                        <h3 class="text-sm font-semibold text-red-800 mb-2">
-                            ⚠️ Terdapat {{ count($errors->all()) }} kesalahan yang perlu diperbaiki:
-                        </h3>
-                        <div class="mt-2 space-y-1">
-                            @foreach ($errors->all() as $index => $error)
-                                <div class="flex items-start py-1.5 bg-white bg-opacity-50 rounded px-2">
-                                    <span
-                                        class="flex-shrink-0 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-100 text-red-600 text-xs font-bold mr-2 mt-0.5">
-                                        {{ $index + 1 }}
-                                    </span>
-                                    <span class="text-sm text-red-700 flex-1">{{ $error }}</span>
-                                </div>
-                            @endforeach
-                        </div>
-                        <div class="mt-3 pt-3 border-t border-red-200">
-                            <p class="text-xs text-red-600 italic">
-                                💡 Tip: Periksa form di bawah, field yang error ditandai dengan border merah dan pesan error
-                                di bawah masing-masing field.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="ml-auto pl-3">
-                        <button onclick="document.getElementById('error-container').style.display='none'"
-                            class="text-red-400 hover:text-red-600 transition-colors">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        @endif
+        <!-- Combined Diagnosa & Resep Section -->
+        <div id="keluhan-container" style="display: block;">
+            <!-- Keluhan sections will be populated by JavaScript based on existing data -->
+        </div>
 
-        <!-- Success Messages -->
-        @if (session('success'))
-            <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow-md" id="success-container">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-green-800">{{ session('success') }}</p>
-                    </div>
-                    <div class="ml-auto pl-3">
-                        <button onclick="document.getElementById('success-container').style.display='none'"
-                            class="text-green-400 hover:text-green-600">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        <!-- Error Messages -->
-        @if (session('error'))
-            <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg shadow-md" id="error-session-container">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-red-800">{{ session('error') }}</p>
-                    </div>
-                    <div class="ml-auto pl-3">
-                        <button onclick="document.getElementById('error-session-container').style.display='none'"
-                            class="text-red-400 hover:text-red-600">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        <form action="{{ route('rekam-medis.update', $rekamMedis->id_rekam) }}" method="POST" id="rekamMedisForm">
-            @csrf
-            @method('PUT')
-
-            <!-- Hidden field for kunjungan_id -->
-            <input type="hidden" id="kunjungan_id" name="kunjungan_id"
-                value="{{ old('kunjungan_id', $rekamMedis->kunjungan_id) }}">
-
-            <!-- Hidden field for id_karyawan -->
-            <input type="hidden" id="id_karyawan" name="id_karyawan"
-                value="{{ old('id_karyawan', $rekamMedis->keluarga->id_karyawan) }}" required>
-
-            <!-- Data Pasien Section -->
-            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6">
-                <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
-                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        Data Pasien
-                    </h2>
-                </div>
-
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        <!-- Info Karyawan (Auto-filled) -->
-                        <div class="md:col-span-2 bg-gray-50 p-4 rounded-lg">
-                            <h3 class="text-sm font-semibold text-gray-700 mb-2">Informasi Karyawan</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div>
-                                    <span class="text-xs text-gray-500">NIK Karyawan</span>
-                                    <p id="info_nik" class="font-medium text-gray-900">
-                                        {{ $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-' }}</p>
-                                </div>
-                                <div>
-                                    <span class="text-xs text-gray-500">Nama Karyawan</span>
-                                    <p id="info_nama" class="font-medium text-gray-900">
-                                        {{ $rekamMedis->keluarga->karyawan->nama_karyawan ?? '-' }}</p>
-                                </div>
-                                <div>
-                                    <span class="text-xs text-gray-500">Departemen</span>
-                                    <p id="info_departemen" class="font-medium text-gray-900">
-                                        {{ $rekamMedis->keluarga->karyawan->departemen->nama_departemen ?? '-' }}</p>
-                                </div>
-                                <div>
-                                    <span class="text-xs text-gray-500">Foto Karyawan</span>
-                                    <div id="info_foto" class="mt-1">
-                                        @if ($rekamMedis->keluarga->karyawan->foto)
-                                            <img id="foto_karyawan"
-                                                src="/storage/{{ $rekamMedis->keluarga->karyawan->foto }}"
-                                                alt="Foto Karyawan"
-                                                class="w-20 h-24 object-cover rounded-lg border border-gray-300"
-                                                onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($rekamMedis->keluarga->karyawan->nama_karyawan ?? 'Unknown') }}&background=6b7280&color=fff&size=80'">
-                                        @else
-                                            <div id="no_foto"
-                                                class="w-20 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
-                                                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                </svg>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pilih Anggota Keluarga -->
-                        <div class="md:col-span-2">
-                            <label for="id_keluarga" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Pilih Anggota Keluarga <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <select id="id_keluarga" name="id_keluarga"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
-                                    required>
-                                    @if ($rekamMedis->keluarga)
-                                        <option value="{{ $rekamMedis->keluarga->id_keluarga }}" selected
-                                            data-no-rm="{{ $rekamMedis->keluarga->no_rm ?? '' }}"
-                                            data-jenis-kelamin="{{ $rekamMedis->keluarga->jenis_kelamin ?? '' }}"
-                                            data-hubungan="{{ $rekamMedis->keluarga->hubungan->hubungan ?? '' }}"
-                                            data-kode-hubungan="{{ $rekamMedis->keluarga->kode_hubungan ?? '' }}">
-                                            {{ $rekamMedis->keluarga->nama_keluarga }}
-                                            ({{ $rekamMedis->keluarga->hubungan->hubungan ?? '' }})
-                                        </option>
-                                    @endif
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- NO RM (Auto-filled & Disabled) -->
-                        <div>
-                            <label for="no_rm" class="block text-sm font-semibold text-gray-700 mb-2">
-                                NO RM
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                                    </svg>
-                                </div>
-                                <input type="text" id="no_rm" name="no_rm"
-                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
-                                    placeholder="Otomatis terisi" readonly
-                                    value="{{ $rekamMedis->keluarga->no_rm ?? '' }}">
-                            </div>
-                        </div>
-
-                        <!-- Nama Pasien (Auto-filled) -->
-                        <div>
-                            <label for="nama_pasien" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Nama Pasien
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </div>
-                                <input type="text" id="nama_pasien"
-                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
-                                    placeholder="Otomatis terisi" readonly
-                                    value="{{ $rekamMedis->keluarga->nama_keluarga ?? '' }}">
-                            </div>
-                        </div>
-
-                        <!-- Hubungan (Auto-filled) -->
-                        <div>
-                            <label for="hubungan" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Hubungan
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                </div>
-                                <input type="text" id="hubungan"
-                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
-                                    placeholder="Otomatis terisi" readonly
-                                    value="{{ $rekamMedis->keluarga->hubungan->hubungan ?? '' }}">
-                            </div>
-                        </div>
-
-                        <!-- Jenis Kelamin (Auto-filled) -->
-                        <div>
-                            <label for="jenis_kelamin" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Jenis Kelamin
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </div>
-                                <input type="text" id="jenis_kelamin"
-                                    class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-600"
-                                    placeholder="Otomatis terisi" readonly
-                                    value="{{ $rekamMedis->keluarga->jenis_kelamin ?? '' }}">
-                            </div>
-                        </div>
-
-                        <!-- Tanggal Periksa -->
-                        <div>
-                            <label for="tanggal_periksa" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Tanggal Periksa <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                                <input type="date" id="tanggal_periksa" name="tanggal_periksa"
-                                    value="{{ old('tanggal_periksa', $rekamMedis->tanggal_periksa->format('Y-m-d')) }}"
-                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    required>
-                            </div>
-                        </div>
-
-                        <!-- Waktu Periksa -->
-                        <div>
-                            <label for="waktu_periksa" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Waktu Periksa <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <input type="time" id="waktu_periksa" name="waktu_periksa"
-                                    value="{{ old('waktu_periksa', $rekamMedis->waktu_periksa ? substr($rekamMedis->waktu_periksa, 0, 5) : '') }}"
-                                    class="w-full pl-10 pr-4 py-2.5 border @error('waktu_periksa') border-red-500 @else border-gray-300 @enderror rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    required>
-                            </div>
-                            @error('waktu_periksa')
-                                <p class="mt-1 text-sm text-red-600 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    {{ $message }}
-                                </p>
-                            @enderror
-                        </div>
-
-                        <!-- Status Rekam Medis -->
-                        <div>
-                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Status Rekam Medis <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <select id="status" name="status"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
-                                    required>
-                                    <option value="On Progress"
-                                        {{ old('status', $rekamMedis->status) == 'On Progress' ? 'selected' : '' }}>On
-                                        Progress</option>
-                                    <option value="Close"
-                                        {{ old('status', $rekamMedis->status) == 'Close' ? 'selected' : '' }}>Close
-                                    </option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Jumlah Keluhan -->
-                        <div>
-                            <label for="jumlah_keluhan" class="block text-sm font-semibold text-gray-700 mb-2">
-                                Jumlah Keluhan <span class="text-red-500">*</span>
-                            </label>
-                            <div class="relative">
-                                <select id="jumlah_keluhan" name="jumlah_keluhan"
-                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-white"
-                                    required onchange="updateKeluhanSections(this.value)">
-                                    <option value="1"
-                                        {{ old('jumlah_keluhan', $rekamMedis->jumlah_keluhan) == 1 ? 'selected' : '' }}>1
-                                        Keluhan</option>
-                                    <option value="2"
-                                        {{ old('jumlah_keluhan', $rekamMedis->jumlah_keluhan) == 2 ? 'selected' : '' }}>2
-                                        Keluhan</option>
-                                    <option value="3"
-                                        {{ old('jumlah_keluhan', $rekamMedis->jumlah_keluhan) == 3 ? 'selected' : '' }}>3
-                                        Keluhan</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Combined Diagnosa & Resep Section -->
-            <div id="keluhan-container" style="display: block;">
-                <!-- Keluhan sections will be populated by JavaScript based on existing data -->
-            </div>
-
-            <!-- Initialize keluhan sections immediately after container -->
-            <script>
-                // Pass data from Blade to JavaScript
+        <!-- Initialize keluhan sections immediately after container -->
+        <script>
+            // Pass data from Blade to JavaScript
                 window.rekamMedisData = {
                     jumlah_keluhan: @json($rekamMedis->jumlah_keluhan),
                     keluhans: @json($rekamMedis->keluhans ?? [])
@@ -466,34 +463,34 @@
                         window.initializeKeluhanSections();
                     }, 100);
                 });
-            </script>
+        </script>
 
-            <!-- Form Actions -->
-            <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
-                    <button type="button" onclick="window.location.href='{{ route('rekam-medis.index') }}'"
-                        class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
-                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Update Rekam Medis
-                    </button>
-                </div>
+        <!-- Form Actions -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+                <button type="button" onclick="window.location.href='{{ route('rekam-medis.index') }}'"
+                    class="px-6 py-2.5 bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg transition-all hover:shadow-md">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Batal
+                </button>
+                <button type="submit"
+                    class="px-6 py-2.5 bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Update Rekam Medis
+                </button>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>
 
-    @push('scripts')
-        <script>
-            let searchTimeout;
+@push('scripts')
+<script>
+    let searchTimeout;
 
             // Data keluhan existing dari server
             const existingKeluhans = @json($rekamMedis->keluhans ?? []);
@@ -786,7 +783,7 @@
                 templateDiv.className =
                     'keluhan-section bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-6';
                 templateDiv.innerHTML = `
-        <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
+        <div class="bg-linear-to-r from-red-600 to-pink-600 px-6 py-4">
             <h2 class="text-lg font-semibold text-white flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -1524,6 +1521,6 @@
                     field.classList.remove('animate-pulse');
                 }, 1000);
             }
-        </script>
-    @endpush
+</script>
+@endpush
 @endsection

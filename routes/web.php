@@ -18,10 +18,10 @@ use App\Http\Controllers\RekamMedisEmergencyController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\StokMasukController;
 use App\Http\Controllers\StokObatController;
-use App\Http\Controllers\SuratPengantarIstirahatController;
 use App\Http\Controllers\TokenEmergencyController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FingerprintController;
+use App\Http\Controllers\SuratPengantarController;
 use App\Http\Controllers\MedicalArchivesController;
 use App\Models\Obat;
 use Illuminate\Http\Request;
@@ -29,6 +29,9 @@ use Illuminate\Support\Facades\Route;
 
 // Landing Page Route
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
+
+// Public Surat Pengantar Verification Route
+Route::get('/verify/{token}', [SuratPengantarController::class, 'verifyPublic'])->name('surat-pengantar.verify');
 
 // AI Chat Page Route
 Route::get('/ai-chat', [LandingPageController::class, 'aiChat'])->name('ai-chat');
@@ -188,6 +191,12 @@ Route::middleware('auth')->group(function () {
         'rekam-medis' => 'id_rekam',
     ]);
 
+    // Surat Pengantar Routes
+    Route::get('/surat-pengantar/create', [SuratPengantarController::class, 'create'])->name('surat-pengantar.create');
+    Route::post('/surat-pengantar', [SuratPengantarController::class, 'store'])->name('surat-pengantar.store');
+    Route::get('/surat-pengantar/{suratPengantar}/print', [SuratPengantarController::class, 'print'])->name('surat-pengantar.print');
+    Route::resource('surat-pengantar', SuratPengantarController::class)->except(['create', 'store']);
+
     // Token Emergency Routes
     Route::get('/token-emergency', [TokenEmergencyController::class, 'index'])->name('token-emergency.index');
     Route::get('/token-emergency/create', [TokenEmergencyController::class, 'create'])->name('token-emergency.create');
@@ -248,25 +257,6 @@ Route::middleware('auth')->group(function () {
     Route::put('/external-employee/{id}', [ExternalEmployeeController::class, 'update'])->name('external-employee.update');
     Route::delete('/external-employee/{id}', [ExternalEmployeeController::class, 'destroy'])->name('external-employee.destroy');
 
-    // Surat Pengantar Istirahat Routes
-    Route::get('/surat-pengantar-istirahat/search-rekam-medis', [SuratPengantarIstirahatController::class, 'searchRekamMedis'])->name('surat-pengantar-istirahat.searchRekamMedis');
-    Route::get('/surat-pengantar-istirahat/get-rekam-medis-detail/{id_rekam}', [SuratPengantarIstirahatController::class, 'getRekamMedisDetail'])->name('surat-pengantar-istirahat.getRekamMedisDetail');
-    Route::get('/surat-pengantar-istirahat/get-rekam-medis-emergency-detail/{id_emergency}', [SuratPengantarIstirahatController::class, 'getRekamMedisEmergencyDetail'])->name('surat-pengantar-istirahat.getRekamMedisEmergencyDetail');
-    Route::get('/surat-pengantar-istirahat/{suratPengantarIstirahat}/cetak', [SuratPengantarIstirahatController::class, 'cetak'])->name('surat-pengantar-istirahat.cetak');
-
-    Route::resource('surat-pengantar-istirahat', SuratPengantarIstirahatController::class)->parameters([
-        'surat-pengantar-istirahat' => 'suratPengantarIstirahat',
-    ]);
-
-    // Surat Sakit Routes (Legacy - redirect to new Surat Pengantar Istirahat)
-    Route::get('/surat-sakit', function () {
-        return redirect()->route('surat-pengantar-istirahat.index');
-    })->name('surat-sakit.create');
-
-    Route::post('/surat-sakit', function () {
-        return redirect()->route('surat-pengantar-istirahat.create');
-    })->name('surat-sakit.store');
-
     // Laporan Routes
     Route::get('/laporan/transaksi', [LaporanController::class, 'transaksi'])->name('laporan.transaksi');
     Route::get('/laporan/transaksi/{id}/detail', [LaporanController::class, 'detailTransaksi'])->name('laporan.detail');
@@ -297,10 +287,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/monitoring/harga/bulk-create', [MonitoringHargaController::class, 'bulkCreateHarga'])->name('monitoring.harga.bulk-create')->middleware('role:Admin,Super Admin');
     Route::get('/monitoring/harga/history/{idObat}', [MonitoringHargaController::class, 'getHargaHistory'])->name('monitoring.harga.history')->middleware('role:Admin,Super Admin');
 
-    // Routes untuk Super Admin
-    Route::middleware('role:Super Admin')->group(function () {
-        // Tambahkan routes khusus Super Admin di sini
-    });
 
     // Fingerprint Routes
     Route::get('/fingerprint', [FingerprintController::class, 'index'])->name('fingerprint.index');
@@ -309,9 +295,4 @@ Route::middleware('auth')->group(function () {
     Route::get('/fingerprint/templates', [FingerprintController::class, 'getFingerprintTemplates'])->name('fingerprint.templates');
     Route::post('/fingerprint/save', [FingerprintController::class, 'saveFingerprint'])->name('fingerprint.save');
     Route::post('/fingerprint/delete', [FingerprintController::class, 'deleteFingerprint'])->name('fingerprint.delete');
-
-    // Routes untuk Admin
-    Route::middleware('role:Admin,Super Admin')->group(function () {
-        // Tambahkan routes khusus Admin di sini
-    });
 });
