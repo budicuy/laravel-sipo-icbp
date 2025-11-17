@@ -390,7 +390,7 @@
                                                 <p class="mb-1 text-xs text-gray-500 font-semibold">Klik untuk
                                                     upload</p>
                                                 <p class="text-xs text-gray-500">PNG, JPG, JPEG</p>
-                                                <p class="text-xs text-gray-400">(MAX. 2MB)</p>
+                                                <p class="text-xs text-gray-400">(MAX. 300 KB)</p>
                                                 @endif
                                             </div>
                                         </label>
@@ -403,7 +403,7 @@
                                 <!-- Info -->
                                 <div class="bg-orange-50 border border-orange-100 rounded-lg p-3">
                                     <p class="text-xs text-orange-800">
-                                        <span class="font-semibold">Tips:</span> Maksimal ukuran foto 2MB. Kosongkan
+                                        <span class="font-semibold">Tips:</span> Maksimal ukuran foto 300 KB. Kosongkan
                                         jika tidak ingin mengubah foto.
                                     </p>
                                 </div>
@@ -491,7 +491,7 @@
         </svg>
         <p class="mb-1 text-xs text-gray-500 font-semibold">Klik untuk upload</p>
         <p class="text-xs text-gray-500">PNG, JPG, JPEG</p>
-        <p class="text-xs text-gray-400">(MAX. 2MB)</p>
+        <p class="text-xs text-gray-400">(MAX. 300 KB)</p>
     `;
             }
 </script>

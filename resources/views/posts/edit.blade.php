@@ -51,7 +51,8 @@
                         (Opsional)</label>
                     <input type="file" name="image" id="image" accept="image/*"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all @error('image') border-red-500 @enderror">
-                    <p class="mt-1 text-sm text-gray-500">Format: JPG, PNG, GIF. Maksimal 2MB. Biarkan kosong jika tidak
+                    <p class="mt-1 text-sm text-gray-500">Format: JPG, PNG, GIF. Maksimal 300 KB. Biarkan kosong jika
+                        tidak
                         ingin mengganti gambar</p>
                     @error('image')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
