@@ -74,7 +74,7 @@ class StokObatController extends Controller
             }
         }
 
-        // Filter by warning (stok <= 10)
+        // Filter by warning (stok <= 10 dan stok habis <= 0)
         if ($request->has('warning') && $request->warning == 'true') {
             // Get current month and year
             $currentMonth = now()->month;
@@ -87,9 +87,10 @@ class StokObatController extends Controller
                 // Get current stock for all active obat
                 $currentStocks = StokBulanan::getSisaStokSaatIniBatch($obatIds);
                 
-                // Filter obat with stock <= 10
+                // Filter obat with stock <= 10 (termasuk stok habis <= 0)
                 $warningObatIds = [];
                 foreach ($currentStocks as $obatId => $stock) {
+                    // Warning untuk stok <= 10, termasuk stok habis (<= 0)
                     if ($stock <= 10) {
                         $warningObatIds[] = $obatId;
                     }

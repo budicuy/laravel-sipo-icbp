@@ -294,7 +294,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Get count of obat with low stock (stok < 10 or stok = 0)
+     * Get count of obat with low stock (stok ≤ 10 termasuk stok habis ≤ 0)
      */
     private function getWarningObatCount()
     {
@@ -312,9 +312,10 @@ class DashboardController extends Controller
         // Get current stock for all active obat
         $currentStocks = StokBulanan::getSisaStokSaatIniBatch($obatIds);
 
-        // Count obat with stock < 10 or stock = 0
+        // Count obat with stock <= 10 (termasuk stok habis <= 0)
         $warningCount = 0;
         foreach ($currentStocks as $obatId => $stock) {
+            // Warning untuk stok <= 10, termasuk stok habis (<= 0)
             if ($stock <= 10) {
                 $warningCount++;
             }
