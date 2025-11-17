@@ -602,6 +602,8 @@
         </div>
     </section>
 
+    {{-- tambahkan section untuk 3 Post Terbaru --}}
+
     <!-- AI Chat Promo Section -->
     <section class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

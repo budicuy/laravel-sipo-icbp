@@ -361,7 +361,7 @@
                             <div class="space-y-3">
                                 <!-- Upload Area -->
                                 <div class="relative w-full max-w-xs mx-auto">
-                                    <div class="aspect-[3/4] w-full">
+                                    <div class="aspect-3/4 w-full">
                                         <input type="file" id="foto" name="foto" accept="image/*" class="hidden"
                                             onchange="previewImage(event)">
                                         <label for="foto"
