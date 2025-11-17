@@ -250,9 +250,9 @@
 
                 <!-- Report (Dropdown) -->
                 <li
-                    x-data="{ open: {{ request()->is('kunjungan*') || request()->is('laporan*') ? 'true' : 'false' }} }">
+                    x-data="{ open: {{ request()->is('kunjungan*') || request()->is('laporan*') || request()->is('medical-archives*') ? 'true' : 'false' }} }">
                     <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
-                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('kunjungan*') || request()->is('laporan*') ? 'bg-linear-to-r from-orange-500 to-red-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('kunjungan*') || request()->is('laporan*') || request()->is('medical-archives*') ? 'bg-linear-to-r from-orange-500 to-red-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
                         :title="!sidebarOpen ? 'Report' : ''">
                         <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
@@ -285,6 +285,12 @@
                             <a href="{{ route('laporan.transaksi') }}"
                                 class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('laporan*') ? 'text-orange-600 bg-orange-50 font-semibold' : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50' }}">
                                 Laporan Transaksi
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('medical-archives.index') }}"
+                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('medical-archives*') ? 'text-orange-600 bg-orange-50 font-semibold' : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50' }}">
+                                Medical Archives
                             </a>
                         </li>
                     </ul>
