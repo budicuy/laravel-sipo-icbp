@@ -1212,7 +1212,7 @@
                             status: response.status,
                             statusText: response.statusText
                         });
-                        
+
                         // Try to parse error response
                         return response.json().then(data => {
                             throw new Error(data.reply || `Server error: ${response.status}`);
@@ -1242,9 +1242,9 @@
                 .catch(error => {
                     hideTypingIndicator();
                     console.error('Chat Error:', error);
-                    
+
                     let errorMessage = '<p style="margin-bottom: 12px; color: #EF4444;">⚠️ <strong>Maaf, terjadi kesalahan:</strong></p>';
-                    
+
                     // Check error type
                     if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
                         errorMessage += '<p style="margin-bottom: 12px; color: #374151;">🔌 Koneksi internet bermasalah. Silakan periksa koneksi Anda dan coba lagi.</p>';
@@ -1256,9 +1256,9 @@
                     } else {
                         errorMessage += `<p style="margin-bottom: 12px; color: #374151;">${error.message || 'Kesalahan tidak diketahui. Silakan coba lagi.'}</p>`;
                     }
-                    
+
                     errorMessage += '<p style="margin-top: 12px; padding: 12px; background: #FEE2E2; border-left: 4px solid #EF4444; border-radius: 4px; font-size: 14px; color: #991B1B;"><strong>💡 Tips:</strong> Jika masalah terus berlanjut, silakan hubungi Call Center: +6281293222772</p>';
-                    
+
                     addMessage('bot', errorMessage);
                 });
         }
