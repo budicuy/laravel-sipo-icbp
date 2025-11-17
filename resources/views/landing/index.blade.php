@@ -775,7 +775,7 @@
             <div class="swiper posts-swiper">
                 <div class="swiper-wrapper">
                     @foreach($latestPosts as $post)
-                    <div class="swiper-slide">
+                    <div class="swiper-slide py-5 px-3">
                         <article class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 h-full">
                             @if($post->image_path)
                             <div class="h-48 overflow-hidden">
@@ -823,7 +823,6 @@
                     </div>
                     @endforeach
                 </div>
-                <div class="swiper-pagination posts-pagination"></div>
             </div>
 
             <div class="text-center mt-12">
