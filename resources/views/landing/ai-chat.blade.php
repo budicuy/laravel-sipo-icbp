@@ -1205,10 +1205,27 @@
                         id_keluarga: selectedPatientId
                     })
                 })
-                .then(response => response.json())
+                .then(response => {
+                    // Check if response is ok
+                    if (!response.ok) {
+                        console.error('HTTP error', {
+                            status: response.status,
+                            statusText: response.statusText
+                        });
+                        
+                        // Try to parse error response
+                        return response.json().then(data => {
+                            throw new Error(data.reply || `Server error: ${response.status}`);
+                        }).catch(parseError => {
+                            // If JSON parsing fails, throw generic error
+                            throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     hideTypingIndicator();
-                    if (data.success) {
+                    if (data && data.success) {
                         // Add bot response to history
                         chatHistory.push({
                             role: 'model',
@@ -1217,13 +1234,32 @@
                         saveChatHistory();
                         addMessage('bot', data.reply);
                     } else {
-                        addMessage('bot', data.reply || 'Maaf, terjadi kesalahan. Silakan coba lagi.');
+                        const errorMsg = data?.reply || '⚠️ Maaf, terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi.';
+                        addMessage('bot', errorMsg);
+                        console.error('API Error:', data);
                     }
                 })
                 .catch(error => {
                     hideTypingIndicator();
-                    console.error('Error:', error);
-                    addMessage('bot', 'Maaf, koneksi bermasalah. Silakan periksa koneksi internet Anda dan coba lagi.');
+                    console.error('Chat Error:', error);
+                    
+                    let errorMessage = '<p style="margin-bottom: 12px; color: #EF4444;">⚠️ <strong>Maaf, terjadi kesalahan:</strong></p>';
+                    
+                    // Check error type
+                    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                        errorMessage += '<p style="margin-bottom: 12px; color: #374151;">🔌 Koneksi internet bermasalah. Silakan periksa koneksi Anda dan coba lagi.</p>';
+                    } else if (error.message.includes('Server error: 500')) {
+                        errorMessage += '<p style="margin-bottom: 12px; color: #374151;">🔧 Server sedang mengalami masalah. Tim kami sedang memperbaikinya.</p>';
+                        errorMessage += '<p style="margin-bottom: 12px; color: #374151;">Silakan coba lagi dalam beberapa menit atau hubungi administrator jika masalah berlanjut.</p>';
+                    } else if (error.message.includes('Server error: 422')) {
+                        errorMessage += '<p style="margin-bottom: 12px; color: #374151;">📝 Data yang dikirim tidak valid. Silakan refresh halaman dan coba lagi.</p>';
+                    } else {
+                        errorMessage += `<p style="margin-bottom: 12px; color: #374151;">${error.message || 'Kesalahan tidak diketahui. Silakan coba lagi.'}</p>`;
+                    }
+                    
+                    errorMessage += '<p style="margin-top: 12px; padding: 12px; background: #FEE2E2; border-left: 4px solid #EF4444; border-radius: 4px; font-size: 14px; color: #991B1B;"><strong>💡 Tips:</strong> Jika masalah terus berlanjut, silakan hubungi Call Center: +6281293222772</p>';
+                    
+                    addMessage('bot', errorMessage);
                 });
         }
 
