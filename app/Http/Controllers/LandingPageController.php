@@ -608,12 +608,46 @@ SELALU GUNAKAN MEDICAL DISCLAIMER:
 - LANGSUNG output HTML murni tanpa pembungkus markdown
 
 Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan panduan di atas.';
+
+            // Prepare history for Gemini API
+            $historyContent = [];
+            $userHistory = $request->input('history', []);
+
+            // Add history to context (convert format)
+            foreach ($userHistory as $item) {
+                $role = $item['role'] === 'user' ? Role::USER : Role::MODEL;
+                $historyContent[] = Content::parse(part: $item['text'], role: $role);
+            }
+
+            // Add system prompt as first message
+            array_unshift($historyContent, Content::parse(part: $systemPrompt, role: Role::USER));
+
+            // Send message to Gemini
+            $response = $chat->startChat(history: $historyContent)->sendMessage($request->message);
+
+            // Get response text
+            $reply = $response->text();
+
+            // Log successful response
+            Log::info('Chat response generated successfully', [
+                'user_nik' => $userNik,
+                'response_length' => strlen($reply),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'reply' => $reply,
+            ]);
         } catch (\Exception $e) {
-            Log::error('Gemini API Exception: '.$e->getMessage());
+            Log::error('Gemini API Exception', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_nik' => $userNik ?? null,
+            ]);
 
             return response()->json([
                 'success' => false,
-                'reply' => 'Maaf, AI Assistant sedang tidak tersedia. Silakan coba lagi nanti atau hubungi administrator.',
+                'reply' => '⚠️ Maaf, terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi dalam beberapa saat. Jika masalah berlanjut, hubungi administrator.',
             ], 500);
         }
     }
