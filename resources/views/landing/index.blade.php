@@ -602,7 +602,7 @@
         </div>
     </section>
 
-    {{-- tambahkan section untuk 3 Post Terbaru --}}
+
 
     <!-- AI Chat Promo Section -->
     <section class="py-20 bg-white">
@@ -759,6 +759,92 @@
         </div>
     </section>
 
+    {{-- Section untuk 3 Post Terbaru --}}
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">
+                    <span class="gradient-text">Artikel</span> & Berita Terbaru
+                </h2>
+                <p class="text-xl text-gray-600">Informasi kesehatan dan berita terkini dari SIPO</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                @php
+                $latestPosts = \App\Models\Post::latest()->take(3)->get();
+                @endphp
+
+                @forelse($latestPosts as $post)
+                <article class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover border border-gray-100">
+                    @if($post->image_path)
+                    <div class="h-48 overflow-hidden">
+                        <img src="{{ asset('storage/' . $post->image_path) }}" alt="{{ $post->title }}"
+                            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                    </div>
+                    @else
+                    <div class="h-48 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </div>
+                    @endif
+
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 mb-3">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {{ $post->created_at->format('d M Y') }}
+                        </div>
+
+                        <h3
+                            class="text-xl font-bold text-gray-900 mb-3 line-clamp-2 hover:text-purple-600 transition-colors">
+                            {{ $post->title }}
+                        </h3>
+
+                        <div class="text-gray-600 text-sm line-clamp-3 mb-4">
+                            {!! Str::limit(strip_tags($post->body), 150) !!}
+                        </div>
+
+                        <a href="{{ route('landing.posts.show', $post) }}"
+                            class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                            <span>Baca Selengkapnya</span>
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
+                </article>
+                @empty
+                <div class="md:col-span-3 text-center py-12">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada artikel</h3>
+                    <p class="text-gray-500">Artikel terbaru akan segera ditampilkan di sini</p>
+                </div>
+                @endforelse
+            </div>
+
+            @if($latestPosts->count() > 0)
+            <div class="text-center mt-12">
+                <a href="{{ route('landing.posts.index') }}"
+                    class="inline-flex items-center gap-3 gradient-bg text-white px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition shadow-lg hover:shadow-xl">
+                    <span>Lihat Semua Artikel</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+            @endif
+        </div>
+    </section>
+
     <!-- About Section -->
     <section id="about" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -824,11 +910,10 @@
     <!-- Contact Section -->
     <section id="contact" class="py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
+            <div class="text-center mb-10">
                 <h2 class="text-4xl font-bold text-gray-800 mb-4">
                     Hubungi <span class="gradient-text">Kami</span>
                 </h2>
-                <p class="text-xl text-gray-600">Kami siap membantu Anda 24/7</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">

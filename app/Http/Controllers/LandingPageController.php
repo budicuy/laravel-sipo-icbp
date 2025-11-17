@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
 use App\Models\Keluarga;
+use App\Models\Post;
 use App\Models\RekamMedis;
 use Gemini\Data\Content;
 use Gemini\Enums\Role;
@@ -31,6 +32,28 @@ class LandingPageController extends Controller
     public function aiChat()
     {
         return view('landing.ai-chat');
+    }
+
+    /**
+     * Display a specific post detail for public access.
+     *
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\View\View
+     */
+    public function showPost(Post $post)
+    {
+        return view('landing.post-detail', compact('post'));
+    }
+
+    /**
+     * Display all posts for public access.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function indexPosts()
+    {
+        $posts = Post::latest()->paginate(12);
+        return view('landing.posts', compact('posts'));
     }
 
     /**
@@ -585,36 +608,6 @@ SELALU GUNAKAN MEDICAL DISCLAIMER:
 - LANGSUNG output HTML murni tanpa pembungkus markdown
 
 Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan panduan di atas.';
-
-            // Get chat history from request
-            $history = $request->input('history', []);
-
-            // Convert history to Gemini format using Content objects
-            $chatHistory = [];
-            if (! empty($history)) {
-                foreach ($history as $message) {
-                    $role = $message['role'] === 'user' ? Role::USER : Role::MODEL;
-                    $chatHistory[] = Content::parse(
-                        part: $message['text'],
-                        role: $role
-                    );
-                }
-            }
-
-            // Start chat with history
-            $chatSession = $chat->startChat(history: $chatHistory);
-
-            // Send message with system prompt
-            $result = $chatSession->sendMessage($systemPrompt."\n\nPertanyaan: ".$request->message);
-
-            // Extract AI reply from response
-            $aiReply = $result->text() ?? 'Maaf, saya tidak dapat memproses permintaan Anda saat ini.';
-
-            return response()->json([
-                'success' => true,
-                'reply' => $aiReply,
-            ]);
-
         } catch (\Exception $e) {
             Log::error('Gemini API Exception: '.$e->getMessage());
 
