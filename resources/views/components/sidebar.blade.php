@@ -348,6 +348,27 @@
                 </li>
                 @endif
 
+                <!-- AI Chat History (Admin & Super Admin only) -->
+                @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                <li>
+                    <a href="{{ route('ai-chat-history.index') }}"
+                        class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('ai-chat-history*') ? 'bg-linear-to-r from-teal-500 to-cyan-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        :title="!sidebarOpen ? 'AI Chat History' : ''" @click="activeMenu = 'ai-chat-history'">
+                        <div class="relative">
+                            <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
+                                :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            @if (request()->is('ai-chat-history*'))
+                            @endif
+                        </div>
+                        <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">AI Chat History</span>
+                    </a>
+                </li>
+                @endif
+
                 <!-- User Guide -->
                 <li>
                     <a href="{{ asset('user-guide.pdf') }}" target="_blank" download

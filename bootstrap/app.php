@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
             'force.https' => \App\Http\Middleware\ForceHttps::class,
+            'track.login' => \App\Http\Middleware\TrackUserLogin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

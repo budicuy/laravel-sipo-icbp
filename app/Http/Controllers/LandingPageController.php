@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AIChatHistory;
 use App\Models\Karyawan;
 use App\Models\Keluarga;
 use App\Models\Post;
@@ -390,6 +391,11 @@ class LandingPageController extends Controller
         ]);
 
         try {
+            // Track AI chat access if user is authenticated
+            if ($userNik && $userName) {
+                AIChatHistory::recordAIChatAccess($userNik);
+            }
+
             // Initialize Gemini chat with enhanced memory configuration
             $chat = Gemini::chat(model: config('gemini.model', 'models/gemini-2.0-flash-exp'));
 

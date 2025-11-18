@@ -455,6 +455,44 @@
         </div>
     </div>
 
+    <!-- Auto-logout Warning Modal -->
+    <div id="autoLogoutWarningModal"
+        class="fixed inset-0 bg-black/25 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all">
+            <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-t-2xl">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    <h3 class="text-2xl font-bold">Sesi Akan Berakhir</h3>
+                </div>
+                <p class="text-orange-100 mt-2">Anda akan otomatis logout karena tidak ada aktivitas</p>
+            </div>
+
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <div class="text-5xl font-bold text-orange-500 mb-2" id="countdownTimer">2:00</div>
+                    <p class="text-gray-600">Sesi Anda akan berakhir dalam</p>
+                </div>
+
+                <div class="space-y-3">
+                    <button onclick="extendSession()"
+                        class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg hover:opacity-90 transition font-semibold flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fas fa-clock"></i>
+                        <span>Perpanjang Sesi</span>
+                    </button>
+                    <button onclick="logoutNow()"
+                        class="w-full bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition font-semibold flex items-center justify-center gap-2">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout Sekarang</span>
+                    </button>
+                </div>
+
+                <p class="text-xs text-gray-500 text-center mt-4">
+                    <i class="fas fa-info-circle"></i> Klik "Perpanjang Sesi" untuk melanjutkan menggunakan AI Chat
+                </p>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Authentication System
         let isAuthenticated = false;
@@ -465,6 +503,15 @@
         // Chat history storage
         let chatHistory = [];
         let currentPatientIdForHistory = null; // Track which patient the history belongs to
+
+        // Auto-logout system (30 minutes)
+        let autoLogoutTimer = null;
+        let warningTimer = null;
+        let countdownTimer = null;
+        let logoutWarningTime = 2 * 60 * 1000; // 2 minutes warning before logout
+        let autoLogoutTime = 30 * 60 * 1000; // 30 minutes total
+        let lastActivityTime = Date.now();
+        let countdownSeconds = 120; // 2 minutes countdown
 
         // Main initialization on page load
         window.addEventListener('DOMContentLoaded', function() {
@@ -538,6 +585,160 @@
                 updateCharCount();
             }
         });
+
+        // Auto-logout timer management functions
+        function startAutoLogoutTimer() {
+            if (!isAuthenticated) return;
+
+            // Clear existing timers
+            clearAutoLogoutTimers();
+
+            // Reset last activity time
+            lastActivityTime = Date.now();
+
+            // Set warning timer (28 minutes from now)
+            warningTimer = setTimeout(() => {
+                showAutoLogoutWarning();
+            }, autoLogoutTime - logoutWarningTime);
+
+            // Set auto-logout timer (30 minutes from now)
+            autoLogoutTimer = setTimeout(() => {
+                performAutoLogout();
+            }, autoLogoutTime);
+
+            console.log('🕐 Auto-logout timer started (30 minutes)');
+        }
+
+        function clearAutoLogoutTimers() {
+            if (autoLogoutTimer) {
+                clearTimeout(autoLogoutTimer);
+                autoLogoutTimer = null;
+            }
+            if (warningTimer) {
+                clearTimeout(warningTimer);
+                warningTimer = null;
+            }
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+        }
+
+        function resetAutoLogoutTimer() {
+            if (!isAuthenticated) return;
+
+            console.log('🔄 Auto-logout timer reset');
+            startAutoLogoutTimer();
+        }
+
+        function showAutoLogoutWarning() {
+            const modal = document.getElementById('autoLogoutWarningModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Start countdown
+            countdownSeconds = 120; // Reset to 2 minutes
+            updateCountdownDisplay();
+
+            countdownTimer = setInterval(() => {
+                countdownSeconds--;
+                updateCountdownDisplay();
+
+                if (countdownSeconds <= 0) {
+                    clearInterval(countdownTimer);
+                    performAutoLogout();
+                }
+            }, 1000);
+
+            console.log('⚠️ Auto-logout warning shown');
+        }
+
+        function hideAutoLogoutWarning() {
+            const modal = document.getElementById('autoLogoutWarningModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+        }
+
+        function updateCountdownDisplay() {
+            const minutes = Math.floor(countdownSeconds / 60);
+            const seconds = countdownSeconds % 60;
+            const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            const timerElement = document.getElementById('countdownTimer');
+            if (timerElement) {
+                timerElement.textContent = display;
+
+                // Change color based on time remaining
+                if (countdownSeconds <= 30) {
+                    timerElement.className = 'text-5xl font-bold text-red-500 mb-2';
+                } else if (countdownSeconds <= 60) {
+                    timerElement.className = 'text-5xl font-bold text-orange-500 mb-2';
+                }
+            }
+        }
+
+        function extendSession() {
+            hideAutoLogoutWarning();
+            resetAutoLogoutTimer();
+
+            // Show confirmation message
+            addMessageToUI('bot',
+                '<p style="margin-bottom: 12px; color: #374151;">✅ <strong>Sesi diperpanjang!</strong></p><p style="margin-bottom: 12px; color: #374151;">Sesi Anda telah diperpanjang selama 30 menit lagi. Silakan lanjutkan menggunakan AI Chat.</p>'
+            );
+        }
+
+        function logoutNow() {
+            hideAutoLogoutWarning();
+            clearAutoLogoutTimers();
+            logout();
+        }
+
+        function performAutoLogout() {
+            hideAutoLogoutWarning();
+            clearAutoLogoutTimers();
+
+            // Clear authentication
+            localStorage.removeItem('sipo_auth');
+            localStorage.removeItem('selected_patient_id');
+            localStorage.removeItem('selected_patient_name');
+            isAuthenticated = false;
+            currentUserNik = '';
+            currentUserName = '';
+            currentUserDepartemen = '';
+
+            // Clear chat history
+            clearChatHistory();
+
+            // Update UI
+            updateAuthUI();
+
+            // Show auto-logout message
+            addMessageToUI('bot',
+                '<p style="margin-bottom: 12px; color: #EF4444;">⏰ <strong>Sesi Berakhir</strong></p><p style="margin-bottom: 12px; color: #374151;">Anda telah otomatis logout karena tidak ada aktivitas selama 30 menit.</p><p style="margin-bottom: 12px; color: #374151;">Silakan login kembali untuk melanjutkan menggunakan AI Chat.</p>'
+            );
+
+            // Show login modal
+            showLoginModal();
+
+            console.log('🚪 Auto-logout performed');
+        }
+
+        // Track user activity
+        function trackUserActivity() {
+            if (!isAuthenticated) return;
+
+            const now = Date.now();
+            const timeSinceLastActivity = now - lastActivityTime;
+
+            // Reset timer if there's been activity in the last minute
+            if (timeSinceLastActivity > 5000) { // 5 seconds threshold
+                resetAutoLogoutTimer();
+            }
+        }
 
         // Show initial welcome message based on authentication and patient selection status
         function showInitialWelcomeMessage() {
@@ -622,6 +823,9 @@
                             currentUserName = auth.nama;
                             currentUserDepartemen = auth.departemen || '';
                             updateAuthUI();
+
+                            // Start auto-logout timer
+                            startAutoLogoutTimer();
                             return;
                         }
                     }
@@ -989,6 +1193,9 @@
                     // Close login modal
                     closeLoginModal();
 
+                    // Start auto-logout timer
+                    startAutoLogoutTimer();
+
                     // Load family members and show patient selection if available
                     const familyLoaded = await loadFamilyMembers(result.data.nik);
 
@@ -1026,6 +1233,9 @@
                 currentUserNik = '';
                 currentUserName = '';
                 currentUserDepartemen = '';
+
+                // Clear auto-logout timers
+                clearAutoLogoutTimers();
 
                 // Clear chat history
                 clearChatHistory();
@@ -1455,6 +1665,20 @@
                 }
             }
         });
+
+        // Add activity tracking to various user interactions
+        document.addEventListener('click', trackUserActivity);
+        document.addEventListener('keydown', trackUserActivity);
+        document.addEventListener('mousemove', trackUserActivity);
+        document.addEventListener('scroll', trackUserActivity);
+        document.addEventListener('touchstart', trackUserActivity);
+
+        // Also track activity on chat input specifically
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) {
+            chatInput.addEventListener('input', trackUserActivity);
+            chatInput.addEventListener('focus', trackUserActivity);
+        }
     </script>
 </body>
 
