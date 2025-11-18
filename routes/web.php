@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AIChatHistoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiagnosaController;
 use App\Http\Controllers\DiagnosaEmergencyController;
@@ -45,7 +46,7 @@ Route::get('/verify/{token}', [SuratPengantarController::class, 'verifyPublic'])
 
 // AI Chat API Route (for landing page)
 Route::post('/api/chat', [LandingPageController::class, 'chat'])->name('api.chat');
-Route::post('/api/auth/check-nik', [LandingPageController::class, 'checkNik'])->name('api.auth.check-nik');
+Route::post('/api/auth/check-nik', [LandingPageController::class, 'checkNik'])->name('api.auth.check-nik')->middleware('track.login');
 Route::post('/api/medical-history', [LandingPageController::class, 'getMedicalHistory'])->name('api.medical-history');
 Route::post('/api/family-list', [LandingPageController::class, 'getFamilyList'])->name('api.family-list');
 Route::post('/api/preload-medical-data', [LandingPageController::class, 'preloadMedicalData'])->name('api.preload-medical-data');
@@ -310,4 +311,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/fingerprint/templates', [FingerprintController::class, 'getFingerprintTemplates'])->name('fingerprint.templates');
     Route::post('/fingerprint/save', [FingerprintController::class, 'saveFingerprint'])->name('fingerprint.save');
     Route::post('/fingerprint/delete', [FingerprintController::class, 'deleteFingerprint'])->name('fingerprint.delete');
+
+    // AI Chat History Routes (Admin & Super Admin only)
+    Route::middleware(['auth', 'role:Admin,Super Admin'])->group(function () {
+        Route::get('/ai-chat-history', [AIChatHistoryController::class, 'index'])->name('ai-chat-history.index');
+        Route::get('/ai-chat-history/{nik}', [AIChatHistoryController::class, 'show'])->name('ai-chat-history.show');
+        Route::post('/ai-chat-history/search', [AIChatHistoryController::class, 'search'])->name('ai-chat-history.search');
+        Route::get('/ai-chat-history/export', [AIChatHistoryController::class, 'export'])->name('ai-chat-history.export');
+        Route::get('/api/ai-chat-history/statistics', [AIChatHistoryController::class, 'getStatistics'])->name('api.ai-chat-history.statistics');
+        Route::get('/api/ai-chat-history/chart-data', [AIChatHistoryController::class, 'getChartData'])->name('api.ai-chat-history.chart-data');
+    });
 });
