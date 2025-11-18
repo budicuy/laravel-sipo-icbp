@@ -64,15 +64,21 @@ class LandingPageController extends Controller
      */
     public function checkNik(Request $request)
     {
+        // Validate input user
         $request->validate([
-            'nik' => 'required|string|max:20',
+            'nik' => 'required|string|max:30',
             'password' => 'required|string|max:20',
         ]);
 
         $nik = $request->nik;
         $password = $request->password;
 
-        // Validate NIK format (must be numeric)
+        // Check jika hubungan keluarga yang login
+        if (strpos($nik, '-') !== false) {
+            return $this->checkFamilyLogin($nik, $password);
+        }
+
+        // Validasi format NIK (harus numerik)
         if (! preg_match('/^\d+$/', $nik)) {
             return response()->json([
                 'success' => false,
@@ -80,7 +86,7 @@ class LandingPageController extends Controller
             ], 400);
         }
 
-        // Validate password matches NIK
+        // Validasi password harus sama dengan NIK
         if ($password !== $nik) {
             return response()->json([
                 'success' => false,
@@ -88,7 +94,7 @@ class LandingPageController extends Controller
             ], 400);
         }
 
-        // Find employee by NIK
+        // Cari karyawan berdasarkan NIK
         $karyawan = Karyawan::where('nik_karyawan', $nik)->first();
 
         if (! $karyawan) {
@@ -98,13 +104,108 @@ class LandingPageController extends Controller
             ], 404);
         }
 
-        // Return employee data
+        // Record login history untuk karyawan
+        AIChatHistory::recordLogin(
+            $nik,
+            $karyawan->nama_karyawan,
+            $karyawan->departemen->nama_departemen ?? null,
+            null,
+            'karyawan'
+        );
+
+        // Kembalikan data karyawan dan tampilkan datanya
         return response()->json([
             'success' => true,
             'data' => [
                 'nik' => $karyawan->nik_karyawan,
                 'nama' => $karyawan->nama_karyawan,
                 'departemen' => $karyawan->departemen->nama_departemen ?? 'Tidak ada departemen',
+                'tipe' => 'karyawan',
+            ],
+        ]);
+    }
+
+    /**
+     * Check family member login (NIK-KodeHubungan format)
+     */
+    private function checkFamilyLogin($nik, $password)
+    {
+        // Parse NIK-KodeHubungan format
+        $parts = explode('-', $nik, 2);
+        if (count($parts) !== 2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Format NIK keluarga tidak valid. Gunakan format: NIK-KodeHubungan',
+            ], 400);
+        }
+
+        $employeeNik = $parts[0];
+        $kodeHubungan = $parts[1];
+
+        // Validate employee NIK format
+        if (! preg_match('/^\d+$/', $employeeNik)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIK karyawan harus berupa angka saja',
+            ], 400);
+        }
+
+        // Validate kode hubungan format
+        if (! preg_match('/^[A-Za-z0-9]+$/', $kodeHubungan)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode hubungan tidak valid',
+            ], 400);
+        }
+
+        // Validate password matches employee NIK
+        if ($password !== $employeeNik) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password harus sama dengan NIK karyawan',
+            ], 400);
+        }
+
+        // Find employee
+        $karyawan = Karyawan::where('nik_karyawan', $employeeNik)->first();
+
+        if (! $karyawan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'NIK karyawan tidak ditemukan dalam database',
+            ], 404);
+        }
+
+        // Find family member
+        $keluarga = Keluarga::where('id_karyawan', $karyawan->id_karyawan)
+            ->where('kode_hubungan', $kodeHubungan)
+            ->first();
+
+        if (! $keluarga) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anggota keluarga tidak ditemukan',
+            ], 404);
+        }
+
+        // Record login history untuk anggota keluarga
+        AIChatHistory::recordFamilyLogin(
+            $employeeNik,
+            $kodeHubungan,
+            $keluarga->nama_keluarga,
+            $karyawan->departemen->nama_departemen ?? null
+        );
+
+        // Return family member data
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'nik' => $nik, // Return full NIK-KodeHubungan
+                'nama' => $keluarga->nama_keluarga,
+                'departemen' => $karyawan->departemen->nama_departemen ?? 'Tidak ada departemen',
+                'tipe' => 'keluarga',
+                'kode_hubungan' => $kodeHubungan,
+                'hubungan' => $keluarga->hubungan->hubungan ?? 'Keluarga',
             ],
         ]);
     }
@@ -197,6 +298,88 @@ class LandingPageController extends Controller
     }
 
     /**
+     * Record when user selects a family member as patient for AI chat
+     * This creates a separate history record for the family member
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function recordPatientSelection(Request $request)
+    {
+        $request->validate([
+            'user_nik' => 'required|string|max:30',
+            'id_keluarga' => 'required|integer',
+        ]);
+
+        $userNik = $request->user_nik;
+        $idKeluarga = $request->id_keluarga;
+
+        try {
+            // Find the selected patient (Keluarga)
+            $keluarga = Keluarga::with('karyawan.departemen', 'hubungan')->find($idKeluarga);
+            
+            if (!$keluarga) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data keluarga tidak ditemukan'
+                ], 404);
+            }
+
+            // Get karyawan data
+            $karyawan = $keluarga->karyawan;
+            if (!$karyawan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data karyawan tidak ditemukan'
+                ], 404);
+            }
+
+            // Create NIK format for family member: NIK-KodeHubungan
+            $familyNik = $karyawan->nik_karyawan . '-' . $keluarga->kode_hubungan;
+
+            // Record or update family member's login/access
+            AIChatHistory::recordFamilyLogin(
+                $karyawan->nik_karyawan,
+                $keluarga->kode_hubungan,
+                $keluarga->nama_keluarga,
+                $karyawan->departemen->nama_departemen ?? null
+            );
+
+            // Also record AI chat access
+            AIChatHistory::recordAIChatAccess($familyNik);
+
+            Log::info('Patient selection recorded for family member', [
+                'user_nik' => $userNik,
+                'family_nik' => $familyNik,
+                'family_name' => $keluarga->nama_keluarga,
+                'id_keluarga' => $idKeluarga
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pilihan pasien berhasil dicatat',
+                'data' => [
+                    'family_nik' => $familyNik,
+                    'family_name' => $keluarga->nama_keluarga,
+                    'kode_hubungan' => $keluarga->kode_hubungan,
+                    'hubungan' => $keluarga->hubungan->hubungan ?? 'Keluarga'
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error recording patient selection', [
+                'user_nik' => $userNik,
+                'id_keluarga' => $idKeluarga,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mencatat pilihan pasien'
+            ], 500);
+        }
+    }
+
+    /**
      * Pre-load medical data for AI memory when patient is selected
      * This prevents AI hallucination and improves performance
      *
@@ -205,7 +388,7 @@ class LandingPageController extends Controller
     public function preloadMedicalData(Request $request)
     {
         $request->validate([
-            'user_nik' => 'required|string|max:20',
+            'user_nik' => 'required|string|max:30',
             'id_keluarga' => 'required|integer',
         ]);
 
@@ -213,6 +396,18 @@ class LandingPageController extends Controller
         $idKeluarga = $request->id_keluarga;
 
         try {
+            // Track AI chat access when patient is selected
+            // This means user has actively chosen to use AI chat with specific patient
+            if ($userNik) {
+                AIChatHistory::recordAIChatAccess($userNik);
+                
+                Log::info('Patient selected for AI chat', [
+                    'user_nik' => $userNik,
+                    'id_keluarga' => $idKeluarga,
+                    'is_family' => strpos($userNik, '-') !== false
+                ]);
+            }
+
             // Get medical history data
             $historyData = $this->getMedicalHistoryData($userNik, $idKeluarga);
 
@@ -393,7 +588,33 @@ class LandingPageController extends Controller
         try {
             // Track AI chat access if user is authenticated
             if ($userNik && $userName) {
-                AIChatHistory::recordAIChatAccess($userNik);
+                // Check if this is a family member (contains dash)
+                if (strpos($userNik, '-') !== false) {
+                    // For family members, use the full NIK-KodeHubungan format directly
+                    // The recordAIChatAccess method will handle the parsing internally
+                    Log::info('Recording AI chat access for family member', [
+                        'user_nik' => $userNik,
+                        'user_name' => $userName
+                    ]);
+                    $result = AIChatHistory::recordAIChatAccess($userNik);
+                    Log::info('Family AI chat access recording result', [
+                        'user_nik' => $userNik,
+                        'result' => $result ? 'success' : 'failed',
+                        'result_id' => $result ? $result->id : null
+                    ]);
+                } else {
+                    // Regular employee
+                    Log::info('Recording AI chat access for employee', [
+                        'user_nik' => $userNik,
+                        'user_name' => $userName
+                    ]);
+                    $result = AIChatHistory::recordAIChatAccess($userNik);
+                    Log::info('Employee AI chat access recording result', [
+                        'user_nik' => $userNik,
+                        'result' => $result ? 'success' : 'failed',
+                        'result_id' => $result ? $result->id : null
+                    ]);
+                }
             }
 
             // Initialize Gemini chat with enhanced memory configuration

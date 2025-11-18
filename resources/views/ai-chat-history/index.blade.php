@@ -114,7 +114,14 @@
                         </div>
                         <div>
                             <p class="font-semibold text-gray-900">{{ $user->nama_karyawan }}</p>
-                            <p class="text-sm text-gray-600">{{ $user->nik }} • {{ $user->departemen ?? '-' }}</p>
+                            <p class="text-sm text-gray-600">
+                                {{ $user->nik }} • {{ $user->departemen ?? '-' }}
+                                @if($user->tipe_pengguna === 'keluarga')
+                                <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                    {{ $user->hubungan_label ?? 'Keluarga' }}
+                                </span>
+                                @endif
+                            </p>
                         </div>
                     </div>
                     <div class="text-right">
@@ -151,10 +158,10 @@
                         number_format($statistics['active_users_this_month']) }} pengguna</span>
                 </div>
                 <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span class="text-gray-700 font-medium">Rata-rata Akses per Pengguna</span>
+                    <span class="text-gray-700 font-medium">Rata-rata Akses per Pengguna(Avg)</span>
                     <span class="font-bold text-gray-900 text-lg">
                         {{ $statistics['total_users'] > 0 ? number_format($statistics['total_ai_chat_access'] /
-                        $statistics['total_users'], 1) : 0 }}
+                        $statistics['total_users'], 1) : 0 }}x Akses
                     </span>
                 </div>
             </div>
@@ -168,7 +175,14 @@
                     class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
                     <div>
                         <p class="font-semibold text-gray-900">{{ $activity->nama_karyawan }}</p>
-                        <p class="text-sm text-gray-600">{{ $activity->nik }}</p>
+                        <p class="text-sm text-gray-600">
+                            {{ $activity->nik }}
+                            @if($activity->tipe_pengguna === 'keluarga')
+                            <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                {{ $activity->hubungan_label ?? 'Keluarga' }}
+                            </span>
+                            @endif
+                        </p>
                     </div>
                     <div class="text-right">
                         <p class="text-sm font-medium text-gray-900">{{ $activity->last_ai_chat_access_at ?
@@ -207,6 +221,10 @@
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Nama
                         </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Tipe
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Hubungan</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                             Departemen</th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Jumlah
@@ -228,6 +246,16 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{
                             $history->nama_karyawan }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            <span class="px-2 py-1 text-xs rounded-full
+                                @if($history->tipe_pengguna === 'keluarga') bg-blue-100 text-blue-800
+                                @else bg-green-100 text-green-800
+                                @endif">
+                                {{ $history->tipe_pengguna_label }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{
+                            $history->hubungan_label }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $history->departemen ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{
@@ -256,7 +284,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="px-6 py-16 text-center text-gray-400">
+                        <td colspan="10" class="px-6 py-16 text-center text-gray-400">
                             <svg class="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -316,17 +344,25 @@ let activityChart = new Chart(ctx, {
     }
 });
 
+function translateDayToIndonesian(label) {
+const days = {
+'Sun': 'Minggu', 'Mon': 'Senin', 'Tue': 'Selasa', 'Wed': 'Rabu',
+'Thu': 'Kamis', 'Fri': 'Jumat', 'Sat': 'Sabtu'
+};
+return days[label] || label;
+}
+
 function loadChartData(period = 'week') {
-    fetch(`{{ route('api.ai-chat-history.chart-data') }}?period=${period}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                activityChart.data.labels = data.data.labels;
-                activityChart.data.datasets[0].data = data.data.data;
-                activityChart.update();
-            }
-        })
-        .catch(error => console.error('Error:', error));
+fetch(`{{ route('api.ai-chat-history.chart-data') }}?period=${period}`)
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+activityChart.data.labels = data.data.labels.map(translateDayToIndonesian);
+activityChart.data.datasets[0].data = data.data.data;
+activityChart.update();
+}
+})
+.catch(error => console.error('Error:', error));
 }
 
 loadChartData('week');
@@ -363,11 +399,17 @@ document.getElementById('searchInput').addEventListener('input', function() {
 function updateTableWithSearchResults(results) {
     const tbody = document.querySelector('tbody');
     tbody.innerHTML = results.length === 0
-        ? '<tr><td colspan="8" class="px-6 py-16 text-center text-gray-400"><svg class="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><p class="font-medium">Tidak ada hasil ditemukan</p></td></tr>'
+        ? '<tr><td colspan="10" class="px-6 py-16 text-center text-gray-400"><svg class="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg><p class="font-medium">Tidak ada hasil ditemukan</p></td></tr>'
         : results.map(user => `
             <tr class="hover:bg-purple-50 transition-colors">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.nik}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.nama_karyawan}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <span class="px-2 py-1 text-xs rounded-full ${user.tipe_pengguna === 'keluarga' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
+                        ${user.tipe_pengguna_label}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${user.hubungan_label || '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${user.departemen || '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${user.login_count}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${user.last_login_at || '-'}</td>

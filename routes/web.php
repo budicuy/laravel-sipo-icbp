@@ -50,6 +50,7 @@ Route::post('/api/auth/check-nik', [LandingPageController::class, 'checkNik'])->
 Route::post('/api/medical-history', [LandingPageController::class, 'getMedicalHistory'])->name('api.medical-history');
 Route::post('/api/family-list', [LandingPageController::class, 'getFamilyList'])->name('api.family-list');
 Route::post('/api/preload-medical-data', [LandingPageController::class, 'preloadMedicalData'])->name('api.preload-medical-data');
+Route::post('/api/record-patient-selection', [LandingPageController::class, 'recordPatientSelection'])->name('api.record-patient-selection');
 
 // Alternative route to login
 Route::get('/portal', function () {

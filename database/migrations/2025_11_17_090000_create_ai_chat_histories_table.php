@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('ai_chat_histories', function (Blueprint $table) {
             $table->id();
-            $table->string('nik', 20)->index(); // NIK karyawan
-            $table->string('nama_karyawan', 100); // Nama lengkap karyawan
+            $table->string('nik', 20)->index(); // NIK karyawan atau NIK-kode_hubungan untuk keluarga
+            $table->string('nama_karyawan', 100); // Nama lengkap karyawan atau nama keluarga
             $table->string('departemen', 100)->nullable(); // Departemen karyawan
             $table->integer('login_count')->default(1); // Jumlah kali login
             $table->timestamp('last_login_at'); // Waktu terakhir login
