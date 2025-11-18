@@ -312,8 +312,10 @@
                         <select name="periode"
                             class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
                             <option value="">Semua Periode</option>
-                            @foreach ($availablePeriodes = \App\Models\HargaObatPerBulan::getAvailablePeriodes() as
-                            $periodeOption)
+                            @php
+                                $availablePeriodes = \App\Models\HargaObatPerBulan::getAvailablePeriodes();
+                            @endphp
+                            @foreach ($availablePeriodes as $periodeOption)
                             <option value="{{ $periodeOption['value'] }}" {{ $periode==$periodeOption['value']
                                 ? 'selected' : '' }}>
                                 {{ $periodeOption['label'] }}</option>
