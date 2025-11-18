@@ -10,16 +10,22 @@ use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Hubungan;
 use App\Models\User;
+use App\Models\SuratRekomendasiMedis;
 use App\Services\MedicalArchivesQueryOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class MedicalArchivesController extends Controller
 {
+    // ========================================
+    // MAIN MEDICAL ARCHIVES METHODS
+    // ========================================
+
     /**
-     * Display a listing of the resource.
+     * Display a listing of medical archives with filters
      */
     public function index(Request $request)
     {
@@ -52,7 +58,7 @@ class MedicalArchivesController extends Controller
     }
     
     /**
-     * Display the specified resource.
+     * Display detailed medical records for specific employee
      */
     public function show($id_karyawan)
     {
@@ -105,33 +111,35 @@ class MedicalArchivesController extends Controller
             'detailedRecords'
         ));
     }
-    
+
+    // ========================================
+    // REDIRECT METHODS (LEGACY SUPPORT)
+    // ========================================
+
     /**
-     * Show the form for creating a new resource.
+     * Redirect to rekam-medis create (medical archives are created through that system)
      */
     public function create()
     {
-        // This will redirect to rekam-medis create since medical archives are created through that system
         return redirect()->route('rekam-medis.choose-type')
             ->with('info', 'Silakan pilih jenis rekam medis yang ingin dibuat');
     }
     
     /**
-     * Store a newly created resource in storage.
+     * Redirect to rekam-medis store (medical archives are created through that system)
      */
     public function store(Request $request)
     {
-        // This will redirect to rekam-medis store since medical archives are created through that system
         return redirect()->route('rekam-medis.choose-type')
             ->with('info', 'Silakan pilih jenis rekam medis yang ingin dibuat');
     }
     
     /**
-     * Show the form for editing the specified resource.
+     * Redirect to rekam-medis edit (medical archives are edited through that system)
      */
     public function edit($id_karyawan)
     {
-        // Medical archives are edited through the rekam-medis system using optimized query
+        // Medical archives are edited through rekam-medis system using optimized query
         $medicalHistory = MedicalArchivesQueryOptimizer::getEmployeeMedicalHistory($id_karyawan);
         
         if ($medicalHistory->isEmpty()) {
@@ -154,26 +162,27 @@ class MedicalArchivesController extends Controller
     }
     
     /**
-     * Update the specified resource in storage.
+     * Redirect to medical archives show (medical archives are updated through rekam-medis system)
      */
     public function update(Request $request, $id_karyawan)
     {
-        // Medical archives are updated through the rekam-medis system
         return redirect()->route('medical-archives.show', $id_karyawan)
             ->with('info', 'Data medis diperbarui melalui sistem rekam medis');
     }
     
     /**
-     * Remove the specified resource from storage.
+     * Medical archives cannot be deleted through this method
      */
     public function destroy($id_karyawan)
     {
-        // Medical archives are deleted through the rekam-medis system
-        // This method is not applicable for medical archives
         return redirect()->route('medical-archives.index')
             ->with('error', 'Data medis tidak dapat dihapus melalui menu ini. Silakan gunakan menu Rekam Medis.');
     }
-    
+
+    // ========================================
+    // API METHODS
+    // ========================================
+
     /**
      * API endpoint for searching employees
      */
@@ -186,7 +195,11 @@ class MedicalArchivesController extends Controller
             
         return response()->json($employees);
     }
-    
+
+    // ========================================
+    // SURAT REKOMENDASI MEDIS METHODS
+    // ========================================
+
     /**
      * Display Surat Rekomendasi Medis page for employee
      */
@@ -215,8 +228,10 @@ class MedicalArchivesController extends Controller
             ->where('kl.id_karyawan', $id_karyawan)
             ->first();
             
-        // Get surat rekomendasi medis data (empty for now)
-        $suratRekomendasi = collect([]);
+        // Get surat rekomendasi medis data
+        $suratRekomendasi = SuratRekomendasiMedis::where('id_karyawan', $id_karyawan)
+            ->orderBy('tanggal', 'desc')
+            ->get();
         
         return view('medical-archives.surat-rekomendasi-medis', compact(
             'employeeInfo',
@@ -225,7 +240,204 @@ class MedicalArchivesController extends Controller
             'id_karyawan'
         ));
     }
+
+    /**
+     * Upload new surat rekomendasi medis
+     */
+    public function uploadSuratRekomendasi(Request $request, $id_karyawan)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|file|mimes:pdf|max:10240', // Max 10MB
+            'tanggal' => 'required|date',
+            'penerbit_surat' => 'required|string|max:255',
+            'catatan_medis' => 'nullable|string|max:1000',
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        try {
+            // Get family member
+            $familyMember = DB::table('keluarga as kl')
+                ->where('kl.id_karyawan', $id_karyawan)
+                ->first();
+                
+            // Handle file upload
+            $file = $request->file('file');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('surat-rekomendasi-medis', $fileName, 'public');
+            
+            // Create surat rekomendasi record
+            $suratRekomendasi = SuratRekomendasiMedis::create([
+                'id_karyawan' => $id_karyawan,
+                'id_keluarga' => $familyMember->id_keluarga ?? null,
+                'tanggal' => $request->tanggal,
+                'penerbit_surat' => $request->penerbit_surat,
+                'catatan_medis' => $request->catatan_medis,
+                'file_path' => $filePath,
+                'file_name' => $fileName,
+                'file_size' => $file->getSize(),
+                'mime_type' => $file->getMimeType(),
+                'created_by' => auth()->id(),
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Surat rekomendasi medis berhasil diunggah',
+                'data' => $suratRekomendasi
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengunggah file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get surat rekomendasi medis data for editing
+     */
+    public function editSuratRekomendasi($id_karyawan, $id)
+    {
+        try {
+            $suratRekomendasi = SuratRekomendasiMedis::where('id_karyawan', $id_karyawan)
+                ->where('id', $id)
+                ->firstOrFail();
+                
+            return response()->json([
+                'success' => true,
+                'data' => $suratRekomendasi
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data surat rekomendasi medis tidak ditemukan'
+            ], 404);
+        }
+    }
     
+    /**
+     * Update existing surat rekomendasi medis
+     */
+    public function updateSuratRekomendasi(Request $request, $id_karyawan, $id)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'tanggal' => 'required|date',
+            'penerbit_surat' => 'required|string|max:255',
+            'catatan_medis' => 'nullable|string|max:1000',
+            'file' => 'nullable|file|mimes:pdf|max:10240', // Max 10MB, optional for edit
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        try {
+            $suratRekomendasi = SuratRekomendasiMedis::where('id_karyawan', $id_karyawan)
+                ->where('id', $id)
+                ->firstOrFail();
+            
+            // Update data
+            $suratRekomendasi->tanggal = $request->tanggal;
+            $suratRekomendasi->penerbit_surat = $request->penerbit_surat;
+            $suratRekomendasi->catatan_medis = $request->catatan_medis;
+            
+            // Handle file upload if new file is provided
+            if ($request->hasFile('file')) {
+                // Delete old file
+                Storage::disk('public')->delete($suratRekomendasi->file_path);
+                
+                // Upload new file
+                $file = $request->file('file');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('surat-rekomendasi-medis', $fileName, 'public');
+                
+                $suratRekomendasi->file_path = $filePath;
+                $suratRekomendasi->file_name = $fileName;
+                $suratRekomendasi->file_size = $file->getSize();
+                $suratRekomendasi->mime_type = $file->getMimeType();
+            }
+            
+            $suratRekomendasi->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Surat rekomendasi medis berhasil diperbarui',
+                'data' => $suratRekomendasi
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui surat: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Download surat rekomendasi medis file
+     */
+    public function downloadSuratRekomendasi($id_karyawan, $id)
+    {
+        $suratRekomendasi = SuratRekomendasiMedis::where('id_karyawan', $id_karyawan)
+            ->where('id', $id)
+            ->firstOrFail();
+            
+        $filePath = storage_path('app/public/' . $suratRekomendasi->file_path);
+        
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File tidak ditemukan');
+        }
+        
+        return response()->download($filePath, $suratRekomendasi->file_name);
+    }
+    
+    /**
+     * Delete surat rekomendasi medis
+     */
+    public function deleteSuratRekomendasi($id_karyawan, $id)
+    {
+        try {
+            $suratRekomendasi = SuratRekomendasiMedis::where('id_karyawan', $id_karyawan)
+                ->where('id', $id)
+                ->firstOrFail();
+                
+            // Delete file from storage
+            Storage::disk('public')->delete($suratRekomendasi->file_path);
+            
+            // Delete record from database
+            $suratRekomendasi->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Surat rekomendasi medis berhasil dihapus'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus surat: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ========================================
+    // MEDICAL CHECK UP METHODS
+    // ========================================
+
     /**
      * Display Medical Check Up page for employee
      */
@@ -264,5 +476,4 @@ class MedicalArchivesController extends Controller
             'id_karyawan'
         ));
     }
-    
 }
