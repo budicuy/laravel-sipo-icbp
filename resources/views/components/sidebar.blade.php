@@ -294,28 +294,51 @@
                             </a>
                         </li>
                     </ul>
-                </li>
-
-                <!-- Posts Management -->
+                </li><!-- SIPO Care (Dropdown) -->
                 @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
-                <li>
-                    <a href="{{ route('posts.index') }}"
-                        class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('posts*') ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
-                        :title="!sidebarOpen ? 'Kelola Postingan' : ''" @click="activeMenu = 'posts'">
-                        <div class="relative">
+                <li
+                    x-data="{ open: {{ request()->is('posts*') || request()->is('ai-chat-history*') ? 'true' : 'false' }} }">
+                    <button @click="if (!sidebarOpen) { sidebarOpen = true; open = true; } else { open = !open; }"
+                        class="group flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('posts*') || request()->is('ai-chat-history*') ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        :title="!sidebarOpen ? 'SIPO Care' : ''">
+                        <div class="flex items-center">
                             <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
                                 :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
-                            @if (request()->is('posts*'))
-                            @endif
+                            <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">SIPO Care</span>
                         </div>
-                        <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">Kelola Postingan</span>
-                    </a>
+                        <svg x-show="sidebarOpen" class="w-4 h-4 transition-transform duration-200"
+                            :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <ul x-show="open && sidebarOpen" x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 -translate-y-2"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 -translate-y-2"
+                        class="mt-2 ml-12 space-y-1 border-l-2 border-pink-200 pl-4">
+                        <li>
+                            <a href="{{ route('posts.index') }}"
+                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('posts*') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-gray-600 hover:text-pink-600 hover:bg-pink-50' }}">
+                                Artikel Medis
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('ai-chat-history.index') }}"
+                                class="flex items-center px-3 py-2 text-sm rounded-lg transition-all {{ request()->is('ai-chat-history*') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-gray-600 hover:text-pink-600 hover:bg-pink-50' }}">
+                                History AI Chat
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 @endif
+
+
 
                 <!-- Monitoring Token Emergency (Menu Utama) -->
                 @if (auth()->user()->role === 'Super Admin' || auth()->user()->role === 'Admin')
@@ -344,27 +367,6 @@
                             {{ $pendingRequestsCount }}
                         </span>
                         @endif
-                    </a>
-                </li>
-                @endif
-
-                <!-- AI Chat History (Admin & Super Admin only) -->
-                @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
-                <li>
-                    <a href="{{ route('ai-chat-history.index') }}"
-                        class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('ai-chat-history*') ? 'bg-linear-to-r from-teal-500 to-cyan-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
-                        :title="!sidebarOpen ? 'AI Chat History' : ''" @click="activeMenu = 'ai-chat-history'">
-                        <div class="relative">
-                            <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
-                                :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                            @if (request()->is('ai-chat-history*'))
-                            @endif
-                        </div>
-                        <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">AI Chat History</span>
                     </a>
                 </li>
                 @endif

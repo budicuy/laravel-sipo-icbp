@@ -515,6 +515,13 @@
 
         // Main initialization on page load
         window.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 AI Chat initialized');
+            console.log('📦 Current localStorage:', {
+                sipo_auth: localStorage.getItem('sipo_auth'),
+                selected_patient_id: localStorage.getItem('selected_patient_id'),
+                selected_patient_name: localStorage.getItem('selected_patient_name')
+            });
+
             // Check authentication first
             checkAuthentication();
 
@@ -814,9 +821,9 @@
                 try {
                     const auth = JSON.parse(authData);
                     if (auth.nik && auth.nama && auth.timestamp) {
-                        // Check if session is still valid (24 hours)
+                        // Check if session is still valid (30 minutes)
                         const now = Date.now();
-                        const sessionDuration = 24 * 60 * 60 * 1000; // 24 hours
+                        const sessionDuration = 30 * 60 * 1000; // 30 minutes
                         if (now - auth.timestamp < sessionDuration) {
                             isAuthenticated = true;
                             currentUserNik = auth.nik;
@@ -1010,6 +1017,10 @@
 
             console.log('✅ Patient data saved to localStorage:', authData);
 
+            // IMPORTANT: Record patient selection to database
+            // This will create history record for the family member
+            recordPatientSelectionToDatabase(authData.nik, idKeluarga, namaPasien);
+
             // IMPORTANT: Clear chat history when switching patients to avoid AI confusion
             chatHistory = [];
             currentPatientIdForHistory = idKeluarga; // Update current patient for history tracking
@@ -1033,9 +1044,64 @@
             preloadPatientMedicalData(authData.nik, idKeluarga, namaPasien);
         }
 
+        // Record patient selection to database
+        async function recordPatientSelectionToDatabase(userNik, idKeluarga, namaPasien) {
+            try {
+                console.log('📝 Recording patient selection to database:', {
+                    user_nik: userNik,
+                    id_keluarga: idKeluarga,
+                    nama_pasien: namaPasien
+                });
+
+                const response = await fetch('{{ route('api.record-patient-selection') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_nik: userNik,
+                        id_keluarga: idKeluarga
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('✅ Patient selection recorded successfully:', result.data);
+
+                    // Update auth data with family NIK if provided
+                    if (result.data.family_nik) {
+                        const authData = JSON.parse(localStorage.getItem('sipo_auth'));
+                        authData.current_patient_nik = result.data.family_nik;
+                        authData.current_patient_kode_hubungan = result.data.kode_hubungan;
+                        authData.current_patient_hubungan = result.data.hubungan;
+                        localStorage.setItem('sipo_auth', JSON.stringify(authData));
+
+                        // Update current user NIK for chat tracking
+                        currentUserNik = result.data.family_nik;
+
+                        console.log('✅ Auth data updated with family NIK:', authData);
+                    }
+                } else {
+                    console.error('❌ Failed to record patient selection:', result.message);
+                }
+            } catch (error) {
+                console.error('❌ Error recording patient selection:', error);
+            }
+        }
+
         // Pre-load medical data to AI memory (prevents hallucination!)
         function preloadPatientMedicalData(userNik, idKeluarga, namaPasien) {
             console.log('🔄 Pre-loading medical data for AI memory...');
+            console.log('📋 Patient context:', {
+                user_nik: userNik,
+                user_nik_contains_dash: userNik.includes('-'),
+                is_family_member: userNik.includes('-') ? 'YES (Keluarga)' : 'NO (Karyawan)',
+                id_keluarga: idKeluarga,
+                nama_pasien: namaPasien
+            });
 
             fetch('{{ route('api.preload-medical-data') }}', {
                     method: 'POST',
@@ -1178,9 +1244,12 @@
                 if (result && result.success) {
                     // Login successful
                     const authData = {
-                        nik: result.data.nik,
+                        nik: result.data.nik, // Ini sudah bisa berupa NIK atau NIK-KodeHubungan untuk keluarga
                         nama: result.data.nama,
                         departemen: result.data.departemen,
+                        tipe_pengguna: result.data.tipe || 'karyawan', // Simpan tipe pengguna
+                        kode_hubungan: result.data.kode_hubungan || null, // Simpan kode hubungan jika keluarga
+                        hubungan: result.data.hubungan || null, // Simpan label hubungan jika keluarga
                         timestamp: Date.now()
                     };
                     localStorage.setItem('sipo_auth', JSON.stringify(authData));
@@ -1196,16 +1265,25 @@
                     // Start auto-logout timer
                     startAutoLogoutTimer();
 
+                    // Untuk user keluarga, gunakan NIK karyawan untuk load family members
+                    // Tapi tetap gunakan NIK-KodeHubungan untuk tracking
+                    let nikForFamilyList = result.data.nik;
+                    if (result.data.tipe === 'keluarga' && result.data.nik.includes('-')) {
+                        // Ambil NIK karyawan saja (sebelum tanda -)
+                        nikForFamilyList = result.data.nik.split('-')[0];
+                    }
+
                     // Load family members and show patient selection if available
-                    const familyLoaded = await loadFamilyMembers(result.data.nik);
+                    const familyLoaded = await loadFamilyMembers(nikForFamilyList);
 
                     if (familyLoaded) {
                         showPatientSelectionModal();
                     } else {
                         updateAuthUI();
-                        addMessageToUI('bot',
-                            `<p>Selamat datang, <strong>${result.data.nama}</strong>! 👋</p><p>NIK: ${result.data.nik} | Departemen: ${result.data.departemen}</p><p>Anda telah berhasil login. Silakan tanyakan apapun tentang SIPO.</p>`
-                        );
+                        const welcomeMsg = result.data.tipe === 'keluarga'
+                            ? `<p>Selamat datang, <strong>${result.data.nama}</strong>! 👋</p><p>Status: ${result.data.hubungan || 'Keluarga'} | Departemen: ${result.data.departemen}</p><p>Anda telah berhasil login. Silakan pilih pasien untuk konsultasi.</p>`
+                            : `<p>Selamat datang, <strong>${result.data.nama}</strong>! 👋</p><p>NIK: ${result.data.nik} | Departemen: ${result.data.departemen}</p><p>Anda telah berhasil login. Silakan tanyakan apapun tentang SIPO.</p>`;
+                        addMessageToUI('bot', welcomeMsg);
                     }
                 } else {
                     showLoginError((result && result.message) ? result.message : 'Login gagal');
@@ -1390,9 +1468,43 @@
             const authData = JSON.parse(localStorage.getItem('sipo_auth'));
             const selectedPatientId = authData?.selected_patient_id ? parseInt(authData.selected_patient_id) : null;
 
+            // Determine the correct NIK to send to API
+            // PRIORITY: Use current_patient_nik if available (this is set when selecting family member)
+            let nikForApi = authData?.current_patient_nik || currentUserNik;
+
+            console.log('🔍 Determining NIK for API:', {
+                current_patient_nik: authData?.current_patient_nik,
+                currentUserNik: currentUserNik,
+                nikForApi: nikForApi,
+                contains_dash: nikForApi?.includes('-'),
+                is_family: nikForApi?.includes('-') ? 'YES' : 'NO'
+            });
+
+            // Check if this is a family member login (contains dash)
+            if (nikForApi && nikForApi.includes('-')) {
+                // For family members, use the full NIK-KodeHubungan format
+                console.log('👨‍👩‍👧‍👦 Family member detected, using NIK-KodeHubungan:', nikForApi);
+            } else {
+                // For regular employees, use the NIK as-is
+                console.log('👤 Employee detected, using NIK:', nikForApi);
+            }
+
+            // CRITICAL: Always use the selected patient's name for AI context
+            const selectedPatientName = authData?.selected_patient_name;
+
+            if (selectedPatientName && selectedPatientName !== currentUserName) {
+                // Override currentUserName with selected patient name for AI context
+                console.log('🔄 Using selected patient name for AI context:', {
+                    original_user_name: currentUserName,
+                    selected_patient_name: selectedPatientName,
+                    will_use_for_ai: selectedPatientName
+                });
+                currentUserName = selectedPatientName;
+            }
+
             // Debug logging
             console.log('🔍 Sending chat request:', {
-                user_nik: currentUserNik,
+                user_nik: nikForApi,
                 user_name: currentUserName,
                 id_keluarga: selectedPatientId,
                 id_keluarga_type: typeof selectedPatientId,
@@ -1410,7 +1522,7 @@
                     body: JSON.stringify({
                         message: message,
                         history: historyForAPI,
-                        user_nik: currentUserNik,
+                        user_nik: nikForApi,
                         user_name: currentUserName,
                         id_keluarga: selectedPatientId
                     })

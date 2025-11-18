@@ -3,370 +3,7 @@
 @section('page-title', 'Tambah Rekam Medis')
 
 @section('content')
-<div class="p-6 bg-gray-50 min-h-screen" x-data="rekamMedisFingerprint()" x-cloak>
-    <!-- Fingerprint Verification Modal -->
-    <div x-show="showFingerprintModal" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 overflow-y-auto bg-black/10 backdrop-blur-sm"
-        style="display: none;">
-        <div class="flex min-h-screen items-center justify-center p-4">
-            <div x-show="showFingerprintModal" x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 transform scale-95"
-                x-transition:enter-end="opacity-100 transform scale-100"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 transform scale-100"
-                x-transition:leave-end="opacity-0 transform scale-95"
-                class="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl">
 
-                <!-- Modal Header -->
-                <div class="bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-xl">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-xl font-bold text-white flex items-center gap-3">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                            </svg>
-                            Verifikasi Sidik Jari Karyawan
-                        </h3>
-                        <button onclick="window.location.href='{{ route('rekam-medis.index') }}'"
-                            class="bg-white text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-100 font-semibold transition-colors duration-200 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                            Kembali
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Modal Body -->
-                <div class="p-6">
-                    <!-- Instructions -->
-                    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <div class="text-sm text-blue-800">
-                                <p class="font-semibold mb-2">Verifikasi Identitas Karyawan:</p>
-                                <ul class="list-disc list-inside space-y-1 text-xs">
-                                    <li>Silakan tempelkan Jari Anda pada sensor fingerprint</li>
-                                    <li>Pastikan jari dalam kondisi bersih dan kering</li>
-                                    <li>Tahan posisi jari hingga proses verifikasi selesai</li>
-                                    <li>Verifikasi berhasil diperlukan untuk melanjutkan pendaftaran rekam medis</li>
-                                </ul>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <!-- Dynamic Error Message -->
-                    <div x-show="fingerprintFailedCount >= 3" class="mb-4 p-3 rounded-lg" :class="fingerprintFailedCount >= 5 ? 'bg-red-50 border border-red-200' :
-                                'bg-orange-50 border border-orange-200'">
-                        <div class="flex items-center justify-center gap-2"
-                            :class="fingerprintFailedCount >= 5 ? 'text-red-700' : 'text-orange-700'">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                            </svg>
-                            <div class="text-left">
-                                <span class="text-sm font-medium" x-text="getDynamicErrorMessage()"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Verification Status -->
-                    <div x-show="!verifyResult" class="text-center py-8">
-                        <div class="mb-6">
-                            <svg class="w-20 h-20 mx-auto text-gray-300" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-                            </svg>
-                        </div>
-
-                        <button @click="verifyFingerprint()"
-                            :disabled="isCapturing || fingerprintTemplates.length === 0"
-                            class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2 mx-auto">
-                            <svg x-show="!isCapturing" class="w-5 h-5" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                            <svg x-show="isCapturing" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            <span x-text="isCapturing ? 'Memverifikasi...' : 'Verifikasi Sidik Jari'"></span>
-                        </button>
-
-
-
-                        <!-- Manual Verification Section -->
-                        <div class="mt-6 pt-6 border-t border-gray-200"
-                            x-show="fingerprintFailedCount >= 3 || showManualVerification" x-cloak>
-                            <div class="text-center mb-4">
-
-
-                                <p class="text-sm text-gray-600 mb-2">Verifikasi secara manual menggunakan NIK dan
-                                    tanggal lahir</p>
-                                <div class="flex items-center justify-center gap-2 text-xs text-gray-500">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span>Verifikasi manual hanya untuk karyawan yang sudah terdaftar</span>
-                                </div>
-                            </div>
-
-                            <div x-show="!showManualVerification && (fingerprintFailedCount >= 3)" class="text-center">
-                                <!-- Show different messages based on failure count -->
-                                <div x-show="fingerprintFailedCount >= 3 && fingerprintFailedCount < 5" class="mb-3">
-                                    <p class="text-sm text-orange-600 font-medium">
-                                        <span
-                                            x-text="`Percobaan fingerprint gagal: ${fingerprintFailedCount} kali`"></span>
-                                    </p>
-                                </div>
-
-                                <div x-show="fingerprintFailedCount >= 5" class="mb-3">
-                                    <p class="text-sm text-red-600 font-medium">
-                                        Perangkat fingerprint tidak terdeteksi atau bermasalah
-                                    </p>
-                                </div>
-
-                                <button @click="showManualVerification = true"
-                                    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold transition-colors duration-200 flex items-center justify-center gap-2 mx-auto shadow-md hover:shadow-lg">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                    </svg>
-                                    Verifikasi Manual
-                                </button>
-                            </div>
-
-                            <div x-show="showManualVerification" x-transition:enter="transition ease-out duration-300"
-                                x-transition:enter-start="opacity-0 transform scale-95"
-                                x-transition:enter-end="opacity-100 transform scale-100"
-                                class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                            NIK Karyawan <span class="text-red-500">*</span>
-                                        </label>
-                                        <div class="relative">
-                                            <div
-                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                                                </svg>
-                                            </div>
-                                            <input type="text" x-model="manualVerification.nik" maxlength="16"
-                                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                placeholder="Masukkan NIK karyawan (1-16 digit)">
-                                        </div>
-                                        <p x-show="manualVerificationErrors.nik" class="mt-1 text-sm text-red-600"
-                                            x-text="manualVerificationErrors.nik"></p>
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Tanggal Lahir <span class="text-red-500">*</span>
-                                        </label>
-                                        <div class="relative">
-                                            <div
-                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                            </div>
-                                            <input type="date" x-model="manualVerification.tanggalLahir"
-                                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        </div>
-                                        <p x-show="manualVerificationErrors.tanggalLahir"
-                                            class="mt-1 text-sm text-red-600"
-                                            x-text="manualVerificationErrors.tanggalLahir"></p>
-                                    </div>
-
-                                    <div class="flex gap-3">
-                                        <button @click="showManualVerification = false; resetManualVerification()"
-                                            class="flex-1 bg-gray-500 text-white py-2.5 rounded-lg hover:bg-gray-600 font-semibold transition-colors duration-200">
-                                            Batal
-                                        </button>
-                                        <button @click="verifyManual()" :disabled="isManualVerifying"
-                                            class="flex-1 bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
-                                            <svg x-show="!isManualVerifying" class="w-4 h-4" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                            </svg>
-                                            <svg x-show="isManualVerifying" class="w-4 h-4 animate-spin" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                            <span x-text="isManualVerifying ? 'Memverifikasi...' : 'Verifikasi'"></span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Verification Result -->
-                    <div x-show="verifyResult" class="space-y-4">
-                        <div x-show="verifyResult?.success"
-                            class="p-4 bg-green-50 border-2 border-green-500 rounded-lg">
-                            <div class="flex items-center gap-2 mb-3">
-                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span class="font-bold text-green-800">Verifikasi Berhasil!</span>
-                            </div>
-
-                            <div class="flex gap-4">
-                                <!-- Show fingerprint image only if available (from fingerprint verification) -->
-                                <div x-show="verifyResult?.image" class="w-24 shrink-0">
-                                    <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
-                                        alt="Fingerprint"
-                                        class="w-full h-auto border-2 border-green-500 rounded-lg shadow-sm">
-                                </div>
-
-                                <!-- Show verification method icon for manual verification -->
-                                <div x-show="!verifyResult?.image" class="w-24 shrink-0
-                                    <div
-                                        class=" w-full h-24 bg-green-100 border-2 border-green-500 rounded-lg flex
-                                    items-center justify-center">
-                                    <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <div class="flex-1">
-                                <div
-                                    class="bg-linear-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200 shadow-sm">
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-12 h-12 bg-linear-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg">
-                                            <span
-                                                x-text="verifyResult?.data?.nama_karyawan ? verifyResult.data.nama_karyawan.charAt(0).toUpperCase() : ''"></span>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs text-green-600 font-medium mb-1">
-                                                <span x-show="verifyResult?.image">Karyawan Terverifikasi
-                                                    (Fingerprint)</span>
-                                                <span x-show="!verifyResult?.image">Karyawan Terverifikasi
-                                                    (Manual)</span>
-                                            </p>
-                                            <p class="text-xl font-bold text-gray-900"
-                                                x-text="verifyResult?.data?.nama_karyawan || ''"></p>
-                                            <p class="text-sm text-gray-600"
-                                                x-text="verifyResult?.data?.nik_karyawan || ''"></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div x-show="!verifyResult?.success" class="p-4 bg-red-50 border-2 border-red-500 rounded-lg">
-                        <div class="flex items-center gap-2 mb-3">
-                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="font-bold text-red-800">Verifikasi Gagal!</span>
-                        </div>
-
-                        <div class="flex gap-4">
-                            <!-- Show fingerprint image only if available (from fingerprint verification) -->
-                            <div x-show="verifyResult?.image" class="w-24 shrink-0">
-                                <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
-                                    alt="Fingerprint"
-                                    class="w-full h-auto border-2 border-red-500 rounded-lg shadow-sm">
-                            </div>
-
-                            <!-- Show verification method icon for manual verification -->
-                            <div x-show="!verifyResult?.image" class="w-24 shrink-0">
-                                <div
-                                    class="w-full h-24 bg-red-100 border-2 border-red-500 rounded-lg flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <div class="flex-1">
-                                <div
-                                    class="bg-linear-to-r from-red-50 to-pink-50 p-4 rounded-lg border border-red-200 shadow-sm">
-                                    <div class="flex items-start gap-3">
-                                        <div
-                                            class="w-12 h-12 shrink-0 bg-linear-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center text-white shadow-lg">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="text-xs text-red-600 font-medium mb-1">
-                                                <span x-show="verifyResult?.image">Sidik Jari Tidak Dikenali</span>
-                                                <span x-show="!verifyResult?.image">Verifikasi Manual Gagal</span>
-                                            </p>
-                                            <p class="text-sm text-gray-700">
-                                                <span x-show="verifyResult?.image">Tidak ada data fingerprint yang
-                                                    cocok. Silakan coba lagi atau gunakan jari yang sama saat
-                                                    pendaftaran.</span>
-                                                <span x-show="!verifyResult?.image">Data karyawan tidak ditemukan
-                                                    atau tidak cocok. Pastikan NIK dan tanggal lahir sesuai.</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-3">
-                        <button x-show="verifyResult" @click="resetVerification()"
-                            class="flex-1 bg-gray-500 text-white py-2.5 rounded-lg hover:bg-gray-600 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            Coba Lagi
-                        </button>
-
-                        <button x-show="verifyResult?.success" @click="proceedWithVerifiedEmployee()"
-                            class="flex-1 bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                            Lanjutkan Pendaftaran
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <!-- Header Section -->
 <div class="mb-6">
     <div class="flex items-center gap-3 mb-3">
@@ -909,6 +546,413 @@
 </form>
 </div>
 
+<div class="p-6 bg-gray-50 min-h-screen" x-data="rekamMedisFingerprint()" x-cloak>
+    <!-- Fingerprint Verification Modal -->
+    <div x-show="showFingerprintModal" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 overflow-y-auto bg-black/10 backdrop-blur-sm"
+        style="display: none;">
+        <div class="flex min-h-screen items-center justify-center p-4 py-8">
+            <div x-show="showFingerprintModal" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 transform scale-95"
+                x-transition:enter-end="opacity-100 transform scale-100"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 transform scale-100"
+                x-transition:leave-end="opacity-0 transform scale-95"
+                class="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl max-h-[90vh] flex flex-col">
+
+                <!-- Modal Header -->
+                <div class="bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-xl shrink-0">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                            </svg>
+                            Verifikasi Sidik Jari Karyawan
+                        </h3>
+                        <button onclick="window.location.href='{{ route('rekam-medis.index') }}'"
+                            class="bg-white text-blue-600 px-3 py-2 rounded-lg hover:bg-gray-100 font-semibold transition-colors duration-200 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            Kembali
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-6 overflow-y-auto flex-1">
+                    <!-- Instructions -->
+                    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="text-sm text-blue-800">
+                                <p class="font-semibold mb-2">Verifikasi Identitas Karyawan:</p>
+                                <ul class="list-disc list-inside space-y-1 text-xs">
+                                    <li>Silakan tempelkan Jari Anda pada sensor fingerprint</li>
+                                    <li>Pastikan jari dalam kondisi bersih dan kering</li>
+                                    <li>Tahan posisi jari hingga proses verifikasi selesai</li>
+                                    <li>Verifikasi berhasil diperlukan untuk melanjutkan pendaftaran rekam medis</li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Error Message - Only show when fingerprint is enabled -->
+                    <div x-show="fingerprintEnabled && fingerprintFailedCount >= 3" class="mb-4 p-3 rounded-lg" :class="fingerprintFailedCount >= 5 ? 'bg-red-50 border border-red-200' :
+                                'bg-orange-50 border border-orange-200'">
+                        <div class="flex items-center justify-center gap-2"
+                            :class="fingerprintFailedCount >= 5 ? 'text-red-700' : 'text-orange-700'">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            <div class="text-left">
+                                <span class="text-sm font-medium" x-text="getDynamicErrorMessage()"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Verification Status -->
+                    <div x-show="!verifyResult" class="text-center py-8">
+                        <!-- Show fingerprint icon only if fingerprint is enabled -->
+                        <div x-show="fingerprintEnabled" class="mb-6">
+                            <svg class="w-20 h-20 mx-auto text-gray-300" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                            </svg>
+                        </div>
+
+                        <!-- Show fingerprint button only if fingerprint is enabled -->
+                        <button x-show="fingerprintEnabled" @click="verifyFingerprint()"
+                            :disabled="isCapturing || fingerprintTemplates.length === 0"
+                            class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2 mx-auto">
+                            <svg x-show="!isCapturing" class="w-5 h-5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            <svg x-show="isCapturing" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <span x-text="isCapturing ? 'Memverifikasi...' : 'Verifikasi Sidik Jari'"></span>
+                        </button>
+
+                        <!-- Show info message if fingerprint is disabled -->
+                        <div x-show="!fingerprintEnabled" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-center justify-center gap-2 text-blue-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="text-sm font-medium">Verifikasi Fingerprint Dinonaktifkan</span>
+                            </div>
+                            <p class="text-xs text-blue-600 mt-2">Gunakan verifikasi manual dengan NIK dan Tanggal Lahir
+                            </p>
+                        </div>
+
+                        <!-- Manual Verification Section -->
+                        <div class="pt-6" :class="fingerprintEnabled ? 'mt-6 border-t border-gray-200' : ''"
+                            x-show="(fingerprintEnabled && fingerprintFailedCount >= 3) || showManualVerification"
+                            x-cloak>
+                            <div class="text-center mb-4">
+
+
+                                <p class="text-sm text-gray-600 mb-2">Verifikasi secara manual menggunakan NIK dan
+                                    tanggal lahir</p>
+                                <div class="flex items-center justify-center gap-2 text-xs text-gray-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Verifikasi manual hanya untuk karyawan yang sudah terdaftar</span>
+                                </div>
+                            </div>
+
+                            <div x-show="fingerprintEnabled && !showManualVerification && (fingerprintFailedCount >= 3)"
+                                class="text-center">
+                                <!-- Show different messages based on failure count -->
+                                <div x-show="fingerprintFailedCount >= 3 && fingerprintFailedCount < 5" class="mb-3">
+                                    <p class="text-sm text-orange-600 font-medium">
+                                        <span
+                                            x-text="`Percobaan fingerprint gagal: ${fingerprintFailedCount} kali`"></span>
+                                    </p>
+                                </div>
+
+                                <div x-show="fingerprintFailedCount >= 5" class="mb-3">
+                                    <p class="text-sm text-red-600 font-medium">
+                                        Perangkat fingerprint tidak terdeteksi atau bermasalah
+                                    </p>
+                                </div>
+
+                                <button @click="showManualVerification = true"
+                                    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-semibold transition-colors duration-200 flex items-center justify-center gap-2 mx-auto shadow-md hover:shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
+                                    Verifikasi Manual
+                                </button>
+                            </div>
+
+                            <div x-show="showManualVerification" x-transition:enter="transition ease-out duration-300"
+                                x-transition:enter-start="opacity-0 transform scale-95"
+                                x-transition:enter-end="opacity-100 transform scale-100"
+                                class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            NIK Karyawan <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <div
+                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                                </svg>
+                                            </div>
+                                            <input type="text" x-model="manualVerification.nik" maxlength="16"
+                                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                placeholder="Masukkan NIK karyawan (1-16 digit)">
+                                        </div>
+                                        <p x-show="manualVerificationErrors.nik" class="mt-1 text-sm text-red-600"
+                                            x-text="manualVerificationErrors.nik"></p>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Tanggal Lahir <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <div
+                                                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                            <input type="date" x-model="manualVerification.tanggalLahir"
+                                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        </div>
+                                        <p x-show="manualVerificationErrors.tanggalLahir"
+                                            class="mt-1 text-sm text-red-600"
+                                            x-text="manualVerificationErrors.tanggalLahir"></p>
+                                    </div>
+
+                                    <div class="flex gap-3">
+                                        <button @click="showManualVerification = false; resetManualVerification()"
+                                            class="flex-1 bg-gray-500 text-white py-2.5 rounded-lg hover:bg-gray-600 font-semibold transition-colors duration-200">
+                                            Batal
+                                        </button>
+                                        <button @click="verifyManual()" :disabled="isManualVerifying"
+                                            class="flex-1 bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
+                                            <svg x-show="!isManualVerifying" class="w-4 h-4" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                            </svg>
+                                            <svg x-show="isManualVerifying" class="w-4 h-4 animate-spin" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            <span x-text="isManualVerifying ? 'Memverifikasi...' : 'Verifikasi'"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Verification Result -->
+                    <div x-show="verifyResult !== null" class="space-y-4">
+                        <!-- Success Result -->
+                        <div x-show="verifyResult?.success"
+                            class="bg-green-50 border-2 border-green-500 rounded-lg overflow-hidden">
+                            <!-- Header -->
+                            <div class="bg-green-500 px-4 py-3">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="font-bold text-white text-lg">Verifikasi Berhasil!</span>
+                                </div>
+                            </div>
+
+                            <!-- Body -->
+                            <div class="p-4">
+                                <div class="flex gap-4 items-start">
+                                    <!-- Fingerprint/Icon Image -->
+                                    <div class="shrink-0">
+                                        <!-- Show fingerprint image if available -->
+                                        <div x-show="verifyResult?.image" class="w-32 h-32">
+                                            <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
+                                                alt="Fingerprint"
+                                                class="w-full h-full object-cover border-2 border-green-400 rounded-lg shadow-md">
+                                        </div>
+                                        <!-- Show icon for manual verification -->
+                                        <div x-show="!verifyResult?.image"
+                                            class="w-32 h-32 bg-green-100 border-2 border-green-400 rounded-lg flex items-center justify-center shadow-md">
+                                            <svg class="w-16 h-16 text-green-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <!-- Employee Info -->
+                                    <div class="flex-1">
+                                        <div class="bg-white p-4 rounded-lg border border-green-200 shadow-sm">
+                                            <p
+                                                class="text-xs text-green-600 font-semibold mb-2 uppercase tracking-wide">
+                                                <span x-show="verifyResult?.image">Karyawan Terverifikasi
+                                                    (Fingerprint)</span>
+                                                <span x-show="!verifyResult?.image">Karyawan Terverifikasi
+                                                    (Manual)</span>
+                                            </p>
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg shrink-0">
+                                                    <span
+                                                        x-text="verifyResult?.data?.nama_karyawan ? verifyResult.data.nama_karyawan.charAt(0).toUpperCase() : ''"></span>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <p class="text-xl font-bold text-gray-900 mb-1"
+                                                        x-text="verifyResult?.data?.nama_karyawan || ''"></p>
+                                                    <p class="text-sm text-gray-600"
+                                                        x-text="verifyResult?.data?.nik_karyawan || ''"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Failed Result -->
+                        <div x-show="verifyResult !== null && !verifyResult?.success"
+                            class="bg-red-50 border-2 border-red-500 rounded-lg overflow-hidden">
+                            <!-- Header -->
+                            <div class="bg-red-500 px-4 py-3">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="font-bold text-white text-lg">Verifikasi Gagal!</span>
+                                </div>
+                            </div>
+
+                            <!-- Body -->
+                            <div class="p-4">
+                                <div class="flex gap-4 items-start">
+                                    <!-- Fingerprint/Icon Image -->
+                                    <div class="shrink-0">
+                                        <!-- Show fingerprint image if available -->
+                                        <div x-show="verifyResult?.image" class="w-32 h-32">
+                                            <img :src="verifyResult?.image ? `data:image/bmp;base64,${verifyResult.image}` : ''"
+                                                alt="Fingerprint"
+                                                class="w-full h-full object-cover border-2 border-red-400 rounded-lg shadow-md">
+                                        </div>
+                                        <!-- Show icon for manual verification -->
+                                        <div x-show="!verifyResult?.image"
+                                            class="w-32 h-32 bg-red-100 border-2 border-red-400 rounded-lg flex items-center justify-center shadow-md">
+                                            <svg class="w-16 h-16 text-red-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <!-- Error Message -->
+                                    <div class="flex-1">
+                                        <div class="bg-white p-4 rounded-lg border border-red-200 shadow-sm">
+                                            <div class="flex items-start gap-3">
+                                                <div
+                                                    class="w-12 h-12 shrink-0 bg-linear-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center text-white shadow-lg">
+                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-1.964-1.333-2.732 0L3.082 16c-.77 1.333.192 3 1.732 3z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <p
+                                                        class="text-xs text-red-600 font-semibold mb-2 uppercase tracking-wide">
+                                                        <span x-show="verifyResult?.image">Sidik Jari Tidak
+                                                            Dikenali</span>
+                                                        <span x-show="!verifyResult?.image">Verifikasi Manual
+                                                            Gagal</span>
+                                                    </p>
+                                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                                        <span x-show="verifyResult?.image">Tidak ada data fingerprint
+                                                            yang
+                                                            cocok. Silakan coba lagi atau gunakan jari yang sama saat
+                                                            pendaftaran.</span>
+                                                        <span x-show="!verifyResult?.image">Data karyawan tidak
+                                                            ditemukan
+                                                            atau tidak cocok. Pastikan NIK dan tanggal lahir
+                                                            sesuai.</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="p-6 pt-0 shrink-0">
+                    <div class="flex gap-3">
+                        <button x-show="verifyResult !== null" @click="resetVerification()"
+                            class="flex-1 bg-gray-500 text-white py-2.5 rounded-lg hover:bg-gray-600 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Coba Lagi
+                        </button>
+
+                        <button x-show="verifyResult?.success" @click="proceedWithVerifiedEmployee()"
+                            class="flex-1 bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                            Lanjutkan Pendaftaran
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @push('scripts')
 <script>
     // Fingerprint verification functionality for Rekam Medis
@@ -921,6 +965,7 @@
                     verifiedEmployee: null,
                     fingerprintFailedCount: 0, // Track failed fingerprint attempts
                     lastErrorCode: null, // Track last error code for dynamic messages
+                    fingerprintEnabled: true, // Default to true, will be loaded from settings
 
                     // Manual verification properties
                     showManualVerification: false,
@@ -934,8 +979,30 @@
                         tanggalLahir: ''
                     },
 
-                    init() {
-                        this.loadFingerprintTemplates();
+                    async init() {
+                        // Check fingerprint setting first
+                        await this.checkFingerprintSetting();
+
+                        // If fingerprint is disabled, directly show manual verification
+                        if (!this.fingerprintEnabled) {
+                            this.showManualVerification = true;
+                            this.fingerprintFailedCount = 3; // Set to trigger manual verification display
+                        } else {
+                            // Load fingerprint templates only if fingerprint is enabled
+                            await this.loadFingerprintTemplates();
+                        }
+                    },
+
+                    async checkFingerprintSetting() {
+                        try {
+                            const url = new URL('/api/settings/fingerprint-status', window.location.origin);
+                            const response = await fetch(url.toString());
+                            const data = await response.json();
+                            this.fingerprintEnabled = data.enabled;
+                        } catch (error) {
+                            // Default to true if error
+                            this.fingerprintEnabled = true;
+                        }
                     },
 
                     async loadFingerprintTemplates() {

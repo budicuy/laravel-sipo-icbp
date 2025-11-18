@@ -55,7 +55,12 @@ class AIChatHistoryController extends Controller
                 return [
                     'nik' => $user->nik,
                     'nama_karyawan' => $user->nama_karyawan,
+                    'display_name' => $user->display_name,
                     'departemen' => $user->departemen,
+                    'tipe_pengguna' => $user->tipe_pengguna,
+                    'tipe_pengguna_label' => $user->tipe_pengguna_label,
+                    'kode_hubungan' => $user->kode_hubungan,
+                    'hubungan_label' => $user->hubungan_label,
                     'login_count' => $user->login_count,
                     'ai_chat_access_count' => $user->ai_chat_access_count,
                     'last_login_at' => $user->last_login_at ? $user->last_login_at->format('d/m/Y H:i') : '-',
@@ -86,12 +91,14 @@ class AIChatHistoryController extends Controller
         $userHistories = AIChatHistory::orderBy('last_ai_chat_access_at', 'desc')->get();
 
         $csvData = [];
-        $csvData[] = ['NIK', 'Nama Karyawan', 'Departemen', 'Jumlah Login', 'Terakhir Login', 'Jumlah Akses AI Chat', 'Terakhir Akses AI Chat'];
+        $csvData[] = ['NIK', 'Nama', 'Tipe', 'Hubungan', 'Departemen', 'Jumlah Login', 'Terakhir Login', 'Jumlah Akses AI Chat', 'Terakhir Akses AI Chat'];
 
         foreach ($userHistories as $history) {
             $csvData[] = [
                 $history->nik,
                 $history->nama_karyawan,
+                $history->tipe_pengguna_label,
+                $history->hubungan_label,
                 $history->departemen ?? '-',
                 $history->login_count,
                 $history->last_login_at ? $history->last_login_at->format('d/m/Y H:i') : '-',
