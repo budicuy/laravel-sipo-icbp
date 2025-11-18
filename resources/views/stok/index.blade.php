@@ -167,6 +167,7 @@
                             0)</option>
                         <option value="rendah" {{ request('stok_status')=='rendah' ? 'selected' : '' }}>Stok Rendah
                             (1-10)</option>
+                        <option value="warning" {{ request('stok_status')=='warning' ? 'selected' : '' }}>Warning Stok (≤ 10)</option>
                         <option value="tersedia" {{ request('stok_status')=='tersedia' ? 'selected' : '' }}>Stok
                             Tersedia (> 10)</option>
                     </select>

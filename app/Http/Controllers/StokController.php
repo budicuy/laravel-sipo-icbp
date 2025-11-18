@@ -59,6 +59,12 @@ class StokController extends Controller
                         return $obat->sisa_stok > 0 && $obat->sisa_stok <= 10;
                     });
                     break;
+                case 'warning':
+                    // Filter untuk stok warning (≤ 10 termasuk stok habis ≤ 0)
+                    $obatsWithStok = $obatsWithStok->filter(function ($obat) {
+                        return $obat->sisa_stok <= 10;
+                    });
+                    break;
                 case 'tersedia':
                     $obatsWithStok = $obatsWithStok->filter(function ($obat) {
                         return $obat->sisa_stok > 10;
