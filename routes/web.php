@@ -284,6 +284,11 @@ Route::middleware('auth')->group(function () {
 
     // Medical Archive Routes
     Route::get('/medical-archives/{id_karyawan}/surat-rekomendasi-medis', [MedicalArchivesController::class, 'suratRekomendasiMedis'])->name('medical-archives.surat-rekomendasi-medis');
+    Route::post('/medical-archives/{id_karyawan}/surat-rekomendasi-medis/upload', [MedicalArchivesController::class, 'uploadSuratRekomendasi'])->name('medical-archives.surat-rekomendasi-medis.upload');
+    Route::get('/medical-archives/{id_karyawan}/surat-rekomendasi-medis/{id}/edit', [MedicalArchivesController::class, 'editSuratRekomendasi'])->name('medical-archives.surat-rekomendasi-medis.edit');
+    Route::put('/medical-archives/{id_karyawan}/surat-rekomendasi-medis/{id}', [MedicalArchivesController::class, 'updateSuratRekomendasi'])->name('medical-archives.surat-rekomendasi-medis.update');
+    Route::get('/medical-archives/{id_karyawan}/surat-rekomendasi-medis/{id}/download', [MedicalArchivesController::class, 'downloadSuratRekomendasi'])->name('medical-archives.surat-rekomendasi-medis.download');
+    Route::delete('/medical-archives/{id_karyawan}/surat-rekomendasi-medis/{id}', [MedicalArchivesController::class, 'deleteSuratRekomendasi'])->name('medical-archives.surat-rekomendasi-medis.delete');
     Route::get('/medical-archives/{id_karyawan}/medical-check-up', [MedicalArchivesController::class, 'medicalCheckUp'])->name('medical-archives.medical-check-up');
 
     // Monitoring Harga Routes
