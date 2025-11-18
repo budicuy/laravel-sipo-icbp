@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             HargaObatSeeder::class,
             VendorSeeder::class,
             KategoriSeeder::class,
+            PostSeeder::class,
             ExternalEmployeeSeeder::class,
             TokenEmergencySeeder::class, // Seeder untuk token emergency
             RekamMedisEmergencyFromCSVSeeder::class, // Seeder untuk data emergency dari CSV

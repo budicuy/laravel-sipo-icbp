@@ -349,7 +349,7 @@
                             <div class="space-y-3">
                                 <!-- Upload Area -->
                                 <div class="relative w-full max-w-xs mx-auto">
-                                    <div class="aspect-[3/4] w-full">
+                                    <div class="aspect-3/4 w-full">
                                         <input type="file" id="foto" name="foto" accept="image/*" class="hidden"
                                             onchange="previewImage(event)">
                                         <label for="foto"
@@ -365,7 +365,7 @@
                                                 <p class="mb-1 text-xs text-gray-500 font-semibold">Klik untuk upload
                                                 </p>
                                                 <p class="text-xs text-gray-500">PNG, JPG, JPEG</p>
-                                                <p class="text-xs text-gray-400">(MAX. 2MB)</p>
+                                                <p class="text-xs text-gray-400">(MAX. 500 Kb)</p>
                                             </div>
                                         </label>
                                     </div>
@@ -377,7 +377,7 @@
                                 <!-- Info -->
                                 <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
                                     <p class="text-xs text-blue-800">
-                                        <span class="font-semibold">Tips:</span> Maksimal ukuran foto 2MB
+                                        <span class="font-semibold">Tips:</span> Maksimal ukuran foto 300 KB.
                                     </p>
                                 </div>
                             </div>
@@ -464,7 +464,7 @@ function clearImage() {
         </svg>
         <p class="mb-1 text-xs text-gray-500 font-semibold">Klik untuk upload</p>
         <p class="text-xs text-gray-500">PNG, JPG, JPEG</p>
-        <p class="text-xs text-gray-400">(MAX. 2MB)</p>
+        <p class="text-xs text-gray-400">(MAX. 500 Kb)</p>
     `;
 }
 </script>

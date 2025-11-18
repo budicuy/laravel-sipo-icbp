@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Karyawan;
 use App\Models\Keluarga;
+use App\Models\Post;
 use App\Models\RekamMedis;
 use Gemini\Data\Content;
 use Gemini\Enums\Role;
@@ -31,6 +32,28 @@ class LandingPageController extends Controller
     public function aiChat()
     {
         return view('landing.ai-chat');
+    }
+
+    /**
+     * Display a specific post detail for public access.
+     *
+     * @param  \App\Models\Post  $post
+     * @return \Illuminate\View\View
+     */
+    public function showPost(Post $post)
+    {
+        return view('landing.post-detail', compact('post'));
+    }
+
+    /**
+     * Display all posts for public access.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function indexPosts()
+    {
+        $posts = Post::latest()->paginate(12);
+        return view('landing.posts', compact('posts'));
     }
 
     /**
@@ -368,7 +391,7 @@ class LandingPageController extends Controller
 
         try {
             // Initialize Gemini chat with enhanced memory configuration
-            $chat = Gemini::chat(model: config('gemini.model', 'gemini-2.5-flash-lite'));
+            $chat = Gemini::chat(model: config('gemini.model', 'models/gemini-2.0-flash-exp'));
 
             // Build user context
             $userContext = '';
@@ -586,41 +609,45 @@ SELALU GUNAKAN MEDICAL DISCLAIMER:
 
 Jawab pertanyaan dengan akurat, empati, dan bertanggung jawab berdasarkan panduan di atas.';
 
-            // Get chat history from request
-            $history = $request->input('history', []);
+            // Prepare history for Gemini API
+            $historyContent = [];
+            $userHistory = $request->input('history', []);
 
-            // Convert history to Gemini format using Content objects
-            $chatHistory = [];
-            if (! empty($history)) {
-                foreach ($history as $message) {
-                    $role = $message['role'] === 'user' ? Role::USER : Role::MODEL;
-                    $chatHistory[] = Content::parse(
-                        part: $message['text'],
-                        role: $role
-                    );
-                }
+            // Add history to context (convert format)
+            foreach ($userHistory as $item) {
+                $role = $item['role'] === 'user' ? Role::USER : Role::MODEL;
+                $historyContent[] = Content::parse(part: $item['text'], role: $role);
             }
 
-            // Start chat with history
-            $chatSession = $chat->startChat(history: $chatHistory);
+            // Add system prompt as first message
+            array_unshift($historyContent, Content::parse(part: $systemPrompt, role: Role::USER));
 
-            // Send message with system prompt
-            $result = $chatSession->sendMessage($systemPrompt."\n\nPertanyaan: ".$request->message);
+            // Send message to Gemini
+            $response = $chat->startChat(history: $historyContent)->sendMessage($request->message);
 
-            // Extract AI reply from response
-            $aiReply = $result->text() ?? 'Maaf, saya tidak dapat memproses permintaan Anda saat ini.';
+            // Get response text
+            $reply = $response->text();
+
+            // Log successful response
+            Log::info('Chat response generated successfully', [
+                'user_nik' => $userNik,
+                'response_length' => strlen($reply),
+            ]);
 
             return response()->json([
                 'success' => true,
-                'reply' => $aiReply,
+                'reply' => $reply,
             ]);
-
         } catch (\Exception $e) {
-            Log::error('Gemini API Exception: '.$e->getMessage());
+            Log::error('Gemini API Exception', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_nik' => $userNik ?? null,
+            ]);
 
             return response()->json([
                 'success' => false,
-                'reply' => 'Maaf, AI Assistant sedang tidak tersedia. Silakan coba lagi nanti atau hubungi administrator.',
+                'reply' => '⚠️ Maaf, terjadi kesalahan saat memproses permintaan Anda. Silakan coba lagi dalam beberapa saat. Jika masalah berlanjut, hubungi administrator.',
             ], 500);
         }
     }

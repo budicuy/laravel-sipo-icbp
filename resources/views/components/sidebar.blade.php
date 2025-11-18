@@ -296,7 +296,26 @@
                     </ul>
                 </li>
 
-
+                <!-- Posts Management -->
+                @if (auth()->user()->role === 'Admin' || auth()->user()->role === 'Super Admin')
+                <li>
+                    <a href="{{ route('posts.index') }}"
+                        class="group flex items-center px-4 py-3 rounded-xl transition-all duration-200 {{ request()->is('posts*') ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        :title="!sidebarOpen ? 'Kelola Postingan' : ''" @click="activeMenu = 'posts'">
+                        <div class="relative">
+                            <svg class="w-6 h-6 flex-shrink-0 transition-transform group-hover:scale-110"
+                                :class="sidebarOpen ? 'mr-3' : ''" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            @if (request()->is('posts*'))
+                            @endif
+                        </div>
+                        <span x-show="sidebarOpen" class="font-medium whitespace-nowrap">Kelola Postingan</span>
+                    </a>
+                </li>
+                @endif
 
                 <!-- Monitoring Token Emergency (Menu Utama) -->
                 @if (auth()->user()->role === 'Super Admin' || auth()->user()->role === 'Admin')

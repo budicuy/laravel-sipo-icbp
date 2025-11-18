@@ -13,6 +13,7 @@ use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MonitoringHargaController;
 use App\Http\Controllers\ObatController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\RekamMedisEmergencyController;
 use App\Http\Controllers\StokController;
@@ -27,14 +28,20 @@ use App\Models\Obat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Public Posts Index Route
+Route::get('/blog', [LandingPageController::class, 'indexPosts'])->name('landing.posts.index');
+
+// Public Post Detail Route
+Route::get('/blog/{post}', [LandingPageController::class, 'showPost'])->name('landing.posts.show');
+
 // Landing Page Route
 Route::get('/', [LandingPageController::class, 'index'])->name('landing');
 
-// Public Surat Pengantar Verification Route
-Route::get('/verify/{token}', [SuratPengantarController::class, 'verifyPublic'])->name('surat-pengantar.verify');
-
 // AI Chat Page Route
 Route::get('/ai-chat', [LandingPageController::class, 'aiChat'])->name('ai-chat');
+
+// Public Surat Pengantar Verification Route
+Route::get('/verify/{token}', [SuratPengantarController::class, 'verifyPublic'])->name('surat-pengantar.verify');
 
 // AI Chat API Route (for landing page)
 Route::post('/api/chat', [LandingPageController::class, 'chat'])->name('api.chat');
@@ -274,7 +281,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/medical-archives/{id_karyawan}', [MedicalArchivesController::class, 'update'])->name('medical-archives.update');
     Route::delete('/medical-archives/{id_karyawan}', [MedicalArchivesController::class, 'destroy'])->name('medical-archives.destroy');
     Route::get('/api/medical-archives/search-employees', [MedicalArchivesController::class, 'searchEmployees'])->name('medical-archives.search-employees');
-    
+
     // Medical Archive Routes
     Route::get('/medical-archives/{id_karyawan}/surat-rekomendasi-medis', [MedicalArchivesController::class, 'suratRekomendasiMedis'])->name('medical-archives.surat-rekomendasi-medis');
     Route::get('/medical-archives/{id_karyawan}/medical-check-up', [MedicalArchivesController::class, 'medicalCheckUp'])->name('medical-archives.medical-check-up');
@@ -287,6 +294,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/monitoring/harga/bulk-create', [MonitoringHargaController::class, 'bulkCreateHarga'])->name('monitoring.harga.bulk-create')->middleware('role:Admin,Super Admin');
     Route::get('/monitoring/harga/history/{idObat}', [MonitoringHargaController::class, 'getHargaHistory'])->name('monitoring.harga.history')->middleware('role:Admin,Super Admin');
 
+
+    // Posts Routes
+    Route::resource('posts', PostController::class)->middleware('role:Admin,Super Admin');
 
     // Fingerprint Routes
     Route::get('/fingerprint', [FingerprintController::class, 'index'])->name('fingerprint.index');

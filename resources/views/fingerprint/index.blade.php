@@ -98,8 +98,8 @@
                                             </div>
                                             <div class="text-sm text-gray-600 mt-1">
                                                 <div class="flex items-center gap-4 mt-1 text-xs">
-                                                    <span class="flex items-center gap-1 flex-shrink-0">
-                                                        <svg class="w-3 h-3 text-gray-400 flex-shrink-0" fill="none"
+                                                    <span class="flex items-center gap-1 shrink-0">
+                                                        <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none"
                                                             stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2"
@@ -109,8 +109,8 @@
                                                         <span class="truncate"
                                                             x-text="employee.nik_karyawan || '-'"></span>
                                                     </span>
-                                                    <span class="flex items-center gap-1 flex-shrink-0">
-                                                        <svg class="w-3 h-3 text-gray-400 flex-shrink-0" fill="none"
+                                                    <span class="flex items-center gap-1 shrink-0">
+                                                        <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none"
                                                             stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                 stroke-width="2"
