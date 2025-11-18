@@ -658,8 +658,6 @@
                                 </svg>
                                 <span class="text-sm font-medium">Verifikasi Fingerprint Dinonaktifkan</span>
                             </div>
-                            <p class="text-xs text-blue-600 mt-2">Gunakan verifikasi manual dengan NIK dan Tanggal Lahir
-                            </p>
                         </div>
 
                         <!-- Manual Verification Section -->

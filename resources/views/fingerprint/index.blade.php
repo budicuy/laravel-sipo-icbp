@@ -134,7 +134,27 @@
                             </p>
                         </div>
 
-                        <button @click="enrollFingerprint()" :disabled="!selectedEmployee || isCapturing"
+                        @if(auth()->user()->role === 'User')
+                        <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <div class="flex items-start gap-2">
+                                <svg class="w-5 h-5 text-amber-600 mt-0.5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z">
+                                    </path>
+                                </svg>
+                                <div class="text-sm text-amber-800">
+                                    <p class="font-semibold mb-1">Perhatian:</p>
+                                    <p class="text-xs">Sebagai User, Anda hanya dapat mendaftarkan fingerprint untuk
+                                        karyawan yang belum memiliki fingerprint. Jika fingerprint sudah terdaftar, Anda
+                                        tidak dapat mengubahnya.</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        <button @click="enrollFingerprint()"
+                            :disabled="!selectedEmployee || isCapturing || (currentUserRole === 'User' && selectedEmployeeData && selectedEmployeeData.fingerprint_template)"
                             class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
                             <svg x-show="!isCapturing" class="w-5 h-5" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -257,7 +277,7 @@
 
                                 <div class="flex flex-col gap-2">
                                     <button @click="saveEnrolledFingerprint()"
-                                        :disabled="isCapturing || !lastCaptured || lastCaptured.quality < 70"
+                                        :disabled="isCapturing || !lastCaptured || lastCaptured.quality < 70 || (currentUserRole === 'User' && selectedEmployeeData && selectedEmployeeData.fingerprint_template)"
                                         class="w-full bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-semibold transition-colors duration-200 flex items-center justify-center gap-2">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -557,6 +577,24 @@
                     Total: <span class="font-semibold text-gray-900">{{ count($karyawans) }}</span> data fingerprint
                     terdaftar
                 </div>
+                @if(auth()->user()->role === 'User')
+                <div class="text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z">
+                            </path>
+                        </svg>
+                        <div>
+                            <p class="font-semibold">Batasan Akses User:</p>
+                            <p>• Hanya dapat mendaftarkan fingerprint baru</p>
+                            <p>• Tidak dapat mengubah fingerprint yang sudah terdaftar</p>
+                            <p>• Tidak dapat menghapus fingerprint</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
 
             <div class="overflow-x-auto">
@@ -675,8 +713,13 @@
                                         class="w-8 h-8 bg-linear-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
                                         {{ strtoupper(substr($karyawan->nama_karyawan, 0, 2)) }}
                                     </div>
-                                    <span class="text-sm font-medium text-gray-900">{{ $karyawan->nama_karyawan
-                                        }}</span>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-gray-900">{{ $karyawan->nama_karyawan
+                                            }}</span>
+                                        @if(auth()->user()->role === 'User' && $karyawan->fingerprint_template)
+                                        <span class="text-xs text-amber-600 font-medium">✓ Sudah terdaftar</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </td>
                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -754,6 +797,7 @@
                     lastCaptured: null,
                     verifyResult: null,
                     karyawans: @json($karyawans),
+                    currentUserRole: '{{ auth()->user()->role }}',
                     searchQuery: '',
                     searchResults: [],
                     showSearchResults: false,
@@ -811,6 +855,11 @@
                         this.searchQuery = employee.nama_karyawan;
                         this.showSearchResults = false;
                         this.onEmployeeChange();
+
+                        // Check if user role is 'User' and employee already has fingerprint
+                        if (this.currentUserRole === 'User' && employee.fingerprint_template) {
+                            this.showMessage('Perhatian: Karyawan ini sudah memiliki fingerprint. Anda tidak dapat mengubahnya.', 'warning');
+                        }
                     },
 
                     getSelectedEmployeeName() {
@@ -842,6 +891,12 @@
                     async enrollFingerprint() {
                         if (!this.selectedEmployee) {
                             this.showMessage('Pilih karyawan terlebih dahulu!', 'error');
+                            return;
+                        }
+
+                        // Check if user role is 'User' and employee already has fingerprint
+                        if (this.currentUserRole === 'User' && this.selectedEmployeeData && this.selectedEmployeeData.fingerprint_template) {
+                            this.showMessage('Anda tidak dapat mengubah fingerprint yang sudah terdaftar. Hubungi Admin untuk perubahan.', 'error');
                             return;
                         }
 
@@ -908,6 +963,12 @@
                             this.showMessage(
                                 'Kualitas sidik jari terlalu rendah! Silakan tangkap ulang dengan kualitas minimal 70.',
                                 'error');
+                            return;
+                        }
+
+                        // Check if user role is 'User' and employee already has fingerprint
+                        if (this.currentUserRole === 'User' && this.selectedEmployeeData && this.selectedEmployeeData.fingerprint_template) {
+                            this.showMessage('Anda tidak dapat mengubah fingerprint yang sudah terdaftar. Hubungi Admin untuk perubahan.', 'error');
                             return;
                         }
 
