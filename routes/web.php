@@ -25,6 +25,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\FingerprintController;
 use App\Http\Controllers\SuratPengantarController;
 use App\Http\Controllers\MedicalArchivesController;
+use App\Http\Controllers\SettingController;
 use App\Models\Obat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -65,6 +66,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Protected Routes (Requires Authentication)
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+
+    // Settings Routes
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index')->middleware('role:Super Admin');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update')->middleware('role:Super Admin');
+    Route::get('/api/settings/fingerprint-status', [SettingController::class, 'getFingerprintStatus'])->name('api.settings.fingerprint-status');
 
     // Dashboard API Routes
     Route::get('/api/dashboard/statistics', [DashboardController::class, 'getStatistics'])->name('api.dashboard.statistics');
