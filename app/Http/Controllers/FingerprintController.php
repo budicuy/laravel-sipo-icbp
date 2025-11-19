@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class FingerprintController extends Controller
 {
@@ -85,6 +86,15 @@ class FingerprintController extends Controller
         ]);
 
         $karyawan = Karyawan::find($request->id_karyawan);
+
+        // Check if user role is 'User' and employee already has fingerprint
+        if (Auth::user()->role === 'User' && $karyawan->fingerprint_template) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak dapat mengubah fingerprint yang sudah terdaftar. Hubungi Admin untuk perubahan.'
+            ], 403);
+        }
+
         $karyawan->fingerprint_template = $request->fingerprint_template;
         $karyawan->fingerprint_enrolled_at = now();
         $karyawan->save();
@@ -116,6 +126,14 @@ class FingerprintController extends Controller
         $request->validate([
             'id_karyawan' => 'required|exists:karyawan,id_karyawan'
         ]);
+
+        // Check if user role is 'User' - Users cannot delete fingerprints
+        if (Auth::user()->role === 'User') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki izin untuk menghapus fingerprint. Hubungi Admin untuk perubahan.'
+            ], 403);
+        }
 
         $karyawan = Karyawan::find($request->id_karyawan);
         $karyawan->fingerprint_template = null;
