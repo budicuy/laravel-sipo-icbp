@@ -20,8 +20,8 @@ class MedicalCheckUp extends Model
         'dikeluarkan_oleh',
         'kesimpulan_medis',
         'bmi',
-        'imt',
-        'rekomendasi',
+        'keterangan_bmi',
+        'catatan',
         'file_path',
         'file_name',
         'file_size',
@@ -69,7 +69,18 @@ class MedicalCheckUp extends Model
      */
     public function getBmiWithClassAttribute()
     {
-        $bmiClasses = [
+        return [
+            'value' => $this->bmi,
+            'class' => 'bg-gray-100 text-gray-800'
+        ];
+    }
+
+    /**
+     * Get Keterangan BMI with color class
+     */
+    public function getKeteranganBmiWithClassAttribute()
+    {
+        $keteranganBmiClasses = [
             'Underweight' => 'bg-blue-100 text-blue-800',
             'Normal' => 'bg-green-100 text-green-800',
             'Overweight' => 'bg-yellow-100 text-yellow-800',
@@ -79,26 +90,8 @@ class MedicalCheckUp extends Model
         ];
 
         return [
-            'value' => $this->bmi,
-            'class' => $bmiClasses[$this->bmi] ?? 'bg-gray-100 text-gray-800'
-        ];
-    }
-
-    /**
-     * Get IMT with color class
-     */
-    public function getImtWithClassAttribute()
-    {
-        $imtClasses = [
-            'Kurus' => 'bg-blue-100 text-blue-800',
-            'Normal' => 'bg-green-100 text-green-800',
-            'Gemuk' => 'bg-yellow-100 text-yellow-800',
-            'Obesitas' => 'bg-red-100 text-red-800',
-        ];
-
-        return [
-            'value' => $this->imt,
-            'class' => $imtClasses[$this->imt] ?? 'bg-gray-100 text-gray-800'
+            'value' => $this->keterangan_bmi,
+            'class' => $keteranganBmiClasses[$this->keterangan_bmi] ?? 'bg-gray-100 text-gray-800'
         ];
     }
 

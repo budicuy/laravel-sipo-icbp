@@ -502,9 +502,9 @@ class MedicalArchivesController extends Controller
             'tanggal' => 'required|date',
             'dikeluarkan_oleh' => 'required|string|max:255',
             'kesimpulan_medis' => 'nullable|string|max:2000',
-            'bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
-            'imt' => ['nullable', Rule::in(['Kurus', 'Normal', 'Gemuk', 'Obesitas'])],
-            'rekomendasi' => 'nullable|string|max:2000',
+            'bmi' => 'nullable|numeric|min:0|max:999',
+            'keterangan_bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
+            'catatan' => ['nullable', Rule::in(['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'])],
         ]);
         
         if ($validator->fails()) {
@@ -531,8 +531,8 @@ class MedicalArchivesController extends Controller
                 'dikeluarkan_oleh' => $request->dikeluarkan_oleh,
                 'kesimpulan_medis' => $request->kesimpulan_medis,
                 'bmi' => $request->bmi,
-                'imt' => $request->imt,
-                'rekomendasi' => $request->rekomendasi,
+                'keterangan_bmi' => $request->keterangan_bmi,
+                'catatan' => $request->catatan,
             ];
                 
             // Handle file upload if provided
@@ -603,9 +603,9 @@ class MedicalArchivesController extends Controller
             'tanggal' => 'required|date',
             'dikeluarkan_oleh' => 'required|string|max:255',
             'kesimpulan_medis' => 'nullable|string|max:2000',
-            'bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
-            'imt' => ['nullable', Rule::in(['Kurus', 'Normal', 'Gemuk', 'Obesitas'])],
-            'rekomendasi' => 'nullable|string|max:2000',
+            'bmi' => 'nullable|numeric|min:0|max:999',
+            'keterangan_bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
+            'catatan' => ['nullable', Rule::in(['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'])],
         ]);
         
         if ($validator->fails()) {
@@ -627,8 +627,8 @@ class MedicalArchivesController extends Controller
             $medicalCheckUp->dikeluarkan_oleh = $request->dikeluarkan_oleh;
             $medicalCheckUp->kesimpulan_medis = $request->kesimpulan_medis;
             $medicalCheckUp->bmi = $request->bmi;
-            $medicalCheckUp->imt = $request->imt;
-            $medicalCheckUp->rekomendasi = $request->rekomendasi;
+            $medicalCheckUp->keterangan_bmi = $request->keterangan_bmi;
+            $medicalCheckUp->catatan = $request->catatan;
             
             // Handle file upload if new file is provided
             if ($request->hasFile('file')) {

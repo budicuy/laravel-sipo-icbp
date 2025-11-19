@@ -186,7 +186,10 @@
                                         BMI
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
-                                        IMT
+                                        Keterangan
+                                    </th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Catatan
                                     </th>
                                     <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
                                         File
@@ -213,15 +216,7 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                             @if($checkup->bmi)
-                                                <span class="px-2 py-1 text-xs font-medium rounded-full
-                                                    @if($checkup->bmi == 'Underweight') bg-blue-100 text-blue-800
-                                                    @elseif($checkup->bmi == 'Normal') bg-green-100 text-green-800
-                                                    @elseif($checkup->bmi == 'Overweight') bg-yellow-100 text-yellow-800
-                                                    @elseif($checkup->bmi == 'Obesitas Tk 1') bg-orange-100 text-orange-800
-                                                    @elseif($checkup->bmi == 'Obesitas Tk 2') bg-red-100 text-red-800
-                                                    @elseif($checkup->bmi == 'Obesitas Tk 3') bg-red-200 text-red-900
-                                                    @else bg-gray-100 text-gray-800
-                                                    @endif">
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
                                                     {{ $checkup->bmi }}
                                                 </span>
                                             @else
@@ -229,15 +224,31 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                                            @if($checkup->imt)
+                                            @if($checkup->keterangan_bmi)
                                                 <span class="px-2 py-1 text-xs font-medium rounded-full
-                                                    @if($checkup->imt == 'Kurus') bg-blue-100 text-blue-800
-                                                    @elseif($checkup->imt == 'Normal') bg-green-100 text-green-800
-                                                    @elseif($checkup->imt == 'Gemuk') bg-yellow-100 text-yellow-800
-                                                    @elseif($checkup->imt == 'Obesitas') bg-red-100 text-red-800
+                                                    @if($checkup->keterangan_bmi == 'Underweight') bg-blue-100 text-blue-800
+                                                    @elseif($checkup->keterangan_bmi == 'Normal') bg-green-100 text-green-800
+                                                    @elseif($checkup->keterangan_bmi == 'Overweight') bg-yellow-100 text-yellow-800
+                                                    @elseif($checkup->keterangan_bmi == 'Obesitas Tk 1') bg-orange-100 text-orange-800
+                                                    @elseif($checkup->keterangan_bmi == 'Obesitas Tk 2') bg-red-100 text-red-800
+                                                    @elseif($checkup->keterangan_bmi == 'Obesitas Tk 3') bg-red-200 text-red-900
                                                     @else bg-gray-100 text-gray-800
                                                     @endif">
-                                                    {{ $checkup->imt }}
+                                                    {{ $checkup->keterangan_bmi }}
+                                                </span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                            @if($checkup->catatan)
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                                    @if($checkup->catatan == 'Fit') bg-green-100 text-green-800
+                                                    @elseif($checkup->catatan == 'Fit dengan Catatan') bg-yellow-100 text-yellow-800
+                                                    @elseif($checkup->catatan == 'Fit dalam Pengawasan') bg-orange-100 text-orange-800
+                                                    @else bg-gray-100 text-gray-800
+                                                    @endif">
+                                                    {{ $checkup->catatan }}
                                                 </span>
                                             @else
                                                 -
@@ -417,10 +428,18 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">BMI</label>
-                            <select name="bmi" id="swalBmi"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">BMI (Angka)</label>
+                            <input type="number" name="bmi" id="swalBmi" step="0.1" min="0" max="999"
+                                   placeholder="Masukkan angka BMI (contoh: 23.5)"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                            <p class="mt-1 text-sm text-gray-500">Masukkan angka BMI dengan desimal jika diperlukan</p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Keterangan</label>
+                            <select name="keterangan_bmi" id="swalKeteranganBmi"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                <option value="">Pilih BMI</option>
+                                <option value="">Pilih Keterangan</option>
                                 <option value="Underweight">Underweight</option>
                                 <option value="Normal">Normal</option>
                                 <option value="Overweight">Overweight</option>
@@ -431,22 +450,14 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">IMT</label>
-                            <select name="imt" id="swalImt"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
+                            <select name="catatan" id="swalCatatan"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                <option value="">Pilih IMT</option>
-                                <option value="Kurus">Kurus</option>
-                                <option value="Normal">Normal</option>
-                                <option value="Gemuk">Gemuk</option>
-                                <option value="Obesitas">Obesitas</option>
+                                <option value="">Pilih Catatan</option>
+                                <option value="Fit">Fit</option>
+                                <option value="Fit dengan Catatan">Fit dengan Catatan</option>
+                                <option value="Fit dalam Pengawasan">Fit dalam Pengawasan</option>
                             </select>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Rekomendasi</label>
-                            <textarea name="rekomendasi" id="swalRekomendasi" rows="3"
-                                      placeholder="Rekomendasi dari hasil pemeriksaan"
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"></textarea>
                         </div>
                         
                         <div class="mb-4">
@@ -684,36 +695,37 @@
                                     </div>
                                     
                                     <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">BMI</label>
-                                        <select name="bmi" id="swalEditBmi"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">BMI (Angka)</label>
+                                        <input type="number" name="bmi" id="swalEditBmi" step="0.1" min="0" max="999"
+                                               value="${checkup.bmi || ''}"
+                                               placeholder="Masukkan angka BMI (contoh: 23.5)"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                        <p class="mt-1 text-sm text-gray-500">Masukkan angka BMI dengan desimal jika diperlukan</p>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Keterangan</label>
+                                        <select name="keterangan_bmi" id="swalEditKeteranganBmi"
                                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            <option value="">Pilih BMI</option>
-                                            <option value="Underweight" ${checkup.bmi === 'Underweight' ? 'selected' : ''}>Underweight</option>
-                                            <option value="Normal" ${checkup.bmi === 'Normal' ? 'selected' : ''}>Normal</option>
-                                            <option value="Overweight" ${checkup.bmi === 'Overweight' ? 'selected' : ''}>Overweight</option>
-                                            <option value="Obesitas Tk 1" ${checkup.bmi === 'Obesitas Tk 1' ? 'selected' : ''}>Obesitas Tk 1</option>
-                                            <option value="Obesitas Tk 2" ${checkup.bmi === 'Obesitas Tk 2' ? 'selected' : ''}>Obesitas Tk 2</option>
-                                            <option value="Obesitas Tk 3" ${checkup.bmi === 'Obesitas Tk 3' ? 'selected' : ''}>Obesitas Tk 3</option>
+                                            <option value="">Pilih Keterangan</option>
+                                            <option value="Underweight" ${checkup.keterangan_bmi === 'Underweight' ? 'selected' : ''}>Underweight</option>
+                                            <option value="Normal" ${checkup.keterangan_bmi === 'Normal' ? 'selected' : ''}>Normal</option>
+                                            <option value="Overweight" ${checkup.keterangan_bmi === 'Overweight' ? 'selected' : ''}>Overweight</option>
+                                            <option value="Obesitas Tk 1" ${checkup.keterangan_bmi === 'Obesitas Tk 1' ? 'selected' : ''}>Obesitas Tk 1</option>
+                                            <option value="Obesitas Tk 2" ${checkup.keterangan_bmi === 'Obesitas Tk 2' ? 'selected' : ''}>Obesitas Tk 2</option>
+                                            <option value="Obesitas Tk 3" ${checkup.keterangan_bmi === 'Obesitas Tk 3' ? 'selected' : ''}>Obesitas Tk 3</option>
                                         </select>
                                     </div>
                                     
                                     <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">IMT</label>
-                                        <select name="imt" id="swalEditImt"
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
+                                        <select name="catatan" id="swalEditCatatan"
                                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            <option value="">Pilih IMT</option>
-                                            <option value="Kurus" ${checkup.imt === 'Kurus' ? 'selected' : ''}>Kurus</option>
-                                            <option value="Normal" ${checkup.imt === 'Normal' ? 'selected' : ''}>Normal</option>
-                                            <option value="Gemuk" ${checkup.imt === 'Gemuk' ? 'selected' : ''}>Gemuk</option>
-                                            <option value="Obesitas" ${checkup.imt === 'Obesitas' ? 'selected' : ''}>Obesitas</option>
+                                            <option value="">Pilih Catatan</option>
+                                            <option value="Fit" ${checkup.catatan === 'Fit' ? 'selected' : ''}>Fit</option>
+                                            <option value="Fit dengan Catatan" ${checkup.catatan === 'Fit dengan Catatan' ? 'selected' : ''}>Fit dengan Catatan</option>
+                                            <option value="Fit dalam Pengawasan" ${checkup.catatan === 'Fit dalam Pengawasan' ? 'selected' : ''}>Fit dalam Pengawasan</option>
                                         </select>
-                                    </div>
-                                    
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Rekomendasi</label>
-                                        <textarea name="rekomendasi" id="swalEditRekomendasi" rows="3"
-                                                  placeholder="Rekomendasi dari hasil pemeriksaan"
-                                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">${checkup.rekomendasi || ''}</textarea>
                                     </div>
                                     
                                     <div class="mb-4">
