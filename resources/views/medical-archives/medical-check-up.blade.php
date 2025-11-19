@@ -565,10 +565,16 @@
                             if (xhr.status === 200) {
                                 const response = JSON.parse(xhr.responseText);
                                 if (response.success) {
-                                    showSuccess(response.message);
-                                    setTimeout(() => {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Berhasil!',
+                                        text: response.message,
+                                        confirmButtonColor: '#10b981',
+                                        timer: 1500,
+                                        timerProgressBar: true
+                                    }).then(() => {
                                         window.location.reload();
-                                    }, 1500);
+                                    });
                                 } else {
                                     Swal.showValidationMessage(response.message);
                                 }
@@ -638,30 +644,50 @@
                 showLoaderOnConfirm: true,
                 preConfirm: function() {
                     return new Promise(function(resolve) {
-                        // Create form element
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = `{{ route('medical-archives.medical-check-up.delete', ['id_karyawan' => $id_karyawan, 'id' => ':id']) }}`.replace(':id', checkupId);
-                        
-                        // Add CSRF token
-                        const csrfToken = document.createElement('input');
-                        csrfToken.type = 'hidden';
-                        csrfToken.name = '_token';
-                        csrfToken.value = '{{ csrf_token() }}';
-                        form.appendChild(csrfToken);
-                        
-                        // Add DELETE method
-                        const methodInput = document.createElement('input');
-                        methodInput.type = 'hidden';
-                        methodInput.name = '_method';
-                        methodInput.value = 'DELETE';
-                        form.appendChild(methodInput);
-                        
-                        // Submit form
-                        document.body.appendChild(form);
-                        form.submit();
-                        
-                        resolve();
+                        // Use fetch API instead of form submission
+                        fetch(`{{ route('medical-archives.medical-check-up.delete', ['id_karyawan' => $id_karyawan, 'id' => ':id']) }}`.replace(':id', checkupId), {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                '_method': 'DELETE'
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    confirmButtonColor: '#10b981',
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: data.message || 'Terjadi kesalahan saat menghapus data',
+                                    confirmButtonColor: '#ef4444'
+                                });
+                            }
+                            resolve();
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Terjadi kesalahan jaringan',
+                                confirmButtonColor: '#ef4444'
+                            });
+                            resolve();
+                        });
                     });
                 }
             });
@@ -675,6 +701,16 @@
                 .then(data => {
                     if (data.success) {
                         const checkup = data.data;
+                        
+                        // Get kondisi kesehatan list from server
+                        const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+                        
+                        // Build kondisi kesehatan options
+                        let kondisiKesehatanOptions = '<option value="">Pilih Kondisi Kesehatan</option>';
+                        kondisiKesehatanList.forEach(kondisi => {
+                            const selected = checkup.id_kondisi_kesehatan == kondisi.id ? 'selected' : '';
+                            kondisiKesehatanOptions += `<option value="${kondisi.id}" ${selected}>${kondisi.nama_kondisi}</option>`;
+                        });
                         
                         // Show SweetAlert modal for editing
                         Swal.fire({
@@ -730,12 +766,7 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Kondisi Kesehatan</label>
                                         <select name="id_kondisi_kesehatan" id="swalEditKondisiKesehatan"
                                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            <option value="">Pilih Kondisi Kesehatan</option>
-                                            @foreach($kondisiKesehatanList ?? [] as $kondisi)
-                                                <option value="{{ $kondisi->id }}" {{ $checkup->id_kondisi_kesehatan == $kondisi->id ? 'selected' : '' }}>
-                                                    {{ $kondisi->nama_kondisi }}
-                                                </option>
-                                            @endforeach
+                                            ${kondisiKesehatanOptions}
                                         </select>
                                     </div>
                                     
@@ -827,7 +858,7 @@
                                     // Show progress
                                     document.getElementById('swalEditProgressContainer').classList.remove('hidden');
                                     
-                                    // Create XMLHttpRequest for progress tracking
+                                    // Use fetch API with progress tracking
                                     const xhr = new XMLHttpRequest();
                                     
                                     // Track upload progress
@@ -844,10 +875,16 @@
                                         if (xhr.status === 200) {
                                             const response = JSON.parse(xhr.responseText);
                                             if (response.success) {
-                                                showSuccess(response.message);
-                                                setTimeout(() => {
+                                                Swal.fire({
+                                                    icon: 'success',
+                                                    title: 'Berhasil!',
+                                                    text: response.message,
+                                                    confirmButtonColor: '#10b981',
+                                                    timer: 1500,
+                                                    timerProgressBar: true
+                                                }).then(() => {
                                                     window.location.reload();
-                                                }, 1500);
+                                                });
                                             } else {
                                                 Swal.showValidationMessage(response.message);
                                             }
