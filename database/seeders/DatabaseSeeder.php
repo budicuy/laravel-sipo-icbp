@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         // Seeder untuk master data
         $this->call([
+            KondisiKesehatanSeeder::class, // Seeder untuk kondisi kesehatan
             DiagnosaEmergencyObatSeeder::class, // Tambahkan seeder untuk pivot table
             DepartemenSeeder::class,
             SatuanObatSeeder::class,

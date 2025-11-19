@@ -189,6 +189,9 @@
                                         Keterangan
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                                        Kondisi Kesehatan
+                                    </th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
                                         Catatan
                                     </th>
                                     <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
@@ -235,6 +238,15 @@
                                                     @else bg-gray-100 text-gray-800
                                                     @endif">
                                                     {{ $checkup->keterangan_bmi }}
+                                                </span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                            @if($checkup->kondisi_kesehatan)
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                                    {{ $checkup->kondisi_kesehatan }}
                                                 </span>
                                             @else
                                                 -
@@ -421,13 +433,6 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Kesimpulan Medis</label>
-                            <textarea name="kesimpulan_medis" id="swalKesimpulan" rows="3"
-                                      placeholder="Hasil kesimpulan pemeriksaan medis"
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500"></textarea>
-                        </div>
-                        
-                        <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">BMI (Angka)</label>
                             <input type="number" name="bmi" id="swalBmi" step="0.1" min="0" max="999"
                                    placeholder="Masukkan angka BMI (contoh: 23.5)"
@@ -446,6 +451,17 @@
                                 <option value="Obesitas Tk 1">Obesitas Tk 1</option>
                                 <option value="Obesitas Tk 2">Obesitas Tk 2</option>
                                 <option value="Obesitas Tk 3">Obesitas Tk 3</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kondisi Kesehatan</label>
+                            <select name="id_kondisi_kesehatan" id="swalKondisiKesehatan"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                <option value="">Pilih Kondisi Kesehatan</option>
+                                @foreach($kondisiKesehatanList ?? [] as $kondisi)
+                                    <option value="{{ $kondisi->id }}">{{ $kondisi->nama_kondisi }}</option>
+                                @endforeach
                             </select>
                         </div>
                         
@@ -688,13 +704,6 @@
                                     </div>
                                     
                                     <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Kesimpulan Medis</label>
-                                        <textarea name="kesimpulan_medis" id="swalEditKesimpulan" rows="3"
-                                                  placeholder="Hasil kesimpulan pemeriksaan medis"
-                                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">${checkup.kesimpulan_medis || ''}</textarea>
-                                    </div>
-                                    
-                                    <div class="mb-4">
                                         <label class="block text-sm font-medium text-gray-700 mb-2">BMI (Angka)</label>
                                         <input type="number" name="bmi" id="swalEditBmi" step="0.1" min="0" max="999"
                                                value="${checkup.bmi || ''}"
@@ -714,6 +723,19 @@
                                             <option value="Obesitas Tk 1" ${checkup.keterangan_bmi === 'Obesitas Tk 1' ? 'selected' : ''}>Obesitas Tk 1</option>
                                             <option value="Obesitas Tk 2" ${checkup.keterangan_bmi === 'Obesitas Tk 2' ? 'selected' : ''}>Obesitas Tk 2</option>
                                             <option value="Obesitas Tk 3" ${checkup.keterangan_bmi === 'Obesitas Tk 3' ? 'selected' : ''}>Obesitas Tk 3</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Kondisi Kesehatan</label>
+                                        <select name="id_kondisi_kesehatan" id="swalEditKondisiKesehatan"
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            <option value="">Pilih Kondisi Kesehatan</option>
+                                            @foreach($kondisiKesehatanList ?? [] as $kondisi)
+                                                <option value="{{ $kondisi->id }}" {{ $checkup->id_kondisi_kesehatan == $kondisi->id ? 'selected' : '' }}>
+                                                    {{ $kondisi->nama_kondisi }}
+                                                </option>
+                                            @endforeach
                                         </select>
                                     </div>
                                     

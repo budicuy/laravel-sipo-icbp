@@ -12,6 +12,7 @@ use App\Models\Hubungan;
 use App\Models\User;
 use App\Models\SuratRekomendasiMedis;
 use App\Models\MedicalCheckUp;
+use App\Models\KondisiKesehatan;
 use App\Services\MedicalArchivesQueryOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -477,15 +478,20 @@ class MedicalArchivesController extends Controller
             ->where('kl.id_karyawan', $id_karyawan)
             ->first();
             
-        // Get medical check up data
-        $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
+        // Get medical check up data with kondisi kesehatan relationship
+        $medicalCheckUp = MedicalCheckUp::with('kondisiKesehatanRelation')
+            ->where('id_karyawan', $id_karyawan)
             ->orderBy('tanggal', 'desc')
             ->get();
+            
+        // Get kondisi kesehatan list for dropdown
+        $kondisiKesehatanList = KondisiKesehatan::orderBy('nama_kondisi')->get();
         
         return view('medical-archives.medical-check-up', compact(
             'employeeInfo',
             'familyMember',
             'medicalCheckUp',
+            'kondisiKesehatanList',
             'id_karyawan'
         ));
     }
@@ -501,9 +507,9 @@ class MedicalArchivesController extends Controller
             'periode' => 'required|integer|min:2000|max:2100',
             'tanggal' => 'required|date',
             'dikeluarkan_oleh' => 'required|string|max:255',
-            'kesimpulan_medis' => 'nullable|string|max:2000',
             'bmi' => 'nullable|numeric|min:0|max:999',
             'keterangan_bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
+            'id_kondisi_kesehatan' => 'nullable|integer|exists:kondisi_kesehatan,id',
             'catatan' => ['nullable', Rule::in(['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'])],
         ]);
         
@@ -529,9 +535,9 @@ class MedicalArchivesController extends Controller
                 'periode' => $request->periode,
                 'tanggal' => $request->tanggal,
                 'dikeluarkan_oleh' => $request->dikeluarkan_oleh,
-                'kesimpulan_medis' => $request->kesimpulan_medis,
                 'bmi' => $request->bmi,
                 'keterangan_bmi' => $request->keterangan_bmi,
+                'id_kondisi_kesehatan' => $request->id_kondisi_kesehatan,
                 'catatan' => $request->catatan,
             ];
                 
@@ -602,9 +608,9 @@ class MedicalArchivesController extends Controller
             'periode' => 'required|integer|min:2000|max:2100',
             'tanggal' => 'required|date',
             'dikeluarkan_oleh' => 'required|string|max:255',
-            'kesimpulan_medis' => 'nullable|string|max:2000',
             'bmi' => 'nullable|numeric|min:0|max:999',
             'keterangan_bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
+            'id_kondisi_kesehatan' => 'nullable|integer|exists:kondisi_kesehatan,id',
             'catatan' => ['nullable', Rule::in(['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'])],
         ]);
         
@@ -625,9 +631,9 @@ class MedicalArchivesController extends Controller
             $medicalCheckUp->periode = $request->periode;
             $medicalCheckUp->tanggal = $request->tanggal;
             $medicalCheckUp->dikeluarkan_oleh = $request->dikeluarkan_oleh;
-            $medicalCheckUp->kesimpulan_medis = $request->kesimpulan_medis;
             $medicalCheckUp->bmi = $request->bmi;
             $medicalCheckUp->keterangan_bmi = $request->keterangan_bmi;
+            $medicalCheckUp->id_kondisi_kesehatan = $request->id_kondisi_kesehatan;
             $medicalCheckUp->catatan = $request->catatan;
             
             // Handle file upload if new file is provided
