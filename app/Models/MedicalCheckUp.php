@@ -11,7 +11,7 @@ class MedicalCheckUp extends Model
 
     protected $table = 'medical_check_up';
     
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'id_medical_check_up';
     
     public $incrementing = true;
     

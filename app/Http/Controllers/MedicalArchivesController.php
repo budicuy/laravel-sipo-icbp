@@ -599,12 +599,12 @@ class MedicalArchivesController extends Controller
     /**
      * Get medical check up data for editing
      */
-    public function editMedicalCheckUp($id_karyawan, $id)
+    public function editMedicalCheckUp($id_karyawan, $id_medical_check_up)
     {
         try {
             $medicalCheckUp = MedicalCheckUp::with('kondisiKesehatan')
                 ->where('id_karyawan', $id_karyawan)
-                ->where('id', $id)
+                ->where('id_medical_check_up', $id_medical_check_up)
                 ->firstOrFail();
                 
             // Add kondisi kesehatan IDs to the response
@@ -654,7 +654,7 @@ class MedicalArchivesController extends Controller
         
         try {
             $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
-                ->where('id', $id)
+                ->where('id_medical_check_up', $id_medical_check_up)
                 ->firstOrFail();
             
             // Update data
@@ -724,10 +724,10 @@ class MedicalArchivesController extends Controller
     /**
      * Download medical check up file
      */
-    public function downloadMedicalCheckUp($id_karyawan, $id)
+    public function downloadMedicalCheckUp($id_karyawan, $id_medical_check_up)
     {
         $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
-            ->where('id', $id)
+            ->where('id_medical_check_up', $id_medical_check_up)
             ->firstOrFail();
             
         $filePath = storage_path('app/public/' . $medicalCheckUp->file_path);
@@ -742,16 +742,16 @@ class MedicalArchivesController extends Controller
     /**
      * Delete medical check up
      */
-    public function deleteMedicalCheckUp($id_karyawan, $id)
+    public function deleteMedicalCheckUp($id_karyawan, $id_medical_check_up)
     {
         try {
             // Debug logging
-            \Log::info('Delete Medical Check Up - ID: ' . $id . ', Karyawan: ' . $id_karyawan);
+            \Log::info('Delete Medical Check Up - ID: ' . $id_medical_check_up . ', Karyawan: ' . $id_karyawan);
             \Log::info('Session ID: ' . session()->getId());
             \Log::info('CSRF Token: ' . csrf_token());
             
             $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
-                ->where('id', $id)
+                ->where('id_medical_check_up', $id_medical_check_up)
                 ->firstOrFail();
                 
             // Delete kondisi kesehatan relationships first

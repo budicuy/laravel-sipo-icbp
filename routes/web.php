@@ -301,7 +301,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/medical-archives/{id_karyawan}/medical-check-up/upload', [MedicalArchivesController::class, 'uploadMedicalCheckUp'])->name('medical-archives.medical-check-up.upload');
     Route::get('/medical-archives/{id_karyawan}/medical-check-up/{id}/edit', [MedicalArchivesController::class, 'editMedicalCheckUp'])->name('medical-archives.medical-check-up.edit');
     Route::put('/medical-archives/{id_karyawan}/medical-check-up/{id}', [MedicalArchivesController::class, 'updateMedicalCheckUp'])->name('medical-archives.medical-check-up.update');
-    Route::get('/medical-archives/{id_karyawan}/medical-check-up/{id}/download', [MedicalArchivesController::class, 'downloadMedicalCheckUp'])->name('medical-archives.medical-check-up.download');
+    Route::get('/medical-archives/{id_karyawan}/medical-check-up/{id_medical_check_up}/download', [MedicalArchivesController::class, 'downloadMedicalCheckUp'])->name('medical-archives.medical-check-up.download');
     Route::delete('/medical-archives/{id_karyawan}/medical-check-up/{id}', [MedicalArchivesController::class, 'deleteMedicalCheckUp'])->name('medical-archives.medical-check-up.delete');
 
     // Monitoring Harga Routes

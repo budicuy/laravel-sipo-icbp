@@ -36,6 +36,6 @@ class KondisiKesehatan extends Model
     // Backward compatibility - single relationship (deprecated)
     public function medicalCheckUpSingle()
     {
-        return $this->hasMany(MedicalCheckUp::class, 'id_kondisi_kesehatan', 'id');
+        return $this->hasMany(MedicalCheckUp::class, 'id_kondisi_kesehatan', 'id_medical_check_up');
     }
 }
