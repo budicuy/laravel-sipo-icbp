@@ -62,7 +62,7 @@ class MedicalCheckUp extends Model
     // Many-to-many relationship dengan kondisi kesehatan
     public function kondisiKesehatan()
     {
-        return $this->belongsToMany(KondisiKesehatan::class, 'medical_check_up_kondisi_kesehatan', 'medical_check_up_id', 'kondisi_kesehatan_id')
+        return $this->belongsToMany(KondisiKesehatan::class, 'medical_check_up_kondisi_kesehatan', 'id_medical_check_up', 'id_kondisi_kesehatan')
                     ->withTimestamps();
     }
 
