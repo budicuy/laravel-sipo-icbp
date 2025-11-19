@@ -210,4 +210,96 @@ class MedicalArchives extends Model
             ->orderBy('nama_departemen')
             ->get();
     }
+    
+    /**
+     * Get medical check up records for a specific employee
+     */
+    public static function getMedicalCheckUp($id_karyawan, $id_keluarga = null)
+    {
+        $query = DB::table('medical_check_up as mc')
+            ->select([
+                'mc.id',
+                'mc.periode',
+                'mc.tanggal',
+                'mc.dikeluarkan_oleh',
+                'mc.kesimpulan_medis',
+                'mc.bmi',
+                'mc.imt',
+                'mc.rekomendasi',
+                'mc.file_name',
+                'mc.file_size',
+                'mc.mime_type',
+                'mc.created_at',
+                'u.nama_lengkap as created_by_name'
+            ])
+            ->leftJoin('user as u', 'mc.id_user', '=', 'u.id_user')
+            ->where('mc.id_karyawan', $id_karyawan);
+            
+        if ($id_keluarga) {
+            $query->where('mc.id_keluarga', $id_keluarga);
+        }
+        
+        return $query->orderBy('mc.tanggal', 'desc')
+                    ->orderBy('mc.created_at', 'desc')
+                    ->get();
+    }
+    
+    /**
+     * Get specific medical check up record by ID
+     */
+    public static function getMedicalCheckUpById($id)
+    {
+        return DB::table('medical_check_up as mc')
+            ->select([
+                'mc.id',
+                'mc.id_karyawan',
+                'mc.id_keluarga',
+                'mc.periode',
+                'mc.tanggal',
+                'mc.dikeluarkan_oleh',
+                'mc.kesimpulan_medis',
+                'mc.bmi',
+                'mc.imt',
+                'mc.rekomendasi',
+                'mc.file_path',
+                'mc.file_name',
+                'mc.file_size',
+                'mc.mime_type',
+                'mc.id_user',
+                'mc.created_at',
+                'mc.updated_at',
+                'u.nama_lengkap as created_by_name'
+            ])
+            ->leftJoin('user as u', 'mc.id_user', '=', 'u.id_user')
+            ->where('mc.id', $id)
+            ->first();
+    }
+    
+    /**
+     * Get available BMI options
+     */
+    public static function getBmiOptions()
+    {
+        return [
+            'Underweight',
+            'Normal',
+            'Overweight',
+            'Obesitas Tk 1',
+            'Obesitas Tk 2',
+            'Obesitas Tk 3'
+        ];
+    }
+    
+    /**
+     * Get available IMT options
+     */
+    public static function getImtOptions()
+    {
+        return [
+            'Kurus',
+            'Normal',
+            'Gemuk',
+            'Obesitas'
+        ];
+    }
 }

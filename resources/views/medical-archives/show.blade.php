@@ -298,7 +298,7 @@
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <p class="text-lg font-medium">Tidak ada riwayat kunjungan</p>
-                        <p class="text-sm mt-1">Belum ada kunjungan medis untuk pasien ini</p>
+                        <p class="text-sm mt-1">Belum ada kunjungan medis untuk karyawan ini</p>
                     </div>
                 @endif
             </div>
@@ -344,7 +344,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                     <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                                        0 dokumen
+                                        {{ $suratRekomendasiCount ?? 0 }} dokumen
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -370,7 +370,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                     <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                        0 dokumen
+                                        {{ $medicalCheckUpCount ?? 0 }} dokumen
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center">

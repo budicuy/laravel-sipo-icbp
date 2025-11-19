@@ -11,6 +11,7 @@ use App\Models\Departemen;
 use App\Models\Hubungan;
 use App\Models\User;
 use App\Models\SuratRekomendasiMedis;
+use App\Models\MedicalCheckUp;
 use App\Services\MedicalArchivesQueryOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -105,10 +106,16 @@ class MedicalArchivesController extends Controller
             ];
         }
         
+        // Get document counts
+        $suratRekomendasiCount = SuratRekomendasiMedis::where('id_karyawan', $id_karyawan)->count();
+        $medicalCheckUpCount = MedicalCheckUp::where('id_karyawan', $id_karyawan)->count();
+        
         return view('medical-archives.show', compact(
             'employee',
             'employeeInfo',
-            'detailedRecords'
+            'detailedRecords',
+            'suratRekomendasiCount',
+            'medicalCheckUpCount'
         ));
     }
 
@@ -233,10 +240,14 @@ class MedicalArchivesController extends Controller
             ->orderBy('tanggal', 'desc')
             ->get();
         
+        // Get document count
+        $suratRekomendasiCount = SuratRekomendasiMedis::where('id_karyawan', $id_karyawan)->count();
+        
         return view('medical-archives.surat-rekomendasi-medis', compact(
             'employeeInfo',
             'familyMember',
             'suratRekomendasi',
+            'suratRekomendasiCount',
             'id_karyawan'
         ));
     }
@@ -248,7 +259,7 @@ class MedicalArchivesController extends Controller
     {
         // Validate the request
         $validator = Validator::make($request->all(), [
-            'file' => 'required|file|mimes:pdf|max:10240', // Max 10MB
+            'file' => 'required|file|mimes:pdf|max:5120', // Max 5MB
             'tanggal' => 'required|date',
             'penerbit_surat' => 'required|string|max:255',
             'catatan_medis' => 'nullable|string|max:1000',
@@ -466,8 +477,10 @@ class MedicalArchivesController extends Controller
             ->where('kl.id_karyawan', $id_karyawan)
             ->first();
             
-        // Get medical check up data (empty for now)
-        $medicalCheckUp = collect([]);
+        // Get medical check up data
+        $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
+            ->orderBy('tanggal', 'desc')
+            ->get();
         
         return view('medical-archives.medical-check-up', compact(
             'employeeInfo',
@@ -475,5 +488,230 @@ class MedicalArchivesController extends Controller
             'medicalCheckUp',
             'id_karyawan'
         ));
+    }
+
+    /**
+     * Upload new medical check up
+     */
+    public function uploadMedicalCheckUp(Request $request, $id_karyawan)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'file' => 'nullable|file|mimes:pdf|max:5120', // Max 5MB, optional
+            'periode' => 'required|integer|min:2000|max:2100',
+            'tanggal' => 'required|date',
+            'dikeluarkan_oleh' => 'required|string|max:255',
+            'kesimpulan_medis' => 'nullable|string|max:2000',
+            'bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
+            'imt' => ['nullable', Rule::in(['Kurus', 'Normal', 'Gemuk', 'Obesitas'])],
+            'rekomendasi' => 'nullable|string|max:2000',
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        try {
+            // Get family member
+            $familyMember = DB::table('keluarga as kl')
+                ->where('kl.id_karyawan', $id_karyawan)
+                ->first();
+                
+            // Prepare data for creation
+            $data = [
+                'id_karyawan' => $id_karyawan,
+                'id_keluarga' => $familyMember ? $familyMember->id_keluarga : null,
+                'id_user' => auth()->id(),
+                'periode' => $request->periode,
+                'tanggal' => $request->tanggal,
+                'dikeluarkan_oleh' => $request->dikeluarkan_oleh,
+                'kesimpulan_medis' => $request->kesimpulan_medis,
+                'bmi' => $request->bmi,
+                'imt' => $request->imt,
+                'rekomendasi' => $request->rekomendasi,
+            ];
+                
+            // Handle file upload if provided
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('medical-check-ups', $fileName, 'public');
+                
+                $data['file_path'] = $filePath;
+                $data['file_name'] = $fileName;
+                $data['file_size'] = $file->getSize();
+                $data['mime_type'] = $file->getMimeType();
+            }
+            
+            // Create medical check up record
+            $medicalCheckUp = MedicalCheckUp::create($data);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Medical check up berhasil diunggah',
+                'data' => $medicalCheckUp
+            ]);
+            
+        } catch (\Exception $e) {
+            // Log error for debugging
+            \Log::error('Medical Check Up Upload Error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengunggah file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get medical check up data for editing
+     */
+    public function editMedicalCheckUp($id_karyawan, $id)
+    {
+        try {
+            $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
+                ->where('id', $id)
+                ->firstOrFail();
+                
+            return response()->json([
+                'success' => true,
+                'data' => $medicalCheckUp
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data medical check up tidak ditemukan'
+            ], 404);
+        }
+    }
+    
+    /**
+     * Update existing medical check up
+     */
+    public function updateMedicalCheckUp(Request $request, $id_karyawan, $id)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'file' => 'nullable|file|mimes:pdf|max:5120', // Max 5MB, optional for edit
+            'periode' => 'required|integer|min:2000|max:2100',
+            'tanggal' => 'required|date',
+            'dikeluarkan_oleh' => 'required|string|max:255',
+            'kesimpulan_medis' => 'nullable|string|max:2000',
+            'bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
+            'imt' => ['nullable', Rule::in(['Kurus', 'Normal', 'Gemuk', 'Obesitas'])],
+            'rekomendasi' => 'nullable|string|max:2000',
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        try {
+            $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
+                ->where('id', $id)
+                ->firstOrFail();
+            
+            // Update data
+            $medicalCheckUp->periode = $request->periode;
+            $medicalCheckUp->tanggal = $request->tanggal;
+            $medicalCheckUp->dikeluarkan_oleh = $request->dikeluarkan_oleh;
+            $medicalCheckUp->kesimpulan_medis = $request->kesimpulan_medis;
+            $medicalCheckUp->bmi = $request->bmi;
+            $medicalCheckUp->imt = $request->imt;
+            $medicalCheckUp->rekomendasi = $request->rekomendasi;
+            
+            // Handle file upload if new file is provided
+            if ($request->hasFile('file')) {
+                // Delete old file
+                if ($medicalCheckUp->file_path) {
+                    Storage::disk('public')->delete($medicalCheckUp->file_path);
+                }
+                
+                // Upload new file
+                $file = $request->file('file');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $filePath = $file->storeAs('medical-check-ups', $fileName, 'public');
+                
+                $medicalCheckUp->file_path = $filePath;
+                $medicalCheckUp->file_name = $fileName;
+                $medicalCheckUp->file_size = $file->getSize();
+                $medicalCheckUp->mime_type = $file->getMimeType();
+            }
+            
+            $medicalCheckUp->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Medical check up berhasil diperbarui',
+                'data' => $medicalCheckUp
+            ]);
+            
+        } catch (\Exception $e) {
+            // Log error for debugging
+            \Log::error('Medical Check Up Update Error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Download medical check up file
+     */
+    public function downloadMedicalCheckUp($id_karyawan, $id)
+    {
+        $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
+            ->where('id', $id)
+            ->firstOrFail();
+            
+        $filePath = storage_path('app/public/' . $medicalCheckUp->file_path);
+        
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File tidak ditemukan');
+        }
+        
+        return response()->download($filePath, $medicalCheckUp->file_name);
+    }
+    
+    /**
+     * Delete medical check up
+     */
+    public function deleteMedicalCheckUp($id_karyawan, $id)
+    {
+        try {
+            $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
+                ->where('id', $id)
+                ->firstOrFail();
+                
+            // Delete file from storage
+            Storage::disk('public')->delete($medicalCheckUp->file_path);
+            
+            // Delete record from database
+            $medicalCheckUp->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Medical check up berhasil dihapus'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

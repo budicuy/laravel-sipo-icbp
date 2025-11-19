@@ -32,7 +32,10 @@ class MedicalArchivesQueryOptimizer
                 'u.nama_lengkap as petugas'
             ])
             ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
-            ->leftJoin('keluarga as kl', 'k.id_karyawan', '=', 'kl.id_karyawan')
+            ->leftJoin('keluarga as kl', function($join) {
+                $join->on('k.id_karyawan', '=', 'kl.id_karyawan')
+                     ->where('kl.kode_hubungan', '=', 'A'); // Filter hanya kode hubungan A
+            })
             ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
             ->leftJoin('rekam_medis as rm', 'kl.id_keluarga', '=', 'rm.id_keluarga')
             ->leftJoin('user as u', 'rm.id_user', '=', 'u.id_user')
@@ -78,8 +81,13 @@ class MedicalArchivesQueryOptimizer
         foreach ($groupedResults as $employeeId => $familyMembers) {
             $employee = $familyMembers->first();
             
-            // Generate RM code (NIK-Kode Hubungan)
-            $rmCode = $employee->nik_karyawan . '-' . $employee->kode_hubungan;
+            // Skip if kode_hubungan is not 'A'
+            if ($employee->kode_hubungan !== 'A') {
+                continue;
+            }
+            
+            // Generate RM code (NIK-A)
+            $rmCode = $employee->nik_karyawan . '-A';
             
             $medicalArchives->push([
                 'id' => $counter++,
@@ -101,15 +109,17 @@ class MedicalArchivesQueryOptimizer
                     ->sortByDesc('tanggal_periksa')
                     ->first()->petugas ?? null,
                 'hubungan' => $employee->hubungan_nama,
-                'family_members' => $familyMembers->map(function($member) {
-                    return [
-                        'id_keluarga' => $member->id_keluarga,
-                        'nama_keluarga' => $member->nama_keluarga,
-                        'no_rm' => $member->no_rm,
-                        'hubungan' => $member->hubungan_nama,
-                        'kode_hubungan' => $member->kode_hubungan
-                    ];
-                })->unique('id_keluarga')->values()
+                'family_members' => $familyMembers
+                    ->where('kode_hubungan', 'A') // Pastikan hanya kode hubungan A
+                    ->map(function($member) {
+                        return [
+                            'id_keluarga' => $member->id_keluarga,
+                            'nama_keluarga' => $member->nama_keluarga,
+                            'no_rm' => $member->no_rm,
+                            'hubungan' => $member->hubungan_nama,
+                            'kode_hubungan' => $member->kode_hubungan
+                        ];
+                    })->unique('id_keluarga')->values()
             ]);
         }
         
@@ -166,6 +176,7 @@ class MedicalArchivesQueryOptimizer
             ->where('k.id_karyawan', $id_karyawan)
             ->where('k.status', 'aktif')
             ->whereNotNull('kl.no_rm')
+            ->where('kl.kode_hubungan', 'A') // Filter hanya pasien dengan kode hubungan A (Karyawan)
             ->orderBy('rm.tanggal_periksa', 'desc')
             ->orderBy('kl.nama_keluarga')
             ->get();
@@ -253,6 +264,7 @@ class MedicalArchivesQueryOptimizer
             ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
             ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
             ->where('kl.id_keluarga', $id_keluarga)
+            ->where('kl.kode_hubungan', 'A') // Filter hanya pasien dengan kode hubungan A (Karyawan)
             ->first();
     }
     
