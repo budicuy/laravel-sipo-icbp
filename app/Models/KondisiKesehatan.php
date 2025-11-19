@@ -26,7 +26,15 @@ class KondisiKesehatan extends Model
         'id' => 'integer',
     ];
 
+    // Many-to-many relationship dengan medical check up
     public function medicalCheckUps()
+    {
+        return $this->belongsToMany(MedicalCheckUp::class, 'medical_check_up_kondisi_kesehatan', 'kondisi_kesehatan_id', 'medical_check_up_id')
+                    ->withTimestamps();
+    }
+
+    // Backward compatibility - single relationship (deprecated)
+    public function medicalCheckUpSingle()
     {
         return $this->hasMany(MedicalCheckUp::class, 'id_kondisi_kesehatan', 'id');
     }

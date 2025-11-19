@@ -479,7 +479,7 @@ class MedicalArchivesController extends Controller
             ->first();
             
         // Get medical check up data with kondisi kesehatan relationship
-        $medicalCheckUp = MedicalCheckUp::with('kondisiKesehatanRelation')
+        $medicalCheckUp = MedicalCheckUp::with('kondisiKesehatan')
             ->where('id_karyawan', $id_karyawan)
             ->orderBy('tanggal', 'desc')
             ->get();
@@ -509,7 +509,8 @@ class MedicalArchivesController extends Controller
             'dikeluarkan_oleh' => 'required|string|max:255',
             'bmi' => 'nullable|numeric|min:0|max:999',
             'keterangan_bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
-            'id_kondisi_kesehatan' => 'nullable|integer|exists:kondisi_kesehatan,id',
+            'id_kondisi_kesehatan' => 'nullable|array',
+            'id_kondisi_kesehatan.*' => 'nullable|integer|exists:kondisi_kesehatan,id',
             'catatan' => ['nullable', Rule::in(['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'])],
         ]);
         
@@ -537,7 +538,6 @@ class MedicalArchivesController extends Controller
                 'dikeluarkan_oleh' => $request->dikeluarkan_oleh,
                 'bmi' => $request->bmi,
                 'keterangan_bmi' => $request->keterangan_bmi,
-                'id_kondisi_kesehatan' => $request->id_kondisi_kesehatan,
                 'catatan' => $request->catatan,
             ];
                 
@@ -556,6 +556,18 @@ class MedicalArchivesController extends Controller
             // Create medical check up record
             $medicalCheckUp = MedicalCheckUp::create($data);
             
+            // Sync kondisi kesehatan relationships
+            if ($request->id_kondisi_kesehatan && is_array($request->id_kondisi_kesehatan)) {
+                // Filter out empty values
+                $kondisiIds = array_filter($request->id_kondisi_kesehatan, function($value) {
+                    return $value !== null && $value !== '';
+                });
+                
+                if (!empty($kondisiIds)) {
+                    $medicalCheckUp->kondisiKesehatan()->sync($kondisiIds);
+                }
+            }
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Medical check up berhasil diunggah',
@@ -566,10 +578,20 @@ class MedicalArchivesController extends Controller
             // Log error for debugging
             \Log::error('Medical Check Up Upload Error: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
+            \Log::error('Request data: ' . json_encode(request()->all()));
+            \Log::error('Session ID: ' . session()->getId());
             
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat mengunggah file: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat mengunggah file: ' . $e->getMessage(),
+                'debug_info' => [
+                    'error_message' => $e->getMessage(),
+                    'error_code' => $e->getCode(),
+                    'error_file' => $e->getFile(),
+                    'error_line' => $e->getLine(),
+                    'request_data' => request()->all(),
+                    'session_id' => session()->getId()
+                ]
             ], 500);
         }
     }
@@ -580,9 +602,13 @@ class MedicalArchivesController extends Controller
     public function editMedicalCheckUp($id_karyawan, $id)
     {
         try {
-            $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
+            $medicalCheckUp = MedicalCheckUp::with('kondisiKesehatan')
+                ->where('id_karyawan', $id_karyawan)
                 ->where('id', $id)
                 ->firstOrFail();
+                
+            // Add kondisi kesehatan IDs to the response
+            $medicalCheckUp->kondisi_kesehatan_ids = $medicalCheckUp->kondisiKesehatan->pluck('id')->toArray();
                 
             return response()->json([
                 'success' => true,
@@ -590,6 +616,9 @@ class MedicalArchivesController extends Controller
             ]);
             
         } catch (\Exception $e) {
+            \Log::error('Edit Medical Check Up Error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Data medical check up tidak ditemukan'
@@ -610,7 +639,8 @@ class MedicalArchivesController extends Controller
             'dikeluarkan_oleh' => 'required|string|max:255',
             'bmi' => 'nullable|numeric|min:0|max:999',
             'keterangan_bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
-            'id_kondisi_kesehatan' => 'nullable|integer|exists:kondisi_kesehatan,id',
+            'id_kondisi_kesehatan' => 'nullable|array',
+            'id_kondisi_kesehatan.*' => 'nullable|integer|exists:kondisi_kesehatan,id',
             'catatan' => ['nullable', Rule::in(['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'])],
         ]);
         
@@ -633,7 +663,6 @@ class MedicalArchivesController extends Controller
             $medicalCheckUp->dikeluarkan_oleh = $request->dikeluarkan_oleh;
             $medicalCheckUp->bmi = $request->bmi;
             $medicalCheckUp->keterangan_bmi = $request->keterangan_bmi;
-            $medicalCheckUp->id_kondisi_kesehatan = $request->id_kondisi_kesehatan;
             $medicalCheckUp->catatan = $request->catatan;
             
             // Handle file upload if new file is provided
@@ -655,6 +684,24 @@ class MedicalArchivesController extends Controller
             }
             
             $medicalCheckUp->save();
+            
+            // Sync kondisi kesehatan relationships
+            if ($request->id_kondisi_kesehatan && is_array($request->id_kondisi_kesehatan)) {
+                // Filter out empty values
+                $kondisiIds = array_filter($request->id_kondisi_kesehatan, function($value) {
+                    return $value !== null && $value !== '';
+                });
+                
+                if (!empty($kondisiIds)) {
+                    $medicalCheckUp->kondisiKesehatan()->sync($kondisiIds);
+                } else {
+                    // If no conditions selected, detach all existing relationships
+                    $medicalCheckUp->kondisiKesehatan()->detach();
+                }
+            } else {
+                // If no kondisi array provided, detach all existing relationships
+                $medicalCheckUp->kondisiKesehatan()->detach();
+            }
             
             return response()->json([
                 'success' => true,
@@ -698,15 +745,27 @@ class MedicalArchivesController extends Controller
     public function deleteMedicalCheckUp($id_karyawan, $id)
     {
         try {
+            // Debug logging
+            \Log::info('Delete Medical Check Up - ID: ' . $id . ', Karyawan: ' . $id_karyawan);
+            \Log::info('Session ID: ' . session()->getId());
+            \Log::info('CSRF Token: ' . csrf_token());
+            
             $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
                 ->where('id', $id)
                 ->firstOrFail();
                 
+            // Delete kondisi kesehatan relationships first
+            $medicalCheckUp->kondisiKesehatan()->detach();
+            
             // Delete file from storage
-            Storage::disk('public')->delete($medicalCheckUp->file_path);
+            if ($medicalCheckUp->file_path) {
+                Storage::disk('public')->delete($medicalCheckUp->file_path);
+            }
             
             // Delete record from database
             $medicalCheckUp->delete();
+            
+            \Log::info('Medical Check Up deleted successfully');
             
             return response()->json([
                 'success' => true,
@@ -714,9 +773,30 @@ class MedicalArchivesController extends Controller
             ]);
             
         } catch (\Exception $e) {
+            \Log::error('Delete Medical Check Up Error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            \Log::error('Request data: ' . json_encode([
+                'id_karyawan' => $id_karyawan,
+                'id' => $id,
+                'session_id' => session()->getId(),
+                'csrf_token' => csrf_token()
+            ]));
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage(),
+                'debug_info' => [
+                    'error_message' => $e->getMessage(),
+                    'error_code' => $e->getCode(),
+                    'error_file' => $e->getFile(),
+                    'error_line' => $e->getLine(),
+                    'request_data' => [
+                        'id_karyawan' => $id_karyawan,
+                        'id' => $id,
+                        'session_id' => session()->getId(),
+                        'csrf_token' => csrf_token()
+                    ]
+                ]
             ], 500);
         }
     }

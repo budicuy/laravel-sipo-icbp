@@ -244,10 +244,12 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                                            @if($checkup->kondisi_kesehatan)
-                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
-                                                    {{ $checkup->kondisi_kesehatan }}
-                                                </span>
+                                            @if($checkup->kondisiKesehatan && $checkup->kondisiKesehatan->count() > 0)
+                                                @foreach($checkup->kondisiKesehatan as $kondisi)
+                                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 mr-1 mb-1 inline-block">
+                                                        {{ $kondisi->nama_kondisi }}
+                                                    </span>
+                                                @endforeach
                                             @else
                                                 -
                                             @endif
@@ -405,6 +407,7 @@
         </div>
     </div>
 
+    <script src="{{ asset('js/medical-checkup-kondisi-handler.js') }}"></script>
     <script>
         function openUploadModal() {
             // Show SweetAlert modal similar to surat rekomendasi medis
@@ -456,13 +459,36 @@
                         
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Kondisi Kesehatan</label>
-                            <select name="id_kondisi_kesehatan" id="swalKondisiKesehatan"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                <option value="">Pilih Kondisi Kesehatan</option>
-                                @foreach($kondisiKesehatanList ?? [] as $kondisi)
-                                    <option value="{{ $kondisi->id }}">{{ $kondisi->nama_kondisi }}</option>
-                                @endforeach
-                            </select>
+                            <div class="flex items-center gap-2">
+                                <div id="kondisiKesehatanContainer" class="flex-1">
+                                    <div class="mb-2">
+                                        <select name="id_kondisi_kesehatan[]" id="swalKondisiKesehatan1"
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            <option value="">Pilih Kondisi Kesehatan</option>
+                                            @foreach($kondisiKesehatanList ?? [] as $kondisi)
+                                                <option value="{{ $kondisi->id }}">{{ $kondisi->nama_kondisi }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="button" id="addKondisiBtn"
+                                        class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center justify-center"
+                                        title="Tambah Kondisi Kesehatan"
+                                        style="pointer-events: auto; cursor: pointer;">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                </button>
+                                <button type="button" id="removeKondisiBtn"
+                                        class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors flex items-center justify-center"
+                                        title="Kurangi Kondisi Kesehatan"
+                                        style="pointer-events: auto; cursor: pointer;">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <p class="mt-1 text-sm text-gray-500">Klik + untuk menambah kondisi kesehatan (maksimal 5)</p>
                         </div>
                         
                         <div class="mb-4">
@@ -601,6 +627,90 @@
                     // Form was submitted successfully
                 }
             });
+            
+            // Setup event listeners after SweetAlert is shown
+            setTimeout(() => {
+                if (typeof window.KondisiKesehatanHandler !== 'undefined') {
+                    // Initialize handler with kondisi kesehatan list
+                    const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+                    window.KondisiKesehatanHandler.init(kondisiKesehatanList);
+                    
+                    // Setup event listeners
+                    window.KondisiKesehatanHandler.setupCreateForm();
+                }
+                
+                // Fallback: Direct inline event handlers
+                const addBtn = document.getElementById('addKondisiBtn');
+                const removeBtn = document.getElementById('removeKondisiBtn');
+                
+                if (addBtn) {
+                    addBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Add button clicked via inline fallback');
+                        
+                        const container = document.getElementById('kondisiKesehatanContainer');
+                        if (container) {
+                            const currentFields = container.querySelectorAll('select').length;
+                            
+                            if (currentFields >= 5) {
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.showValidationMessage('Maksimal 5 kondisi kesehatan');
+                                } else {
+                                    alert('Maksimal 5 kondisi kesehatan');
+                                }
+                                return;
+                            }
+                            
+                            const fieldDiv = document.createElement('div');
+                            fieldDiv.className = 'mb-2';
+                            
+                            let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+                            const kondisiList = @json($kondisiKesehatanList ?? []);
+                            kondisiList.forEach(kondisi => {
+                                options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
+                            });
+                            
+                            const fieldNumber = currentFields + 1;
+                            fieldDiv.innerHTML = `
+                                <select name="id_kondisi_kesehatan[]" id="swalKondisiKesehatan${fieldNumber}"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                    ${options}
+                                </select>
+                            `;
+                            
+                            container.appendChild(fieldDiv);
+                            console.log('Added kondisi kesehatan field via inline fallback:', fieldNumber);
+                        }
+                    });
+                }
+                
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Remove button clicked via inline fallback');
+                        
+                        const container = document.getElementById('kondisiKesehatanContainer');
+                        if (container) {
+                            const fields = container.querySelectorAll('div');
+                            
+                            if (fields.length <= 1) {
+                                if (typeof Swal !== 'undefined') {
+                                    Swal.showValidationMessage('Minimal harus ada 1 kondisi kesehatan');
+                                } else {
+                                    alert('Minimal harus ada 1 kondisi kesehatan');
+                                }
+                                return;
+                            }
+                            
+                            const removedField = fields[fields.length - 1];
+                            container.removeChild(removedField);
+                            console.log('Removed kondisi kesehatan field via inline fallback');
+                        }
+                    });
+                }
+            }, 500);
         }
         
         function closeUploadModal() {
@@ -644,50 +754,116 @@
                 showLoaderOnConfirm: true,
                 preConfirm: function() {
                     return new Promise(function(resolve) {
-                        // Use fetch API instead of form submission
-                        fetch(`{{ route('medical-archives.medical-check-up.delete', ['id_karyawan' => $id_karyawan, 'id' => ':id']) }}`.replace(':id', checkupId), {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                '_method': 'DELETE'
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil!',
-                                    text: data.message,
-                                    confirmButtonColor: '#10b981',
-                                    timer: 2000,
-                                    timerProgressBar: true
-                                }).then(() => {
-                                    window.location.reload();
-                                });
+                        console.log('Starting delete request for checkup ID:', checkupId);
+                        console.log('CSRF Token:', '{{ csrf_token() }}');
+                        console.log('Delete URL:', `{{ route('medical-archives.medical-check-up.delete', ['id_karyawan' => $id_karyawan, 'id' => ':id']) }}`.replace(':id', checkupId));
+                        
+                        // Use XMLHttpRequest for better consistency
+                        const xhr = new XMLHttpRequest();
+                        
+                        // Handle response
+                        xhr.addEventListener('load', function() {
+                            console.log('Delete response status:', xhr.status);
+                            console.log('Delete response text:', xhr.responseText);
+                            
+                            if (xhr.status === 200) {
+                                try {
+                                    const response = JSON.parse(xhr.responseText);
+                                    console.log('Parsed response:', response);
+                                    
+                                    if (response.success) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Berhasil!',
+                                            text: response.message,
+                                            confirmButtonColor: '#10b981',
+                                            timer: 2000,
+                                            timerProgressBar: true
+                                        }).then(() => {
+                                            window.location.reload();
+                                        });
+                                    } else {
+                                        console.error('Delete failed:', response);
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error!',
+                                            text: response.message || 'Terjadi kesalahan saat menghapus data',
+                                            confirmButtonColor: '#ef4444'
+                                        });
+                                    }
+                                } catch (e) {
+                                    console.error('Error parsing response:', e);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error!',
+                                        text: 'Response tidak valid. Silakan coba lagi.',
+                                        confirmButtonColor: '#ef4444'
+                                    });
+                                }
                             } else {
+                                console.error('HTTP error:', xhr.status, xhr.statusText);
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Error!',
-                                    text: data.message || 'Terjadi kesalahan saat menghapus data',
+                                    text: `HTTP Error ${xhr.status}: ${xhr.statusText}`,
                                     confirmButtonColor: '#ef4444'
                                 });
                             }
                             resolve();
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
+                        });
+                        
+                        // Handle error
+                        xhr.addEventListener('error', function(e) {
+                            console.error('Delete request failed:', e);
+                            console.error('XHR readyState:', xhr.readyState);
+                            console.error('XHR status:', xhr.status);
+                            
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error!',
-                                text: 'Terjadi kesalahan jaringan',
+                                text: 'Terjadi kesalahan jaringan. Silakan coba lagi.',
                                 confirmButtonColor: '#ef4444'
                             });
                             resolve();
                         });
+                        
+                        // Handle timeout
+                        xhr.addEventListener('timeout', function() {
+                            console.error('Delete request timed out');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Request timeout. Silakan coba lagi.',
+                                confirmButtonColor: '#ef4444'
+                            });
+                            resolve();
+                        });
+                        
+                        // Configure and send request
+                        const url = `{{ route('medical-archives.medical-check-up.delete', ['id_karyawan' => $id_karyawan, 'id' => ':id']) }}`.replace(':id', checkupId);
+                        console.log('Opening request to:', url);
+                        
+                        xhr.open('POST', url);
+                        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                        xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+                        xhr.timeout = 30000; // 30 seconds timeout
+                        
+                        const data = '_method=DELETE';
+                        console.log('Sending data:', data);
+                        
+                        try {
+                            xhr.send(data);
+                            console.log('Request sent successfully');
+                        } catch (e) {
+                            console.error('Error sending request:', e);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Gagal mengirim request. Silakan coba lagi.',
+                                confirmButtonColor: '#ef4444'
+                            });
+                            resolve();
+                        }
                     });
                 }
             });
@@ -705,11 +881,13 @@
                         // Get kondisi kesehatan list from server
                         const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
                         
+                        // Get existing kondisi kesehatan IDs
+                        const existingKondisiIds = checkup.kondisi_kesehatan_ids || [];
+                        
                         // Build kondisi kesehatan options
                         let kondisiKesehatanOptions = '<option value="">Pilih Kondisi Kesehatan</option>';
                         kondisiKesehatanList.forEach(kondisi => {
-                            const selected = checkup.id_kondisi_kesehatan == kondisi.id ? 'selected' : '';
-                            kondisiKesehatanOptions += `<option value="${kondisi.id}" ${selected}>${kondisi.nama_kondisi}</option>`;
+                            kondisiKesehatanOptions += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
                         });
                         
                         // Show SweetAlert modal for editing
@@ -764,10 +942,33 @@
                                     
                                     <div class="mb-4">
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Kondisi Kesehatan</label>
-                                        <select name="id_kondisi_kesehatan" id="swalEditKondisiKesehatan"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            ${kondisiKesehatanOptions}
-                                        </select>
+                                        <div class="flex items-center gap-2">
+                                            <div id="editKondisiKesehatanContainer" class="flex-1">
+                                                <div class="mb-2">
+                                                    <select name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan1"
+                                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                        ${kondisiKesehatanOptions}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <button type="button" id="editAddKondisiBtn"
+                                                    class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center justify-center"
+                                                    title="Tambah Kondisi Kesehatan"
+                                                    style="pointer-events: auto; cursor: pointer;">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                                </svg>
+                                            </button>
+                                            <button type="button" id="editRemoveKondisiBtn"
+                                                    class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors flex items-center justify-center"
+                                                    title="Kurangi Kondisi Kesehatan"
+                                                    style="pointer-events: auto; cursor: pointer;">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <p class="mt-1 text-sm text-gray-500">Klik + untuk menambah kondisi kesehatan (maksimal 5)</p>
                                     </div>
                                     
                                     <div class="mb-4">
@@ -911,6 +1112,118 @@
                                 // Form was submitted successfully
                             }
                         });
+                        
+                        
+                        // Fallback: Direct inline event handlers for EDIT form
+                        const editAddBtn = document.getElementById('editAddKondisiBtn');
+                        const editRemoveBtn = document.getElementById('editRemoveKondisiBtn');
+                        
+                        if (editAddBtn) {
+                            editAddBtn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('Edit add button clicked via inline fallback');
+                                
+                                const container = document.getElementById('editKondisiKesehatanContainer');
+                                if (container) {
+                                    const currentFields = container.querySelectorAll('select').length;
+                                        
+                                    if (currentFields >= 5) {
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.showValidationMessage('Maksimal 5 kondisi kesehatan');
+                                        } else {
+                                            alert('Maksimal 5 kondisi kesehatan');
+                                        }
+                                        return;
+                                    }
+                                    
+                                    const fieldDiv = document.createElement('div');
+                                    fieldDiv.className = 'mb-2';
+                                    
+                                    let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+                                    const kondisiList = @json($kondisiKesehatanList ?? []);
+                                    kondisiList.forEach(kondisi => {
+                                        options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
+                                    });
+                                    
+                                    const fieldNumber = currentFields + 1;
+                                    fieldDiv.innerHTML = `
+                                        <select name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan${fieldNumber}"
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                                ${options}
+                                            </select>
+                                    `;
+                                    
+                                    container.appendChild(fieldDiv);
+                                    console.log('Added edit kondisi kesehatan field via inline fallback:', fieldNumber);
+                                }
+                            });
+                        }
+                        
+                        if (editRemoveBtn) {
+                            editRemoveBtn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('Edit remove button clicked via inline fallback');
+                                
+                                const container = document.getElementById('editKondisiKesehatanContainer');
+                                if (container) {
+                                    const fields = container.querySelectorAll('div');
+                                        
+                                    if (fields.length <= 1) {
+                                        if (typeof Swal !== 'undefined') {
+                                            Swal.showValidationMessage('Minimal harus ada 1 kondisi kesehatan');
+                                        } else {
+                                            alert('Minimal harus ada 1 kondisi kesehatan');
+                                        }
+                                        return;
+                                    }
+                                    
+                                    const removedField = fields[fields.length - 1];
+                                    container.removeChild(removedField);
+                                    console.log('Removed edit kondisi kesehatan field via inline fallback');
+                                }
+                            });
+                        }
+                        // Setup event listeners after SweetAlert is shown
+                        setTimeout(() => {
+                            if (typeof window.KondisiKesehatanHandler !== 'undefined') {
+                                // Initialize handler with kondisi kesehatan list
+                                const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+                                window.KondisiKesehatanHandler.init(kondisiKesehatanList);
+                                
+                                // Use existing kondisi kesehatan IDs from the relationship
+                                const existingKondisiIds = existingKondisiIds || [];
+                                
+                                // Setup event listeners
+                                window.KondisiKesehatanHandler.setupEditForm(existingKondisiIds);
+                                
+                                // Also setup direct onclick handlers as fallback
+                                const addBtn = document.getElementById('editAddKondisiBtn');
+                                const removeBtn = document.getElementById('editRemoveKondisiBtn');
+                                
+                                if (addBtn) {
+                                    addBtn.onclick = function() {
+                                        console.log('Edit add button clicked via onclick');
+                                        window.KondisiKesehatanHandler.addKondisiKesehatanField('editKondisiKesehatanContainer', 'swalEdit');
+                                    };
+                                }
+                                
+                                if (removeBtn) {
+                                    removeBtn.onclick = function() {
+                                        console.log('Edit remove button clicked via onclick');
+                                        window.KondisiKesehatanHandler.removeKondisiKesehatanField('editKondisiKesehatanContainer');
+                                    };
+                                }
+                            }
+                        }, 300);
+                        
+                        // Setup edit form kondisi kesehatan fields
+                        if (typeof window.setupEditKondisiKesehatan === 'function') {
+                            // Parse existing kondisi kesehatan IDs (for now, we'll use the single existing ID)
+                            const existingKondisiIds = checkup.id_kondisi_kesehatan ? [checkup.id_kondisi_kesehatan] : [];
+                            window.setupEditKondisiKesehatan(existingKondisiIds);
+                        }
                     } else {
                         showError('Data medical check up tidak ditemukan');
                     }
@@ -920,5 +1233,103 @@
                     showError('Terjadi kesalahan saat mengambil data medical check up');
                 });
         }
+        
+        // Function to add new kondisi kesehatan field (delegated to external handler)
+        function addKondisiKesehatanField(containerId, fieldPrefix, kondisiKesehatanList, existingValue = '') {
+            if (typeof window.KondisiKesehatanHandler !== 'undefined') {
+                window.KondisiKesehatanHandler.addKondisiKesehatanField(containerId, fieldPrefix);
+                
+                // Set existing value if provided
+                if (existingValue) {
+                    const container = document.getElementById(containerId);
+                    const selects = container.querySelectorAll('select');
+                    if (selects.length > 0) {
+                        const lastSelect = selects[selects.length - 1];
+                        if (lastSelect) {
+                            lastSelect.value = existingValue;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Function to remove last kondisi kesehatan field (delegated to external handler)
+        function removeKondisiKesehatanField(containerId) {
+            if (typeof window.KondisiKesehatanHandler !== 'undefined') {
+                window.KondisiKesehatanHandler.removeKondisiKesehatanField(containerId);
+            }
+        }
+        
+        // Function to generate kondisi kesehatan fields (for backward compatibility)
+        function generateKondisiKesehatanFields(jumlah, containerId, fieldPrefix, kondisiKesehatanList) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= jumlah; i++) {
+                const fieldDiv = document.createElement('div');
+                fieldDiv.className = 'mb-2';
+                
+                let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+                kondisiKesehatanList.forEach(kondisi => {
+                    options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
+                });
+                
+                fieldDiv.innerHTML = `
+                    <select name="id_kondisi_kesehatan[]" id="${fieldPrefix}KondisiKesehatan${i}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                        ${options}
+                    </select>
+                `;
+                
+                container.appendChild(fieldDiv);
+            }
+        }
+        
+        // Event listeners for jumlah kondisi kesehatan dropdowns
+        document.addEventListener('DOMContentLoaded', function() {
+            const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+            
+            // Make kondisi kesehatan list available globally
+            window.kondisiKesehatanList = kondisiKesehatanList;
+            
+            // For create form - setup after SweetAlert is shown
+            window.setupCreateKondisiKesehatan = function() {
+                const addBtn = document.getElementById('addKondisiBtn');
+                const removeBtn = document.getElementById('removeKondisiBtn');
+                
+                if (addBtn && removeBtn) {
+                    // Remove existing event listener to prevent duplicates
+                    jumlahKondisiDropdown.removeEventListener('change', window.handleJumlahChange);
+                    
+                    // Create and store the event handler
+                    window.handleJumlahChange = function() {
+                        const jumlah = parseInt(this.value);
+                        console.log('Jumlah changed to:', jumlah); // Debug log
+                        generateKondisiKesehatanFields(jumlah, 'kondisiKesehatanContainer', 'swal', kondisiKesehatanList);
+                    };
+                    
+                    // Add event listener
+                    jumlahKondisiDropdown.addEventListener('change', window.handleJumlahChange);
+                    
+                    // Initialize with 1 field
+                    generateKondisiKesehatanFields(1, 'kondisiKesehatanContainer', 'swal', kondisiKesehatanList);
+                }
+            };
+            
+            // Call setup function immediately if dropdown exists
+            setTimeout(() => {
+                if (document.getElementById('swalJumlahKondisiKesehatan')) {
+                    window.setupCreateKondisiKesehatan();
+                }
+            }, 100);
+            
+            // For edit form - will be set when edit modal opens
+            window.setupEditKondisiKesehatan = function(currentKondisiIds = []) {
+                // Delegated to external handler
+                if (typeof window.KondisiKesehatanHandler !== 'undefined') {
+                    window.KondisiKesehatanHandler.setupEditForm(currentKondisiIds);
+                }
+            };
+        });
     </script>
 @endsection

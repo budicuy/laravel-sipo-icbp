@@ -25,7 +25,6 @@ class MedicalCheckUp extends Model
         'dikeluarkan_oleh',
         'bmi',
         'keterangan_bmi',
-        'id_kondisi_kesehatan',
         'catatan',
         'file_path',
         'file_name',
@@ -41,7 +40,6 @@ class MedicalCheckUp extends Model
         'periode' => 'integer',
         'tanggal' => 'date',
         'bmi' => 'decimal:2',
-        'id_kondisi_kesehatan' => 'integer',
         'file_size' => 'integer',
         'id_user' => 'integer',
     ];
@@ -61,20 +59,46 @@ class MedicalCheckUp extends Model
         return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
+    // Many-to-many relationship dengan kondisi kesehatan
     public function kondisiKesehatan()
     {
-        return $this->belongsTo(KondisiKesehatan::class, 'id_kondisi_kesehatan', 'id');
+        return $this->belongsToMany(KondisiKesehatan::class, 'medical_check_up_kondisi_kesehatan', 'medical_check_up_id', 'kondisi_kesehatan_id')
+                    ->withTimestamps();
     }
 
-    // Accessor untuk mendapatkan nama kondisi kesehatan
-    public function getKondisiKesehatanAttribute()
+    // Accessor untuk mendapatkan nama kondisi kesehatan sebagai string yang digabung
+    public function getKondisiKesehatanListAttribute()
     {
-        return $this->kondisiKesehatanRelation?->nama_kondisi;
+        return $this->kondisiKesehatan->pluck('nama_kondisi')->implode(', ');
     }
 
-    // Relationship dengan nama yang berbeda untuk menghindari konflik dengan accessor
-    public function kondisiKesehatanRelation()
+    // Method untuk mendapatkan array ID kondisi kesehatan
+    public function getKondisiKesehatanIdsAttribute()
     {
-        return $this->belongsTo(KondisiKesehatan::class, 'id_kondisi_kesehatan', 'id');
+        return $this->kondisiKesehatan->pluck('id')->toArray();
+    }
+
+    // Method untuk sync kondisi kesehatan
+    public function syncKondisiKesehatan(array $kondisiIds)
+    {
+        return $this->kondisiKesehatan()->sync($kondisiIds);
+    }
+
+    // Method untuk attach kondisi kesehatan
+    public function attachKondisiKesehatan($kondisiId)
+    {
+        return $this->kondisiKesehatan()->attach($kondisiId);
+    }
+
+    // Method untuk detach kondisi kesehatan
+    public function detachKondisiKesehatan($kondisiId)
+    {
+        return $this->kondisiKesehatan()->detach($kondisiId);
+    }
+
+    // Backward compatibility - single kondisi kesehatan (deprecated)
+    public function getSingleKondisiKesehatanAttribute()
+    {
+        return $this->kondisiKesehatan->first()?->nama_kondisi;
     }
 }
