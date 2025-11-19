@@ -104,7 +104,7 @@
                         <p class="text-blue-100 text-sm font-medium">Pemeriksaan Reguler</p>
                     </div>
                     <h3 class="text-5xl font-bold mb-1">{{ $stats['total_pemeriksaan_reguler'] ?? 0 }}</h3>
-                    <p class="text-blue-200 text-xs">{{ $stats['bulan_nama'] ?? 'Unknown' }} {{ $stats['tahun'] ?? '' }}</p>
+                    <p class="text-blue-200 text-xs">{{ $stats['bulan_nama'] }} {{ $stats['tahun'] }}</p>
                 </div>
                 <div class="bg-white rounded-2xl p-5 shadow-2xl">
                     <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,7 +129,7 @@
                         <p class="text-red-100 text-sm font-medium">Pemeriksaan Emergency</p>
                     </div>
                     <h3 class="text-5xl font-bold mb-1">{{ $stats['total_pemeriksaan_emergency'] ?? 0 }}</h3>
-                    <p class="text-red-200 text-xs">{{ $stats['bulan_nama'] ?? 'Unknown' }} {{ $stats['tahun'] ?? '' }}</p>
+                    <p class="text-red-200 text-xs">{{ $stats['bulan_nama'] }} {{ $stats['tahun'] }}</p>
                 </div>
                 <div class="bg-white rounded-2xl p-5 shadow-2xl">
                     <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +154,7 @@
                         <p class="text-cyan-100 text-sm font-medium">Total Biaya</p>
                     </div>
                     <h3 class="text-5xl font-bold mb-1">Rp{{ number_format($stats['total_biaya'], 0, ',', '.') }}</h3>
-                    <p class="text-cyan-200 text-xs">{{ $stats['bulan_nama'] ?? 'Unknown' }} {{ $stats['tahun'] ?? '' }}</p>
+                    <p class="text-cyan-200 text-xs">{{ $stats['bulan_nama'] }} {{ $stats['tahun'] }}</p>
                 </div>
                 <div class="bg-white rounded-2xl p-5 shadow-2xl">
                     <svg class="w-12 h-12 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
