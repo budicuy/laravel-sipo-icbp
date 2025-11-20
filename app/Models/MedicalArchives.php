@@ -1,4 +1,783 @@
-<?php
+window.KondisiKesehatanHandler = (function() {
+    let kondisiKesehatanList = [];
+    let fieldCounter = 0;
+    
+    function init(kondisiList) {
+        kondisiKesehatanList = kondisiList || [];
+        console.log('KondisiKesehatanHandler initialized with', kondisiKesehatanList.length, 'items');
+    }
+    
+    function initializeSelect2(selectElement) {
+        if ($(selectElement).length && !$(selectElement).hasClass('select2-hidden-accessible')) {
+            $(selectElement).select2({
+                placeholder: 'Pilih atau ketik kondisi kesehatan',
+                allowClear: true,
+                width: '100%',
+                theme: 'default',                @extends('layouts.app')
+                
+                @section('page-title', 'Medical Check Up')
+                
+                @push('styles')
+                <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+                <style>
+                    /* Custom styling for Select2 to match your theme */
+                    .select2-container--default .select2-selection--single {
+                        border: 1px solid #d1d5db;
+                        border-radius: 0.375rem;
+                        height: 42px;
+                        padding: 0.5rem 0.75rem;
+                    }
+                    
+                    .select2-container--default .select2-selection--single .select2-selection__rendered {
+                        line-height: 26px;
+                        padding-left: 0;
+                    }
+                    
+                    .select2-container--default .select2-selection--single .select2-selection__arrow {
+                        height: 40px;
+                    }
+                    
+                    .select2-container--default.select2-container--focus .select2-selection--single {
+                        border-color: #10b981;
+                        outline: none;
+                        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+                    }
+                    
+                    .select2-dropdown {
+                        border: 1px solid #d1d5db;
+                        border-radius: 0.375rem;
+                    }
+                    
+                    .select2-search--dropdown .select2-search__field {
+                        border: 1px solid #d1d5db;
+                        border-radius: 0.375rem;
+                        padding: 0.5rem;
+                    }
+                    
+                    .select2-results__option--highlighted[aria-selected] {
+                        background-color: #10b981 !important;
+                    }
+                    
+                    /* Make Select2 work properly in SweetAlert2 */
+                    .swal2-container {
+                        z-index: 10000;
+                    }
+                    
+                    .select2-container {
+                        z-index: 10001;
+                    }
+                </style>
+                @endpush
+                
+                @push('scripts')
+                <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+                <script src="{{ asset('js/medical-checkup-kondisi-handler.js') }}"></script>
+                @endpush
+                
+                // ...existing code...                @extends('layouts.app')
+                
+                @section('page-title', 'Medical Check Up')
+                
+                @push('styles')
+                <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+                <style>
+                    /* Custom styling for Select2 to match your theme */
+                    .select2-container--default .select2-selection--single {
+                        border: 1px solid #d1d5db;
+                        border-radius: 0.375rem;
+                        height: 42px;
+                        padding: 0.5rem 0.75rem;
+                    }
+                    
+                    .select2-container--default .select2-selection--single .select2-selection__rendered {
+                        line-height: 26px;
+                        padding-left: 0;
+                    }
+                    
+                    .select2-container--default .select2-selection--single .select2-selection__arrow {
+                        height: 40px;
+                    }
+                    
+                    .select2-container--default.select2-container--focus .select2-selection--single {
+                        border-color: #10b981;
+                        outline: none;
+                        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+                    }
+                    
+                    .select2-dropdown {
+                        border: 1px solid #d1d5db;
+                        border-radius: 0.375rem;
+                    }
+                    
+                    .select2-search--dropdown .select2-search__field {
+                        border: 1px solid #d1d5db;
+                        border-radius: 0.375rem;
+                        padding: 0.5rem;
+                    }
+                    
+                    .select2-results__option--highlighted[aria-selected] {
+                        background-color: #10b981 !important;
+                    }
+                    
+                    /* Make Select2 work properly in SweetAlert2 */
+                    .swal2-container {
+                        z-index: 10000;
+                    }
+                    
+                    .select2-container {
+                        z-index: 10001;
+                    }
+                </style>
+                @endpush
+                
+                @push('scripts')
+                <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+                <script src="{{ asset('js/medical-checkup-kondisi-handler.js') }}"></script>
+                @endpush
+                
+                // ...existing code...                @extends('layouts.app')
+                
+                @section('page-title', 'Medical Check Up')
+                
+                @push('styles')
+                <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+                <style>
+                    /* Custom styling for Select2 to match your theme */
+                    .select2-container--default .select2-selection--single {
+                        border: 1px solid #d1d5db;
+                        border-radius: 0.375rem;
+                        height: 42px;
+                        padding: 0.5rem 0.75rem;
+                    }
+                    
+                    .select2-container--default .select2-selection--single .select2-selection__rendered {
+                        line-height: 26px;
+                        padding-left: 0;
+                    }
+                    
+                    .select2-container--default .select2-selection--single .select2-selection__arrow {
+                        height: 40px;
+                    }
+                    
+                    .select2-container--default.select2-container--focus .select2-selection--single {
+                        border-color: #10b981;
+                        outline: none;
+                        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+                    }
+                    
+                    .select2-dropdown {
+                        border: 1px solid #d1d5db;
+                        border-radius: 0.375rem;
+                    }
+                    
+                    .select2-search--dropdown .select2-search__field {
+                        border: 1px solid #d1d5db;
+                        border-radius: 0.375rem;
+                        padding: 0.5rem;
+                    }
+                    
+                    .select2-results__option--highlighted[aria-selected] {
+                        background-color: #10b981 !important;
+                    }
+                    
+                    /* Make Select2 work properly in SweetAlert2 */
+                    .swal2-container {
+                        z-index: 10000;
+                    }
+                    
+                    .select2-container {
+                        z-index: 10001;
+                    }
+                </style>
+                @endpush
+                
+                @push('scripts')
+                <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+                <script src="{{ asset('js/medical-checkup-kondisi-handler.js') }}"></script>
+                @endpush
+                
+                // ...existing code...                // Di dalam fungsi openUploadModal, setelah SweetAlert.fire
+                setTimeout(() => {
+                    if (typeof window.KondisiKesehatanHandler !== 'undefined') {
+                        const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+                        window.KondisiKesehatanHandler.init(kondisiKesehatanList);
+                        window.KondisiKesehatanHandler.setupCreateForm();
+                    }
+                }, 500);
+                
+                // Di dalam fungsi editMedicalCheckUp, setelah SweetAlert.fire dengan data edit
+                setTimeout(() => {
+                    if (typeof window.KondisiKesehatanHandler !== 'undefined') {
+                        const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+                        window.KondisiKesehatanHandler.init(kondisiKesehatanList);
+                        window.KondisiKesehatanHandler.setupEditForm(existingKondisiIds);
+                    }
+                }, 500);                // ...existing code...
+                
+                @push('styles')
+                <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+                <style>
+                    .select2-container--default .select2-selection--single {
+                        border: 1px solid #d1d5db;
+                        border-radius: 0.375rem;
+                        height: 42px;
+                        padding: 0.5rem 0.75rem;
+                    }
+                    .select2-container--default .select2-selection--single .select2-selection__rendered {
+                        line-height: 26px;
+                        padding-left: 0;
+                    }
+                    .select2-container--default .select2-selection--single .select2-selection__arrow {
+                        height: 40px;
+                    }
+                    .select2-container--default.select2-container--focus .select2-selection--single {
+                        border-color: #10b981;
+                        outline: none;
+                        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+                    }
+                    .swal2-container { z-index: 10000; }
+                    .select2-container { z-index: 10001; }
+                </style>
+                @endpush
+                
+                @push('scripts')
+                <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+                <script src="{{ asset('js/medical-checkup-dropdown.js') }}"></script>
+                <script>
+                    // Use the enhanced functions from medical-checkup-dropdown.js
+                    function openUploadModal() {
+                        const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+                        
+                        // Your existing Swal.fire code...
+                        
+                        // After SweetAlert opens, setup Select2
+                        setTimeout(() => {
+                            if (typeof window.MedicalCheckupDropdown !== 'undefined') {
+                                window.MedicalCheckupDropdown.setupCreateFormWithSelect2(kondisiKesehatanList);
+                            }
+                        }, 500);
+                    }
+                    
+                    function editMedicalCheckUp(checkupId) {
+                        const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+                        
+                        // Your existing edit code...
+                        
+                        // After edit modal opens, setup Select2
+                        setTimeout(() => {
+                            if (typeof window.MedicalCheckupDropdown !== 'undefined') {
+                                window.MedicalCheckupDropdown.setupEditFormWithSelect2(kondisiKesehatanList);
+                            }
+                        }, 500);
+                    }
+                </script>
+                @endpush
+                language: {
+                    noResults: function() {
+                        return "Tidak ada hasil yang ditemukan";
+                    },
+                    searching: function() {
+                        return "Mencari...";
+                    }
+                }
+            });
+        }
+    }
+    
+    function addKondisiKesehatanField(containerId, fieldPrefix) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container not found:', containerId);
+            return;
+        }
+        
+        const currentFields = container.querySelectorAll('select').length;
+        
+        if (currentFields >= 5) {
+            if (typeof Swal !== 'undefined') {
+                Swal.showValidationMessage('Maksimal 5 kondisi kesehatan');
+            } else {
+                alert('Maksimal 5 kondisi kesehatan');
+            }
+            return;
+        }
+        
+        fieldCounter++;
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'mb-2';
+        
+        let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+        kondisiKesehatanList.forEach(kondisi => {
+            options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
+        });
+        
+        const fieldNumber = currentFields + 1;
+        const uniqueId = `${fieldPrefix}KondisiKesehatan${fieldCounter}`;
+        
+        fieldDiv.innerHTML = `
+            <select name="id_kondisi_kesehatan[]" id="${uniqueId}"
+                    class="kondisi-kesehatan-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                ${options}
+            </select>
+        `;
+        
+        container.appendChild(fieldDiv);
+        
+        // Initialize Select2 on the new field
+        setTimeout(() => {
+            initializeSelect2(`#${uniqueId}`);
+        }, 100);
+        
+        console.log('Added kondisi kesehatan field:', uniqueId);
+    }
+    
+    function removeKondisiKesehatanField(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container not found:', containerId);
+            return;
+        }
+        
+        const fields = container.querySelectorAll('div');
+        
+        if (fields.length <= 1) {
+            if (typeof Swal !== 'undefined') {
+                Swal.showValidationMessage('Minimal harus ada 1 kondisi kesehatan');
+            } else {
+                alert('Minimal harus ada 1 kondisi kesehatan');
+            }
+            return;
+        }
+        
+        const removedField = fields[fields.length - 1];
+        const select = removedField.querySelector('select');
+        
+        // Destroy Select2 before removing
+        if ($(select).hasClass('select2-hidden-accessible')) {
+            $(select).select2('destroy');
+        }
+        
+        container.removeChild(removedField);
+        console.log('Removed kondisi kesehatan field');
+    }
+    
+    function setupCreateForm() {
+        setTimeout(() => {
+            const addBtn = document.getElementById('addKondisiBtn');
+            const removeBtn = document.getElementById('removeKondisiBtn');
+            
+            if (addBtn) {
+                addBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addKondisiKesehatanField('kondisiKesehatanContainer', 'swal');
+                });
+            }
+            
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeKondisiKesehatanField('kondisiKesehatanContainer');
+                });
+            }
+            
+            // Initialize Select2 on first field
+            const firstSelect = document.querySelector('#kondisiKesehatanContainer select');
+            if (firstSelect) {
+                initializeSelect2(firstSelect);
+            }
+        }, 300);
+    }
+    
+    function setupEditForm(existingKondisiIds) {
+        setTimeout(() => {
+            const addBtn = document.getElementById('editAddKondisiBtn');
+            const removeBtn = document.getElementById('editRemoveKondisiBtn');
+            
+            if (addBtn) {
+                addBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addKondisiKesehatanField('editKondisiKesehatanContainer', 'swalEdit');
+                });
+            }
+            
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeKondisiKesehatanField('editKondisiKesehatanContainer');
+                });
+            }
+            
+            // Initialize Select2 on existing fields
+            const existingSelects = document.querySelectorAll('#editKondisiKesehatanContainer select');
+            existingSelects.forEach(select => {
+                initializeSelect2(select);
+            });
+        }, 300);
+    }
+    
+    return {
+        init: init,
+        addKondisiKesehatanField: addKondisiKesehatanField,
+        removeKondisiKesehatanField: removeKondisiKesehatanField,
+        setupCreateForm: setupCreateForm,
+        setupEditForm: setupEditForm,
+        initializeSelect2: initializeSelect2
+    };
+})();window.KondisiKesehatanHandler = (function() {
+    let kondisiKesehatanList = [];
+    let fieldCounter = 0;
+    
+    function init(kondisiList) {
+        kondisiKesehatanList = kondisiList || [];
+        console.log('KondisiKesehatanHandler initialized with', kondisiKesehatanList.length, 'items');
+    }
+    
+    function initializeSelect2(selectElement) {
+        if ($(selectElement).length && !$(selectElement).hasClass('select2-hidden-accessible')) {
+            $(selectElement).select2({
+                placeholder: 'Pilih atau ketik kondisi kesehatan',
+                allowClear: true,
+                width: '100%',
+                theme: 'default',
+                language: {
+                    noResults: function() {
+                        return "Tidak ada hasil yang ditemukan";
+                    },
+                    searching: function() {
+                        return "Mencari...";
+                    }
+                }
+            });
+        }
+    }
+    
+    function addKondisiKesehatanField(containerId, fieldPrefix) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container not found:', containerId);
+            return;
+        }
+        
+        const currentFields = container.querySelectorAll('select').length;
+        
+        if (currentFields >= 5) {
+            if (typeof Swal !== 'undefined') {
+                Swal.showValidationMessage('Maksimal 5 kondisi kesehatan');
+            } else {
+                alert('Maksimal 5 kondisi kesehatan');
+            }
+            return;
+        }
+        
+        fieldCounter++;
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'mb-2';
+        
+        let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+        kondisiKesehatanList.forEach(kondisi => {
+            options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
+        });
+        
+        const fieldNumber = currentFields + 1;
+        const uniqueId = `${fieldPrefix}KondisiKesehatan${fieldCounter}`;
+        
+        fieldDiv.innerHTML = `
+            <select name="id_kondisi_kesehatan[]" id="${uniqueId}"
+                    class="kondisi-kesehatan-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                ${options}
+            </select>
+        `;
+        
+        container.appendChild(fieldDiv);
+        
+        // Initialize Select2 on the new field
+        setTimeout(() => {
+            initializeSelect2(`#${uniqueId}`);
+        }, 100);
+        
+        console.log('Added kondisi kesehatan field:', uniqueId);
+    }
+    
+    function removeKondisiKesehatanField(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container not found:', containerId);
+            return;
+        }
+        
+        const fields = container.querySelectorAll('div');
+        
+        if (fields.length <= 1) {
+            if (typeof Swal !== 'undefined') {
+                Swal.showValidationMessage('Minimal harus ada 1 kondisi kesehatan');
+            } else {
+                alert('Minimal harus ada 1 kondisi kesehatan');
+            }
+            return;
+        }
+        
+        const removedField = fields[fields.length - 1];
+        const select = removedField.querySelector('select');
+        
+        // Destroy Select2 before removing
+        if ($(select).hasClass('select2-hidden-accessible')) {
+            $(select).select2('destroy');
+        }
+        
+        container.removeChild(removedField);
+        console.log('Removed kondisi kesehatan field');
+    }
+    
+    function setupCreateForm() {
+        setTimeout(() => {
+            const addBtn = document.getElementById('addKondisiBtn');
+            const removeBtn = document.getElementById('removeKondisiBtn');
+            
+            if (addBtn) {
+                addBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addKondisiKesehatanField('kondisiKesehatanContainer', 'swal');
+                });
+            }
+            
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeKondisiKesehatanField('kondisiKesehatanContainer');
+                });
+            }
+            
+            // Initialize Select2 on first field
+            const firstSelect = document.querySelector('#kondisiKesehatanContainer select');
+            if (firstSelect) {
+                initializeSelect2(firstSelect);
+            }
+        }, 300);
+    }
+    
+    function setupEditForm(existingKondisiIds) {
+        setTimeout(() => {
+            const addBtn = document.getElementById('editAddKondisiBtn');
+            const removeBtn = document.getElementById('editRemoveKondisiBtn');
+            
+            if (addBtn) {
+                addBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addKondisiKesehatanField('editKondisiKesehatanContainer', 'swalEdit');
+                });
+            }
+            
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeKondisiKesehatanField('editKondisiKesehatanContainer');
+                });
+            }
+            
+            // Initialize Select2 on existing fields
+            const existingSelects = document.querySelectorAll('#editKondisiKesehatanContainer select');
+            existingSelects.forEach(select => {
+                initializeSelect2(select);
+            });
+        }, 300);
+    }
+    
+    return {
+        init: init,
+        addKondisiKesehatanField: addKondisiKesehatanField,
+        removeKondisiKesehatanField: removeKondisiKesehatanField,
+        setupCreateForm: setupCreateForm,
+        setupEditForm: setupEditForm,
+        initializeSelect2: initializeSelect2
+    };
+})();{{-- Add this in the head section or before closing body tag --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>{{-- Add this in the head section or before closing body tag --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>{{-- Add this in the head section or before closing body tag --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>{{-- Add this in the head section or before closing body tag --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>window.KondisiKesehatanHandler = (function() {
+    let kondisiKesehatanList = [];
+    let fieldCounter = 0;
+    
+    function init(kondisiList) {
+        kondisiKesehatanList = kondisiList || [];
+        console.log('KondisiKesehatanHandler initialized with', kondisiKesehatanList.length, 'items');
+    }
+    
+    function initializeSelect2(selectElement) {
+        if ($(selectElement).length && !$(selectElement).hasClass('select2-hidden-accessible')) {
+            $(selectElement).select2({
+                placeholder: 'Pilih atau ketik kondisi kesehatan',
+                allowClear: true,
+                width: '100%',
+                theme: 'default',
+                language: {
+                    noResults: function() {
+                        return "Tidak ada hasil yang ditemukan";
+                    },
+                    searching: function() {
+                        return "Mencari...";
+                    }
+                }
+            });
+        }
+    }
+    
+    function addKondisiKesehatanField(containerId, fieldPrefix) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container not found:', containerId);
+            return;
+        }
+        
+        const currentFields = container.querySelectorAll('select').length;
+        
+        if (currentFields >= 5) {
+            if (typeof Swal !== 'undefined') {
+                Swal.showValidationMessage('Maksimal 5 kondisi kesehatan');
+            } else {
+                alert('Maksimal 5 kondisi kesehatan');
+            }
+            return;
+        }
+        
+        fieldCounter++;
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'mb-2';
+        
+        let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+        kondisiKesehatanList.forEach(kondisi => {
+            options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
+        });
+        
+        const fieldNumber = currentFields + 1;
+        const uniqueId = `${fieldPrefix}KondisiKesehatan${fieldCounter}`;
+        
+        fieldDiv.innerHTML = `
+            <select name="id_kondisi_kesehatan[]" id="${uniqueId}"
+                    class="kondisi-kesehatan-select w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                ${options}
+            </select>
+        `;
+        
+        container.appendChild(fieldDiv);
+        
+        // Initialize Select2 on the new field
+        setTimeout(() => {
+            initializeSelect2(`#${uniqueId}`);
+        }, 100);
+        
+        console.log('Added kondisi kesehatan field:', uniqueId);
+    }
+    
+    function removeKondisiKesehatanField(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error('Container not found:', containerId);
+            return;
+        }
+        
+        const fields = container.querySelectorAll('div');
+        
+        if (fields.length <= 1) {
+            if (typeof Swal !== 'undefined') {
+                Swal.showValidationMessage('Minimal harus ada 1 kondisi kesehatan');
+            } else {
+                alert('Minimal harus ada 1 kondisi kesehatan');
+            }
+            return;
+        }
+        
+        const removedField = fields[fields.length - 1];
+        const select = removedField.querySelector('select');
+        
+        // Destroy Select2 before removing
+        if ($(select).hasClass('select2-hidden-accessible')) {
+            $(select).select2('destroy');
+        }
+        
+        container.removeChild(removedField);
+        console.log('Removed kondisi kesehatan field');
+    }
+    
+    function setupCreateForm() {
+        setTimeout(() => {
+            const addBtn = document.getElementById('addKondisiBtn');
+            const removeBtn = document.getElementById('removeKondisiBtn');
+            
+            if (addBtn) {
+                addBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addKondisiKesehatanField('kondisiKesehatanContainer', 'swal');
+                });
+            }
+            
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeKondisiKesehatanField('kondisiKesehatanContainer');
+                });
+            }
+            
+            // Initialize Select2 on first field
+            const firstSelect = document.querySelector('#kondisiKesehatanContainer select');
+            if (firstSelect) {
+                initializeSelect2(firstSelect);
+            }
+        }, 300);
+    }
+    
+    function setupEditForm(existingKondisiIds) {
+        setTimeout(() => {
+            const addBtn = document.getElementById('editAddKondisiBtn');
+            const removeBtn = document.getElementById('editRemoveKondisiBtn');
+            
+            if (addBtn) {
+                addBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addKondisiKesehatanField('editKondisiKesehatanContainer', 'swalEdit');
+                });
+            }
+            
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeKondisiKesehatanField('editKondisiKesehatanContainer');
+                });
+            }
+            
+            // Initialize Select2 on existing fields
+            const existingSelects = document.querySelectorAll('#editKondisiKesehatanContainer select');
+            existingSelects.forEach(select => {
+                initializeSelect2(select);
+            });
+        }, 300);
+    }
+    
+    return {
+        init: init,
+        addKondisiKesehatanField: addKondisiKesehatanField,
+        removeKondisiKesehatanField: removeKondisiKesehatanField,
+        setupCreateForm: setupCreateForm,
+        setupEditForm: setupEditForm,
+        initializeSelect2: initializeSelect2
+    };
+})();<?php
 
 namespace App\Models;
 
