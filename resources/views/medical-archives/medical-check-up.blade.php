@@ -189,7 +189,7 @@
                                         BMI Kategori
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
-                                        Kondisi Kesehatan
+                                        Gangguan Kesehatan
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
                                         Catatan
@@ -458,13 +458,13 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Kondisi Kesehatan</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Gangguan Kesehatan</label>
                             <div class="flex items-center gap-2">
                                 <div id="kondisiKesehatanContainer" class="flex-1">
                                     <div class="mb-2">
                                         <select name="id_kondisi_kesehatan[]" id="swalKondisiKesehatan1"
                                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            <option value="">Pilih Kondisi Kesehatan</option>
+                                            <option value="">Pilih Gangguan Kesehatan</option>
                                             @foreach($kondisiKesehatanList ?? [] as $kondisi)
                                                 <option value="{{ $kondisi->id }}">{{ $kondisi->nama_kondisi }}</option>
                                             @endforeach
@@ -473,7 +473,7 @@
                                 </div>
                                 <button type="button" id="addKondisiBtn"
                                         class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center justify-center"
-                                        title="Tambah Kondisi Kesehatan"
+                                        title="Tambah Gangguan Kesehatan"
                                         style="pointer-events: auto; cursor: pointer;">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -481,14 +481,14 @@
                                 </button>
                                 <button type="button" id="removeKondisiBtn"
                                         class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors flex items-center justify-center"
-                                        title="Kurangi Kondisi Kesehatan"
+                                        title="Kurangi Gangguan Kesehatan"
                                         style="pointer-events: auto; cursor: pointer;">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                                     </svg>
                                 </button>
                             </div>
-                            <p class="mt-1 text-sm text-gray-500">Klik + untuk menambah kondisi kesehatan (maksimal 5)</p>
+                            <p class="mt-1 text-sm text-gray-500">Klik + untuk menambah Gangguan Kesehatan (maksimal 5)</p>
                         </div>
                         
                         <div class="mb-4">
@@ -655,9 +655,9 @@
                             
                             if (currentFields >= 5) {
                                 if (typeof Swal !== 'undefined') {
-                                    Swal.showValidationMessage('Maksimal 5 kondisi kesehatan');
+                                    Swal.showValidationMessage('Maksimal 5 Gangguan Kesehatan');
                                 } else {
-                                    alert('Maksimal 5 kondisi kesehatan');
+                                    alert('Maksimal 5 Gangguan Kesehatan');
                                 }
                                 return;
                             }
@@ -665,7 +665,7 @@
                             const fieldDiv = document.createElement('div');
                             fieldDiv.className = 'mb-2';
                             
-                            let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+                            let options = '<option value="">Pilih Gangguan Kesehatan</option>';
                             const kondisiList = @json($kondisiKesehatanList ?? []);
                             kondisiList.forEach(kondisi => {
                                 options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
@@ -697,9 +697,9 @@
                             
                             if (fields.length <= 1) {
                                 if (typeof Swal !== 'undefined') {
-                                    Swal.showValidationMessage('Minimal harus ada 1 kondisi kesehatan');
+                                    Swal.showValidationMessage('Minimal harus ada 1 Gangguan Kesehatan');
                                 } else {
-                                    alert('Minimal harus ada 1 kondisi kesehatan');
+                                    alert('Minimal harus ada 1 Gangguan Kesehatan');
                                 }
                                 return;
                             }
@@ -885,7 +885,7 @@
                         const existingKondisiIds = checkup.kondisi_kesehatan_ids || [];
                         
                         // Build kondisi kesehatan options
-                        let kondisiKesehatanOptions = '<option value="">Pilih Kondisi Kesehatan</option>';
+                        let kondisiKesehatanOptions = '<option value="">Pilih Gangguan Kesehatan</option>';
                         kondisiKesehatanList.forEach(kondisi => {
                             const selected = existingKondisiIds.includes(kondisi.id) ? 'selected' : '';
                             kondisiKesehatanOptions += `<option value="${kondisi.id}" ${selected}>${kondisi.nama_kondisi}</option>`;
@@ -895,7 +895,7 @@
                         let kondisiKesehatanFields = '';
                         if (existingKondisiIds.length > 0) {
                             existingKondisiIds.forEach((kondisiId, index) => {
-                                let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+                                let options = '<option value="">Pilih Gangguan Kesehatan</option>';
                                 kondisiKesehatanList.forEach(kondisi => {
                                     const selected = kondisi.id === kondisiId ? 'selected' : '';
                                     options += `<option value="${kondisi.id}" ${selected}>${kondisi.nama_kondisi}</option>`;
@@ -972,14 +972,14 @@
                                     </div>
                                     
                                     <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Kondisi Kesehatan</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Gangguan Kesehatan</label>
                                         <div class="flex items-center gap-2">
                                             <div id="editKondisiKesehatanContainer" class="flex-1">
                                                 ${kondisiKesehatanFields}
                                             </div>
                                             <button type="button" id="editAddKondisiBtn"
                                                     class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center justify-center"
-                                                    title="Tambah Kondisi Kesehatan"
+                                                    title="Tambah Gangguan Kesehatan"
                                                     style="pointer-events: auto; cursor: pointer;">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -987,14 +987,14 @@
                                             </button>
                                             <button type="button" id="editRemoveKondisiBtn"
                                                     class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors flex items-center justify-center"
-                                                    title="Kurangi Kondisi Kesehatan"
+                                                    title="Kurangi Gangguan Kesehatan"
                                                     style="pointer-events: auto; cursor: pointer;">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                                                 </svg>
                                             </button>
                                         </div>
-                                        <p class="mt-1 text-sm text-gray-500">Klik + untuk menambah kondisi kesehatan (maksimal 5)</p>
+                                        <p class="mt-1 text-sm text-gray-500">Klik + untuk menambah Gangguan Kesehatan (maksimal 5)</p>
                                     </div>
                                     
                                     <div class="mb-4">
@@ -1156,9 +1156,9 @@
                                         
                                     if (currentFields >= 5) {
                                         if (typeof Swal !== 'undefined') {
-                                            Swal.showValidationMessage('Maksimal 5 kondisi kesehatan');
+                                            Swal.showValidationMessage('Maksimal 5 Gangguan Kesehatan');
                                         } else {
-                                            alert('Maksimal 5 kondisi kesehatan');
+                                            alert('Maksimal 5 Gangguan Kesehatan');
                                         }
                                         return;
                                     }
@@ -1166,7 +1166,7 @@
                                     const fieldDiv = document.createElement('div');
                                     fieldDiv.className = 'mb-2';
                                     
-                                    let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+                                    let options = '<option value="">Pilih Gangguan Kesehatan</option>';
                                     const kondisiList = @json($kondisiKesehatanList ?? []);
                                     kondisiList.forEach(kondisi => {
                                         options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
@@ -1198,9 +1198,9 @@
                                         
                                     if (fields.length <= 1) {
                                         if (typeof Swal !== 'undefined') {
-                                            Swal.showValidationMessage('Minimal harus ada 1 kondisi kesehatan');
+                                            Swal.showValidationMessage('Minimal harus ada 1 Gangguan Kesehatan');
                                         } else {
-                                            alert('Minimal harus ada 1 kondisi kesehatan');
+                                            alert('Minimal harus ada 1 Gangguan Kesehatan');
                                         }
                                         return;
                                     }
@@ -1295,7 +1295,7 @@
                 const fieldDiv = document.createElement('div');
                 fieldDiv.className = 'mb-2';
                 
-                let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+                let options = '<option value="">Pilih Gangguan Kesehatan</option>';
                 kondisiKesehatanList.forEach(kondisi => {
                     options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
                 });
