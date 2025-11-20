@@ -13,7 +13,7 @@ class MedicalArchivesQueryOptimizer
      */
     public static function getEmployeeMedicalRecords($perPage = 50, $search = null, $departmentFilter = null, $statusFilter = null)
     {
-        // Get all data in a single query with proper joins
+        // Get all data in a single query with proper joins including medical check up data
         $query = DB::table('karyawan as k')
             ->select([
                 'k.id_karyawan',
@@ -26,23 +26,20 @@ class MedicalArchivesQueryOptimizer
                 'kl.no_rm',
                 'kl.kode_hubungan',
                 'h.hubungan as hubungan_nama',
-                'rm.id_rekam',
-                'rm.tanggal_periksa',
-                'rm.status as rekam_status',
-                'u.nama_lengkap as petugas'
+                // Get latest medical check up data including tanggal (periode)
+                DB::raw('(SELECT tanggal FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as periode_terakhir'),
+                DB::raw('(SELECT bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as bmi'),
+                DB::raw('(SELECT keterangan_bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as keterangan_bmi'),
+                DB::raw('(SELECT catatan FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as catatan')
             ])
             ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
             ->leftJoin('keluarga as kl', function($join) {
                 $join->on('k.id_karyawan', '=', 'kl.id_karyawan')
-                     ->where('kl.kode_hubungan', '=', 'A'); // Filter hanya kode hubungan A
+                     ->where('kl.kode_hubungan', '=', 'A');
             })
             ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
-            ->leftJoin('rekam_medis as rm', 'kl.id_keluarga', '=', 'rm.id_keluarga')
-            ->leftJoin('user as u', 'rm.id_user', '=', 'u.id_user')
             ->where('k.status', 'aktif')
-            ->whereNotNull('kl.no_rm')
-            ->orderBy('k.nama_karyawan')
-            ->orderBy('kl.nama_keluarga');
+            ->whereNotNull('kl.no_rm');
             
         // Apply search filter
         if ($search) {
@@ -68,8 +65,32 @@ class MedicalArchivesQueryOptimizer
         $query->orderBy('k.nama_karyawan')
               ->orderBy('kl.nama_keluarga');
         
-        // Get all results (we'll paginate manually after processing)
+        // Get all results
         $allResults = $query->get();
+        
+        // Get kondisi kesehatan for all karyawan (only from latest medical check up)
+        $kondisiKesehatanMap = collect();
+        
+        foreach ($allResults->pluck('id_karyawan')->unique() as $idKaryawan) {
+            // Get the latest medical check up date for this employee
+            $latestMCU = DB::table('medical_check_up')
+                ->where('id_karyawan', $idKaryawan)
+                ->orderBy('tanggal', 'desc')
+                ->first();
+            
+            if ($latestMCU) {
+                // Get kondisi kesehatan for the latest medical check up
+                $kondisiKesehatan = DB::table('medical_check_up_kondisi_kesehatan as mck')
+                    ->join('kondisi_kesehatan as kk', 'mck.id_kondisi_kesehatan', '=', 'kk.id')
+                    ->where('mck.id_medical_check_up', $latestMCU->id_medical_check_up)
+                    ->pluck('kk.nama_kondisi')
+                    ->toArray();
+                
+                if (!empty($kondisiKesehatan)) {
+                    $kondisiKesehatanMap->put($idKaryawan, $kondisiKesehatan);
+                }
+            }
+        }
         
         // Group by employee to avoid duplicates
         $groupedResults = $allResults->groupBy('id_karyawan');
@@ -86,40 +107,22 @@ class MedicalArchivesQueryOptimizer
                 continue;
             }
             
-            // Generate RM code (NIK-A)
-            $rmCode = $employee->nik_karyawan . '-A';
+            // Get kondisi kesehatan for this employee (from latest medical check up)
+            $kondisiKesehatan = $kondisiKesehatanMap->get($employeeId, []);
             
             $medicalArchives->push([
                 'id' => $counter++,
                 'nik_karyawan' => $employee->nik_karyawan,
                 'nama_karyawan' => $employee->nama_karyawan,
                 'nama_departemen' => $employee->nama_departemen,
-                'rm_code' => $rmCode,
-                'nama_pasien' => $employee->nama_keluarga,
-                'no_rm' => $employee->no_rm,
+                'periode_terakhir' => $employee->periode_terakhir,
+                'bmi' => $employee->bmi,
+                'keterangan_bmi' => $employee->keterangan_bmi,
+                'kondisi_kesehatan' => $kondisiKesehatan,
+                'catatan' => $employee->catatan,
                 'status' => $employee->karyawan_status,
                 'id_keluarga' => $employee->id_keluarga,
-                'id_karyawan' => $employee->id_karyawan,
-                'latest_visit_date' => $familyMembers
-                    ->where('id_rekam', '!==', null)
-                    ->sortByDesc('tanggal_periksa')
-                    ->first()->tanggal_periksa ?? null,
-                'petugas' => $familyMembers
-                    ->where('id_rekam', '!==', null)
-                    ->sortByDesc('tanggal_periksa')
-                    ->first()->petugas ?? null,
-                'hubungan' => $employee->hubungan_nama,
-                'family_members' => $familyMembers
-                    ->where('kode_hubungan', 'A') // Pastikan hanya kode hubungan A
-                    ->map(function($member) {
-                        return [
-                            'id_keluarga' => $member->id_keluarga,
-                            'nama_keluarga' => $member->nama_keluarga,
-                            'no_rm' => $member->no_rm,
-                            'hubungan' => $member->hubungan_nama,
-                            'kode_hubungan' => $member->kode_hubungan
-                        ];
-                    })->unique('id_keluarga')->values()
+                'id_karyawan' => $employee->id_karyawan
             ]);
         }
         

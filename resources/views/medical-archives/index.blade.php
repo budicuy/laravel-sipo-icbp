@@ -131,13 +131,19 @@
                             Departemen
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
-                            Kode RM
+                            Periode
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
-                            Nama Pasien
+                            BMI
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
-                            Status
+                            Kategori BMI
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Kondisi Kesehatan
+                        </th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
+                            Catatan
                         </th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
                             Aksi
@@ -159,19 +165,57 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                 {{ $record['nama_departemen'] ?? '-' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
-                                {{ $record['rm_code'] }}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                @if($record['periode_terakhir'])
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-xs font-medium">
+                                        {{ \Carbon\Carbon::parse($record['periode_terakhir'])->format('d M Y') }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200 font-medium">
-                                {{ $record['nama_pasien'] }}
+                                {{ $record['bmi'] ? number_format($record['bmi'], 2) : '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                                <span class="px-3 py-1 rounded-full text-xs font-medium
-                                @if($record['status'] == 'aktif') bg-green-100 text-green-800
-                                @elseif($record['status'] == 'tidak aktif') bg-red-100 text-red-800
-                                @else bg-gray-100 text-gray-800 @endif">
-                                    {{ ucfirst($record['status']) }}
-                                </span>
+                                @if($record['keterangan_bmi'])
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium
+                                    @if($record['keterangan_bmi'] == 'Normal') bg-green-100 text-green-800
+                                    @elseif($record['keterangan_bmi'] == 'Underweight') bg-yellow-100 text-yellow-800
+                                    @elseif($record['keterangan_bmi'] == 'Overweight') bg-orange-100 text-orange-800
+                                    @elseif(str_contains($record['keterangan_bmi'], 'Obesitas')) bg-red-100 text-red-800
+                                    @else bg-gray-100 text-gray-800 @endif">
+                                        {{ $record['keterangan_bmi'] }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900 border-r border-gray-200">
+                                @if(!empty($record['kondisi_kesehatan']))
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach($record['kondisi_kesehatan'] as $kondisi)
+                                            <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                                                {{ $kondisi }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
+                                @if($record['catatan'])
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium
+                                    @if($record['catatan'] == 'Fit') bg-green-100 text-green-800
+                                    @elseif($record['catatan'] == 'Fit dengan Catatan') bg-yellow-100 text-yellow-800
+                                    @elseif($record['catatan'] == 'Fit dalam Pengawasan') bg-orange-100 text-orange-800
+                                    @else bg-gray-100 text-gray-800 @endif">
+                                        {{ $record['catatan'] }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <a href="{{ route('medical-archives.show', $record['id_karyawan']) }}" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all inline-block">
@@ -185,7 +229,7 @@
                         </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                        <td colspan="10" class="px-6 py-8 text-center text-gray-500">
                             <svg class="w-16 h-16 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
