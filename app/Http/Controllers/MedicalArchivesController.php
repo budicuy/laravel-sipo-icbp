@@ -654,7 +654,7 @@ class MedicalArchivesController extends Controller
         
         try {
             $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
-                ->where('id_medical_check_up', $id_medical_check_up)
+                ->where('id_medical_check_up', $id)
                 ->firstOrFail();
             
             // Update data
@@ -777,7 +777,7 @@ class MedicalArchivesController extends Controller
             \Log::error('Stack trace: ' . $e->getTraceAsString());
             \Log::error('Request data: ' . json_encode([
                 'id_karyawan' => $id_karyawan,
-                'id' => $id,
+                'id_medical_check_up' => $id_medical_check_up,
                 'session_id' => session()->getId(),
                 'csrf_token' => csrf_token()
             ]));
@@ -792,7 +792,7 @@ class MedicalArchivesController extends Controller
                     'error_line' => $e->getLine(),
                     'request_data' => [
                         'id_karyawan' => $id_karyawan,
-                        'id' => $id,
+                        'id_medical_check_up' => $id_medical_check_up,
                         'session_id' => session()->getId(),
                         'csrf_token' => csrf_token()
                     ]

@@ -887,8 +887,39 @@
                         // Build kondisi kesehatan options
                         let kondisiKesehatanOptions = '<option value="">Pilih Kondisi Kesehatan</option>';
                         kondisiKesehatanList.forEach(kondisi => {
-                            kondisiKesehatanOptions += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
+                            const selected = existingKondisiIds.includes(kondisi.id) ? 'selected' : '';
+                            kondisiKesehatanOptions += `<option value="${kondisi.id}" ${selected}>${kondisi.nama_kondisi}</option>`;
                         });
+                        
+                        // Generate initial kondisi kesehatan fields based on existing data
+                        let kondisiKesehatanFields = '';
+                        if (existingKondisiIds.length > 0) {
+                            existingKondisiIds.forEach((kondisiId, index) => {
+                                let options = '<option value="">Pilih Kondisi Kesehatan</option>';
+                                kondisiKesehatanList.forEach(kondisi => {
+                                    const selected = kondisi.id === kondisiId ? 'selected' : '';
+                                    options += `<option value="${kondisi.id}" ${selected}>${kondisi.nama_kondisi}</option>`;
+                                });
+                                kondisiKesehatanFields += `
+                                    <div class="mb-2">
+                                        <select name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan${index + 1}"
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                            ${options}
+                                        </select>
+                                    </div>
+                                `;
+                            });
+                        } else {
+                            // Default one empty field if no existing data
+                            kondisiKesehatanFields = `
+                                <div class="mb-2">
+                                    <select name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan1"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                        ${kondisiKesehatanOptions}
+                                    </select>
+                                </div>
+                            `;
+                        }
                         
                         // Show SweetAlert modal for editing
                         Swal.fire({
@@ -944,12 +975,7 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-2">Kondisi Kesehatan</label>
                                         <div class="flex items-center gap-2">
                                             <div id="editKondisiKesehatanContainer" class="flex-1">
-                                                <div class="mb-2">
-                                                    <select name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan1"
-                                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                        ${kondisiKesehatanOptions}
-                                                    </select>
-                                                </div>
+                                                ${kondisiKesehatanFields}
                                             </div>
                                             <button type="button" id="editAddKondisiBtn"
                                                     class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center justify-center"
