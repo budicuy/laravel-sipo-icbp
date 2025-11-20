@@ -186,7 +186,7 @@
                                         BMI
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
-                                        Keterangan
+                                        BMI Kategori
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
                                         Kondisi Kesehatan
