@@ -168,7 +168,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
                                 @if($record['periode_terakhir'])
                                     <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-lg text-xs font-medium">
-                                        {{ \Carbon\Carbon::parse($record['periode_terakhir'])->format('d M Y') }}
+                                        {{ $record['periode_terakhir'] }}
                                     </span>
                                 @else
                                     <span class="text-gray-400">-</span>
@@ -209,7 +209,7 @@
                                     <span class="px-3 py-1 rounded-full text-xs font-medium
                                     @if($record['catatan'] == 'Fit') bg-green-100 text-green-800
                                     @elseif($record['catatan'] == 'Fit dengan Catatan') bg-yellow-100 text-yellow-800
-                                    @elseif($record['catatan'] == 'Fit dalam Pengawasan') bg-orange-100 text-orange-800
+                                    @elseif($record['catatan'] == 'Fit dalam Pengawasan') bg-red-100 text-red-800
                                     @else bg-gray-100 text-gray-800 @endif">
                                         {{ $record['catatan'] }}
                                     </span>

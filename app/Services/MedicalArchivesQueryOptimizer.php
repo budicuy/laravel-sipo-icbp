@@ -26,8 +26,8 @@ class MedicalArchivesQueryOptimizer
                 'kl.no_rm',
                 'kl.kode_hubungan',
                 'h.hubungan as hubungan_nama',
-                // Get latest medical check up data including tanggal (periode)
-                DB::raw('(SELECT tanggal FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as periode_terakhir'),
+                // Get latest medical check up data - use periode field which contains year
+                DB::raw('(SELECT periode FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as periode_terakhir'),
                 DB::raw('(SELECT bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as bmi'),
                 DB::raw('(SELECT keterangan_bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as keterangan_bmi'),
                 DB::raw('(SELECT catatan FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as catatan')
@@ -115,7 +115,7 @@ class MedicalArchivesQueryOptimizer
                 'nik_karyawan' => $employee->nik_karyawan,
                 'nama_karyawan' => $employee->nama_karyawan,
                 'nama_departemen' => $employee->nama_departemen,
-                'periode_terakhir' => $employee->periode_terakhir,
+                'periode_terakhir' => $employee->periode_terakhir, // This is already a year (integer)
                 'bmi' => $employee->bmi,
                 'keterangan_bmi' => $employee->keterangan_bmi,
                 'kondisi_kesehatan' => $kondisiKesehatan,

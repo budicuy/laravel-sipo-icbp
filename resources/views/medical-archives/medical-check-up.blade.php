@@ -259,7 +259,7 @@
                                                 <span class="px-2 py-1 text-xs font-medium rounded-full
                                                     @if($checkup->catatan == 'Fit') bg-green-100 text-green-800
                                                     @elseif($checkup->catatan == 'Fit dengan Catatan') bg-yellow-100 text-yellow-800
-                                                    @elseif($checkup->catatan == 'Fit dalam Pengawasan') bg-orange-100 text-orange-800
+                                                    @elseif($checkup->catatan == 'Fit dalam Pengawasan') bg-red-100 text-red-800
                                                     @else bg-gray-100 text-gray-800
                                                     @endif">
                                                     {{ $checkup->catatan }}
