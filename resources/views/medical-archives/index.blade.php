@@ -157,7 +157,7 @@
             <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-5">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                        <span style="display: inline-block; width: 16px; height: 16px; background-color: #8B5CF6; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span>
                         <h4 class="text-sm font-semibold text-gray-700">Gangguan Kesehatan</h4>
                     </div>
                     <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Total Kasus</span>
@@ -171,7 +171,7 @@
             <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-5">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <div class="w-4 h-4 bg-blue-500 rounded-full shadow-sm"></div>
                         <h4 class="text-sm font-semibold text-gray-700">BMI Category</h4>
                     </div>
                     <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Distribusi BMI</span>
@@ -185,7 +185,7 @@
             <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-5">
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <div class="w-4 h-4 bg-green-500 rounded-full shadow-sm"></div>
                         <h4 class="text-sm font-semibold text-gray-700">Status Kesehatan</h4>
                     </div>
                     <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Status Fit</span>
@@ -257,7 +257,7 @@
                             Gangguan Kesehatan
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
-                            Catatan
+                            Status Kesehatan
                         </th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
                             Aksi
@@ -445,83 +445,80 @@
 
 @push('scripts')
 <script>
-    // Wait for DOM to be fully loaded
     document.addEventListener('DOMContentLoaded', function() {
-        // Check if Chart.js is loaded
         if (typeof Chart === 'undefined') {
             console.error('Chart.js is not loaded!');
             return;
         }
         
-        // Data dari controller
         const chartData = @json($chartData);
         
-        // Debug: Log chart data to console
-        console.log('Chart Data:', chartData);
-        console.log('Kondisi Kesehatan Data:', chartData.kondisiKesehatan);
-        console.log('Keterangan BMI Data:', chartData.keteranganBmi);
-        console.log('Catatan Data:', chartData.catatan);
-        
-        // Validate chart data structure
-        if (!chartData || typeof chartData !== 'object') {
-            console.error('Invalid chart data structure');
-            return;
-        }
-        
-        // Ensure each chart data is valid
-        const kondisiKesehatanData = chartData.kondisiKesehatan || {};
-        const keteranganBmiData = chartData.keteranganBmi || {};
-        const catatanData = chartData.catatan || {};
-        
-        // Check if data is empty and provide default values
-        const isEmpty = (obj) => Object.keys(obj).length === 0;
-        
-        if (isEmpty(kondisiKesehatanData)) {
-            chartData.kondisiKesehatan = { 'Tidak Ada Data': 1 };
-        }
-        
-        if (isEmpty(keteranganBmiData)) {
-            chartData.keteranganBmi = { 'Tidak Ada Data': 1 };
-        }
-        
-        if (isEmpty(catatanData)) {
-            chartData.catatan = { 'Tidak Ada Data': 1 };
-        }
+        // Color Palettes berdasarkan gambar yang diberikan (lebih vibrant)
+        const gradients = {
+            // Warna lebih vibrant untuk Kondisi Kesehatan
+            health: [
+                '#C084FC', '#A855F7', '#8B5CF6', '#7C3AED',
+                '#FF9BCF', '#F472B6', '#EC4899', '#E879F9',
+                '#60A5FA', '#3B82F6', '#2563EB', '#1D4ED8',
+                '#22D3EE', '#06B6D4', '#0891B2', '#A78BFA',
+                '#818CF8', '#6366F1', '#4F46E5', '#10B981'
+            ],
+            // BMI gradient dengan gradasi: Kuning → Biru/Hijau → Oren → Oren Kemerahan → Merah → Merah Menyala
+            bmi: {
+                'Underweight': '#FCD34D',      // Kuning (Yellow 400)
+                'Normal': '#10B981',           // Hijau/Biru (Green 500)
+                'Overweight': '#FB923C',       // Oren (Orange 400)
+                'Obesitas Tk 1': '#F97316',    // Oren Kemerahan (Orange 600)
+                'Obesitas Tk 2': '#EF4444',    // Merah (Red 500)
+                'Obesitas Tk 3': '#DC2626'     // Merah Menyala (Red 600)
+            },
+            // Status Kesehatan: Hijau → Kuning → Merah dengan gradasi proporsional
+            status: {
+                'Fit': {
+                    background: '#10B981',           // Green 500 (Hijau Medium)
+                    hover: '#047857',                // Green 700 (Hijau Tua)
+                    border: '#059669'                // Green 600
+                },
+                'Fit dengan Catatan': {
+                    background: '#F59E0B',           // Amber 500 (Kuning Medium)
+                    hover: '#D97706',                // Amber 600 (Kuning Sedikit Lebih Tua)
+                    border: '#D97706'                // Amber 600
+                },
+                'Fit dalam Pengawasan': {
+                    background: '#EF4444',           // Red 500 (Merah Medium)
+                    hover: '#B91C1C',                // Red 700 (Merah Tua)
+                    border: '#DC2626'                // Red 600
+                }
+            }
+        };
 
-        // Chart Kondisi Kesehatan
+        // Chart Kondisi Kesehatan - Pie Chart
         const ctxKondisiKesehatan = document.getElementById('chartKondisiKesehatan');
         if (ctxKondisiKesehatan) {
-            const chartKondisiKesehatan = new Chart(ctxKondisiKesehatan.getContext('2d'), {
+            const labels = Object.keys(chartData.kondisiKesehatan);
+            
+            const healthColors = [
+                '#C084FC', '#FF9BCF', '#60A5FA', '#22D3EE',
+                '#A855F7', '#F472B6', '#3B82F6', '#06B6D4',
+                '#8B5CF6', '#EC4899', '#2563EB', '#0891B2',
+                '#A78BFA', '#E879F9', '#818CF8', '#6366F1',
+                '#7C3AED', '#4F46E5', '#10B981', '#1D4ED8'
+            ];
+
+            new Chart(ctxKondisiKesehatan.getContext('2d'), {
                 type: 'pie',
                 data: {
-                    labels: Object.keys(chartData.kondisiKesehatan),
+                    labels: labels,
                     datasets: [{
                         data: Object.values(chartData.kondisiKesehatan),
-                        backgroundColor: [
-                            'rgba(147, 51, 234, 0.8)',  // Purple
-                            'rgba(59, 130, 246, 0.8)',   // Blue
-                            'rgba(16, 185, 129, 0.8)',   // Green
-                            'rgba(251, 146, 60, 0.8)',  // Orange
-                            'rgba(239, 68, 68, 0.8)',   // Red
-                            'rgba(107, 114, 128, 0.8)',  // Gray
-                            'rgba(236, 72, 153, 0.8)',  // Pink
-                            'rgba(34, 197, 94, 0.8)',   // Emerald
-                            'rgba(168, 85, 247, 0.8)',  // Violet
-                            'rgba(20, 184, 166, 0.8)'   // Teal
-                        ],
-                        borderColor: [
-                            'rgba(147, 51, 234, 1)',
-                            'rgba(59, 130, 246, 1)',
-                            'rgba(16, 185, 129, 1)',
-                            'rgba(251, 146, 60, 1)',
-                            'rgba(239, 68, 68, 1)',
-                            'rgba(107, 114, 128, 1)',
-                            'rgba(236, 72, 153, 1)',
-                            'rgba(34, 197, 94, 1)',
-                            'rgba(168, 85, 247, 1)',
-                            'rgba(20, 184, 166, 1)'
-                        ],
-                        borderWidth: 1
+                        backgroundColor: labels.map((_, index) => {
+                            return healthColors[index % healthColors.length];
+                        }),
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2,
+                        hoverOffset: 15,
+                        hoverBorderWidth: 4,
+                        hoverBorderColor: '#F9FAFB'
                     }]
                 },
                 options: {
@@ -532,56 +529,108 @@
                             display: true,
                             position: 'bottom',
                             labels: {
-                                padding: 15,
-                                font: {
-                                    size: 11
+                                padding: 12,
+                                font: { size: 10, weight: '500' },  // Ubah dari '600' ke '500'
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                boxWidth: 6,          // Perkecil dari 8 ke 6
+                                boxHeight: 6,         // Perkecil dari 8 ke 6
+                                color: '#374151',
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            return {
+                                                text: label,
+                                                fillStyle: healthColors[i % healthColors.length],
+                                                strokeStyle: healthColors[i % healthColors.length],
+                                                lineWidth: 1,   // Tambahkan ini untuk stroke yang lebih tipis
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
                                 }
                             }
                         },
                         tooltip: {
                             enabled: true,
+                            backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                            titleColor: '#1F2937',
+                            bodyColor: '#374151',
+                            borderColor: '#E5E7EB',
+                            borderWidth: 2,
+                            cornerRadius: 12,
+                            displayColors: true,
+                            padding: 16,
+                            boxPadding: 6,
+                            titleFont: {
+                                size: 13,
+                                weight: 'bold',
+                                family: "'Inter', sans-serif"
+                            },
+                            bodyFont: {
+                                size: 12,
+                                family: "'Inter', sans-serif"
+                            },
                             callbacks: {
                                 label: function(context) {
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                    return ' ' + context.label + ': ' + context.parsed + ' (' + percentage + '%)';
                                 }
                             }
                         }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 1800,
+                        easing: 'easeInOutQuart'
                     }
                 }
             });
-        } else {
-            console.error('Chart Kondisi Kesehatan canvas not found');
         }
 
-        // Chart Keterangan BMI
+        // Chart Keterangan BMI - Hover warna sedikit lebih gelap
         const ctxKeteranganBmi = document.getElementById('chartKeteranganBmi');
         if (ctxKeteranganBmi) {
-            const chartKeteranganBmi = new Chart(ctxKeteranganBmi.getContext('2d'), {
+            const bmiLabels = Object.keys(chartData.keteranganBmi);
+
+            new Chart(ctxKeteranganBmi.getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(chartData.keteranganBmi),
+                    labels: bmiLabels,
                     datasets: [{
                         label: 'Jumlah Karyawan',
                         data: Object.values(chartData.keteranganBmi),
-                        backgroundColor: [
-                            'rgba(59, 130, 246, 0.8)',   // Blue for Underweight
-                            'rgba(16, 185, 129, 0.8)',   // Green for Normal
-                            'rgba(251, 146, 60, 0.8)',  // Orange for Overweight
-                            'rgba(239, 68, 68, 0.8)',   // Red for Obesitas Tk 1
-                            'rgba(147, 51, 234, 0.8)',  // Purple for Obesitas Tk 2
-                            'rgba(107, 114, 128, 0.8)'   // Gray for Obesitas Tk 3
-                        ],
-                        borderColor: [
-                            'rgba(59, 130, 246, 1)',
-                            'rgba(16, 185, 129, 1)',
-                            'rgba(251, 146, 60, 1)',
-                            'rgba(239, 68, 68, 1)',
-                            'rgba(147, 51, 234, 1)',
-                            'rgba(107, 114, 128, 1)'
-                        ],
-                        borderWidth: 1
+                        backgroundColor: bmiLabels.map(label => gradients.bmi[label] || '#9CA3AF'),
+                        borderColor: bmiLabels.map(label => {
+                            const borderMap = {
+                                'Underweight': '#F59E0B',      // Amber 500
+                                'Normal': '#059669',           // Green 600
+                                'Overweight': '#EA580C',       // Orange 600
+                                'Obesitas Tk 1': '#DC2626',    // Red 600
+                                'Obesitas Tk 2': '#B91C1C',    // Red 700
+                                'Obesitas Tk 3': '#991B1B'     // Red 800
+                            };
+                            return borderMap[label] || '#6B7280';
+                        }),
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        hoverBackgroundColor: bmiLabels.map(label => {
+                            // Hover warna sedikit lebih gelap (subtle difference)
+                            const hoverMap = {
+                                'Underweight': '#F59E0B',      // Amber 500 (sedikit lebih gelap dari Yellow 400)
+                                'Normal': '#047857',           // Green 600 (sedikit lebih gelap dari Green 500)
+                                'Overweight': '#EA580C',       // Orange 600 (sedikit lebih gelap dari Orange 400)
+                                'Obesitas Tk 1': '#DC2626',    // Red 600 (sedikit lebih gelap dari Orange 600)
+                                'Obesitas Tk 2': '#DC2626',    // Red 600 (sedikit lebih gelap dari Red 500)
+                                'Obesitas Tk 3': '#B91C1C'     // Red 700 (sedikit lebih gelap dari Red 600)
+                            };
+                            return hoverMap[label] || '#4B5563';
+                        })
                     }]
                 },
                 options: {
@@ -589,14 +638,24 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             enabled: true,
+                            backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                            titleColor: '#1F2937',
+                            bodyColor: '#374151',
+                            borderColor: (context) => {
+                                const label = context.tooltip.dataPoints[0].label;
+                                return gradients.bmi[label] || '#9CA3AF';
+                            },
+                            borderWidth: 2,
+                            cornerRadius: 10,
+                            padding: 14,
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': ' + context.parsed.x;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed.x / total) * 100).toFixed(1);
+                                    return context.dataset.label + ': ' + context.parsed.x + ' (' + percentage + '%)';
                                 }
                             }
                         }
@@ -604,49 +663,59 @@
                     scales: {
                         x: {
                             beginAtZero: true,
+                            grid: {
+                                color: 'rgba(156, 163, 175, 0.1)',
+                                drawBorder: false
+                            },
                             ticks: {
                                 stepSize: 1,
                                 callback: function(value) {
                                     return Number.isInteger(value) ? value : '';
-                                }
+                                },
+                                font: { size: 11 },
+                                color: '#6B7280'
                             }
                         },
                         y: {
-                            grid: {
-                                display: false
+                            grid: { display: false },
+                            ticks: {
+                                font: { size: 12, weight: '500' },
+                                color: '#374151'
                             }
+                        }
+                    },
+                    animation: {
+                        duration: 1200,
+                        easing: 'easeInOutQuart',
+                        delay: (context) => {
+                            return context.type === 'data' ? context.dataIndex * 100 : 0;
                         }
                     }
                 }
             });
-        } else {
-            console.error('Chart Keterangan BMI canvas not found');
         }
 
-        // Chart Catatan
+        // Chart Status Kesehatan - Hijau → Kuning → Merah (dengan gradasi proporsional)
         const ctxCatatan = document.getElementById('chartCatatan');
         if (ctxCatatan) {
-            const chartCatatan = new Chart(ctxCatatan.getContext('2d'), {
+            const catatanLabels = ['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'];
+            const catatanData = [
+                chartData.catatan['Fit'] || 0,
+                chartData.catatan['Fit dengan Catatan'] || 0,
+                chartData.catatan['Fit dalam Pengawasan'] || 0
+            ];
+
+            new Chart(ctxCatatan.getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: ['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'],
+                    labels: catatanLabels,
                     datasets: [{
-                        data: [
-                            chartData.catatan['Fit'],
-                            chartData.catatan['Fit dengan Catatan'],
-                            chartData.catatan['Fit dalam Pengawasan']
-                        ],
-                        backgroundColor: [
-                            'rgba(16, 185, 129, 0.8)',   // Green for Fit
-                            'rgba(251, 146, 60, 0.8)',  // Orange for Fit dengan Catatan
-                            'rgba(239, 68, 68, 0.8)'   // Red for Fit dalam Pengawasan
-                        ],
-                        borderColor: [
-                            'rgba(16, 185, 129, 1)',
-                            'rgba(251, 146, 60, 1)',
-                            'rgba(239, 68, 68, 1)'
-                        ],
-                        borderWidth: 1
+                        data: catatanData,
+                        backgroundColor: catatanLabels.map(label => gradients.status[label].background),
+                        borderColor: catatanLabels.map(label => gradients.status[label].border),
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        hoverBackgroundColor: catatanLabels.map(label => gradients.status[label].hover)
                     }]
                 },
                 options: {
@@ -654,15 +723,23 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             enabled: true,
+                            backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                            titleColor: '#1F2937',
+                            bodyColor: '#374151',
+                            borderColor: (context) => {
+                                const label = context.tooltip.dataPoints[0].label;
+                                return gradients.status[label].background;
+                            },
+                            borderWidth: 2,
+                            cornerRadius: 10,
+                            padding: 14,
                             callbacks: {
                                 label: function(context) {
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((context.parsed.x / total) * 100).toFixed(1);
+                                    const percentage = total > 0 ? ((context.parsed.x / total) * 100).toFixed(1) : 0;
                                     return context.label + ': ' + context.parsed.x + ' (' + percentage + '%)';
                                 }
                             }
@@ -671,23 +748,36 @@
                     scales: {
                         x: {
                             beginAtZero: true,
+                            grid: {
+                                color: 'rgba(156, 163, 175, 0.1)',
+                                drawBorder: false
+                            },
                             ticks: {
                                 stepSize: 1,
                                 callback: function(value) {
                                     return Number.isInteger(value) ? value : '';
-                                }
+                                },
+                                font: { size: 11 },
+                                color: '#6B7280'
                             }
                         },
                         y: {
-                            grid: {
-                                display: false
+                            grid: { display: false },
+                            ticks: {
+                                font: { size: 12, weight: '500' },
+                                color: '#374151'
                             }
+                        }
+                    },
+                    animation: {
+                        duration: 1200,
+                        easing: 'easeInOutQuart',
+                        delay: (context) => {
+                            return context.type === 'data' ? context.dataIndex * 100 : 0;
                         }
                     }
                 }
             });
-        } else {
-            console.error('Chart Catatan canvas not found');
         }
     });
 </script>

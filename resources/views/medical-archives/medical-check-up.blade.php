@@ -192,7 +192,7 @@
                                         Gangguan Kesehatan
                                     </th>
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
-                                        Catatan
+                                        Status Kesehatan
                                     </th>
                                     <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
                                         File
@@ -492,10 +492,10 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status Kesehatan</label>
                             <select name="catatan" id="swalCatatan"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                <option value="">Pilih Catatan</option>
+                                <option value="">Pilih Status Kesehatan</option>
                                 <option value="Fit">Fit</option>
                                 <option value="Fit dengan Catatan">Fit dengan Catatan</option>
                                 <option value="Fit dalam Pengawasan">Fit dalam Pengawasan</option>
@@ -998,10 +998,10 @@
                                     </div>
                                     
                                     <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Status Kesehatan</label>
                                         <select name="catatan" id="swalEditCatatan"
                                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            <option value="">Pilih Catatan</option>
+                                            <option value="">Pilih Status Kesehatan</option>
                                             <option value="Fit" ${checkup.catatan === 'Fit' ? 'selected' : ''}>Fit</option>
                                             <option value="Fit dengan Catatan" ${checkup.catatan === 'Fit dengan Catatan' ? 'selected' : ''}>Fit dengan Catatan</option>
                                             <option value="Fit dalam Pengawasan" ${checkup.catatan === 'Fit dalam Pengawasan' ? 'selected' : ''}>Fit dalam Pengawasan</option>
