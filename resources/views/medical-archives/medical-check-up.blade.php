@@ -444,10 +444,10 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Keterangan</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">BMI Category</label>
                             <select name="keterangan_bmi" id="swalKeteranganBmi"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                <option value="">Pilih Keterangan</option>
+                                <option value="">Pilih BMI Category</option>
                                 <option value="Underweight">Underweight</option>
                                 <option value="Normal">Normal</option>
                                 <option value="Overweight">Overweight</option>
@@ -958,10 +958,10 @@
                                     </div>
                                     
                                     <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">Keterangan</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">BMI Category</label>
                                         <select name="keterangan_bmi" id="swalEditKeteranganBmi"
                                                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            <option value="">Pilih Keterangan</option>
+                                            <option value="">Pilih BMI Category</option>
                                             <option value="Underweight" ${checkup.keterangan_bmi === 'Underweight' ? 'selected' : ''}>Underweight</option>
                                             <option value="Normal" ${checkup.keterangan_bmi === 'Normal' ? 'selected' : ''}>Normal</option>
                                             <option value="Overweight" ${checkup.keterangan_bmi === 'Overweight' ? 'selected' : ''}>Overweight</option>

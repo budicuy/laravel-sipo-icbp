@@ -35,12 +35,32 @@ class MedicalArchivesController extends Controller
         $search = $request->get('q');
         $departmentFilter = $request->get('department');
         $statusFilter = $request->get('status');
+        $yearFilter = $request->get('year');
         
         // Get medical archives with filters using optimized query
-        $medicalArchives = MedicalArchivesQueryOptimizer::getEmployeeMedicalRecords($perPage, $search, $departmentFilter, $statusFilter);
+        $medicalArchives = MedicalArchivesQueryOptimizer::getEmployeeMedicalRecords($perPage, $search, $departmentFilter, $statusFilter, $yearFilter);
         
         // Get departments for filter dropdown using optimized query
         $departments = MedicalArchivesQueryOptimizer::getDepartments();
+        
+        // Get available years for filter dropdown
+        $availableYears = MedicalArchivesQueryOptimizer::getAvailableYears();
+        
+        // Get chart data using optimized query
+        $chartData = MedicalArchivesQueryOptimizer::getChartData($search, $departmentFilter, $statusFilter, $yearFilter);
+        
+        // Validate and ensure chart data structure is correct
+        if (!isset($chartData['kondisiKesehatan']) || !is_iterable($chartData['kondisiKesehatan'])) {
+            $chartData['kondisiKesehatan'] = collect(['Tidak Ada Data' => 1]);
+        }
+        
+        if (!isset($chartData['keteranganBmi']) || !is_iterable($chartData['keteranganBmi'])) {
+            $chartData['keteranganBmi'] = collect(['Tidak Ada Data' => 1]);
+        }
+        
+        if (!isset($chartData['catatan']) || !is_iterable($chartData['catatan'])) {
+            $chartData['catatan'] = collect(['Tidak Ada Data' => 1]);
+        }
         
         // Get status options (employee status)
         $statusOptions = [
@@ -52,10 +72,13 @@ class MedicalArchivesController extends Controller
             'medicalArchives',
             'departments',
             'statusOptions',
+            'availableYears',
             'perPage',
             'search',
             'departmentFilter',
-            'statusFilter'
+            'statusFilter',
+            'yearFilter',
+            'chartData'
         ));
     }
     

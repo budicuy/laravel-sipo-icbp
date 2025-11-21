@@ -11,7 +11,7 @@ class MedicalArchivesQueryOptimizer
     /**
      * Optimized version of getEmployeeMedicalRecords to avoid N+1 queries
      */
-    public static function getEmployeeMedicalRecords($perPage = 50, $search = null, $departmentFilter = null, $statusFilter = null)
+    public static function getEmployeeMedicalRecords($perPage = 50, $search = null, $departmentFilter = null, $statusFilter = null, $yearFilter = null)
     {
         // Get all data in a single query with proper joins including medical check up data
         $query = DB::table('karyawan as k')
@@ -59,6 +59,11 @@ class MedicalArchivesQueryOptimizer
         // Apply status filter (employee status)
         if ($statusFilter) {
             $query->where('k.status', $statusFilter);
+        }
+        
+        // Apply year filter
+        if ($yearFilter) {
+            $query->havingRaw('(SELECT periode FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) = ?', [$yearFilter]);
         }
         
         // Order the results
@@ -320,5 +325,180 @@ class MedicalArchivesQueryOptimizer
             })
             ->limit($limit)
             ->get();
+    }
+    
+    /**
+     * Get statistics data for charts
+     */
+    public static function getChartData($search = null, $departmentFilter = null, $statusFilter = null, $yearFilter = null)
+    {
+        // Get the same base query as getEmployeeMedicalRecords but without pagination
+        $query = DB::table('karyawan as k')
+            ->select([
+                'k.id_karyawan',
+                'k.nik_karyawan',
+                'k.nama_karyawan',
+                'k.status as karyawan_status',
+                'd.nama_departemen',
+                'kl.id_keluarga',
+                'kl.nama_keluarga',
+                'kl.no_rm',
+                'kl.kode_hubungan',
+                'h.hubungan as hubungan_nama',
+                // Get latest medical check up data
+                DB::raw('(SELECT periode FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as periode_terakhir'),
+                DB::raw('(SELECT bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as bmi'),
+                DB::raw('(SELECT keterangan_bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as keterangan_bmi'),
+                DB::raw('(SELECT catatan FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as catatan')
+            ])
+            ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
+            ->leftJoin('keluarga as kl', function($join) {
+                $join->on('k.id_karyawan', '=', 'kl.id_karyawan')
+                     ->where('kl.kode_hubungan', '=', 'A');
+            })
+            ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
+            ->where('k.status', 'aktif')
+            ->whereNotNull('kl.no_rm');
+            
+        // Apply the same filters as the main query
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('k.nik_karyawan', 'like', "%{$search}%")
+                  ->orWhere('k.nama_karyawan', 'like', "%{$search}%")
+                  ->orWhere('kl.nama_keluarga', 'like', "%{$search}%")
+                  ->orWhere('kl.no_rm', 'like', "%{$search}%");
+            });
+        }
+        
+        if ($departmentFilter) {
+            $query->where('d.id_departemen', $departmentFilter);
+        }
+        
+        if ($statusFilter) {
+            $query->where('k.status', $statusFilter);
+        }
+        
+        // Apply year filter
+        if ($yearFilter) {
+            $query->havingRaw('(SELECT periode FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) = ?', [$yearFilter]);
+        }
+        
+        // Get all results
+        $allResults = $query->get();
+        
+        // Get kondisi kesehatan for all karyawan (only from latest medical check up)
+        $kondisiKesehatanMap = collect();
+        
+        foreach ($allResults->pluck('id_karyawan')->unique() as $idKaryawan) {
+            // Get latest medical check up date for this employee
+            $latestMCU = DB::table('medical_check_up')
+                ->where('id_karyawan', $idKaryawan)
+                ->orderBy('tanggal', 'desc')
+                ->first();
+            
+            if ($latestMCU) {
+                // Get kondisi kesehatan for latest medical check up
+                $kondisiKesehatan = DB::table('medical_check_up_kondisi_kesehatan as mck')
+                    ->join('kondisi_kesehatan as kk', 'mck.id_kondisi_kesehatan', '=', 'kk.id')
+                    ->where('mck.id_medical_check_up', $latestMCU->id_medical_check_up)
+                    ->pluck('kk.nama_kondisi')
+                    ->toArray();
+                
+                if (!empty($kondisiKesehatan)) {
+                    $kondisiKesehatanMap->put($idKaryawan, $kondisiKesehatan);
+                }
+            }
+        }
+        
+        // Initialize chart data with default values
+        $kondisiKesehatanChart = collect();
+        $keteranganBmiChart = collect([
+            'Underweight' => 0,
+            'Normal' => 0,
+            'Overweight' => 0,
+            'Obesitas Tk 1' => 0,
+            'Obesitas Tk 2' => 0,
+            'Obesitas Tk 3' => 0
+        ]);
+        $catatanChart = collect([
+            'Fit' => 0,
+            'Fit dengan Catatan' => 0,
+            'Fit dalam Pengawasan' => 0
+        ]);
+        
+        // Process each employee
+        foreach ($allResults as $employee) {
+            // Skip if kode_hubungan is not 'A'
+            if ($employee->kode_hubungan !== 'A') {
+                continue;
+            }
+            
+            // Process Kondisi Kesehatan
+            $kondisiKesehatan = $kondisiKesehatanMap->get($employee->id_karyawan, []);
+            foreach ($kondisiKesehatan as $kondisi) {
+                if ($kondisiKesehatanChart->has($kondisi)) {
+                    $currentValue = $kondisiKesehatanChart->get($kondisi);
+                    $kondisiKesehatanChart->put($kondisi, $currentValue + 1);
+                } else {
+                    $kondisiKesehatanChart->put($kondisi, 1);
+                }
+            }
+            
+            // Process Keterangan BMI
+            if ($employee->keterangan_bmi && $keteranganBmiChart->has($employee->keterangan_bmi)) {
+                $currentValue = $keteranganBmiChart->get($employee->keterangan_bmi);
+                $keteranganBmiChart->put($employee->keterangan_bmi, $currentValue + 1);
+            }
+            
+            // Process Catatan
+            if ($employee->catatan && $catatanChart->has($employee->catatan)) {
+                $currentValue = $catatanChart->get($employee->catatan);
+                $catatanChart->put($employee->catatan, $currentValue + 1);
+            }
+        }
+        
+        // Ensure all chart data have at least some default values if empty
+        if ($kondisiKesehatanChart->isEmpty()) {
+            $kondisiKesehatanChart->put('Tidak Ada Data', 1);
+        }
+        
+        // Remove zero values from keterangan BMI chart for cleaner display
+        $keteranganBmiChart = $keteranganBmiChart->filter(function($value, $key) {
+            return $value > 0;
+        });
+        
+        // If all values are zero, add a default entry
+        if ($keteranganBmiChart->isEmpty()) {
+            $keteranganBmiChart->put('Tidak Ada Data', 1);
+        }
+        
+        // Remove zero values from catatan chart for cleaner display
+        $catatanChart = $catatanChart->filter(function($value, $key) {
+            return $value > 0;
+        });
+        
+        // If all values are zero, add a default entry
+        if ($catatanChart->isEmpty()) {
+            $catatanChart->put('Tidak Ada Data', 1);
+        }
+        
+        return [
+            'kondisiKesehatan' => $kondisiKesehatanChart->sortKeys(),
+            'keteranganBmi' => $keteranganBmiChart,
+            'catatan' => $catatanChart
+        ];
+    }
+    
+    /**
+     * Get available years for filter dropdown
+     */
+    public static function getAvailableYears()
+    {
+        return DB::table('medical_check_up')
+            ->select('periode')
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->pluck('periode')
+            ->toArray();
     }
 }

@@ -2,6 +2,11 @@
 
 @section('page-title', 'Medical Archives')
 
+@push('styles')
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endpush
+
 @section('content')
 <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Header Section -->
@@ -23,64 +28,173 @@
 
     <!-- Filter Section -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-6">
+        <div class="flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <h3 class="text-sm font-semibold text-gray-800">Filter Medical Archives</h3>
+        </div>
+
         <form action="{{ route('medical-archives.index') }}" method="GET">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <!-- Search -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Cari Data</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cari Data</label>
                     <div class="relative">
-                        <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari NIK, nama karyawan, atau nama pasien..." class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
+                        <input type="text" name="q" value="{{ request('q') }}"
+                            class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+                            placeholder="Cari NIK, nama karyawan, atau nama pasien...">
                     </div>
                 </div>
 
                 <!-- Department Filter -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Departemen</label>
-                    <select name="department" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Semua Departemen</option>
-                        @foreach($departments as $department)
-                            <option value="{{ $department->id_departemen }}" {{ request('department') == $department->id_departemen ? 'selected' : '' }}>
-                                {{ $department->nama_departemen }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Departemen</label>
+                    <div class="relative">
+                        <select name="department"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
+                            <option value="">Semua Departemen</option>
+                            @foreach($departments as $department)
+                                <option value="{{ $department->id_departemen }}" {{ request('department') == $department->id_departemen ? 'selected' : '' }}>
+                                    {{ $department->nama_departemen }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Status Filter -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                    <select name="status" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Semua Status</option>
-                        @foreach($statusOptions as $key => $value)
-                            <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>
-                                {{ $value }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <div class="relative">
+                        <select name="status"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
+                            <option value="">Semua Status</option>
+                            @foreach($statusOptions as $key => $value)
+                                <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>
+                                    {{ $value }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Buttons -->
-                <div class="flex items-end gap-3">
-                    <button type="submit" class="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium px-6 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all">
-                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                        </svg>
-                        Filter
-                    </button>
-                    <a href="{{ route('medical-archives.index') }}" class="flex-1 bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-700 font-medium px-6 py-2.5 rounded-lg transition-all text-center">
-                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        Reset
-                    </a>
+                <!-- Year Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
+                    <div class="relative">
+                        <select name="year"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
+                            <option value="">Semua Tahun</option>
+                            @foreach($availableYears as $year)
+                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                                    {{ $year }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
             </div>
+            
+            <!-- Buttons in separate row, aligned with filters -->
+            <div class="flex gap-3 justify-end">
+                <button type="submit"
+                    class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Filter
+                </button>
+                <a href="{{ route('medical-archives.index') }}"
+                    class="px-6 py-2.5 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
+                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Reset
+                </a>
+            </div>
         </form>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-6">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-800">Grafik Statistik Kesehatan Karyawan</h3>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Chart Kondisi Kesehatan -->
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                        <h4 class="text-sm font-semibold text-gray-700">Gangguan Kesehatan</h4>
+                    </div>
+                    <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Total Kasus</span>
+                </div>
+                <div style="height: 250px;">
+                    <canvas id="chartKondisiKesehatan"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart Keterangan BMI -->
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <h4 class="text-sm font-semibold text-gray-700">BMI Category</h4>
+                    </div>
+                    <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Distribusi BMI</span>
+                </div>
+                <div style="height: 250px;">
+                    <canvas id="chartKeteranganBmi"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart Catatan -->
+            <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <h4 class="text-sm font-semibold text-gray-700">Status Kesehatan</h4>
+                    </div>
+                    <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Status Fit</span>
+                </div>
+                <div style="height: 250px;">
+                    <canvas id="chartCatatan"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Table Section -->
@@ -96,7 +210,7 @@
                 </h2>
                 <div class="flex items-center gap-3">
                     <form action="{{ route('medical-archives.index') }}" method="GET" class="flex items-center gap-2">
-                        @foreach(request()->only(['q', 'department', 'status']) as $key => $value)
+                        @foreach(request()->only(['q', 'department', 'status', 'year']) as $key => $value)
                             @if($value)
                                 <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                             @endif
@@ -137,7 +251,7 @@
                             BMI
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
-                            Kategori BMI
+                            BMI Category
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
                             Gangguan Kesehatan
@@ -328,4 +442,254 @@
         @endif
     </div>
 </div>
+
+@push('scripts')
+<script>
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js is not loaded!');
+            return;
+        }
+        
+        // Data dari controller
+        const chartData = @json($chartData);
+        
+        // Debug: Log chart data to console
+        console.log('Chart Data:', chartData);
+        console.log('Kondisi Kesehatan Data:', chartData.kondisiKesehatan);
+        console.log('Keterangan BMI Data:', chartData.keteranganBmi);
+        console.log('Catatan Data:', chartData.catatan);
+        
+        // Validate chart data structure
+        if (!chartData || typeof chartData !== 'object') {
+            console.error('Invalid chart data structure');
+            return;
+        }
+        
+        // Ensure each chart data is valid
+        const kondisiKesehatanData = chartData.kondisiKesehatan || {};
+        const keteranganBmiData = chartData.keteranganBmi || {};
+        const catatanData = chartData.catatan || {};
+        
+        // Check if data is empty and provide default values
+        const isEmpty = (obj) => Object.keys(obj).length === 0;
+        
+        if (isEmpty(kondisiKesehatanData)) {
+            chartData.kondisiKesehatan = { 'Tidak Ada Data': 1 };
+        }
+        
+        if (isEmpty(keteranganBmiData)) {
+            chartData.keteranganBmi = { 'Tidak Ada Data': 1 };
+        }
+        
+        if (isEmpty(catatanData)) {
+            chartData.catatan = { 'Tidak Ada Data': 1 };
+        }
+
+        // Chart Kondisi Kesehatan
+        const ctxKondisiKesehatan = document.getElementById('chartKondisiKesehatan');
+        if (ctxKondisiKesehatan) {
+            const chartKondisiKesehatan = new Chart(ctxKondisiKesehatan.getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(chartData.kondisiKesehatan),
+                    datasets: [{
+                        data: Object.values(chartData.kondisiKesehatan),
+                        backgroundColor: [
+                            'rgba(147, 51, 234, 0.8)',  // Purple
+                            'rgba(59, 130, 246, 0.8)',   // Blue
+                            'rgba(16, 185, 129, 0.8)',   // Green
+                            'rgba(251, 146, 60, 0.8)',  // Orange
+                            'rgba(239, 68, 68, 0.8)',   // Red
+                            'rgba(107, 114, 128, 0.8)',  // Gray
+                            'rgba(236, 72, 153, 0.8)',  // Pink
+                            'rgba(34, 197, 94, 0.8)',   // Emerald
+                            'rgba(168, 85, 247, 0.8)',  // Violet
+                            'rgba(20, 184, 166, 0.8)'   // Teal
+                        ],
+                        borderColor: [
+                            'rgba(147, 51, 234, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(251, 146, 60, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(107, 114, 128, 1)',
+                            'rgba(236, 72, 153, 1)',
+                            'rgba(34, 197, 94, 1)',
+                            'rgba(168, 85, 247, 1)',
+                            'rgba(20, 184, 166, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error('Chart Kondisi Kesehatan canvas not found');
+        }
+
+        // Chart Keterangan BMI
+        const ctxKeteranganBmi = document.getElementById('chartKeteranganBmi');
+        if (ctxKeteranganBmi) {
+            const chartKeteranganBmi = new Chart(ctxKeteranganBmi.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(chartData.keteranganBmi),
+                    datasets: [{
+                        label: 'Jumlah Karyawan',
+                        data: Object.values(chartData.keteranganBmi),
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',   // Blue for Underweight
+                            'rgba(16, 185, 129, 0.8)',   // Green for Normal
+                            'rgba(251, 146, 60, 0.8)',  // Orange for Overweight
+                            'rgba(239, 68, 68, 0.8)',   // Red for Obesitas Tk 1
+                            'rgba(147, 51, 234, 0.8)',  // Purple for Obesitas Tk 2
+                            'rgba(107, 114, 128, 0.8)'   // Gray for Obesitas Tk 3
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(251, 146, 60, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(147, 51, 234, 1)',
+                            'rgba(107, 114, 128, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.x;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return Number.isInteger(value) ? value : '';
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error('Chart Keterangan BMI canvas not found');
+        }
+
+        // Chart Catatan
+        const ctxCatatan = document.getElementById('chartCatatan');
+        if (ctxCatatan) {
+            const chartCatatan = new Chart(ctxCatatan.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'],
+                    datasets: [{
+                        data: [
+                            chartData.catatan['Fit'],
+                            chartData.catatan['Fit dengan Catatan'],
+                            chartData.catatan['Fit dalam Pengawasan']
+                        ],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',   // Green for Fit
+                            'rgba(251, 146, 60, 0.8)',  // Orange for Fit dengan Catatan
+                            'rgba(239, 68, 68, 0.8)'   // Red for Fit dalam Pengawasan
+                        ],
+                        borderColor: [
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(251, 146, 60, 1)',
+                            'rgba(239, 68, 68, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed.x / total) * 100).toFixed(1);
+                                    return context.label + ': ' + context.parsed.x + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return Number.isInteger(value) ? value : '';
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error('Chart Catatan canvas not found');
+        }
+    });
+</script>
+@endpush
 @endsection
