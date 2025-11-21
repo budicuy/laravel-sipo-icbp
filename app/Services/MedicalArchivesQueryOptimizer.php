@@ -13,7 +13,7 @@ class MedicalArchivesQueryOptimizer
      */
     public static function getEmployeeMedicalRecords($perPage = 50, $search = null, $departmentFilter = null, $statusFilter = null, $yearFilter = null)
     {
-        // Get all data in a single query with proper joins including medical check up data
+        // Optimized query to get all data in a single query with proper joins including medical check up data and kondisi kesehatan
         $query = DB::table('karyawan as k')
             ->select([
                 'k.id_karyawan',
@@ -26,11 +26,21 @@ class MedicalArchivesQueryOptimizer
                 'kl.no_rm',
                 'kl.kode_hubungan',
                 'h.hubungan as hubungan_nama',
-                // Get latest medical check up data - use periode field which contains year
+                // Get latest medical check up data using subquery for better performance
                 DB::raw('(SELECT periode FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as periode_terakhir'),
                 DB::raw('(SELECT bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as bmi'),
                 DB::raw('(SELECT keterangan_bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as keterangan_bmi'),
-                DB::raw('(SELECT catatan FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as catatan')
+                DB::raw('(SELECT catatan FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as catatan'),
+                // Get kondisi kesehatan names as aggregated string using subquery
+                DB::raw("(SELECT GROUP_CONCAT(DISTINCT kk.nama_kondisi SEPARATOR ', ')
+                    FROM medical_check_up_kondisi_kesehatan mck
+                    JOIN kondisi_kesehatan kk ON mck.id_kondisi_kesehatan = kk.id
+                    WHERE mck.id_medical_check_up = (
+                        SELECT id_medical_check_up FROM medical_check_up
+                        WHERE id_karyawan = k.id_karyawan
+                        ORDER BY tanggal DESC LIMIT 1
+                    )
+                ) as kondisi_kesehatan")
             ])
             ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
             ->leftJoin('keluarga as kl', function($join) {
@@ -63,64 +73,38 @@ class MedicalArchivesQueryOptimizer
         
         // Apply year filter
         if ($yearFilter) {
-            $query->havingRaw('(SELECT periode FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) = ?', [$yearFilter]);
+            $query->havingRaw('periode_terakhir = ?', [$yearFilter]);
         }
         
         // Order the results
-        $query->orderBy('k.nama_karyawan')
-              ->orderBy('kl.nama_keluarga');
+        $query->orderBy('nama_karyawan')
+              ->orderBy('nama_keluarga');
         
-        // Get all results
-        $allResults = $query->get();
-        
-        // Get kondisi kesehatan for all karyawan (only from latest medical check up)
-        $kondisiKesehatanMap = collect();
-        
-        foreach ($allResults->pluck('id_karyawan')->unique() as $idKaryawan) {
-            // Get the latest medical check up date for this employee
-            $latestMCU = DB::table('medical_check_up')
-                ->where('id_karyawan', $idKaryawan)
-                ->orderBy('tanggal', 'desc')
-                ->first();
-            
-            if ($latestMCU) {
-                // Get kondisi kesehatan for the latest medical check up
-                $kondisiKesehatan = DB::table('medical_check_up_kondisi_kesehatan as mck')
-                    ->join('kondisi_kesehatan as kk', 'mck.id_kondisi_kesehatan', '=', 'kk.id')
-                    ->where('mck.id_medical_check_up', $latestMCU->id_medical_check_up)
-                    ->pluck('kk.nama_kondisi')
-                    ->toArray();
-                
-                if (!empty($kondisiKesehatan)) {
-                    $kondisiKesehatanMap->put($idKaryawan, $kondisiKesehatan);
-                }
-            }
-        }
-        
-        // Group by employee to avoid duplicates
-        $groupedResults = $allResults->groupBy('id_karyawan');
+        // Get paginated results directly from database
+        $results = $query->get();
         
         // Transform the results to match the required format
         $medicalArchives = collect();
         $counter = 1;
         
-        foreach ($groupedResults as $employeeId => $familyMembers) {
-            $employee = $familyMembers->first();
-            
+        foreach ($results as $employee) {
             // Skip if kode_hubungan is not 'A'
             if ($employee->kode_hubungan !== 'A') {
                 continue;
             }
             
-            // Get kondisi kesehatan for this employee (from latest medical check up)
-            $kondisiKesehatan = $kondisiKesehatanMap->get($employeeId, []);
+            // Convert kondisi_kesehatan from string to array
+            $kondisiKesehatan = [];
+            if ($employee->kondisi_kesehatan) {
+                $kondisiKesehatan = array_filter(explode(', ', $employee->kondisi_kesehatan));
+            }
             
             $medicalArchives->push([
                 'id' => $counter++,
                 'nik_karyawan' => $employee->nik_karyawan,
                 'nama_karyawan' => $employee->nama_karyawan,
                 'nama_departemen' => $employee->nama_departemen,
-                'periode_terakhir' => $employee->periode_terakhir, // This is already a year (integer)
+                'periode_terakhir' => $employee->periode_terakhir,
                 'bmi' => $employee->bmi,
                 'keterangan_bmi' => $employee->keterangan_bmi,
                 'kondisi_kesehatan' => $kondisiKesehatan,
@@ -332,7 +316,7 @@ class MedicalArchivesQueryOptimizer
      */
     public static function getChartData($search = null, $departmentFilter = null, $statusFilter = null, $yearFilter = null)
     {
-        // Get the same base query as getEmployeeMedicalRecords but without pagination
+        // Optimized query to get all data in a single query with proper joins including medical check up data and kondisi kesehatan
         $query = DB::table('karyawan as k')
             ->select([
                 'k.id_karyawan',
@@ -345,11 +329,21 @@ class MedicalArchivesQueryOptimizer
                 'kl.no_rm',
                 'kl.kode_hubungan',
                 'h.hubungan as hubungan_nama',
-                // Get latest medical check up data
+                // Get latest medical check up data using subqueries for better performance
                 DB::raw('(SELECT periode FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as periode_terakhir'),
                 DB::raw('(SELECT bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as bmi'),
                 DB::raw('(SELECT keterangan_bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as keterangan_bmi'),
-                DB::raw('(SELECT catatan FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as catatan')
+                DB::raw('(SELECT catatan FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) as catatan'),
+                // Get kondisi kesehatan names as aggregated string using subquery
+                DB::raw("(SELECT GROUP_CONCAT(DISTINCT kk.nama_kondisi SEPARATOR ', ')
+                    FROM medical_check_up_kondisi_kesehatan mck
+                    JOIN kondisi_kesehatan kk ON mck.id_kondisi_kesehatan = kk.id
+                    WHERE mck.id_medical_check_up = (
+                        SELECT id_medical_check_up FROM medical_check_up
+                        WHERE id_karyawan = k.id_karyawan
+                        ORDER BY tanggal DESC LIMIT 1
+                    )
+                ) as kondisi_kesehatan")
             ])
             ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
             ->leftJoin('keluarga as kl', function($join) {
@@ -386,30 +380,6 @@ class MedicalArchivesQueryOptimizer
         // Get all results
         $allResults = $query->get();
         
-        // Get kondisi kesehatan for all karyawan (only from latest medical check up)
-        $kondisiKesehatanMap = collect();
-        
-        foreach ($allResults->pluck('id_karyawan')->unique() as $idKaryawan) {
-            // Get latest medical check up date for this employee
-            $latestMCU = DB::table('medical_check_up')
-                ->where('id_karyawan', $idKaryawan)
-                ->orderBy('tanggal', 'desc')
-                ->first();
-            
-            if ($latestMCU) {
-                // Get kondisi kesehatan for latest medical check up
-                $kondisiKesehatan = DB::table('medical_check_up_kondisi_kesehatan as mck')
-                    ->join('kondisi_kesehatan as kk', 'mck.id_kondisi_kesehatan', '=', 'kk.id')
-                    ->where('mck.id_medical_check_up', $latestMCU->id_medical_check_up)
-                    ->pluck('kk.nama_kondisi')
-                    ->toArray();
-                
-                if (!empty($kondisiKesehatan)) {
-                    $kondisiKesehatanMap->put($idKaryawan, $kondisiKesehatan);
-                }
-            }
-        }
-        
         // Initialize chart data with default values
         $kondisiKesehatanChart = collect();
         $keteranganBmiChart = collect([
@@ -434,7 +404,11 @@ class MedicalArchivesQueryOptimizer
             }
             
             // Process Kondisi Kesehatan
-            $kondisiKesehatan = $kondisiKesehatanMap->get($employee->id_karyawan, []);
+            $kondisiKesehatan = [];
+            if ($employee->kondisi_kesehatan) {
+                $kondisiKesehatan = array_filter(explode(', ', $employee->kondisi_kesehatan));
+            }
+            
             foreach ($kondisiKesehatan as $kondisi) {
                 if ($kondisiKesehatanChart->has($kondisi)) {
                     $currentValue = $kondisiKesehatanChart->get($kondisi);

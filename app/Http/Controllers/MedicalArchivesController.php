@@ -501,11 +501,80 @@ class MedicalArchivesController extends Controller
             ->where('kl.id_karyawan', $id_karyawan)
             ->first();
             
-        // Get medical check up data with kondisi kesehatan relationship
-        $medicalCheckUp = MedicalCheckUp::with('kondisiKesehatan')
-            ->where('id_karyawan', $id_karyawan)
-            ->orderBy('tanggal', 'desc')
+        // Get medical check up data with optimized query to avoid N+1 issues
+        $medicalCheckUp = DB::table('medical_check_up as mc')
+            ->select([
+                'mc.id_medical_check_up',
+                'mc.id_karyawan',
+                'mc.id_keluarga',
+                'mc.periode',
+                'mc.tanggal',
+                'mc.dikeluarkan_oleh',
+                'mc.bmi',
+                'mc.keterangan_bmi',
+                'mc.catatan',
+                'mc.file_path',
+                'mc.file_name',
+                'mc.file_size',
+                'mc.mime_type',
+                'mc.id_user',
+                'mc.created_at',
+                'mc.updated_at',
+                // Get kondisi kesehatan names as aggregated JSON string
+                DB::raw("GROUP_CONCAT(DISTINCT kk.nama_kondisi SEPARATOR ', ') as kondisi_kesehatan_names"),
+                // Get kondisi kesehatan IDs as aggregated string
+                DB::raw("GROUP_CONCAT(DISTINCT kk.id SEPARATOR ',') as kondisi_kesehatan_ids")
+            ])
+            ->leftJoin('medical_check_up_kondisi_kesehatan as mck', 'mc.id_medical_check_up', '=', 'mck.id_medical_check_up')
+            ->leftJoin('kondisi_kesehatan as kk', 'mck.id_kondisi_kesehatan', '=', 'kk.id')
+            ->where('mc.id_karyawan', $id_karyawan)
+            ->groupBy(
+                'mc.id_medical_check_up',
+                'mc.id_karyawan',
+                'mc.id_keluarga',
+                'mc.periode',
+                'mc.tanggal',
+                'mc.dikeluarkan_oleh',
+                'mc.bmi',
+                'mc.keterangan_bmi',
+                'mc.catatan',
+                'mc.file_path',
+                'mc.file_name',
+                'mc.file_size',
+                'mc.mime_type',
+                'mc.id_user',
+                'mc.created_at',
+                'mc.updated_at'
+            )
+            ->orderBy('mc.tanggal', 'desc')
             ->get();
+            
+        // Transform the results to include kondisiKesehatan relationship
+        $medicalCheckUp->transform(function ($item) {
+            // Parse kondisi kesehatan names and IDs
+            $kondisiNames = $item->kondisi_kesehatan_names ? explode(', ', $item->kondisi_kesehatan_names) : [];
+            $kondisiIds = $item->kondisi_kesehatan_ids ? explode(',', $item->kondisi_kesehatan_ids) : [];
+            
+            // Create kondisiKesehatan collection
+            $kondisiKesehatan = collect();
+            foreach ($kondisiNames as $index => $name) {
+                if (!empty($name) && isset($kondisiIds[$index])) {
+                    $kondisiKesehatan->push((object)[
+                        'id' => $kondisiIds[$index],
+                        'nama_kondisi' => $name
+                    ]);
+                }
+            }
+            
+            // Add the relationship to the item
+            $item->kondisiKesehatan = $kondisiKesehatan;
+            
+            // Remove the temporary fields
+            unset($item->kondisi_kesehatan_names);
+            unset($item->kondisi_kesehatan_ids);
+            
+            return $item;
+        });
             
         // Get kondisi kesehatan list for dropdown
         $kondisiKesehatanList = KondisiKesehatan::orderBy('nama_kondisi')->get();
@@ -676,17 +745,17 @@ class MedicalArchivesController extends Controller
         }
         
         try {
-            $medicalCheckUp = MedicalCheckUp::where('id_karyawan', $id_karyawan)
+            $medicalCheckUp = DB::table('medical_check_up')
+                ->where('id_karyawan', $id_karyawan)
                 ->where('id_medical_check_up', $id)
-                ->firstOrFail();
-            
-            // Update data
-            $medicalCheckUp->periode = $request->periode;
-            $medicalCheckUp->tanggal = $request->tanggal;
-            $medicalCheckUp->dikeluarkan_oleh = $request->dikeluarkan_oleh;
-            $medicalCheckUp->bmi = $request->bmi;
-            $medicalCheckUp->keterangan_bmi = $request->keterangan_bmi;
-            $medicalCheckUp->catatan = $request->catatan;
+                ->first();
+                
+            if (!$medicalCheckUp) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data medical check up tidak ditemukan'
+                ], 404);
+            }
             
             // Handle file upload if new file is provided
             if ($request->hasFile('file')) {
@@ -706,9 +775,30 @@ class MedicalArchivesController extends Controller
                 $medicalCheckUp->mime_type = $file->getMimeType();
             }
             
-            $medicalCheckUp->save();
+            // Update medical check up record using DB query for better performance
+            DB::table('medical_check_up')
+                ->where('id_medical_check_up', $id)
+                ->update([
+                    'periode' => $request->periode,
+                    'tanggal' => $request->tanggal,
+                    'dikeluarkan_oleh' => $request->dikeluarkan_oleh,
+                    'bmi' => $request->bmi,
+                    'keterangan_bmi' => $request->keterangan_bmi,
+                    'catatan' => $request->catatan,
+                    'file_path' => $medicalCheckUp->file_path,
+                    'file_name' => $medicalCheckUp->file_name,
+                    'file_size' => $medicalCheckUp->file_size,
+                    'mime_type' => $medicalCheckUp->mime_type,
+                    'updated_at' => now()
+                ]);
             
-            // Sync kondisi kesehatan relationships
+            // Sync kondisi kesehatan relationships using direct DB operations
+            // First, delete existing relationships
+            DB::table('medical_check_up_kondisi_kesehatan')
+                ->where('id_medical_check_up', $id)
+                ->delete();
+            
+            // Then insert new relationships if provided
             if ($request->id_kondisi_kesehatan && is_array($request->id_kondisi_kesehatan)) {
                 // Filter out empty values
                 $kondisiIds = array_filter($request->id_kondisi_kesehatan, function($value) {
@@ -716,14 +806,18 @@ class MedicalArchivesController extends Controller
                 });
                 
                 if (!empty($kondisiIds)) {
-                    $medicalCheckUp->kondisiKesehatan()->sync($kondisiIds);
-                } else {
-                    // If no conditions selected, detach all existing relationships
-                    $medicalCheckUp->kondisiKesehatan()->detach();
+                    $insertData = [];
+                    foreach ($kondisiIds as $kondisiId) {
+                        $insertData[] = [
+                            'id_medical_check_up' => $id,
+                            'id_kondisi_kesehatan' => $kondisiId,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
+                    }
+                    
+                    DB::table('medical_check_up_kondisi_kesehatan')->insert($insertData);
                 }
-            } else {
-                // If no kondisi array provided, detach all existing relationships
-                $medicalCheckUp->kondisiKesehatan()->detach();
             }
             
             return response()->json([
