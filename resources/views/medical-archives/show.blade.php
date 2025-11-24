@@ -97,6 +97,7 @@
                         </span>
                     </div>
                     
+                    @if(auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()))
                     <!-- Tanggal Lahir -->
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-1">Tanggal Lahir</label>
@@ -116,6 +117,7 @@
                             @endif
                         </p>
                     </div>
+                    @endif
                     
                     <!-- Hubungan -->
                     <div>
