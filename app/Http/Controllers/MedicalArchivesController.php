@@ -65,7 +65,7 @@ class MedicalArchivesController extends Controller
         // Get status options (employee status)
         $statusOptions = [
             'aktif' => 'Aktif',
-            'tidak aktif' => 'Tidak Aktif'
+            'nonaktif' => 'Tidak Aktif'
         ];
         
         return view('medical-archives.index', compact(

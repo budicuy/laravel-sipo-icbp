@@ -47,9 +47,7 @@ class MedicalArchivesQueryOptimizer
                 $join->on('k.id_karyawan', '=', 'kl.id_karyawan')
                      ->where('kl.kode_hubungan', '=', 'A');
             })
-            ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
-            ->where('k.status', 'aktif')
-            ->whereNotNull('kl.no_rm');
+            ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan');
             
         // Apply search filter
         if ($search) {
@@ -88,8 +86,8 @@ class MedicalArchivesQueryOptimizer
         $counter = 1;
         
         foreach ($results as $employee) {
-            // Skip if kode_hubungan is not 'A'
-            if ($employee->kode_hubungan !== 'A') {
+            // Skip if kode_hubungan is not 'A' or if no family record exists
+            if ($employee->kode_hubungan !== 'A' || !$employee->id_keluarga) {
                 continue;
             }
             
@@ -350,9 +348,7 @@ class MedicalArchivesQueryOptimizer
                 $join->on('k.id_karyawan', '=', 'kl.id_karyawan')
                      ->where('kl.kode_hubungan', '=', 'A');
             })
-            ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
-            ->where('k.status', 'aktif')
-            ->whereNotNull('kl.no_rm');
+            ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan');
             
         // Apply the same filters as the main query
         if ($search) {
@@ -398,8 +394,8 @@ class MedicalArchivesQueryOptimizer
         
         // Process each employee
         foreach ($allResults as $employee) {
-            // Skip if kode_hubungan is not 'A'
-            if ($employee->kode_hubungan !== 'A') {
+            // Skip if kode_hubungan is not 'A' (but still show if no family record exists)
+            if ($employee->kode_hubungan && $employee->kode_hubungan !== 'A') {
                 continue;
             }
             

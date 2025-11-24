@@ -37,7 +37,7 @@
         </div>
 
         <form action="{{ route('medical-archives.index') }}" method="GET">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <!-- Search -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Cari Data</label>
@@ -85,6 +85,27 @@
                             @foreach($availableYears as $year)
                                 <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
                                     {{ $year }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status Karyawan</label>
+                    <div class="relative">
+                        <select name="status"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10">
+                            <option value="">Semua Status</option>
+                            @foreach($statusOptions as $key => $value)
+                                <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>
+                                    {{ $value }}
                                 </option>
                             @endforeach
                         </select>
@@ -189,7 +210,7 @@
                 </h2>
                 <div class="flex items-center gap-3">
                     <form action="{{ route('medical-archives.index') }}" method="GET" class="flex items-center gap-2">
-                        @foreach(request()->only(['q', 'department', 'year']) as $key => $value)
+                        @foreach(request()->only(['q', 'department', 'year', 'status']) as $key => $value)
                             @if($value)
                                 <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                             @endif
@@ -374,7 +395,7 @@
                         @endphp
 
                         @if($start > 1)
-                            <a href="{{ $medicalRecords->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">1</a>
+                            <a href="{{ $medicalArchives->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">1</a>
                             @if($start > 2)
                                 <span class="px-2 text-gray-500">...</span>
                             @endif
