@@ -105,6 +105,7 @@
                         </span>
                     </div>
                     
+                    @if(auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()))
                     <!-- Tanggal Lahir -->
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-1">Tanggal Lahir</label>
@@ -124,6 +125,7 @@
                             @endif
                         </p>
                     </div>
+                    @endif
                     
                     <!-- Hubungan -->
                     <div>
@@ -155,6 +157,7 @@
                         </svg>
                         Data-Data Surat Rekomendasi Medis
                     </h2>
+                    @if(auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()))
                     <button onclick="openUploadModal()" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -162,6 +165,7 @@
                         </svg>
                         Tambah Surat
                     </button>
+                    @endif
                 </div>
             </div>
             <div class="p-6">
@@ -185,9 +189,11 @@
                                     <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
                                         Detail
                                     </th>
+                                    @if(auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()))
                                     <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
                                         Aksi
                                     </th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -207,6 +213,7 @@
                                                 {{ $surat->catatan_medis ?? '-' }}
                                             </div>
                                         </td>
+                                        @if(auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()))
                                         <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
                                             <a href="{{ route('medical-archives.surat-rekomendasi-medis.download', [$id_karyawan, $surat->id]) }}"
                                                class="inline-flex items-center px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors">
@@ -236,6 +243,18 @@
                                                 </button>
                                             </div>
                                         </td>
+                                        @else
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <a href="{{ route('medical-archives.surat-rekomendasi-medis.download', [$id_karyawan, $surat->id]) }}"
+                                               class="inline-flex items-center px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                </svg>
+                                                Lihat Detail
+                                            </a>
+                                        </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>

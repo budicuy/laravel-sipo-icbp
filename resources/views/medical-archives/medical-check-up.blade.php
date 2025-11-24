@@ -105,6 +105,7 @@
                         </span>
                     </div>
                     
+                    @if(auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()))
                     <!-- Tanggal Lahir -->
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-1">Tanggal Lahir</label>
@@ -124,6 +125,7 @@
                             @endif
                         </p>
                     </div>
+                    @endif
                     
                     <!-- Hubungan -->
                     <div>
@@ -155,6 +157,7 @@
                         </svg>
                         Data-Data Medical Check Up
                     </h2>
+                    @if(auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()))
                     <button onclick="openUploadModal()" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -162,6 +165,7 @@
                         </svg>
                         Tambah Check Up
                     </button>
+                    @endif
                 </div>
             </div>
             <div class="p-6">
@@ -194,12 +198,18 @@
                                     <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
                                         Status Kesehatan
                                     </th>
+                                    @if(auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()))
                                     <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700">
                                         File
                                     </th>
                                     <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
                                         Aksi
                                     </th>
+                                    @else
+                                    <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
+                                        File
+                                    </th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -268,6 +278,7 @@
                                                 -
                                             @endif
                                         </td>
+                                        @if(auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()))
                                         <td class="px-6 py-4 whitespace-nowrap text-center border-r border-gray-200">
                                             @if($checkup->file_name)
                                                 <a href="{{ route('medical-archives.medical-check-up.download', [$id_karyawan, $checkup->id_medical_check_up]) }}"
@@ -283,6 +294,24 @@
                                                 <span class="text-gray-400">-</span>
                                             @endif
                                         </td>
+                                        @else
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            @if($checkup->file_name)
+                                                <a href="{{ route('medical-archives.medical-check-up.download', [$id_karyawan, $checkup->id_medical_check_up]) }}"
+                                                   class="inline-flex items-center px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors"
+                                                   title="{{ $checkup->file_name }}">
+                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                    </svg>
+                                                    Lihat
+                                                </a>
+                                            @else
+                                                <span class="text-gray-400">-</span>
+                                            @endif
+                                        </td>
+                                        @endif
+                                        @if(auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->isAdmin()))
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             <div class="flex items-center justify-center space-x-2">
                                                 <button onclick="editMedicalCheckUp({{ $checkup->id_medical_check_up }})" class="inline-flex items-center px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium rounded-md transition-colors">
@@ -302,6 +331,7 @@
                                                 </button>
                                             </div>
                                         </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>
