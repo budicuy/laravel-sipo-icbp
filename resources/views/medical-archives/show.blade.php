@@ -83,7 +83,7 @@
                         <p class="text-lg font-semibold text-gray-900">{{ $employeeInfo->nik_karyawan ?? '-' }}</p>
                     </div>
                     
-                    <!-- Nama Pasien -->
+                    <!-- Nama Karyawan -->
                     <div>
                         <label class="block text-sm font-medium text-gray-500 mb-1">Nama Karyawan</label>
                         <p class="text-lg font-semibold text-gray-900">{{ $detailedRecords[0]['family_member']->nama_keluarga ?? '-' }}</p>
