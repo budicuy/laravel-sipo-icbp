@@ -112,13 +112,22 @@ class MedicalArchivesController extends Controller
      */
     public function show($id_karyawan)
     {
+        // Check if employee exists first
+        $employee = Karyawan::where('id_karyawan', $id_karyawan)->first();
+        if (!$employee) {
+            return redirect()->route('medical-archives.index')
+                ->with('error', 'Data karyawan tidak ditemukan');
+        }
+        
         // Get employee medical history using optimized query
         $medicalHistory = MedicalArchivesQueryOptimizer::getEmployeeMedicalHistory($id_karyawan);
         
-        if ($medicalHistory->isEmpty()) {
-            return redirect()->route('medical-archives.index')
-                ->with('error', 'Data medis karyawan tidak ditemukan');
-        }
+        // Allow access to both active and non-active employees for viewing details
+        // This ensures historical data can be accessed for audit and reference purposes
+        
+        // Don't require medical history to exist - allow access to employee details
+        // even if they don't have medical records yet
+        // This is especially important for new employees or employees without medical history
         
         // Get employee info
         $employee = $medicalHistory->first();
@@ -269,6 +278,9 @@ class MedicalArchivesController extends Controller
                 ->with('error', 'Data karyawan tidak ditemukan');
         }
         
+        // Allow access to both active and non-active employees for viewing and managing documents
+        // This ensures historical data can be accessed and documents can be managed
+        
         // Get family member (using first family member for demo)
         $familyMember = DB::table('keluarga as kl')
             ->select([
@@ -306,6 +318,18 @@ class MedicalArchivesController extends Controller
      */
     public function uploadSuratRekomendasi(Request $request, $id_karyawan)
     {
+        // Check if employee exists before processing
+        $employee = Karyawan::where('id_karyawan', $id_karyawan)->first();
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data karyawan tidak ditemukan'
+            ], 404);
+        }
+        
+        // Allow both active and non-active employees to upload documents
+        // This ensures historical data can be maintained
+        
         // Validate the request
         $validator = Validator::make($request->all(), [
             'file' => 'required|file|mimes:pdf|max:5120', // Max 5MB
@@ -366,6 +390,17 @@ class MedicalArchivesController extends Controller
      */
     public function editSuratRekomendasi($id_karyawan, $id)
     {
+        // Check if employee exists before processing
+        $employee = Karyawan::where('id_karyawan', $id_karyawan)->first();
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data karyawan tidak ditemukan'
+            ], 404);
+        }
+        
+        // Allow both active and non-active employees to edit documents
+        
         try {
             $suratRekomendasi = SuratRekomendasiMedis::where('id_karyawan', $id_karyawan)
                 ->where('id', $id)
@@ -389,6 +424,17 @@ class MedicalArchivesController extends Controller
      */
     public function updateSuratRekomendasi(Request $request, $id_karyawan, $id)
     {
+        // Check if employee exists before processing
+        $employee = Karyawan::where('id_karyawan', $id_karyawan)->first();
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data karyawan tidak ditemukan'
+            ], 404);
+        }
+        
+        // Allow both active and non-active employees to update documents
+        
         // Validate the request
         $validator = Validator::make($request->all(), [
             'tanggal' => 'required|date',
@@ -452,6 +498,15 @@ class MedicalArchivesController extends Controller
      */
     public function downloadSuratRekomendasi($id_karyawan, $id)
     {
+        // Check if employee exists before processing
+        $employee = Karyawan::where('id_karyawan', $id_karyawan)->first();
+        if (!$employee) {
+            return redirect()->route('medical-archives.index')
+                ->with('error', 'Data karyawan tidak ditemukan');
+        }
+        
+        // Allow both active and non-active employees to download documents
+        
         $suratRekomendasi = SuratRekomendasiMedis::where('id_karyawan', $id_karyawan)
             ->where('id', $id)
             ->firstOrFail();
@@ -470,6 +525,17 @@ class MedicalArchivesController extends Controller
      */
     public function deleteSuratRekomendasi($id_karyawan, $id)
     {
+        // Check if employee exists before processing
+        $employee = Karyawan::where('id_karyawan', $id_karyawan)->first();
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data karyawan tidak ditemukan'
+            ], 404);
+        }
+        
+        // Allow both active and non-active employees to delete documents
+        
         try {
             $suratRekomendasi = SuratRekomendasiMedis::where('id_karyawan', $id_karyawan)
                 ->where('id', $id)
@@ -510,6 +576,9 @@ class MedicalArchivesController extends Controller
             return redirect()->route('medical-archives.index')
                 ->with('error', 'Data karyawan tidak ditemukan');
         }
+        
+        // Allow access to both active and non-active employees for viewing and managing medical check-ups
+        // This ensures historical data can be accessed and medical records can be managed
         
         // Get family member (using first family member for demo)
         $familyMember = DB::table('keluarga as kl')
@@ -618,6 +687,18 @@ class MedicalArchivesController extends Controller
      */
     public function uploadMedicalCheckUp(Request $request, $id_karyawan)
     {
+        // Check if employee exists before processing
+        $employee = Karyawan::where('id_karyawan', $id_karyawan)->first();
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data karyawan tidak ditemukan'
+            ], 404);
+        }
+        
+        // Allow both active and non-active employees to upload medical check-ups
+        // This ensures historical data can be maintained
+        
         // Validate the request
         $validator = Validator::make($request->all(), [
             'file' => 'nullable|file|mimes:pdf|max:5120', // Max 5MB, optional

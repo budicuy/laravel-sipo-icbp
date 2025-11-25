@@ -179,7 +179,8 @@ class MedicalArchivesQueryOptimizer
             ->leftJoin('rekam_medis as rm', 'kl.id_keluarga', '=', 'rm.id_keluarga')
             ->leftJoin('user as u', 'rm.id_user', '=', 'u.id_user')
             ->where('k.id_karyawan', $id_karyawan)
-            ->where('k.status', 'aktif')
+            // Remove status filter to allow both active and non-active employees
+            // This ensures historical data can be accessed for audit and reference purposes
             ->whereNotNull('kl.no_rm')
             ->where('kl.kode_hubungan', 'A') // Filter hanya pasien dengan kode hubungan A (Karyawan)
             ->orderBy('rm.tanggal_periksa', 'desc')
@@ -262,6 +263,7 @@ class MedicalArchivesQueryOptimizer
                 'k.id_karyawan',
                 'k.nik_karyawan',
                 'k.nama_karyawan',
+                'k.status as karyawan_status',
                 'd.nama_departemen',
                 'h.hubungan as hubungan_nama'
             ])
@@ -270,6 +272,8 @@ class MedicalArchivesQueryOptimizer
             ->leftJoin('hubungan as h', 'kl.kode_hubungan', '=', 'h.kode_hubungan')
             ->where('kl.id_keluarga', $id_keluarga)
             ->where('kl.kode_hubungan', 'A') // Filter hanya pasien dengan kode hubungan A (Karyawan)
+            // Remove status filter to allow both active and non-active employees
+            // This ensures family member info can be accessed for historical data
             ->first();
     }
     
@@ -315,7 +319,8 @@ class MedicalArchivesQueryOptimizer
                 'd.nama_departemen'
             ])
             ->leftJoin('departemen as d', 'k.id_departemen', '=', 'd.id_departemen')
-            ->where('k.status', 'aktif')
+            // Remove status filter to allow searching both active and non-active employees
+            // This is useful for historical data access
             ->where(function($query) use ($search) {
                 $query->where('k.nik_karyawan', 'like', "%{$search}%")
                       ->orWhere('k.nama_karyawan', 'like', "%{$search}%");
@@ -403,11 +408,15 @@ class MedicalArchivesQueryOptimizer
         
         // Apply keterangan BMI filter
         if ($keteranganBmiFilter) {
+            // Debug logging
+            \Log::info('Applying keterangan_bmi filter: ' . $keteranganBmiFilter);
             $query->havingRaw('(SELECT keterangan_bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) = ?', [$keteranganBmiFilter]);
         }
         
         // Apply catatan filter
         if ($catatanFilter) {
+            // Debug logging
+            \Log::info('Applying catatan filter: ' . $catatanFilter);
             $query->havingRaw('(SELECT catatan FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) = ?', [$catatanFilter]);
         }
         
