@@ -37,8 +37,22 @@ class MedicalArchivesController extends Controller
         $statusFilter = $request->get('status');
         $yearFilter = $request->get('year');
         
+        // New chart-specific filters
+        $kondisiKesehatanFilter = $request->get('kondisi_kesehatan');
+        $keteranganBmiFilter = $request->get('keterangan_bmi');
+        $catatanFilter = $request->get('catatan');
+        
         // Get medical archives with filters using optimized query
-        $medicalArchives = MedicalArchivesQueryOptimizer::getEmployeeMedicalRecords($perPage, $search, $departmentFilter, $statusFilter, $yearFilter);
+        $medicalArchives = MedicalArchivesQueryOptimizer::getEmployeeMedicalRecords(
+            $perPage,
+            $search,
+            $departmentFilter,
+            $statusFilter,
+            $yearFilter,
+            $kondisiKesehatanFilter,
+            $keteranganBmiFilter,
+            $catatanFilter
+        );
         
         // Get departments for filter dropdown using optimized query
         $departments = MedicalArchivesQueryOptimizer::getDepartments();
@@ -47,7 +61,15 @@ class MedicalArchivesController extends Controller
         $availableYears = MedicalArchivesQueryOptimizer::getAvailableYears();
         
         // Get chart data using optimized query
-        $chartData = MedicalArchivesQueryOptimizer::getChartData($search, $departmentFilter, $statusFilter, $yearFilter);
+        $chartData = MedicalArchivesQueryOptimizer::getChartData(
+            $search,
+            $departmentFilter,
+            $statusFilter,
+            $yearFilter,
+            $kondisiKesehatanFilter,
+            $keteranganBmiFilter,
+            $catatanFilter
+        );
         
         // Validate and ensure chart data structure is correct
         if (!isset($chartData['kondisiKesehatan']) || !is_iterable($chartData['kondisiKesehatan'])) {
@@ -78,6 +100,9 @@ class MedicalArchivesController extends Controller
             'departmentFilter',
             'statusFilter',
             'yearFilter',
+            'kondisiKesehatanFilter',
+            'keteranganBmiFilter',
+            'catatanFilter',
             'chartData'
         ));
     }

@@ -11,7 +11,7 @@ class MedicalArchivesQueryOptimizer
     /**
      * Optimized version of getEmployeeMedicalRecords to avoid N+1 queries
      */
-    public static function getEmployeeMedicalRecords($perPage = 50, $search = null, $departmentFilter = null, $statusFilter = null, $yearFilter = null)
+    public static function getEmployeeMedicalRecords($perPage = 50, $search = null, $departmentFilter = null, $statusFilter = null, $yearFilter = null, $kondisiKesehatanFilter = null, $keteranganBmiFilter = null, $catatanFilter = null)
     {
         // Optimized query to get all data in a single query with proper joins including medical check up data and kondisi kesehatan
         $query = DB::table('karyawan as k')
@@ -72,6 +72,21 @@ class MedicalArchivesQueryOptimizer
         // Apply year filter
         if ($yearFilter) {
             $query->havingRaw('periode_terakhir = ?', [$yearFilter]);
+        }
+        
+        // Apply kondisi kesehatan filter
+        if ($kondisiKesehatanFilter) {
+            $query->havingRaw("kondisi_kesehatan LIKE ?", ["%{$kondisiKesehatanFilter}%"]);
+        }
+        
+        // Apply keterangan BMI filter - menggunakan having karena ini adalah subquery
+        if ($keteranganBmiFilter) {
+            $query->havingRaw('(SELECT keterangan_bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) = ?', [$keteranganBmiFilter]);
+        }
+        
+        // Apply catatan filter - menggunakan having karena ini adalah subquery
+        if ($catatanFilter) {
+            $query->havingRaw('(SELECT catatan FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) = ?', [$catatanFilter]);
         }
         
         // Order the results
@@ -312,7 +327,7 @@ class MedicalArchivesQueryOptimizer
     /**
      * Get statistics data for charts
      */
-    public static function getChartData($search = null, $departmentFilter = null, $statusFilter = null, $yearFilter = null)
+    public static function getChartData($search = null, $departmentFilter = null, $statusFilter = null, $yearFilter = null, $kondisiKesehatanFilter = null, $keteranganBmiFilter = null, $catatanFilter = null)
     {
         // Optimized query to get all data in a single query with proper joins including medical check up data and kondisi kesehatan
         $query = DB::table('karyawan as k')
@@ -371,6 +386,29 @@ class MedicalArchivesQueryOptimizer
         // Apply year filter
         if ($yearFilter) {
             $query->havingRaw('(SELECT periode FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) = ?', [$yearFilter]);
+        }
+        
+        // Apply kondisi kesehatan filter
+        if ($kondisiKesehatanFilter) {
+            $query->havingRaw("(SELECT GROUP_CONCAT(DISTINCT kk.nama_kondisi SEPARATOR ', ')
+                FROM medical_check_up_kondisi_kesehatan mck
+                JOIN kondisi_kesehatan kk ON mck.id_kondisi_kesehatan = kk.id
+                WHERE mck.id_medical_check_up = (
+                    SELECT id_medical_check_up FROM medical_check_up
+                    WHERE id_karyawan = k.id_karyawan
+                    ORDER BY tanggal DESC LIMIT 1
+                )
+            ) LIKE ?", ["%{$kondisiKesehatanFilter}%"]);
+        }
+        
+        // Apply keterangan BMI filter
+        if ($keteranganBmiFilter) {
+            $query->havingRaw('(SELECT keterangan_bmi FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) = ?', [$keteranganBmiFilter]);
+        }
+        
+        // Apply catatan filter
+        if ($catatanFilter) {
+            $query->havingRaw('(SELECT catatan FROM medical_check_up WHERE id_karyawan = k.id_karyawan ORDER BY tanggal DESC LIMIT 1) = ?', [$catatanFilter]);
         }
         
         // Get all results

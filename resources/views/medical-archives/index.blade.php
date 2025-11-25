@@ -36,7 +36,7 @@
             <h3 class="text-sm font-semibold text-gray-800">Filter Medical Archives</h3>
         </div>
 
-        <form action="{{ route('medical-archives.index') }}" method="GET">
+        <form action="{{ route('medical-archives.index') }}" method="GET" id="mainFilterForm">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <!-- Search -->
                 <div>
@@ -118,6 +118,11 @@
                 </div>
             </div>
             
+            <!-- Hidden fields for chart-specific filters -->
+            <input type="hidden" name="kondisi_kesehatan" value="{{ request('kondisi_kesehatan') }}">
+            <input type="hidden" name="keterangan_bmi" value="{{ request('keterangan_bmi') }}">
+            <input type="hidden" name="catatan" value="{{ request('catatan') }}">
+            
             <!-- Buttons in separate row, aligned with filters -->
             <div class="flex gap-3 justify-end">
                 <button type="submit"
@@ -140,6 +145,52 @@
         </form>
     </div>
 
+    <!-- Active Chart Filters Indicator -->
+    @if(request('kondisi_kesehatan') || request('keterangan_bmi') || request('catatan'))
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <h4 class="text-sm font-semibold text-blue-800">Filter Aktif dari Grafik:</h4>
+                <div class="flex flex-wrap gap-2 ml-4">
+                    @if(request('kondisi_kesehatan'))
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Gangguan: {{ request('kondisi_kesehatan') }}
+                        </span>
+                    @endif
+                    @if(request('keterangan_bmi'))
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            BMI: {{ request('keterangan_bmi') }}
+                        </span>
+                    @endif
+                    @if(request('catatan'))
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Status: {{ request('catatan') }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+            <a href="{{ route('medical-archives.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Hapus Filter
+            </a>
+        </div>
+    </div>
+    @endif
+
     <!-- Charts Section -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-6">
         <div class="flex items-center justify-between mb-6">
@@ -154,7 +205,12 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Chart Kondisi Kesehatan -->
-            <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-5">
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-5 relative group">
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div class="bg-gray-800 text-white text-xs rounded px-2 py-1 shadow-lg">
+                        Klik untuk filter data
+                    </div>
+                </div>
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-2">
                         <span style="display: inline-block; width: 16px; height: 16px; background-color: #8B5CF6; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span>
@@ -168,7 +224,12 @@
             </div>
 
             <!-- Chart Keterangan BMI -->
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-5">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-5 relative group">
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div class="bg-gray-800 text-white text-xs rounded px-2 py-1 shadow-lg">
+                        Klik untuk filter data
+                    </div>
+                </div>
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-2">
                         <div class="w-4 h-4 bg-blue-500 rounded-full shadow-sm"></div>
@@ -182,7 +243,12 @@
             </div>
 
             <!-- Chart Catatan -->
-            <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-5">
+            <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-5 relative group">
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div class="bg-gray-800 text-white text-xs rounded px-2 py-1 shadow-lg">
+                        Klik untuk filter data
+                    </div>
+                </div>
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-2">
                         <div class="w-4 h-4 bg-green-500 rounded-full shadow-sm"></div>
@@ -210,7 +276,7 @@
                 </h2>
                 <div class="flex items-center gap-3">
                     <form action="{{ route('medical-archives.index') }}" method="GET" class="flex items-center gap-2">
-                        @foreach(request()->only(['q', 'department', 'year', 'status']) as $key => $value)
+                        @foreach(request()->only(['q', 'department', 'year', 'status', 'kondisi_kesehatan', 'keterangan_bmi', 'catatan']) as $key => $value)
                             @if($value)
                                 <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                             @endif
@@ -375,7 +441,7 @@
                             </svg>
                         </span>
                     @else
-                        <a href="{{ $medicalArchives->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                        <a href="{{ $medicalArchives->appends(request()->except(['page', 'kondisi_kesehatan', 'keterangan_bmi', 'catatan']))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
                             </svg>
@@ -385,7 +451,7 @@
                     @if($medicalArchives->onFirstPage())
                         <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Previous</span>
                     @else
-                        <a href="{{ $medicalArchives->appends(request()->except('page'))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">Previous</a>
+                        <a href="{{ $medicalArchives->appends(request()->except(['page', 'kondisi_kesehatan', 'keterangan_bmi', 'catatan']))->previousPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">Previous</a>
                     @endif
 
                     <div class="flex items-center gap-1">
@@ -395,7 +461,7 @@
                         @endphp
 
                         @if($start > 1)
-                            <a href="{{ $medicalArchives->appends(request()->except('page'))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">1</a>
+                            <a href="{{ $medicalArchives->appends(request()->except(['page', 'kondisi_kesehatan', 'keterangan_bmi', 'catatan']))->url(1) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">1</a>
                             @if($start > 2)
                                 <span class="px-2 text-gray-500">...</span>
                             @endif
@@ -405,7 +471,7 @@
                             @if($i == $medicalArchives->currentPage())
                                 <span class="px-3 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg shadow-md">{{ $i }}</span>
                             @else
-                                <a href="{{ $medicalArchives->appends(request()->except('page'))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">{{ $i }}</a>
+                                <a href="{{ $medicalArchives->appends(request()->except(['page', 'kondisi_kesehatan', 'keterangan_bmi', 'catatan']))->url($i) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">{{ $i }}</a>
                             @endif
                         @endfor
 
@@ -413,12 +479,12 @@
                             @if($end < $medicalArchives->lastPage() - 1)
                                 <span class="px-2 text-gray-500">...</span>
                             @endif
-                            <a href="{{ $medicalArchives->appends(request()->except('page'))->url($medicalArchives->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">{{ $medicalArchives->lastPage() }}</a>
+                            <a href="{{ $medicalArchives->appends(request()->except(['page', 'kondisi_kesehatan', 'keterangan_bmi', 'catatan']))->url($medicalArchives->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">{{ $medicalArchives->lastPage() }}</a>
                         @endif
                     </div>
 
                     @if($medicalArchives->hasMorePages())
-                        <a href="{{ $medicalArchives->appends(request()->except('page'))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">Next</a>
+                        <a href="{{ $medicalArchives->appends(request()->except(['page', 'kondisi_kesehatan', 'keterangan_bmi', 'catatan']))->nextPageUrl() }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">Next</a>
                     @else
                         <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">Next</span>
                     @endif
@@ -430,7 +496,7 @@
                             </svg>
                         </span>
                     @else
-                        <a href="{{ $medicalArchives->appends(request()->except('page'))->url($medicalArchives->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
+                        <a href="{{ $medicalArchives->appends(request()->except(['page', 'kondisi_kesehatan', 'keterangan_bmi', 'catatan']))->url($medicalArchives->lastPage()) }}" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
                             </svg>
@@ -452,6 +518,58 @@
         }
         
         const chartData = @json($chartData);
+        
+        // Fungsi untuk memfilter data berdasarkan chart yang diklik
+        function filterByChart(chartType, filterValue) {
+            // Dapatkan form filter
+            const filterForm = document.getElementById('mainFilterForm');
+            
+            // Reset semua filter terlebih dahulu kecuali chart-specific filters
+            const inputs = filterForm.querySelectorAll('input[type="text"], select');
+            inputs.forEach(input => {
+                if (input.type === 'text' && !['kondisi_kesehatan', 'keterangan_bmi', 'catatan'].includes(input.name)) {
+                    input.value = '';
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                }
+            });
+            
+            // Reset chart-specific hidden fields
+            const kondisiInput = filterForm.querySelector('input[name="kondisi_kesehatan"]');
+            const bmiInput = filterForm.querySelector('input[name="keterangan_bmi"]');
+            const catatanInput = filterForm.querySelector('input[name="catatan"]');
+            
+            if (kondisiInput) kondisiInput.value = '';
+            if (bmiInput) bmiInput.value = '';
+            if (catatanInput) catatanInput.value = '';
+            
+            // Set filter berdasarkan jenis chart
+            switch(chartType) {
+                case 'kondisiKesehatan':
+                    // Filter berdasarkan kondisi kesehatan
+                    if (kondisiInput) {
+                        kondisiInput.value = filterValue;
+                    }
+                    break;
+                    
+                case 'keteranganBmi':
+                    // Filter berdasarkan keterangan BMI
+                    if (bmiInput) {
+                        bmiInput.value = filterValue;
+                    }
+                    break;
+                    
+                case 'catatan':
+                    // Filter berdasarkan catatan/status kesehatan
+                    if (catatanInput) {
+                        catatanInput.value = filterValue;
+                    }
+                    break;
+            }
+            
+            // Submit form untuk menerapkan filter
+            filterForm.submit();
+        }
         
         // Color Palettes berdasarkan gambar yang diberikan (lebih vibrant)
         const gradients = {
@@ -505,7 +623,7 @@
                 '#7C3AED', '#4F46E5', '#10B981', '#1D4ED8'
             ];
 
-            new Chart(ctxKondisiKesehatan.getContext('2d'), {
+            const chartKondisiKesehatan = new Chart(ctxKondisiKesehatan.getContext('2d'), {
                 type: 'pie',
                 data: {
                     labels: labels,
@@ -524,6 +642,13 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: function(event, elements) {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const label = labels[index];
+                            filterByChart('kondisiKesehatan', label);
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: true,
@@ -598,7 +723,7 @@
         if (ctxKeteranganBmi) {
             const bmiLabels = Object.keys(chartData.keteranganBmi);
 
-            new Chart(ctxKeteranganBmi.getContext('2d'), {
+            const chartKeteranganBmi = new Chart(ctxKeteranganBmi.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: bmiLabels,
@@ -637,6 +762,13 @@
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: function(event, elements) {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const label = bmiLabels[index];
+                            filterByChart('keteranganBmi', label);
+                        }
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -690,6 +822,10 @@
                         delay: (context) => {
                             return context.type === 'data' ? context.dataIndex * 100 : 0;
                         }
+                    },
+                    // Tambahkan cursor pointer untuk menunjukkan elemen bisa diklik
+                    onHover: function(event, elements) {
+                        ctxKeteranganBmi.style.cursor = elements.length > 0 ? 'pointer' : 'default';
                     }
                 }
             });
@@ -705,7 +841,7 @@
                 chartData.catatan['Fit dalam Pengawasan'] || 0
             ];
 
-            new Chart(ctxCatatan.getContext('2d'), {
+            const chartCatatan = new Chart(ctxCatatan.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: catatanLabels,
@@ -722,6 +858,13 @@
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: function(event, elements) {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const label = catatanLabels[index];
+                            filterByChart('catatan', label);
+                        }
+                    },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -775,6 +918,10 @@
                         delay: (context) => {
                             return context.type === 'data' ? context.dataIndex * 100 : 0;
                         }
+                    },
+                    // Tambahkan cursor pointer untuk menunjukkan elemen bisa diklik
+                    onHover: function(event, elements) {
+                        ctxCatatan.style.cursor = elements.length > 0 ? 'pointer' : 'default';
                     }
                 }
             });
