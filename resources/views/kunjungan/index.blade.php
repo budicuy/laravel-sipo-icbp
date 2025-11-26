@@ -31,7 +31,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Dari Tanggal</label>
                     <div class="relative">
                         <input type="date" name="dari_tanggal" value="{{ request('dari_tanggal') }}"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 date-input-custom">
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -46,7 +46,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Sampai Tanggal</label>
                     <div class="relative">
                         <input type="date" name="sampai_tanggal" value="{{ request('sampai_tanggal') }}"
-                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 date-input-custom">
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -127,58 +127,48 @@
                     <tr>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 cursor-pointer hover:bg-gray-700"
                             onclick="sortTable(0)">
-                            No
-                            <span class="ml-1">
-                                <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
+                            <div class="flex items-center gap-2">
+                                <span>No</span>
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
-                            </span>
+                            </div>
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 cursor-pointer hover:bg-gray-700"
                             onclick="sortTable(1)">
-                            No RM
-                            <span class="ml-1">
-                                <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
+                            <div class="flex items-center gap-2">
+                                <span>No RM</span>
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
-                            </span>
+                            </div>
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 cursor-pointer hover:bg-gray-700"
                             onclick="sortTable(2)">
-                            Nama Pasien
-                            <span class="ml-1">
-                                <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
+                            <div class="flex items-center gap-2">
+                                <span>Nama Pasien</span>
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
-                            </span>
+                            </div>
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 cursor-pointer hover:bg-gray-700"
                             onclick="sortTable(3)">
-                            Hubungan
-                            <span class="ml-1">
-                                <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
+                            <div class="flex items-center gap-2">
+                                <span>Hubungan</span>
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
-                            </span>
+                            </div>
                         </th>
                         <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider border-r border-gray-700 cursor-pointer hover:bg-gray-700"
                             onclick="sortTable(4)">
-                            Total Kunjungan
-                            <span class="ml-1">
-                                <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
+                            <div class="flex items-center gap-2">
+                                <span>Total Kunjungan</span>
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
-                            </span>
+                            </div>
                         </th>
                         <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Aksi
                         </th>
@@ -348,6 +338,36 @@
         @endif
     </div>
 </div>
+
+<style>
+    .date-input-custom::-webkit-calendar-picker-indicator {
+        display: none;
+        -webkit-appearance: none;
+    }
+    
+    .date-input-custom::-webkit-inner-spin-button {
+        display: none;
+        -webkit-appearance: none;
+    }
+    
+    .date-input-custom::-webkit-outer-spin-button {
+        display: none;
+        -webkit-appearance: none;
+    }
+    
+    .date-input-custom::-ms-clear {
+        display: none;
+    }
+    
+    .date-input-custom::-ms-reveal {
+        display: none;
+    }
+    
+    /* For Firefox */
+    .date-input-custom {
+        -moz-appearance: textfield;
+    }
+</style>
 
 <script>
     let sortDirection = {};
