@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             TokenEmergencySeeder::class, // Seeder untuk token emergency
             RekamMedisEmergencyFromCSVSeeder::class, // Seeder untuk data emergency dari CSV
             RekamMedisRegulerSeeder::class, // Seeder untuk data rekam medis reguler dari CSV
+            MedicalCheckUpSeeder::class, // Seeder untuk data medical check up dari CSV
         ]);
 
         // Tabel users belum ada, komentari dulu
