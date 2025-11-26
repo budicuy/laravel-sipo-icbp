@@ -709,6 +709,8 @@ class MedicalArchivesController extends Controller
             'keterangan_bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
             'id_kondisi_kesehatan' => 'nullable|array',
             'id_kondisi_kesehatan.*' => 'nullable|integer|exists:kondisi_kesehatan,id',
+            'kondisi_kesehatan_text' => 'nullable|array',
+            'kondisi_kesehatan_text.*' => 'nullable|string|max:255',
             'catatan' => ['nullable', Rule::in(['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'])],
         ]);
         
@@ -754,16 +756,45 @@ class MedicalArchivesController extends Controller
             // Create medical check up record
             $medicalCheckUp = MedicalCheckUp::create($data);
             
-            // Sync kondisi kesehatan relationships
+            // Handle kondisi kesehatan from autocomplete text input
+            $kondisiIds = [];
+            
+            // First try to get from hidden input (autocomplete selected)
             if ($request->id_kondisi_kesehatan && is_array($request->id_kondisi_kesehatan)) {
-                // Filter out empty values
                 $kondisiIds = array_filter($request->id_kondisi_kesehatan, function($value) {
                     return $value !== null && $value !== '';
                 });
+            }
+            
+            // Also process text input and match to existing kondisi kesehatan
+            if ($request->kondisi_kesehatan_text && is_array($request->kondisi_kesehatan_text)) {
+                $textInputs = array_filter($request->kondisi_kesehatan_text, function($value) {
+                    return $value !== null && $value !== '';
+                });
                 
-                if (!empty($kondisiIds)) {
-                    $medicalCheckUp->kondisiKesehatan()->sync($kondisiIds);
+                if (!empty($textInputs)) {
+                    foreach ($textInputs as $text) {
+                        // Find matching kondisi kesehatan by exact name first
+                        $kondisi = KondisiKesehatan::where('nama_kondisi', $text)->first();
+                        
+                        // If no exact match, try partial match
+                        if (!$kondisi) {
+                            $kondisi = KondisiKesehatan::where('nama_kondisi', 'like', '%' . $text . '%')->first();
+                        }
+                        
+                        if ($kondisi) {
+                            // Add to kondisiIds if not already present
+                            if (!in_array($kondisi->id, $kondisiIds)) {
+                                $kondisiIds[] = $kondisi->id;
+                            }
+                        }
+                    }
                 }
+            }
+            
+            // Sync kondisi kesehatan relationships
+            if (!empty($kondisiIds)) {
+                $medicalCheckUp->kondisiKesehatan()->sync($kondisiIds);
             }
             
             return response()->json([
@@ -839,6 +870,8 @@ class MedicalArchivesController extends Controller
             'keterangan_bmi' => ['nullable', Rule::in(['Underweight', 'Normal', 'Overweight', 'Obesitas Tk 1', 'Obesitas Tk 2', 'Obesitas Tk 3'])],
             'id_kondisi_kesehatan' => 'nullable|array',
             'id_kondisi_kesehatan.*' => 'nullable|integer|exists:kondisi_kesehatan,id',
+            'kondisi_kesehatan_text' => 'nullable|array',
+            'kondisi_kesehatan_text.*' => 'nullable|string|max:255',
             'catatan' => ['nullable', Rule::in(['Fit', 'Fit dengan Catatan', 'Fit dalam Pengawasan'])],
         ]);
         
@@ -904,26 +937,55 @@ class MedicalArchivesController extends Controller
                 ->where('id_medical_check_up', $id)
                 ->delete();
             
-            // Then insert new relationships if provided
+            // Handle kondisi kesehatan from autocomplete text input
+            $kondisiIds = [];
+            
+            // First try to get from hidden input (autocomplete selected)
             if ($request->id_kondisi_kesehatan && is_array($request->id_kondisi_kesehatan)) {
-                // Filter out empty values
                 $kondisiIds = array_filter($request->id_kondisi_kesehatan, function($value) {
                     return $value !== null && $value !== '';
                 });
+            }
+            
+            // Also process text input and match to existing kondisi kesehatan
+            if ($request->kondisi_kesehatan_text && is_array($request->kondisi_kesehatan_text)) {
+                $textInputs = array_filter($request->kondisi_kesehatan_text, function($value) {
+                    return $value !== null && $value !== '';
+                });
                 
-                if (!empty($kondisiIds)) {
-                    $insertData = [];
-                    foreach ($kondisiIds as $kondisiId) {
-                        $insertData[] = [
-                            'id_medical_check_up' => $id,
-                            'id_kondisi_kesehatan' => $kondisiId,
-                            'created_at' => now(),
-                            'updated_at' => now()
-                        ];
+                if (!empty($textInputs)) {
+                    foreach ($textInputs as $text) {
+                        // Find matching kondisi kesehatan by exact name first
+                        $kondisi = KondisiKesehatan::where('nama_kondisi', $text)->first();
+                        
+                        // If no exact match, try partial match
+                        if (!$kondisi) {
+                            $kondisi = KondisiKesehatan::where('nama_kondisi', 'like', '%' . $text . '%')->first();
+                        }
+                        
+                        if ($kondisi) {
+                            // Add to kondisiIds if not already present
+                            if (!in_array($kondisi->id, $kondisiIds)) {
+                                $kondisiIds[] = $kondisi->id;
+                            }
+                        }
                     }
-                    
-                    DB::table('medical_check_up_kondisi_kesehatan')->insert($insertData);
                 }
+            }
+            
+            // Then insert new relationships if provided
+            if (!empty($kondisiIds)) {
+                $insertData = [];
+                foreach ($kondisiIds as $kondisiId) {
+                    $insertData[] = [
+                        'id_medical_check_up' => $id,
+                        'id_kondisi_kesehatan' => $kondisiId,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                }
+                
+                DB::table('medical_check_up_kondisi_kesehatan')->insert($insertData);
             }
             
             return response()->json([

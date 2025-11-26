@@ -27,7 +27,7 @@ window.KondisiKesehatanHandler = {
             return;
         }
         
-        const currentFields = container.querySelectorAll('select').length;
+        const currentFields = container.querySelectorAll('input[name="kondisi_kesehatan_text[]"]').length;
         
         if (currentFields >= this.maxFields) {
             if (typeof Swal !== 'undefined') {
@@ -39,22 +39,32 @@ window.KondisiKesehatanHandler = {
         }
         
         const fieldDiv = document.createElement('div');
-        fieldDiv.className = 'mb-2';
-        
-        let options = '<option value="">Pilih Kondisi Kesehatan</option>';
-        this.kondisiKesehatanList.forEach(kondisi => {
-            options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
-        });
+        fieldDiv.className = 'mb-2 relative';
         
         const fieldNumber = currentFields + 1;
         fieldDiv.innerHTML = `
-            <select name="id_kondisi_kesehatan[]" id="${fieldPrefix}KondisiKesehatan${fieldNumber}"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                ${options}
-            </select>
+            <input type="text"
+                   name="kondisi_kesehatan_text[]"
+                   id="${fieldPrefix}KondisiKesehatan${fieldNumber}"
+                   placeholder="Ketik nama gangguan kesehatan..."
+                   autocomplete="off"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+            <input type="hidden" name="id_kondisi_kesehatan[]" id="${fieldPrefix}KondisiKesehatan${fieldNumber}_hidden" value="">
+            <div id="${fieldPrefix}KondisiKesehatan${fieldNumber}_dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto hidden"></div>
         `;
         
         container.appendChild(fieldDiv);
+        
+        // Setup autocomplete for the new field
+        if (typeof setupKondisiKesehatanAutocomplete === 'function') {
+            setupKondisiKesehatanAutocomplete(
+                `${fieldPrefix}KondisiKesehatan${fieldNumber}`,
+                `${fieldPrefix}KondisiKesehatan${fieldNumber}_dropdown`,
+                `${fieldPrefix}KondisiKesehatan${fieldNumber}_hidden`,
+                this.kondisiKesehatanList
+            );
+        }
+        
         console.log('Added kondisi kesehatan field:', fieldNumber);
     },
     
@@ -68,7 +78,7 @@ window.KondisiKesehatanHandler = {
             return;
         }
         
-        const fields = container.querySelectorAll('div');
+        const fields = container.querySelectorAll('div.mb-2');
         
         if (fields.length <= this.minFields) {
             if (typeof Swal !== 'undefined') {
@@ -151,13 +161,20 @@ window.KondisiKesehatanHandler = {
             const initialCount = existingKondisiIds.length > 0 ? existingKondisiIds.length : 1;
             for (let i = 0; i < initialCount; i++) {
                 const existingValue = existingKondisiIds[i] || '';
-                this.addKondisiKesehatanField('editKondisiKesehatanContainer', 'swalEdit', existingValue);
+                this.addKondisiKesehatanField('editKondisiKesehatanContainer', 'swalEdit');
                 
                 // Set the value if exists
                 if (existingValue) {
-                    const select = document.getElementById(`swalEditKondisiKesehatan${i + 1}`);
-                    if (select) {
-                        select.value = existingValue;
+                    const input = document.getElementById(`swalEditKondisiKesehatan${i + 1}`);
+                    const hiddenInput = document.getElementById(`swalEditKondisiKesehatan${i + 1}_hidden`);
+                    
+                    if (input && hiddenInput) {
+                        // Find the kondisi name from the list
+                        const kondisi = this.kondisiKesehatanList.find(k => k.id === existingValue);
+                        if (kondisi) {
+                            input.value = kondisi.nama_kondisi;
+                            hiddenInput.value = kondisi.id;
+                        }
                     }
                 }
             }
@@ -245,8 +262,81 @@ window.KondisiKesehatanHandler = {
         event.preventDefault();
         console.log('Edit remove button clicked via event listener');
         this.removeKondisiKesehatanField('editKondisiKesehatanContainer');
+    },
+    
+    /**
+     * Setup autocomplete for a specific field
+     */
+    setupAutocomplete: function(inputId, dropdownId, hiddenInputId) {
+        const input = document.getElementById(inputId);
+        const dropdown = document.getElementById(dropdownId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+        
+        if (!input || !dropdown || !hiddenInput) {
+            console.error('Autocomplete elements not found:', { inputId, dropdownId, hiddenInputId });
+            return;
+        }
+        
+        console.log('Setting up autocomplete for:', inputId, 'with', this.kondisiKesehatanList.length, 'items');
+        
+        input.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            dropdown.innerHTML = '';
+            dropdown.classList.add('hidden');
+            
+            if (query.length < 1) {
+                hiddenInput.value = '';
+                return;
+            }
+            
+            const matches = window.KondisiKesehatanHandler.kondisiKesehatanList.filter(kondisi =>
+                kondisi.nama_kondisi.toLowerCase().includes(query)
+            );
+            
+            console.log('Query:', query, 'Matches:', matches.length);
+            
+            if (matches.length > 0) {
+                dropdown.classList.remove('hidden');
+                matches.forEach(kondisi => {
+                    const item = document.createElement('div');
+                    item.className = 'px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm';
+                    item.textContent = kondisi.nama_kondisi;
+                    
+                    item.addEventListener('click', function() {
+                        input.value = kondisi.nama_kondisi;
+                        hiddenInput.value = kondisi.id;
+                        dropdown.innerHTML = '';
+                        dropdown.classList.add('hidden');
+                        console.log('Selected:', kondisi.nama_kondisi, 'ID:', kondisi.id);
+                    });
+                    
+                    dropdown.appendChild(item);
+                });
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        });
+        
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
     }
 };
+
+// Global autocomplete setup function
+function setupKondisiKesehatanAutocomplete(inputId, dropdownId, hiddenInputId, kondisiList) {
+    if (typeof window.KondisiKesehatanHandler !== 'undefined') {
+        if (kondisiList) {
+            window.KondisiKesehatanHandler.kondisiKesehatanList = kondisiList;
+        }
+        window.KondisiKesehatanHandler.setupAutocomplete(inputId, dropdownId, hiddenInputId);
+    } else {
+        console.error('KondisiKesehatanHandler not found');
+    }
+}
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {

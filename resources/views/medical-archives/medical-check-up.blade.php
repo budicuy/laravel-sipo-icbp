@@ -491,14 +491,15 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">Gangguan Kesehatan</label>
                             <div class="flex items-center gap-2">
                                 <div id="kondisiKesehatanContainer" class="flex-1">
-                                    <div class="mb-2">
-                                        <select name="id_kondisi_kesehatan[]" id="swalKondisiKesehatan1"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            <option value="">Pilih Gangguan Kesehatan</option>
-                                            @foreach($kondisiKesehatanList ?? [] as $kondisi)
-                                                <option value="{{ $kondisi->id }}">{{ $kondisi->nama_kondisi }}</option>
-                                            @endforeach
-                                        </select>
+                                    <div class="mb-2 relative">
+                                        <input type="text"
+                                               name="kondisi_kesehatan_text[]"
+                                               id="swalKondisiKesehatan1"
+                                               placeholder="Ketik nama gangguan kesehatan..."
+                                               autocomplete="off"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                        <input type="hidden" name="id_kondisi_kesehatan[]" id="swalKondisiKesehatan1_hidden" value="">
+                                        <div id="swalKondisiKesehatan1_dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto hidden"></div>
                                     </div>
                                 </div>
                                 <button type="button" id="addKondisiBtn"
@@ -518,7 +519,7 @@
                                     </svg>
                                 </button>
                             </div>
-                            <p class="mt-1 text-sm text-gray-500">Klik + untuk menambah Gangguan Kesehatan (maksimal 5)</p>
+                            <p class="mt-1 text-sm text-gray-500">Ketik nama gangguan kesehatan atau pilih dari saran (maksimal 5)</p>
                         </div>
                         
                         <div class="mb-4">
@@ -660,11 +661,17 @@
             
             // Setup event listeners after SweetAlert is shown
             setTimeout(() => {
+                // Initialize handler with kondisi kesehatan list
+                const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+                
                 if (typeof window.KondisiKesehatanHandler !== 'undefined') {
-                    // Initialize handler with kondisi kesehatan list
-                    const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
                     window.KondisiKesehatanHandler.init(kondisiKesehatanList);
-                    
+                }
+                
+                // Setup autocomplete for initial field
+                setupAllKondisiKesehatanAutocomplete('swal');
+                
+                if (typeof window.KondisiKesehatanHandler !== 'undefined') {
                     // Setup event listeners
                     window.KondisiKesehatanHandler.setupCreateForm();
                 }
@@ -681,7 +688,7 @@
                         
                         const container = document.getElementById('kondisiKesehatanContainer');
                         if (container) {
-                            const currentFields = container.querySelectorAll('select').length;
+                            const currentFields = container.querySelectorAll('input[name="kondisi_kesehatan_text[]"]').length;
                             
                             if (currentFields >= 5) {
                                 if (typeof Swal !== 'undefined') {
@@ -693,23 +700,30 @@
                             }
                             
                             const fieldDiv = document.createElement('div');
-                            fieldDiv.className = 'mb-2';
-                            
-                            let options = '<option value="">Pilih Gangguan Kesehatan</option>';
-                            const kondisiList = @json($kondisiKesehatanList ?? []);
-                            kondisiList.forEach(kondisi => {
-                                options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
-                            });
+                            fieldDiv.className = 'mb-2 relative';
                             
                             const fieldNumber = currentFields + 1;
                             fieldDiv.innerHTML = `
-                                <select name="id_kondisi_kesehatan[]" id="swalKondisiKesehatan${fieldNumber}"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                    ${options}
-                                </select>
+                                <input type="text"
+                                       name="kondisi_kesehatan_text[]"
+                                       id="swalKondisiKesehatan${fieldNumber}"
+                                       placeholder="Ketik nama gangguan kesehatan..."
+                                       autocomplete="off"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                <input type="hidden" name="id_kondisi_kesehatan[]" id="swalKondisiKesehatan${fieldNumber}_hidden" value="">
+                                <div id="swalKondisiKesehatan${fieldNumber}_dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto hidden"></div>
                             `;
                             
                             container.appendChild(fieldDiv);
+                            
+                            // Setup autocomplete for the new field
+                            setupKondisiKesehatanAutocomplete(
+                                `swalKondisiKesehatan${fieldNumber}`,
+                                `swalKondisiKesehatan${fieldNumber}_dropdown`,
+                                `swalKondisiKesehatan${fieldNumber}_hidden`,
+                                @json($kondisiKesehatanList ?? [])
+                            );
+                            
                             console.log('Added kondisi kesehatan field via inline fallback:', fieldNumber);
                         }
                     });
@@ -925,28 +939,34 @@
                         let kondisiKesehatanFields = '';
                         if (existingKondisiIds.length > 0) {
                             existingKondisiIds.forEach((kondisiId, index) => {
-                                let options = '<option value="">Pilih Gangguan Kesehatan</option>';
-                                kondisiKesehatanList.forEach(kondisi => {
-                                    const selected = kondisi.id === kondisiId ? 'selected' : '';
-                                    options += `<option value="${kondisi.id}" ${selected}>${kondisi.nama_kondisi}</option>`;
-                                });
+                                const kondisi = kondisiKesehatanList.find(k => k.id === kondisiId);
+                                const kondisiName = kondisi ? kondisi.nama_kondisi : '';
                                 kondisiKesehatanFields += `
-                                    <div class="mb-2">
-                                        <select name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan${index + 1}"
-                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                            ${options}
-                                        </select>
+                                    <div class="mb-2 relative">
+                                        <input type="text"
+                                               name="kondisi_kesehatan_text[]"
+                                               id="swalEditKondisiKesehatan${index + 1}"
+                                               value="${kondisiName}"
+                                               placeholder="Ketik nama gangguan kesehatan..."
+                                               autocomplete="off"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                        <input type="hidden" name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan${index + 1}_hidden" value="${kondisiId}">
+                                        <div id="swalEditKondisiKesehatan${index + 1}_dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto hidden"></div>
                                     </div>
                                 `;
                             });
                         } else {
                             // Default one empty field if no existing data
                             kondisiKesehatanFields = `
-                                <div class="mb-2">
-                                    <select name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan1"
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                        ${kondisiKesehatanOptions}
-                                    </select>
+                                <div class="mb-2 relative">
+                                    <input type="text"
+                                           name="kondisi_kesehatan_text[]"
+                                           id="swalEditKondisiKesehatan1"
+                                           placeholder="Ketik nama gangguan kesehatan..."
+                                           autocomplete="off"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                    <input type="hidden" name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan1_hidden" value="">
+                                    <div id="swalEditKondisiKesehatan1_dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto hidden"></div>
                                 </div>
                             `;
                         }
@@ -1024,7 +1044,7 @@
                                                 </svg>
                                             </button>
                                         </div>
-                                        <p class="mt-1 text-sm text-gray-500">Klik + untuk menambah Gangguan Kesehatan (maksimal 5)</p>
+                                        <p class="mt-1 text-sm text-gray-500">Ketik nama gangguan kesehatan atau pilih dari saran (maksimal 5)</p>
                                     </div>
                                     
                                     <div class="mb-4">
@@ -1182,7 +1202,7 @@
                                 
                                 const container = document.getElementById('editKondisiKesehatanContainer');
                                 if (container) {
-                                    const currentFields = container.querySelectorAll('select').length;
+                                    const currentFields = container.querySelectorAll('input[name="kondisi_kesehatan_text[]"]').length;
                                         
                                     if (currentFields >= 5) {
                                         if (typeof Swal !== 'undefined') {
@@ -1194,23 +1214,32 @@
                                     }
                                     
                                     const fieldDiv = document.createElement('div');
-                                    fieldDiv.className = 'mb-2';
-                                    
-                                    let options = '<option value="">Pilih Gangguan Kesehatan</option>';
-                                    const kondisiList = @json($kondisiKesehatanList ?? []);
-                                    kondisiList.forEach(kondisi => {
-                                        options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
-                                    });
+                                    fieldDiv.className = 'mb-2 relative';
                                     
                                     const fieldNumber = currentFields + 1;
                                     fieldDiv.innerHTML = `
-                                        <select name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan${fieldNumber}"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                                ${options}
-                                            </select>
+                                        <input type="text"
+                                               name="kondisi_kesehatan_text[]"
+                                               id="swalEditKondisiKesehatan${fieldNumber}"
+                                               placeholder="Ketik nama gangguan kesehatan..."
+                                               autocomplete="off"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                        <input type="hidden" name="id_kondisi_kesehatan[]" id="swalEditKondisiKesehatan${fieldNumber}_hidden" value="">
+                                        <div id="swalEditKondisiKesehatan${fieldNumber}_dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto hidden"></div>
                                     `;
                                     
                                     container.appendChild(fieldDiv);
+                                    
+                                    // Setup autocomplete for new field
+                                    if (typeof setupKondisiKesehatanAutocomplete === 'function') {
+                                        setupKondisiKesehatanAutocomplete(
+                                            `swalEditKondisiKesehatan${fieldNumber}`,
+                                            `swalEditKondisiKesehatan${fieldNumber}_dropdown`,
+                                            `swalEditKondisiKesehatan${fieldNumber}_hidden`,
+                                            @json($kondisiKesehatanList ?? [])
+                                        );
+                                    }
+                                    
                                     console.log('Added edit kondisi kesehatan field via inline fallback:', fieldNumber);
                                 }
                             });
@@ -1224,7 +1253,7 @@
                                 
                                 const container = document.getElementById('editKondisiKesehatanContainer');
                                 if (container) {
-                                    const fields = container.querySelectorAll('div');
+                                    const fields = container.querySelectorAll('div.mb-2');
                                         
                                     if (fields.length <= 1) {
                                         if (typeof Swal !== 'undefined') {
@@ -1243,11 +1272,17 @@
                         }
                         // Setup event listeners after SweetAlert is shown
                         setTimeout(() => {
+                            // Initialize handler with kondisi kesehatan list
+                            const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+                            
                             if (typeof window.KondisiKesehatanHandler !== 'undefined') {
-                                // Initialize handler with kondisi kesehatan list
-                                const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
                                 window.KondisiKesehatanHandler.init(kondisiKesehatanList);
-                                
+                            }
+                            
+                            // Setup autocomplete for edit form fields
+                            setupAllKondisiKesehatanAutocomplete('swalEdit');
+                            
+                            if (typeof window.KondisiKesehatanHandler !== 'undefined') {
                                 // Use existing kondisi kesehatan IDs from the relationship
                                 const existingKondisiIds = existingKondisiIds || [];
                                 
@@ -1323,22 +1358,98 @@
             
             for (let i = 1; i <= jumlah; i++) {
                 const fieldDiv = document.createElement('div');
-                fieldDiv.className = 'mb-2';
-                
-                let options = '<option value="">Pilih Gangguan Kesehatan</option>';
-                kondisiKesehatanList.forEach(kondisi => {
-                    options += `<option value="${kondisi.id}">${kondisi.nama_kondisi}</option>`;
-                });
+                fieldDiv.className = 'mb-2 relative';
                 
                 fieldDiv.innerHTML = `
-                    <select name="id_kondisi_kesehatan[]" id="${fieldPrefix}KondisiKesehatan${i}"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
-                        ${options}
-                    </select>
+                    <input type="text"
+                           name="kondisi_kesehatan_text[]"
+                           id="${fieldPrefix}KondisiKesehatan${i}"
+                           placeholder="Ketik nama gangguan kesehatan..."
+                           autocomplete="off"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500">
+                    <input type="hidden" name="id_kondisi_kesehatan[]" id="${fieldPrefix}KondisiKesehatan${i}_hidden" value="">
+                    <div id="${fieldPrefix}KondisiKesehatan${i}_dropdown" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto hidden"></div>
                 `;
                 
                 container.appendChild(fieldDiv);
             }
+        }
+        
+        // Autocomplete functionality for kondisi kesehatan
+        function setupKondisiKesehatanAutocomplete(inputId, dropdownId, hiddenInputId, kondisiList) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            const hiddenInput = document.getElementById(hiddenInputId);
+            
+            if (!input || !dropdown || !hiddenInput) {
+                console.error('Autocomplete elements not found:', { inputId, dropdownId, hiddenInputId });
+                return;
+            }
+            
+            console.log('Setting up autocomplete for:', inputId, 'with', kondisiList ? kondisiList.length : 0, 'items');
+            
+            input.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                dropdown.innerHTML = '';
+                dropdown.classList.add('hidden');
+                
+                if (query.length < 1) {
+                    hiddenInput.value = '';
+                    return;
+                }
+                
+                const matches = kondisiList.filter(kondisi =>
+                    kondisi.nama_kondisi.toLowerCase().includes(query)
+                );
+                
+                console.log('Query:', query, 'Matches:', matches.length);
+                
+                if (matches.length > 0) {
+                    dropdown.classList.remove('hidden');
+                    matches.forEach(kondisi => {
+                        const item = document.createElement('div');
+                        item.className = 'px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm';
+                        item.textContent = kondisi.nama_kondisi;
+                        
+                        item.addEventListener('click', function() {
+                            input.value = kondisi.nama_kondisi;
+                            hiddenInput.value = kondisi.id;
+                            dropdown.innerHTML = '';
+                            dropdown.classList.add('hidden');
+                            console.log('Selected:', kondisi.nama_kondisi, 'ID:', kondisi.id);
+                        });
+                        
+                        dropdown.appendChild(item);
+                    });
+                } else {
+                    dropdown.classList.add('hidden');
+                }
+            });
+            
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Setup autocomplete for all kondisi kesehatan fields
+        function setupAllKondisiKesehatanAutocomplete(fieldPrefix = 'swal') {
+            const kondisiKesehatanList = @json($kondisiKesehatanList ?? []);
+            const inputs = document.querySelectorAll(`input[name="kondisi_kesehatan_text[]"]`);
+            
+            console.log('Setting up autocomplete for', inputs.length, 'fields with prefix:', fieldPrefix);
+            
+            inputs.forEach((input, index) => {
+                const fieldNumber = index + 1;
+                const inputId = `${fieldPrefix}KondisiKesehatan${fieldNumber}`;
+                const dropdownId = `${fieldPrefix}KondisiKesehatan${fieldNumber}_dropdown`;
+                const hiddenInputId = `${fieldPrefix}KondisiKesehatan${fieldNumber}_hidden`;
+                
+                console.log('Setting up autocomplete for field:', inputId);
+                setupKondisiKesehatanAutocomplete(inputId, dropdownId, hiddenInputId, kondisiKesehatanList);
+            });
         }
         
         // Event listeners for jumlah kondisi kesehatan dropdowns
@@ -1354,18 +1465,7 @@
                 const removeBtn = document.getElementById('removeKondisiBtn');
                 
                 if (addBtn && removeBtn) {
-                    // Remove existing event listener to prevent duplicates
-                    jumlahKondisiDropdown.removeEventListener('change', window.handleJumlahChange);
-                    
-                    // Create and store the event handler
-                    window.handleJumlahChange = function() {
-                        const jumlah = parseInt(this.value);
-                        console.log('Jumlah changed to:', jumlah); // Debug log
-                        generateKondisiKesehatanFields(jumlah, 'kondisiKesehatanContainer', 'swal', kondisiKesehatanList);
-                    };
-                    
-                    // Add event listener
-                    jumlahKondisiDropdown.addEventListener('change', window.handleJumlahChange);
+                    // Note: jumlahKondisiDropdown is not defined, this section seems to be leftover code
                     
                     // Initialize with 1 field
                     generateKondisiKesehatanFields(1, 'kondisiKesehatanContainer', 'swal', kondisiKesehatanList);
