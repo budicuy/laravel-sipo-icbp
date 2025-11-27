@@ -16,7 +16,7 @@ Tahun;Tgl periksa;Nama Karyawan;Dikeluarkan;BMI (Angka);BMI Category;Gangguan Ke
 2024;17/09/2024;Adiwena Agustinus Indrawan;Rumah Sakit Sari Mulia Banjarmasin;35,31;Obesitas Tk 2;Glukosuria;-;-;-;-;Fit dengan Catatan ;;;;;;
 2024;10/09/2024;Adriyanie Rachman;Rumah Sakit Sari Mulia Banjarmasin;30,97;Obesitas Tk 1;Hipertensi Grade I;Pterygium ODS;Arcus Senilis;Iskemia Anterolateral;-;Fit dalam Pengawasan;;;;;;
 2024;11/09/2024;Agung Prabowo;Rumah Sakit Sari Mulia Banjarmasin;25,86;Overweight;-;-;-;-;-;Fit dengan Catatan ;;;;;;
-2024;10/09/2024;Agus Jaya Nurhadi;Rumah Sakit Sari Mulia Banjarmasin;33,13;Obesitas Tk 1;Hipertensi Grade II;Buta Warna Total;Gangguan Refraksi Mata;-;-;Fit dengan Catatan ;;;;;;
+2024;10/09/2024;Agus Jaya Nurhadi;Rumah Sakit Sari Mulia Banjarmasin;33,13;Obesitas Tk 1;Hipertensi Grade II;Buta warna Total;Gangguan Refraksi Mata;-;-;Fit dengan Catatan ;;;;;;
 2024;18/09/2024;Agus Susilawati;Rumah Sakit Sari Mulia Banjarmasin;21,93;Nomal;Hemoroid;ISK;-;-;-;Fit dengan Catatan ;;;;;;
 2024;17/09/2024;Ahmad Aliansyah;Rumah Sakit Sari Mulia Banjarmasin;22,87;Nomal;Gangguan Refraksi Mata;Serumen telinga;-;-;-;Fit dengan Catatan ;;;;;;
 2024;17/09/2024;Ahmad Amirudin;Rumah Sakit Sari Mulia Banjarmasin;23,03;Nomal;-;-;-;-;-;Fit;;;;;;
@@ -115,7 +115,7 @@ Tahun;Tgl periksa;Nama Karyawan;Dikeluarkan;BMI (Angka);BMI Category;Gangguan Ke
 2024;12/09/2024;Hanafi;Rumah Sakit Sari Mulia Banjarmasin;27,81;Overweight;Hipertensi Grade I;Serumen telinga;-;-;-;Fit dengan Catatan ;;;;;;
 2024;17/09/2024;Hani Maya Sari;Rumah Sakit Sari Mulia Banjarmasin;27,06;Overweight;Hipertensi grade II;ISK;-;-;-;Fit dengan Catatan ;;;;;;
 2024;12/09/2024;Hartini;Rumah Sakit Sari Mulia Banjarmasin;22,84;Nomal;Gangguan Refraksi Mata;Leukosituria;-;-;-;Fit dengan Catatan ;;;;;;
-2024;18/09/2024;Haryanto;Rumah Sakit Sari Mulia Banjarmasin;26,84;Overweight;Buta Warna Total;Serumen telinga;Kristaluria;-;-;Fit dengan Catatan ;;;;;;
+2024;18/09/2024;Haryanto;Rumah Sakit Sari Mulia Banjarmasin;26,84;Overweight;Buta warna Total;Serumen telinga;Kristaluria;-;-;Fit dengan Catatan ;;;;;;
 2024;12/09/2024;Hasnah;Rumah Sakit Sari Mulia Banjarmasin;27,25;Overweight;Leukositosis;-;-;-;-;Fit dengan Catatan ;;;;;;
 2024;09/09/2024;Heldawati;Rumah Sakit Sari Mulia Banjarmasin;22,28;Nomal;Hipertensi Grade I;-;-;-;-;Fit dengan Catatan ;;;;;;
 2024;11/09/2024;Hendra;Rumah Sakit Sari Mulia Banjarmasin;19,78;Nomal;Hipertrofi Tonsil;-;-;-;-;Fit dengan Catatan ;;;;;;
@@ -174,7 +174,7 @@ Tahun;Tgl periksa;Nama Karyawan;Dikeluarkan;BMI (Angka);BMI Category;Gangguan Ke
 2024;10/09/2024;M. Akbar;Rumah Sakit Sari Mulia Banjarmasin;21,49;Nomal;Hemoroid;Tinea Corporis;-;-;-;Fit dengan Catatan ;;;;;;
 2024;10/09/2024;M. Al Khoiri;Rumah Sakit Sari Mulia Banjarmasin;24,8;Nomal;Serumen telinga;-;-;-;-;Fit dengan Catatan ;;;;;;
 2024;11/09/2024;M. Aulia Noor;Rumah Sakit Sari Mulia Banjarmasin;18,87;Nomal;Trombositopenia;-;-;-;-;Fit dengan Catatan ;;;;;;
-2024;09/09/2024;M. Boy Afriadi;Rumah Sakit Sari Mulia Banjarmasin;23,88;Nomal;Buta warna total;Arcus Senilis;-;-;-;Fit dengan Catatan ;;;;;;
+2024;09/09/2024;M. Boy Afriadi;Rumah Sakit Sari Mulia Banjarmasin;23,88;Nomal;Buta warna Total;Arcus Senilis;-;-;-;Fit dengan Catatan ;;;;;;
 2024;12/09/2024;M. Fajar Noorrudin;Rumah Sakit Sari Mulia Banjarmasin;24,15;Nomal;Hipertensi Grade I;Leukosituria;-;-;-;Fit dengan Catatan ;;;;;;
 2024;17/09/2024;M. Hernadi;Rumah Sakit Sari Mulia Banjarmasin;19,68;Nomal;Gangguan Refraksi Mata;Proteinuria;-;-;-;Fit dengan Catatan ;;;;;;
 2024;17/09/2024;M. Mawardi;Rumah Sakit Sari Mulia Banjarmasin;29,04;Overweight;Serumen telinga;Varises;-;-;-;Fit dengan Catatan ;;;;;;
@@ -261,7 +261,7 @@ Tahun;Tgl periksa;Nama Karyawan;Dikeluarkan;BMI (Angka);BMI Category;Gangguan Ke
 2024;11/09/2024;Nor Helmi;Rumah Sakit Sari Mulia Banjarmasin;29,13;Overweight;Gangguan Refraksi Mata;Leukositosis;-;-;-;Fit dengan Catatan ;;;;;;
 2024;12/09/2024;Nor Izzatil Hasanah;Rumah Sakit Sari Mulia Banjarmasin;38,61;Obesitas Tk 2;Leukosituria;-;-;-;-;Fit dengan Catatan ;;;;;;
 2024;09/09/2024;Nor'Ainah;Rumah Sakit Sari Mulia Banjarmasin;23,57;Nomal;Kristaluria;-;-;-;-;Fit dengan Catatan ;;;;;;
-2024;17/09/2024;Norbainah;Rumah Sakit Sari Mulia Banjarmasin;33,69;Obesitas Tk 1;Hipertensi Grade II;Buta Warna Total;Leukosituria;-;-;Fit dengan Catatan ;;;;;;
+2024;17/09/2024;Norbainah;Rumah Sakit Sari Mulia Banjarmasin;33,69;Obesitas Tk 1;Hipertensi Grade II;Buta warna Total;Leukosituria;-;-;Fit dengan Catatan ;;;;;;
 2024;09/09/2024;Norhasanah;Rumah Sakit Sari Mulia Banjarmasin;21,19;Nomal;Hipertensi Grade II;Gangguan Refraksi Mata;-;-;-;Fit dengan Catatan ;;;;;;
 2024;10/09/2024;Norjanah J.;Rumah Sakit Sari Mulia Banjarmasin;18,46;Underweight;-;-;-;-;-;Fit dengan Catatan ;;;;;;
 2024;12/09/2024;Norlaila Santi;Rumah Sakit Sari Mulia Banjarmasin;34,15;Obesitas Tk 1;Gangguan Refraksi Mata;Serumen telinga;ISK;-;-;Fit dengan Catatan ;;;;;;
@@ -386,7 +386,7 @@ Tahun;Tgl periksa;Nama Karyawan;Dikeluarkan;BMI (Angka);BMI Category;Gangguan Ke
 2024;12/09/2024;Thaberani;Rumah Sakit Sari Mulia Banjarmasin;26,51;Overweight;Hipertensi Grade I;Gangguan Refraksi Mata;-;-;-;Fit dengan Catatan ;;;;;;
 2024;11/09/2024;Tihamah;Rumah Sakit Sari Mulia Banjarmasin;34,81;Obesitas Tk 1;Leukositosis;-;-;-;-;Fit dengan Catatan ;;;;;;
 2024;09/09/2024;Tina Rafika Widha Sari;Rumah Sakit Sari Mulia Banjarmasin;31,06;Obesitas Tk 1;Hipertensi Grade I;Gangguan Refraksi Mata;Pterygium ODS;-;-;Fit dengan Catatan ;;;;;;
-2024; 18/09/2024;Tino Hariyanto;Rumah Sakit Sari Mulia Banjarmasin;29,75;Overweight;Buta warna total;Hemoroid;Proteinuria;-;-;Fit dengan Catatan;;;;;;
+2024; 18/09/2024;Tino Hariyanto;Rumah Sakit Sari Mulia Banjarmasin;29,75;Overweight;Buta warna Total;Hemoroid;Proteinuria;-;-;Fit dengan Catatan;;;;;;
 2024;11/09/2024;Titin Jumiati;Rumah Sakit Sari Mulia Banjarmasin;28,6;Overweight;Serumen telinga;-;-;-;-;Fit dengan Catatan ;;;;;;
 2024;19/09/2024;Totok Triatmoko;Rumah Sakit Sari Mulia Banjarmasin;22,99;Nomal;Hipertrigliseridemia;-;-;-;-;Fit dengan Catatan ;;;;;;
 2024;18/09/2024;Tri Anggono;Rumah Sakit Sari Mulia Banjarmasin;25,77;Overweight;Gangguan Refraksi Mata;Hipertrofi Tonsil;Kristaluria;-;-;Fit dengan Catatan ;;;;;;
