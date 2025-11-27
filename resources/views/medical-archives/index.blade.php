@@ -216,7 +216,7 @@
                         <span style="display: inline-block; width: 16px; height: 16px; background-color: #8B5CF6; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);"></span>
                         <h4 class="text-sm font-semibold text-gray-700">Gangguan Kesehatan</h4>
                     </div>
-                    <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Total Kasus</span>
+                    <span class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">Top 10 Gangguan Kesehatan</span>
                 </div>
                 <div style="height: 250px;">
                     <canvas id="chartKondisiKesehatan"></canvas>
