@@ -477,6 +477,11 @@ class MedicalArchivesQueryOptimizer
         // Ensure all chart data have at least some default values if empty
         if ($kondisiKesehatanChart->isEmpty()) {
             $kondisiKesehatanChart->put('Tidak Ada Data', 1);
+        } else {
+            // Sort by value (descending) and get top 10 only
+            $kondisiKesehatanChart = $kondisiKesehatanChart
+                ->sortDesc()
+                ->take(10);
         }
         
         // Remove zero values from keterangan BMI chart for cleaner display
@@ -500,7 +505,7 @@ class MedicalArchivesQueryOptimizer
         }
         
         return [
-            'kondisiKesehatan' => $kondisiKesehatanChart->sortKeys(),
+            'kondisiKesehatan' => $kondisiKesehatanChart,
             'keteranganBmi' => $keteranganBmiChart,
             'catatan' => $catatanChart
         ];

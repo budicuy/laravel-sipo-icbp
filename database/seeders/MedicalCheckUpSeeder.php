@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Karyawan;
 use App\Models\MedicalCheckUp;
+use App\Models\KondisiKesehatan;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -38,6 +39,7 @@ class MedicalCheckUpSeeder extends Seeder
         $processed = 0;
         $skipped = 0;
         $errors = 0;
+        $kondisiKesehatanMap = $this->buildKondisiKesehatanMap();
 
         foreach ($csvData as $index => $row) {
             // Skip header row
@@ -46,7 +48,7 @@ class MedicalCheckUpSeeder extends Seeder
             }
 
             try {
-                $result = $this->processRow($row);
+                $result = $this->processRow($row, $kondisiKesehatanMap);
                 
                 if ($result === 'processed') {
                     $processed++;
@@ -87,9 +89,24 @@ class MedicalCheckUpSeeder extends Seeder
     }
 
     /**
+     * Build a map of kondisi kesehatan names to IDs
+     */
+    private function buildKondisiKesehatanMap(): array
+    {
+        $kondisiKesehatan = KondisiKesehatan::all();
+        $map = [];
+        
+        foreach ($kondisiKesehatan as $kondisi) {
+            $map[strtolower(trim($kondisi->nama_kondisi))] = $kondisi->id;
+        }
+        
+        return $map;
+    }
+
+    /**
      * Process a single row from CSV
      */
-    private function processRow(array $row): string
+    private function processRow(array $row, array $kondisiKesehatanMap): string
     {
         // Extract data from CSV row
         $tahun = $row[0] ?? null;
@@ -134,7 +151,7 @@ class MedicalCheckUpSeeder extends Seeder
             'dikeluarkan_oleh' => $dikeluarkanOleh,
             'bmi' => $this->convertBmiToDecimal($bmiAngka),
             'keterangan_bmi' => $bmiCategory,
-            'id_kondisi_kesehatan' => null, // Not available in CSV
+            'id_kondisi_kesehatan' => null, // Will be handled via pivot table
             'catatan' => $this->normalizeCatatan($statusKesehatan),
             'file_path' => null,
             'file_name' => null,
@@ -145,17 +162,94 @@ class MedicalCheckUpSeeder extends Seeder
             'updated_at' => now(),
         ];
 
-        // Insert or update the record
-        MedicalCheckUp::updateOrCreate(
-            [
-                'id_karyawan' => $karyawan->id_karyawan,
-                'periode' => $tahun,
-                'tanggal' => $tanggal,
-            ],
-            $medicalCheckUpData
-        );
+        // Check if record exists first
+        $existingRecord = MedicalCheckUp::where('id_karyawan', $karyawan->id_karyawan)
+            ->where('periode', $tahun)
+            ->where('tanggal', $tanggal)
+            ->first();
+            
+        if ($existingRecord) {
+            // Update existing record
+            $existingRecord->update($medicalCheckUpData);
+            $medicalCheckUp = $existingRecord;
+        } else {
+            // Create new record
+            $medicalCheckUp = new MedicalCheckUp($medicalCheckUpData);
+            $medicalCheckUp->save();
+        }
+
+        // Process gangguan kesehatan (columns 6-10)
+        if ($medicalCheckUp->id_medical_check_up) {
+            $this->processGangguanKesehatan($row, $medicalCheckUp->id_medical_check_up, $kondisiKesehatanMap);
+        }
 
         return 'processed';
+    }
+
+    /**
+     * Process gangguan kesehatan and insert into pivot table
+     */
+    private function processGangguanKesehatan(array $row, $medicalCheckUpId, array $kondisiKesehatanMap): void
+    {
+        // Extract gangguan kesehatan from columns 6-10
+        $gangguanKesehatan = [];
+        
+        for ($i = 6; $i <= 10; $i++) {
+            if (!empty($row[$i]) && trim($row[$i]) !== '-') {
+                $gangguanKesehatan[] = trim($row[$i]);
+            }
+        }
+
+        // Clear existing relations for this medical check up
+        DB::table('medical_check_up_kondisi_kesehatan')
+            ->where('id_medical_check_up', $medicalCheckUpId)
+            ->delete();
+
+        // Insert new relations
+        foreach ($gangguanKesehatan as $gangguan) {
+            $gangguanLower = strtolower($gangguan);
+            
+            // Try to find exact match first
+            if (isset($kondisiKesehatanMap[$gangguanLower])) {
+                $kondisiId = $kondisiKesehatanMap[$gangguanLower];
+                
+                // Check if relation already exists to avoid duplicate
+                $existingRelation = DB::table('medical_check_up_kondisi_kesehatan')
+                    ->where('id_medical_check_up', $medicalCheckUpId)
+                    ->where('id_kondisi_kesehatan', $kondisiId)
+                    ->first();
+                
+                if (!$existingRelation) {
+                    DB::table('medical_check_up_kondisi_kesehatan')->insert([
+                        'id_medical_check_up' => $medicalCheckUpId,
+                        'id_kondisi_kesehatan' => $kondisiId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            } else {
+                // Try partial match
+                foreach ($kondisiKesehatanMap as $name => $id) {
+                    if (strpos($name, $gangguanLower) !== false || strpos($gangguanLower, $name) !== false) {
+                        // Check if relation already exists to avoid duplicate
+                        $existingRelation = DB::table('medical_check_up_kondisi_kesehatan')
+                            ->where('id_medical_check_up', $medicalCheckUpId)
+                            ->where('id_kondisi_kesehatan', $id)
+                            ->first();
+                        
+                        if (!$existingRelation) {
+                            DB::table('medical_check_up_kondisi_kesehatan')->insert([
+                                'id_medical_check_up' => $medicalCheckUpId,
+                                'id_kondisi_kesehatan' => $id,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**
