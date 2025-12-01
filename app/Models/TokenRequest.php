@@ -86,11 +86,27 @@ class TokenRequest extends Model
     }
 
     /**
-     * Get the count of pending requests.
+     * Cache for pending requests count (per-request)
+     */
+    protected static $pendingCountCache = null;
+
+    /**
+     * Get the count of pending requests (cached per request).
      */
     public static function getPendingRequestsCount()
     {
-        return self::pending()->count();
+        if (self::$pendingCountCache === null) {
+            self::$pendingCountCache = self::pending()->count();
+        }
+        return self::$pendingCountCache;
+    }
+
+    /**
+     * Clear the pending count cache.
+     */
+    public static function clearPendingCountCache()
+    {
+        self::$pendingCountCache = null;
     }
 
     /**
