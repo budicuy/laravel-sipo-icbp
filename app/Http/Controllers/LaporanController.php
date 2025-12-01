@@ -13,19 +13,24 @@ use Illuminate\Http\Request;
 class LaporanController extends Controller
 {
     /**
-     * Helper method untuk generate nomor registrasi yang konsisten dengan KunjunganController
-     * Format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
+     * Cache untuk menyimpan mapping nomor registrasi
+     * Ini mencegah query berulang untuk setiap record
      */
-    private function generateNomorRegistrasi($rekamMedisId, $tanggalPeriksa, $tipe = 'reguler')
-    {
-        $bulan = $tanggalPeriksa->format('m');
-        $tahun = $tanggalPeriksa->format('Y');
+    private static $nomorRegistrasiCache = null;
 
-        // Gabungkan rekam medis reguler dan emergency untuk hitungan global
-        $allRecords = collect();
-        
-        // Ambil semua rekam medis reguler dari 1 Agustus
+    /**
+     * Helper method untuk load dan cache semua data nomor registrasi sekaligus
+     * Ini hanya akan query database SEKALI per request
+     */
+    private function loadNomorRegistrasiCache()
+    {
+        if (self::$nomorRegistrasiCache !== null) {
+            return self::$nomorRegistrasiCache;
+        }
+
+        // Ambil semua rekam medis reguler dari 1 Agustus dengan query yang dioptimasi
         $regulerRecords = RekamMedis::where('tanggal_periksa', '>=', '2025-08-01')
+            ->select('id_rekam', 'tanggal_periksa', 'waktu_periksa')
             ->orderBy('tanggal_periksa')
             ->orderBy('waktu_periksa')
             ->get()
@@ -37,9 +42,10 @@ class LaporanController extends Controller
                     'tipe' => 'reguler'
                 ];
             });
-        
-        // Ambil semua rekam medis emergency dari 1 Agustus
+
+        // Ambil semua rekam medis emergency dari 1 Agustus dengan query yang dioptimasi
         $emergencyRecords = RekamMedisEmergency::where('tanggal_periksa', '>=', '2025-08-01')
+            ->select('id_emergency', 'tanggal_periksa', 'waktu_periksa')
             ->orderBy('tanggal_periksa')
             ->orderBy('waktu_periksa')
             ->get()
@@ -51,23 +57,44 @@ class LaporanController extends Controller
                     'tipe' => 'emergency'
                 ];
             });
-        
+
         // Gabungkan dan urutkan semua record
         $allRecords = $regulerRecords->concat($emergencyRecords)
             ->sortBy(function($record) {
                 return $record['tanggal'].' '.$record['waktu'];
             })
             ->values();
-        
-        // Cari posisi record saat ini
-        $visitCount = 0;
+
+        // Build cache mapping: "tipe_id" => position
+        self::$nomorRegistrasiCache = [];
         foreach ($allRecords as $index => $record) {
-            if (($tipe === 'reguler' && $record['id'] == $rekamMedisId && $record['tipe'] === 'reguler') ||
-                ($tipe === 'emergency' && $record['id'] == $rekamMedisId && $record['tipe'] === 'emergency')) {
-                $visitCount = $index + 1;
-                break;
-            }
+            $key = $record['tipe'] . '_' . $record['id'];
+            self::$nomorRegistrasiCache[$key] = [
+                'position' => $index + 1,
+                'tanggal' => $record['tanggal']
+            ];
         }
+
+        return self::$nomorRegistrasiCache;
+    }
+
+    /**
+     * Helper method untuk generate nomor registrasi yang konsisten dengan KunjunganController
+     * Format: [urutan_global_dari_1_agustus]/NDL/BJM/[bulan]/[tahun]
+     *
+     * OPTIMIZED: Menggunakan cache untuk menghindari query berulang
+     */
+    private function generateNomorRegistrasi($rekamMedisId, $tanggalPeriksa, $tipe = 'reguler')
+    {
+        $bulan = $tanggalPeriksa->format('m');
+        $tahun = $tanggalPeriksa->format('Y');
+
+        // Load cache sekali saja
+        $cache = $this->loadNomorRegistrasiCache();
+
+        // Cari posisi dari cache
+        $key = $tipe . '_' . $rekamMedisId;
+        $visitCount = isset($cache[$key]) ? $cache[$key]['position'] : 0;
 
         // Format nomor registrasi dengan 4 digit leading zeros
         $formattedVisitCount = str_pad($visitCount, 4, '0', STR_PAD_LEFT);
@@ -117,7 +144,7 @@ class LaporanController extends Controller
         $search = $request->get('search', '');
         $perPage = $request->get('per_page', 50);
         $perPage = in_array($perPage, [50, 100, 200]) ? $perPage : 50;
-        
+
         // Enhanced search parameters
         $tipeKunjungan = $request->get('tipe_kunjungan', '');
         $jenisKelamin = $request->get('jenis_kelamin', '');
@@ -135,7 +162,7 @@ class LaporanController extends Controller
         $chartPemeriksaan = cache()->remember($chartCacheKey.'_pemeriksaan', 3600, function() use ($tahun) {
             return $this->getChartPemeriksaan($tahun);
         });
-        
+
         $chartBiaya = cache()->remember($chartCacheKey.'_biaya', 3600, function() use ($tahun) {
             return $this->getChartBiaya($tahun);
         });
@@ -148,7 +175,7 @@ class LaporanController extends Controller
         // Get statistics dengan cache (disable cache when filters are applied)
         $hasFilters = !empty($tipeKunjungan) || !empty($jenisKelamin) || !empty($departemen) ||
                      !empty($rangeUsia) || !empty($statusRekam) || !empty($minBiaya) || !empty($maxBiaya);
-        
+
         if ($hasFilters) {
             // Don't cache when filters are applied
             $stats = $this->getTransaksiStats($bulan, $tahun, $tipeKunjungan, $jenisKelamin, $departemen, $rangeUsia, $statusRekam, $minBiaya, $maxBiaya);
@@ -158,7 +185,7 @@ class LaporanController extends Controller
                 return $this->getTransaksiStats($bulan, $tahun);
             });
         }
-        
+
         // Ensure bulan_nama is always set
         if (!isset($stats['bulan_nama'])) {
             $stats['bulan_nama'] = $this->getBulanNama($bulan);
@@ -168,7 +195,7 @@ class LaporanController extends Controller
         $departemens = \App\Models\Departemen::select('id_departemen', 'nama_departemen')
             ->orderBy('nama_departemen')
             ->get();
-        
+
         return view('laporan.transaksi', compact(
             'transaksi',
             'chartPemeriksaan',
@@ -206,9 +233,9 @@ class LaporanController extends Controller
                 SELECT tanggal_periksa, 'reguler' as type
                 FROM rekam_medis
                 WHERE YEAR(tanggal_periksa) = :tahun1
-                
+
                 UNION ALL
-                
+
                 SELECT tanggal_periksa, 'emergency' as type
                 FROM rekam_medis_emergency
                 WHERE YEAR(tanggal_periksa) = :tahun2
@@ -220,12 +247,12 @@ class LaporanController extends Controller
         $chartDataReguler = [];
         $chartDataEmergency = [];
         $chartDataTotal = [];
-        
+
         $monthlyDataArray = [];
         foreach ($monthlyData as $data) {
             $monthlyDataArray[$data->month] = $data;
         }
-        
+
         for ($i = 1; $i <= 12; $i++) {
             $data = $monthlyDataArray[$i] ?? null;
             $reguler = $data ? $data->reguler_count : 0;
@@ -389,18 +416,17 @@ class LaporanController extends Controller
     private function getTransaksiData($periode, $perPage = 50, $search = '', $tipeKunjungan = '', $jenisKelamin = '', $departemen = '', $rangeUsia = '', $statusRekam = '', $minBiaya = '', $maxBiaya = '')
     {
         // Parse periode format MM-YY to get month and year
-        if (preg_match('/^(\d{2})-(\d{2})$/', $periode, $matches)) {
+        // Jika periode kosong (Semua Periode), maka tidak filter berdasarkan bulan/tahun
+        $filterByPeriode = !empty($periode) && preg_match('/^(\d{2})-(\d{2})$/', $periode, $matches);
+
+        if ($filterByPeriode) {
             $month = (int) $matches[1];
             $year = (int) $matches[2] + 2000; // Convert YY to YYYY
-        } else {
-            // Default to current month if format is invalid
-            $month = Carbon::now()->month;
-            $year = Carbon::now()->year;
         }
 
         // Optimasi: Query langsung dengan pagination di database level
         $currentPage = request()->get('page', 1);
-        
+
         // Build base queries dengan eager loading yang sudah dioptimasi
         $rekamMedisQuery = RekamMedis::with([
             'keluarga.karyawan:id_karyawan,nik_karyawan,nama_karyawan,id_departemen',
@@ -412,9 +438,7 @@ class LaporanController extends Controller
             'keluhans.obat.satuanObat:id_satuan,nama_satuan',
             'user:id_user,username,nama_lengkap',
         ])
-        ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'waktu_periksa', 'status', 'id_user')
-        ->whereMonth('tanggal_periksa', $month)
-        ->whereYear('tanggal_periksa', $year);
+        ->select('id_rekam', 'id_keluarga', 'tanggal_periksa', 'waktu_periksa', 'status', 'id_user');
 
         $rekamMedisEmergencyQuery = RekamMedisEmergency::with([
             'externalEmployee:id,nik_employee,nama_employee,alamat,jenis_kelamin',
@@ -424,9 +448,15 @@ class LaporanController extends Controller
             'keluhans.obat.satuanObat:id_satuan,nama_satuan',
             'user:id_user,username,nama_lengkap',
         ])
-        ->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'waktu_periksa', 'status', 'id_user')
-        ->whereMonth('tanggal_periksa', $month)
-        ->whereYear('tanggal_periksa', $year);
+        ->select('id_emergency', 'id_external_employee', 'tanggal_periksa', 'waktu_periksa', 'status', 'id_user');
+
+        // Filter by periode jika dipilih
+        if ($filterByPeriode) {
+            $rekamMedisQuery->whereMonth('tanggal_periksa', $month)
+                ->whereYear('tanggal_periksa', $year);
+            $rekamMedisEmergencyQuery->whereMonth('tanggal_periksa', $month)
+                ->whereYear('tanggal_periksa', $year);
+        }
 
         // Apply basic search filter if provided
         if (!empty($search)) {
@@ -464,7 +494,7 @@ class LaporanController extends Controller
             $rekamMedisQuery->whereHas('keluarga', function ($query) use ($jenisKelaminFull) {
                 $query->where('jenis_kelamin', $jenisKelaminFull);
             });
-            
+
             // Also filter emergency records by jenis kelamin
             $rekamMedisEmergencyQuery->whereHas('externalEmployee', function ($query) use ($jenisKelaminFull) {
                 $query->where('jenis_kelamin', $jenisKelaminFull);
@@ -537,7 +567,7 @@ class LaporanController extends Controller
 
         // Get data with offset and limit
         $offset = ($currentPage - 1) * $perPage;
-        
+
         // Get reguler data
         $rekamMedisData = $rekamMedisQuery
             ->orderBy('tanggal_periksa', 'desc')
@@ -549,7 +579,7 @@ class LaporanController extends Controller
         // Get emergency data if needed
         $remainingLimit = $perPage - $rekamMedisData->count();
         $rekamMedisEmergencyData = collect();
-        
+
         if ($remainingLimit > 0) {
             $rekamMedisEmergencyData = $rekamMedisEmergencyQuery
                 ->orderBy('tanggal_periksa', 'desc')
@@ -559,26 +589,28 @@ class LaporanController extends Controller
         }
 
         // Collect all unique obat IDs and periods
+        // Ketika "Semua Periode", gunakan tanggal dari masing-masing record
         $obatPeriods = [];
-        $periodeFormat = $periode;
 
         foreach ($rekamMedisData as $rekamMedis) {
+            $recordPeriode = $rekamMedis->tanggal_periksa->format('m-y');
             foreach ($rekamMedis->keluhans as $keluhan) {
                 if ($keluhan->id_obat) {
                     $obatPeriods[] = [
                         'id_obat' => $keluhan->id_obat,
-                        'periode' => $periodeFormat,
+                        'periode' => $recordPeriode,
                     ];
                 }
             }
         }
 
         foreach ($rekamMedisEmergencyData as $rekamMedisEmergency) {
+            $recordPeriode = $rekamMedisEmergency->tanggal_periksa->format('m-y');
             foreach ($rekamMedisEmergency->keluhans as $keluhan) {
                 if ($keluhan->id_obat) {
                     $obatPeriods[] = [
                         'id_obat' => $keluhan->id_obat,
-                        'periode' => $periodeFormat,
+                        'periode' => $recordPeriode,
                     ];
                 }
             }
@@ -603,14 +635,14 @@ class LaporanController extends Controller
         // Process reguler data
         $resultReguler = $rekamMedisData->map(function ($rekamMedis) use ($hargaObatMap) {
             $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_rekam, $rekamMedis->tanggal_periksa, 'reguler');
-            
+
             $keluhans = $rekamMedis->keluhans;
             $totalBiaya = 0;
             $obatDetails = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (!$keluhan->id_obat) continue;
-                
+
                 $key = $keluhan->id_obat.'_'.$rekamMedis->tanggal_periksa->format('m-y');
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
@@ -618,7 +650,7 @@ class LaporanController extends Controller
                 $diskon = $keluhan->diskon ?? 0;
                 $subtotal = $subtotalSebelumDiskon * (1 - ($diskon / 100));
                 $totalBiaya += $subtotal;
-                
+
                 $obatDetails[] = [
                     'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
                     'jumlah_obat' => $keluhan->jumlah_obat,
@@ -627,10 +659,10 @@ class LaporanController extends Controller
                     'subtotal' => $subtotal,
                 ];
             }
-            
+
             $diagnosaList = $keluhans->pluck('diagnosa.nama_diagnosa')->filter()->unique()->values()->toArray();
             $nikKaryawan = $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-';
-            
+
             return [
                 'kode_transaksi' => $kodeTransaksi,
                 'no_rm' => $nikKaryawan.'-'.($rekamMedis->keluarga->kode_hubungan ?? ''),
@@ -650,20 +682,20 @@ class LaporanController extends Controller
         // Process emergency data
         $resultEmergency = $rekamMedisEmergencyData->map(function ($rekamMedisEmergency) use ($hargaObatMap) {
             $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_emergency, $rekamMedisEmergency->tanggal_periksa, 'emergency');
-            
+
             $keluhans = $rekamMedisEmergency->keluhans;
             $totalBiaya = 0;
             $obatDetails = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (!$keluhan->id_obat) continue;
-                
+
                 $key = $keluhan->id_obat.'_'.$rekamMedisEmergency->tanggal_periksa->format('m-y');
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
                 $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
                 $totalBiaya += $subtotal;
-                
+
                 $obatDetails[] = [
                     'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
                     'jumlah_obat' => $keluhan->jumlah_obat,
@@ -671,10 +703,10 @@ class LaporanController extends Controller
                     'subtotal' => $subtotal,
                 ];
             }
-            
+
             $diagnosaList = $keluhans->pluck('diagnosaEmergency.nama_diagnosa_emergency')->filter()->unique()->values()->toArray();
             $nikKaryawan = $rekamMedisEmergency->externalEmployee->nik_employee ?? '-';
-            
+
             return [
                 'kode_transaksi' => $kodeTransaksi,
                 'no_rm' => $nikKaryawan,
@@ -700,20 +732,20 @@ class LaporanController extends Controller
         if ($filterByBiaya) {
             $allResults = $allResults->filter(function ($item) use ($minBiaya, $maxBiaya) {
                 $totalBiaya = $item['total_biaya'];
-                
+
                 // Apply minimum biaya filter
                 if (!empty($minBiaya) && $totalBiaya < (float) $minBiaya) {
                     return false;
                 }
-                
+
                 // Apply maximum biaya filter
                 if (!empty($maxBiaya) && $totalBiaya > (float) $maxBiaya) {
                     return false;
                 }
-                
+
                 return true;
             })->values();
-            
+
             // Update total count after filtering
             $totalCount = $allResults->count();
         }
@@ -969,7 +1001,7 @@ class LaporanController extends Controller
         // Apply filters for statistics
         $rekamMedisQuery = RekamMedis::whereMonth('tanggal_periksa', $bulan)
             ->whereYear('tanggal_periksa', $tahun);
-        
+
         $rekamMedisEmergencyQuery = RekamMedisEmergency::whereMonth('tanggal_periksa', $bulan)
             ->whereYear('tanggal_periksa', $tahun);
 
@@ -990,7 +1022,7 @@ class LaporanController extends Controller
             $rekamMedisQuery->whereHas('keluarga', function ($query) use ($jenisKelaminFull) {
                 $query->where('jenis_kelamin', $jenisKelaminFull);
             });
-            
+
             // Also filter emergency records by jenis kelamin
             $rekamMedisEmergencyQuery->whereHas('externalEmployee', function ($query) use ($jenisKelaminFull) {
                 $query->where('jenis_kelamin', $jenisKelaminFull);
@@ -1121,7 +1153,7 @@ class LaporanController extends Controller
         $totalBiaya = 0;
         $filteredKeluhanReguler = [];
         $filteredKeluhanEmergency = [];
-        
+
         // Apply filters to reguler keluhan data
         foreach ($keluhanDataReguler as $keluhan) {
             $periode = $keluhan->rekamMedis->tanggal_periksa->format('m-y');
@@ -1134,7 +1166,7 @@ class LaporanController extends Controller
                 $hargaSebelumDiskon = $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
                 $diskon = $keluhan->diskon ?? 0;
                 $subtotal = $hargaSebelumDiskon * (1 - ($diskon / 100));
-                
+
                 // Apply biaya filter if specified
                 $includeInStats = true;
                 if (!empty($minBiaya) && $subtotal < (float) $minBiaya) {
@@ -1143,7 +1175,7 @@ class LaporanController extends Controller
                 if (!empty($maxBiaya) && $subtotal > (float) $maxBiaya) {
                     $includeInStats = false;
                 }
-                
+
                 if ($includeInStats) {
                     $totalBiaya += $subtotal;
                     $filteredKeluhanReguler[] = $keluhan;
@@ -1161,7 +1193,7 @@ class LaporanController extends Controller
 
             if ($hargaObat) {
                 $subtotal = $keluhan->jumlah_obat * $hargaObat->harga_per_satuan;
-                
+
                 // Apply biaya filter if specified
                 $includeInStats = true;
                 if (!empty($minBiaya) && $subtotal < (float) $minBiaya) {
@@ -1170,14 +1202,14 @@ class LaporanController extends Controller
                 if (!empty($maxBiaya) && $subtotal > (float) $maxBiaya) {
                     $includeInStats = false;
                 }
-                
+
                 if ($includeInStats) {
                     $totalBiaya += $subtotal;
                     $filteredKeluhanEmergency[] = $keluhan;
                 }
             }
         }
-        
+
         // Recalculate counts based on filtered data
         $totalPemeriksaanReguler = count($filteredKeluhanReguler);
         $totalPemeriksaanEmergency = count($filteredKeluhanEmergency);
@@ -1707,7 +1739,7 @@ class LaporanController extends Controller
             $statusRekam = $request->get('status_rekam', '');
             $minBiaya = $request->get('min_biaya', '');
             $maxBiaya = $request->get('max_biaya', '');
-            
+
             $allTransaksiData = $this->getAllTransaksiDataForExportKustom($month, $year, $search, $tipeKunjungan, $jenisKelamin, $departemen, $rangeUsia, $statusRekam, $minBiaya, $maxBiaya);
 
             // Validate data before export
@@ -1790,7 +1822,7 @@ class LaporanController extends Controller
             $sheet->getColumnDimension('E')->setWidth(20);
             $sheet->getColumnDimension('F')->setWidth(20);
             $sheet->getColumnDimension('G')->setWidth(20);
-            
+
             // Set widths for all columns
             for ($col = 'H'; $col <= 'AL'; $col++) {
                 $sheet->getColumnDimension($col)->setWidth(15);
@@ -1822,11 +1854,11 @@ class LaporanController extends Controller
                     }
                 }
                 $sheet->setCellValue($col.$row, $tanggalValue);
-                
+
                 // NIK
                 $col = 'B';
                 $sheet->setCellValue($col.$row, $item['nik_karyawan']);
-                
+
                 // Kode RM
                 $col = 'C';
                 $noRmValue = $item['no_rm'];
@@ -1834,23 +1866,23 @@ class LaporanController extends Controller
                     $noRmValue = $noRmValue.' (F)';
                 }
                 $sheet->setCellValue($col.$row, $noRmValue);
-                
+
                 // Nama Pasien
                 $col = 'D';
                 $sheet->setCellValue($col.$row, $item['nama_pasien']);
-                
+
                 // Diagnosa 1, 2, 3
                 $diagnosaList = $item['diagnosa_list'] ?? [];
                 $sheet->setCellValue('E'.$row, $diagnosaList[0] ?? '-');
                 $sheet->setCellValue('F'.$row, $diagnosaList[1] ?? '-');
                 $sheet->setCellValue('G'.$row, $diagnosaList[2] ?? '-');
-                
+
                 // Obat details - flatten all obat details
                 $obatDetails = $item['obat_details'] ?? [];
                 $obatColumns = ['H', 'K', 'N', 'Q', 'T', 'W', 'Z', 'AC', 'AF', 'AI'];
                 $qtyColumns = ['I', 'L', 'O', 'R', 'U', 'X', 'AA', 'AD', 'AG', 'AJ'];
                 $hargaColumns = ['J', 'M', 'P', 'S', 'V', 'Y', 'AB', 'AE', 'AH', 'AK'];
-                
+
                 // Fill obat data
                 for ($i = 0; $i < 10; $i++) {
                     if (isset($obatDetails[$i])) {
@@ -1864,7 +1896,7 @@ class LaporanController extends Controller
                         $sheet->setCellValue($hargaColumns[$i].$row, '-');
                     }
                 }
-                
+
                 // Total Biaya
                 $col = 'AL';
                 $sheet->setCellValue($col.$row, $item['total_biaya']);
@@ -1958,7 +1990,7 @@ class LaporanController extends Controller
                     $groupIndex++;
                     $obatIndex = 0;
                 }
-                
+
                 if ($groupIndex < 3) {
                     $groups[$groupIndex]['obat'][] = $obat;
                     $obatIndex++;
@@ -2043,7 +2075,7 @@ class LaporanController extends Controller
             $rekamMedisQuery->whereHas('keluarga', function ($query) use ($jenisKelaminFull) {
                 $query->where('jenis_kelamin', $jenisKelaminFull);
             });
-            
+
             // Also filter emergency records by jenis kelamin
             $rekamMedisEmergencyQuery->whereHas('externalEmployee', function ($query) use ($jenisKelaminFull) {
                 $query->where('jenis_kelamin', $jenisKelaminFull);
@@ -2163,31 +2195,31 @@ class LaporanController extends Controller
         $resultReguler = $rekamMedisData->map(function ($rekamMedis) use ($hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
             $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_rekam, $rekamMedis->tanggal_periksa, 'reguler');
-            
+
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedis->keluhans;
             $periode = $rekamMedis->tanggal_periksa->format('m-y');
-            
+
             $totalBiaya = 0;
             $obatDetails = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (! $keluhan->id_obat) {
                     continue;
                 }
-                
+
                 // Get harga obat from our pre-fetched map
                 $key = $keluhan->id_obat.'_'.$periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
                 $subtotalSebelumDiskon = $keluhan->jumlah_obat * $hargaSatuan;
-                
+
                 // Apply discount
                 $diskon = $keluhan->diskon ?? 0;
                 $subtotal = $subtotalSebelumDiskon * (1 - ($diskon / 100));
-                
+
                 $totalBiaya += $subtotal;
-                
+
                 // Store obat details for export with proper null checks
                 $obatDetails[] = [
                     'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
@@ -2197,14 +2229,14 @@ class LaporanController extends Controller
                     'subtotal' => $subtotal,
                 ];
             }
-            
+
             // Get unique diagnoses as an array
             $diagnosaList = $keluhans->pluck('diagnosa.nama_diagnosa')->filter()->unique()->values()->toArray();
-            
+
             // Get NIK and Nama Karyawan from keluarga table
             $nikKaryawan = $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-';
             $namaKaryawan = $rekamMedis->keluarga->karyawan->nama_karyawan ?? '-';
-            
+
             return [
                 'kode_transaksi' => $kodeTransaksi,
                 'no_rm' => ($nikKaryawan ?? '').'-'.($rekamMedis->keluarga->kode_hubungan ?? ''),
@@ -2225,27 +2257,27 @@ class LaporanController extends Controller
         $resultEmergency = $rekamMedisEmergencyData->map(function ($rekamMedisEmergency) use ($hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
             $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_emergency, $rekamMedisEmergency->tanggal_periksa, 'emergency');
-            
+
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedisEmergency->keluhans;
             $periode = $rekamMedisEmergency->tanggal_periksa->format('m-y');
-            
+
             $totalBiaya = 0;
             $obatDetails = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (! $keluhan->id_obat) {
                     continue;
                 }
-                
+
                 // Get harga obat from our pre-fetched map
                 $key = $keluhan->id_obat.'_'.$periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
                 $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
-                
+
                 $totalBiaya += $subtotal;
-                
+
                 // Store obat details for export with proper null checks
                 $obatDetails[] = [
                     'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
@@ -2254,14 +2286,14 @@ class LaporanController extends Controller
                     'subtotal' => $subtotal,
                 ];
             }
-            
+
             // Get unique diagnoses as an array
             $diagnosaList = $keluhans->pluck('diagnosaEmergency.nama_diagnosa_emergency')->filter()->unique()->values()->toArray();
-            
+
             // Get NIK and Nama Karyawan from externalEmployee table
             $nikKaryawan = $rekamMedisEmergency->externalEmployee->nik_employee ?? '-';
             $namaKaryawan = $rekamMedisEmergency->externalEmployee->nama_employee ?? '-';
-            
+
             return [
                 'kode_transaksi' => $kodeTransaksi,
                 'no_rm' => $nikKaryawan,
@@ -2285,17 +2317,17 @@ class LaporanController extends Controller
         if ($filterByBiaya) {
             $allResults = $allResults->filter(function ($item) use ($minBiaya, $maxBiaya) {
                 $totalBiaya = $item['total_biaya'];
-                
+
                 // Apply minimum biaya filter
                 if (!empty($minBiaya) && $totalBiaya < (float) $minBiaya) {
                     return false;
                 }
-                
+
                 // Apply maximum biaya filter
                 if (!empty($maxBiaya) && $totalBiaya > (float) $maxBiaya) {
                     return false;
                 }
-                
+
                 return true;
             })->values();
         }
@@ -2425,31 +2457,31 @@ class LaporanController extends Controller
         $resultReguler = $rekamMedisData->map(function ($rekamMedis) use ($hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
             $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedis->id_rekam, $rekamMedis->tanggal_periksa, 'reguler');
-            
+
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedis->keluhans;
             $periode = $rekamMedis->tanggal_periksa->format('m-y');
-            
+
             $totalBiaya = 0;
             $obatDetails = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (! $keluhan->id_obat) {
                     continue;
                 }
-                
+
                 // Get harga obat from our pre-fetched map
                 $key = $keluhan->id_obat.'_'.$periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
                 $subtotalSebelumDiskon = $keluhan->jumlah_obat * $hargaSatuan;
-                
+
                 // Apply discount
                 $diskon = $keluhan->diskon ?? 0;
                 $subtotal = $subtotalSebelumDiskon * (1 - ($diskon / 100));
-                
+
                 $totalBiaya += $subtotal;
-                
+
                 // Store obat details for export with proper null checks
                 $obatDetails[] = [
                     'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
@@ -2459,14 +2491,14 @@ class LaporanController extends Controller
                     'subtotal' => $subtotal,
                 ];
             }
-            
+
             // Get unique diagnoses as an array
             $diagnosaList = $keluhans->pluck('diagnosa.nama_diagnosa')->filter()->unique()->values()->toArray();
-            
+
             // Get NIK and Nama Karyawan from keluarga table - sesuai dengan RekamMedisController
             $nikKaryawan = $rekamMedis->keluarga->karyawan->nik_karyawan ?? '-';
             $namaKaryawan = $rekamMedis->keluarga->karyawan->nama_karyawan ?? '-';
-            
+
             return [
                 'kode_transaksi' => $kodeTransaksi,
                 'no_rm' => ($nikKaryawan ?? '').'-'.($rekamMedis->keluarga->kode_hubungan ?? ''),
@@ -2487,27 +2519,27 @@ class LaporanController extends Controller
         $resultEmergency = $rekamMedisEmergencyData->map(function ($rekamMedisEmergency) use ($hargaObatMap) {
             // Generate nomor registrasi yang konsisten dengan KunjunganController
             $kodeTransaksi = $this->generateNomorRegistrasi($rekamMedisEmergency->id_emergency, $rekamMedisEmergency->tanggal_periksa, 'emergency');
-            
+
             // Get keluhan untuk menghitung total biaya dan dapatkan diagnosa + obat
             $keluhans = $rekamMedisEmergency->keluhans;
             $periode = $rekamMedisEmergency->tanggal_periksa->format('m-y');
-            
+
             $totalBiaya = 0;
             $obatDetails = [];
-            
+
             foreach ($keluhans as $keluhan) {
                 if (! $keluhan->id_obat) {
                     continue;
                 }
-                
+
                 // Get harga obat from our pre-fetched map
                 $key = $keluhan->id_obat.'_'.$periode;
                 $hargaObat = $hargaObatMap[$key] ?? null;
                 $hargaSatuan = $hargaObat ? $hargaObat->harga_per_satuan : 0;
                 $subtotal = $keluhan->jumlah_obat * $hargaSatuan;
-                
+
                 $totalBiaya += $subtotal;
-                
+
                 // Store obat details for export with proper null checks
                 $obatDetails[] = [
                     'nama_obat' => $keluhan->obat ? $keluhan->obat->nama_obat : '',
@@ -2516,14 +2548,14 @@ class LaporanController extends Controller
                     'subtotal' => $subtotal,
                 ];
             }
-            
+
             // Get unique diagnoses as an array
             $diagnosaList = $keluhans->pluck('diagnosaEmergency.nama_diagnosa_emergency')->filter()->unique()->values()->toArray();
-            
+
             // Get NIK and Nama Karyawan from externalEmployee table - sesuai dengan RekamMedisEmergencyController
             $nikKaryawan = $rekamMedisEmergency->externalEmployee->nik_employee ?? '-';
             $namaKaryawan = $rekamMedisEmergency->externalEmployee->nama_employee ?? '-';
-            
+
             return [
                 'kode_transaksi' => $kodeTransaksi,
                 'no_rm' => $nikKaryawan,

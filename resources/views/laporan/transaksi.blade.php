@@ -313,7 +313,50 @@
                             class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
                             <option value="">Semua Periode</option>
                             @php
-                                $availablePeriodes = \App\Models\HargaObatPerBulan::getAvailablePeriodes();
+                            // Ambil periode dari rekam medis (reguler dan emergency)
+                            $periodesReguler = \App\Models\RekamMedis::selectRaw("DATE_FORMAT(tanggal_periksa, '%m-%y')
+                            as periode")
+                            ->distinct()
+                            ->pluck('periode');
+
+                            $periodesEmergency =
+                            \App\Models\RekamMedisEmergency::selectRaw("DATE_FORMAT(tanggal_periksa, '%m-%y') as
+                            periode")
+                            ->distinct()
+                            ->pluck('periode');
+
+                            $allPeriodes = $periodesReguler->merge($periodesEmergency)
+                            ->unique()
+                            ->filter()
+                            ->sortByDesc(function($periode) {
+                            // Sort by year then month descending
+                            $parts = explode('-', $periode);
+                            if (count($parts) === 2) {
+                            return ($parts[1] * 100) + $parts[0];
+                            }
+                            return 0;
+                            })
+                            ->values();
+
+                            $bulanNames = [
+                            '01' => 'Januari', '02' => 'Februari', '03' => 'Maret',
+                            '04' => 'April', '05' => 'Mei', '06' => 'Juni',
+                            '07' => 'Juli', '08' => 'Agustus', '09' => 'September',
+                            '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+                            ];
+
+                            $availablePeriodes = $allPeriodes->map(function($p) use ($bulanNames) {
+                            $parts = explode('-', $p);
+                            if (count($parts) === 2) {
+                            $bulan = $bulanNames[$parts[0]] ?? $parts[0];
+                            $tahun = '20' . $parts[1];
+                            return [
+                            'value' => $p,
+                            'label' => $bulan . ' ' . $tahun
+                            ];
+                            }
+                            return null;
+                            })->filter();
                             @endphp
                             @foreach ($availablePeriodes as $periodeOption)
                             <option value="{{ $periodeOption['value'] }}" {{ $periode==$periodeOption['value']
